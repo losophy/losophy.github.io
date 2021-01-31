@@ -71,6 +71,47 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-提交不停弹出登陆弹窗的问题" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/26/%E6%8F%90%E4%BA%A4%E4%B8%8D%E5%81%9C%E5%BC%B9%E5%87%BA%E7%99%BB%E9%99%86%E5%BC%B9%E7%AA%97%E7%9A%84%E9%97%AE%E9%A2%98/" class="article-date">
+  <time class="dt-published" datetime="2021-01-25T16:21:21.000Z" itemprop="datePublished">2021-01-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/01/26/%E6%8F%90%E4%BA%A4%E4%B8%8D%E5%81%9C%E5%BC%B9%E5%87%BA%E7%99%BB%E9%99%86%E5%BC%B9%E7%AA%97%E7%9A%84%E9%97%AE%E9%A2%98/">提交不停弹出登陆弹窗的问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>无论是用git push 还是tortoisegit push，都会不停弹出登录窗口<br>结果不论如何填写用户名和密码，他永远说我logon failed。</p>
+<p>google了一下，发现原来有个git credentials manager这个软件，这是安装git的时候勾选安装的，这个弹窗就是这个软件弹出来的。</p>
+<p>根据提示，执行了“git credential-manager uninstall”。世界清静了，提交直接push就行了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/01/26/%E6%8F%90%E4%BA%A4%E4%B8%8D%E5%81%9C%E5%BC%B9%E5%87%BA%E7%99%BB%E9%99%86%E5%BC%B9%E7%AA%97%E7%9A%84%E9%97%AE%E9%A2%98/" data-id="ckkl1g18j0007jcnk7ve66u3j" data-title="提交不停弹出登陆弹窗的问题" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-article-title" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/01/25/article-title/" class="article-date">
@@ -102,6 +143,51 @@
       
       
       
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-连接Github与本地" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/25/%E8%BF%9E%E6%8E%A5Github%E4%B8%8E%E6%9C%AC%E5%9C%B0/" class="article-date">
+  <time class="dt-published" datetime="2021-01-25T08:26:56.000Z" itemprop="datePublished">2021-01-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/01/25/%E8%BF%9E%E6%8E%A5Github%E4%B8%8E%E6%9C%AC%E5%9C%B0/">连接Github与本地</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>首先输入下面命令：<br>git config –global user.name “你的github用户名”<br>git config –global user.email “你的github注册邮箱”</p>
+<p>用户名和邮箱根据你注册github的信息自行修改。</p>
+<p>然后生成密钥SSH key：<br>ssh-keygen -t rsa -C “你的注册邮箱”</p>
+<p>打开github，在头像下面点击settings，再点击SSH and GPG keys，新建一个SSH，名字随便。<br>cmd中cat ~/.ssh/id_rsa.pub</p>
+<p>将输出的内容复制到框中，点击确定保存。<br>输入ssh -T <a href="mailto:&#x67;&#x69;&#x74;&#x40;&#103;&#105;&#x74;&#104;&#117;&#x62;&#46;&#99;&#111;&#109;">&#x67;&#x69;&#x74;&#x40;&#103;&#105;&#x74;&#104;&#117;&#x62;&#46;&#99;&#111;&#109;</a>，出现你的用户名，那就成功了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/01/25/%E8%BF%9E%E6%8E%A5Github%E4%B8%8E%E6%9C%AC%E5%9C%B0/" data-id="ckkl1g18n000ajcnkebzz5q2r" data-title="连接Github与本地" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/github/" rel="tag">github</a></li></ul>
+
     </footer>
   </div>
   
@@ -157,6 +243,324 @@
 
 
   
+    <article id="post-Hexo-GitHub-Pages博客搭建" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/25/Hexo-GitHub-Pages%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" class="article-date">
+  <time class="dt-published" datetime="2021-01-25T07:54:54.000Z" itemprop="datePublished">2021-01-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/01/25/Hexo-GitHub-Pages%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">Hexo+GitHub Pages博客搭建</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h2><p>Hexo是一种使用Node.js编写的静态博客框架，快速、简洁、扩展丰富。</p>
+<h2 id="安装Node"><a href="#安装Node" class="headerlink" title="安装Node"></a>安装Node</h2><p>安装Node.js</p>
+<p>添加阿里的国内镜像源<br>npm config set registry <a target="_blank" rel="noopener" href="https://registry.npm.taobao.org/">https://registry.npm.taobao.org</a></p>
+<h2 id="使用GitHub-Pages"><a href="#使用GitHub-Pages" class="headerlink" title="使用GitHub Pages"></a>使用GitHub Pages</h2><p><a target="_blank" rel="noopener" href="https://pages.github.com/">GitHub Pages</a> 是一个GitHub提供的静态站点托管服务。<br>新建一个项目<br>你的账号名.github.io</p>
+<p>然后项目就建成了，点击Settings，向下拉到最后有个GitHub Pages，点击Choose a theme选择一个主题。</p>
+<p>然后等一会儿，再回到GitHub Pages<br>点击那个链接，就会出现自己的网页啦</p>
+<h2 id="安装Hexo"><a href="#安装Hexo" class="headerlink" title="安装Hexo"></a>安装Hexo</h2><p>在合适的地方新建一个文件夹，用来存放自己的博客文件，比如我的博客文件都存放在D:\blog目录下。<br>cmd定位到该目录下，输入npm i hexo-cli -g安装Hexo。会有几个报错，无视它就行。<br>安装完后输入hexo -v验证是否安装成功。</p>
+<p>如遇到，无法加载文件 .ps1，因为在此系统中禁止执行脚本<br>执行<br>set-executionpolicy remotesigned<br>输入y即可</p>
+<p>然后就要初始化我们的网站，输入hexo init初始化文件夹，接着输入npm install安装必备的组件。</p>
+<p>这样本地的网站配置也弄好啦，输入hexo g生成静态网页，然后输入hexo s打开本地服务器，然后浏览器打开<br><a target="_blank" rel="noopener" href="http://localhost:4000/">http://localhost:4000/</a><br>就可以看到我们的博客啦</p>
+<h2 id="写文章、发布文章"><a href="#写文章、发布文章" class="headerlink" title="写文章、发布文章"></a>写文章、发布文章</h2><p>首先在博客根目录下右键打开git bash，安装一个扩展npm i hexo-deployer-git。</p>
+<p>然后输入hexo new post “article title”，新建一篇文章。</p>
+<p>然后打开D:\blog\source_posts的目录，可以发现下面多了一个文件夹和一个.md文件，一个用来存放你的图片等数据，另一个就是你的文章文件啦。</p>
+<p>编写完markdown文件后，根目录下输入hexo g生成静态网页，然后输入hexo s可以本地预览效果，最后输入hexo d上传到github上。这时打开你的github.io主页就能看到发布的文章啦。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/01/25/Hexo-GitHub-Pages%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" data-id="ckkl1g1840000jcnk0nzt0sgc" data-title="Hexo+GitHub Pages博客搭建" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blog/" rel="tag">blog</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-LT-和-ET" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/25/LT-%E5%92%8C-ET/" class="article-date">
+  <time class="dt-published" datetime="2021-01-25T06:31:11.000Z" itemprop="datePublished">2021-01-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/01/25/LT-%E5%92%8C-ET/">LT 和 ET</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>使用os提供的api如epoll，<a target="_blank" rel="noopener" href="https://github.com/losophy/notes/blob/master/content/epoll/kqueue.cc">kqueue</a>编写并发应用程序</p>
+<ul>
+<li>  <a target="_blank" rel="noopener" href="https://github.com/losophy/notes/blob/master/content/epoll/epoll.cc">epoll.cc</a>，演示了epoll的通常用法，使用epoll的LT模式</li>
+<li>  <a target="_blank" rel="noopener" href="https://github.com/losophy/notes/blob/master/content/epoll/epoll-et.cc">epoll-et.cc</a>，演示了epoll的ET模式，与LT模式非常像，区别主要体现在不需要手动开关EPOLLOUT事件</li>
+</ul>
+<p>LT 和 ET本质的区别是：</p>
+<p>LT模式状态时，主线程正在epoll_wait等待事件时，请求到了，epoll_wait返回后没有去处理请求(recv)，那么下次epoll_wait时此请求还是会返回（立刻返回了）；而ET模式状态下，这次没处理，下次epoll_wait时将不返回（所以我们应该每次一定要处理），可见很大程度降低了epoll的触发次数（记住这句话先）。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/01/25/LT-%E5%92%8C-ET/" data-id="ckkl1g18c0001jcnkb0cr0mjp" data-title="LT 和 ET" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-用脚本将-issues-转换成博客" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/24/%E7%94%A8%E8%84%9A%E6%9C%AC%E5%B0%86-issues-%E8%BD%AC%E6%8D%A2%E6%88%90%E5%8D%9A%E5%AE%A2/" class="article-date">
+  <time class="dt-published" datetime="2021-01-24T15:14:33.000Z" itemprop="datePublished">2021-01-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/01/24/%E7%94%A8%E8%84%9A%E6%9C%AC%E5%B0%86-issues-%E8%BD%AC%E6%8D%A2%E6%88%90%E5%8D%9A%E5%AE%A2/">用脚本将 issues 转换成博客</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前已经用<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/6">Hexo+GitHub Pages博客搭建</a></p>
+<p>Hexo默认文章存放于source分支，没有评论系统，不过都可以通过插件进行扩展。本文介绍如何将hexo的文章与评论存放于Github Issue中（issue内容为博客内容，issue评论为博客评论）。</p>
+<h2 id="前言使用github-issue存放文章"><a href="#前言使用github-issue存放文章" class="headerlink" title="前言使用github issue存放文章"></a>前言使用github issue存放文章</h2><p>这种方案主要优点是，可以专心写博客系统，不用关注Hexo本身内容。还可以直接使用GitHub的图床（已墙），使用GitHub图床非常简单，把图片文件拖到编辑框就行了。</p>
+<h2 id="安装插件"><a href="#安装插件" class="headerlink" title="安装插件"></a>安装插件</h2><p>npm install hexo-migrator-github-issue –save</p>
+<h2 id="导入文章"><a href="#导入文章" class="headerlink" title="导入文章"></a>导入文章</h2><p>hexo migrate github-issue 你的Github用户名/你存放hexo的仓库名</p>
+<p>然后生成部署即可。<br>hexo g<br>hexo d</p>
+<h2 id="根据issue的label为文章生成标签"><a href="#根据issue的label为文章生成标签" class="headerlink" title="根据issue的label为文章生成标签"></a>根据issue的label为文章生成标签</h2><h2 id="使用github-issue存放评论"><a href="#使用github-issue存放评论" class="headerlink" title="使用github issue存放评论"></a>使用github issue存放评论</h2>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/01/24/%E7%94%A8%E8%84%9A%E6%9C%AC%E5%B0%86-issues-%E8%BD%AC%E6%8D%A2%E6%88%90%E5%8D%9A%E5%AE%A2/" data-id="ckkl1g18l0009jcnkhw4h0m43" data-title="用脚本将 issues 转换成博客" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blog/" rel="tag">blog</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-使用pdb调试" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/24/%E4%BD%BF%E7%94%A8pdb%E8%B0%83%E8%AF%95/" class="article-date">
+  <time class="dt-published" datetime="2021-01-24T14:37:02.000Z" itemprop="datePublished">2021-01-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/01/24/%E4%BD%BF%E7%94%A8pdb%E8%B0%83%E8%AF%95/">使用pdb调试</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <div align="right">
+<a target="_blank" rel="noopener" href="https://github.com/losophy/raindrop/blob/master/README.md">  about</a>
+</div> 
+
+<h1 id="pdb"><a href="#pdb" class="headerlink" title="pdb"></a>pdb</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">import pdb</span><br><span class="line">pdb.set_trace()</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">(Pdb) h</span><br><span class="line">Documented commands (type help &lt;topic&gt;):</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">EOF    bt         cont      enable  jump  pp       run      unt</span><br><span class="line">a      c          continue  exit    l     q        s        until</span><br><span class="line">alias  cl         d         h       list  quit     step     up</span><br><span class="line">args   clear      debug     help    n     r        tbreak   w</span><br><span class="line">b      commands   disable   ignore  next  restart  u        whatis</span><br><span class="line">break  condition  down      j       p     return   unalias  where</span><br><span class="line"></span><br><span class="line">(Pdb) h c</span><br><span class="line">c(ont(inue))</span><br><span class="line">Continue execution, only stop when a breakpoint is encountered.</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/01/24/%E4%BD%BF%E7%94%A8pdb%E8%B0%83%E8%AF%95/" data-id="ckkl1g18i0005jcnkaxm93vdi" data-title="使用pdb调试" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-mongodb的一些命令" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/24/mongodb%E7%9A%84%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/" class="article-date">
+  <time class="dt-published" datetime="2021-01-24T14:34:47.000Z" itemprop="datePublished">2021-01-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/01/24/mongodb%E7%9A%84%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/">mongodb的一些命令</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><b><details><summary>start</summary></b></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mongod --dbpath&#x3D;&#x2F;data&#x2F;db     #serve rup</span><br><span class="line"></span><br><span class="line">sudo mongo                        #client up</span><br></pre></td></tr></table></figure>
+</details>
+
+<p><b><details><summary>scripts</summary></b><br>some js scripts</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">db.getCollection(&#39;Player&#39;).find(&#123;&#125;)  &#x2F;&#x2F;select * from player</span><br><span class="line"></span><br><span class="line">db.getCollection(&#39;Player&#39;).find(&#123;&quot;checkIn&quot;:&#123;&quot;$exists&quot;:true&#125;&#125;) &#x2F;&#x2F;select checkIn from player</span><br><span class="line"></span><br><span class="line">db.getCollection(&#39;Player&#39;).find(&#123;&quot;boss.1001.night&quot;:&#123;&quot;$exists&quot;:true&#125;&#125;) &#x2F;&#x2F;select boss.1001.night from player</span><br><span class="line"></span><br><span class="line">db.getCollection(&#39;Player&#39;).update(&#123;&#125;,&#123;$unset:&#123;&quot;checkIn&quot;:&quot;&quot;&#125;&#125;,false,true) &#x2F;&#x2F;update player set checkIn &#x3D; &quot;&quot;</span><br><span class="line"></span><br><span class="line">db.getCollection(&#39;Player&#39;).update(&#123;&#125;,&#123;$unset:&#123;&quot;boss.1001.night&quot;:&quot;&quot;&#125;&#125;,false,true) &#x2F;&#x2F;update player set boss.1001.night &#x3D; &quot;&quot;</span><br></pre></td></tr></table></figure>
+</details>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/01/24/mongodb%E7%9A%84%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/" data-id="ckkl1g18g0003jcnk6upgcv14" data-title="mongodb的一些命令" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-linux下一些工具" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/01/24/linux%E4%B8%8B%E4%B8%80%E4%BA%9B%E5%B7%A5%E5%85%B7/" class="article-date">
+  <time class="dt-published" datetime="2021-01-24T14:27:08.000Z" itemprop="datePublished">2021-01-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/01/24/linux%E4%B8%8B%E4%B8%80%E4%BA%9B%E5%B7%A5%E5%85%B7/">linux下一些工具</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><b><details><summary>grep</summary></b></p>
+<p>If you want to know which files contain the content your want, you can use grep.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -rn &quot;hello,world!&quot; *</span><br></pre></td></tr></table></figure>
+</details>
+
+<p><b><details><summary>gdb</summary></b></p>
+<p>cmd:gdb<br><br>gdb$ file yourpram</p>
+<ul>
+<li><p>save commands history<br><br>echo ‘set history save on’ &gt;&gt; ~/.gdbinit &amp;&amp; chmod 600 ~/.gdbinit<br><br>gdb$ show history</p>
+</li>
+<li><p>set parameter<br><br>gdb$ set args(e.g. set args 10 20 30 40 50)<br><br>gdb$ show args<br></p>
+</li>
+<li><p>start<br></p>
+</li>
+<li><p>break<br><br>gdb$ b gdb_test.c:3 <br><br>gdb$ info b</p>
+</li>
+<li><p>print<br><br>gdb$ p i<br><br>gdb$ p/x i</p>
+</li>
+<li><p>UI interface(TUI mode) <br><br>ctrl+X+A</p>
+</li>
+</ul>
+</details>
+
+<p><b><details><summary>git</summary></b></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout .  #reset all files to the original state</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;Wuchenwcf&#x2F;MyCode.git --depth&#x3D;&#x3D;1   #just clone last commit</span><br></pre></td></tr></table></figure>
+<p>github</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">followers:&gt;10</span><br><span class="line">language:c++</span><br><span class="line">location:uk</span><br></pre></td></tr></table></figure>
+</details>
+
+<p><b><details><summary>netstat</summary></b></p>
+<h1 id="judge-the-health-of-the-connection"><a href="#judge-the-health-of-the-connection" class="headerlink" title="judge the health of the connection"></a>judge the health of the connection</h1><p>netstat -anp | grep xxxx<br><br>netstat -anp | grep pid<br></p>
+<p>netstat -n | awk ‘/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}’<br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">LAST_ACK 5  </span><br><span class="line">SYN_RECV 30  </span><br><span class="line">ESTABLISHED 15  </span><br><span class="line">FIN_WAIT1 51  </span><br><span class="line">FIN_WAIT2 5  </span><br><span class="line">TIME_WAIT 10  </span><br></pre></td></tr></table></figure>
+</details>
+
+<p><b><details><summary>pstack</summary></b><br> print every thread stack </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pstack $pid</span><br></pre></td></tr></table></figure>
+</details>
+
+<p><b><details><summary>os</summary></b></p>
+<h1 id="os-information"><a href="#os-information" class="headerlink" title="os information"></a>os information</h1><p>lsb_release -a</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">No LSB modules are available.</span><br><span class="line">Distributor ID: Ubuntu</span><br><span class="line">Description:    Ubuntu 16.04.5 LTS</span><br><span class="line">Release:        16.04</span><br><span class="line">Codename:       xenial</span><br></pre></td></tr></table></figure>
+<p>uname -a</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux coding.ide 3.10.107-1-tlinux2_kvm_guest-0046.cd.nosign #1 SMP Wed Jan 31 15:25:12 CST 2018 x86_64 x86_64 x86_64 GNU&#x2F;Linux</span><br></pre></td></tr></table></figure>
+</details>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/01/24/linux%E4%B8%8B%E4%B8%80%E4%BA%9B%E5%B7%A5%E5%85%B7/" data-id="ckkl1g18h0004jcnkhug83k3d" data-title="linux下一些工具" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
 
 
 </section>
@@ -167,9 +571,23 @@
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/" rel="tag">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+    </div>
+  </div>
+
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/blog/" style="font-size: 20px;">blog</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/python/" style="font-size: 10px;">python</a>
+    </div>
+  </div>
+
   
     
   <div class="widget-wrap">
@@ -188,11 +606,23 @@
       <ul>
         
           <li>
+            <a href="/2021/01/26/%E6%8F%90%E4%BA%A4%E4%B8%8D%E5%81%9C%E5%BC%B9%E5%87%BA%E7%99%BB%E9%99%86%E5%BC%B9%E7%AA%97%E7%9A%84%E9%97%AE%E9%A2%98/">提交不停弹出登陆弹窗的问题</a>
+          </li>
+        
+          <li>
             <a href="/2021/01/25/article-title/">article title</a>
           </li>
         
           <li>
+            <a href="/2021/01/25/%E8%BF%9E%E6%8E%A5Github%E4%B8%8E%E6%9C%AC%E5%9C%B0/">连接Github与本地</a>
+          </li>
+        
+          <li>
             <a href="/2021/01/25/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2021/01/25/Hexo-GitHub-Pages%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">Hexo+GitHub Pages博客搭建</a>
           </li>
         
       </ul>
