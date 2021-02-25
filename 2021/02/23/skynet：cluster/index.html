@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>skynet：cluster | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="skynet跟mq扮演的角色类似，每个skynet进程维护了一个MQ，会dispatch msg到每个skynet_context的私有mq。有skynet就没必要再在自己项目里引入MQ了。skynet 支持两种集群模式。 master&#x2F;slave 模式（局域网）当单台机器的处理能力达到极限后，可以考虑通过内置的 master&#x2F;slave 机制来扩展。具体的配置方法见 Config 。集群服务用到">
+<meta property="og:type" content="article">
+<meta property="og:title" content="skynet：cluster">
+<meta property="og:url" content="http://example.com/2021/02/23/skynet%EF%BC%9Acluster/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="skynet跟mq扮演的角色类似，每个skynet进程维护了一个MQ，会dispatch msg到每个skynet_context的私有mq。有skynet就没必要再在自己项目里引入MQ了。skynet 支持两种集群模式。 master&#x2F;slave 模式（局域网）当单台机器的处理能力达到极限后，可以考虑通过内置的 master&#x2F;slave 机制来扩展。具体的配置方法见 Config 。集群服务用到">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-02-23T15:41:40.000Z">
+<meta property="article:modified_time" content="2021-02-25T15:33:28.189Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="skynet">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-skynet：cluster" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/skynet%EF%BC%9Acluster/" class="article-date">
+  <time class="dt-published" datetime="2021-02-23T15:41:40.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      skynet：cluster
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>skynet跟mq扮演的角色类似，每个skynet进程维护了一个MQ，会dispatch msg到每个skynet_context的私有mq。有skynet就没必要再在自己项目里引入MQ了。<br>skynet 支持两种集群模式。</p>
+<h2 id="master-slave-模式（局域网）"><a href="#master-slave-模式（局域网）" class="headerlink" title="master/slave 模式（局域网）"></a>master/slave 模式（局域网）</h2><p>当单台机器的处理能力达到极限后，可以考虑通过内置的 master/slave 机制来扩展。具体的配置方法见 Config 。<br>集群服务用到的配置项：</p>
+<ul>
+<li>cluster 它决定了集群配置文件的路径。</li>
+<li>standalone 如果把这个 skynet 进程作为主进程启动（skynet 可以由分布在多台机器上的多个进程构成网络），那么需要配置standalone 这一项，表示这个进程是主节点，它需要开启一个控制中心，监听一个端口，让其它节点接入。</li>
+<li>master 指定 skynet 控制中心的地址和端口，如果你配置了 standalone 项，那么这一项通常和 standalone 相同。</li>
+</ul>
+<p>每个 skynet 进程都是一个 slave 节点。但其中一个 slave 节点可以通过配置 standalone 来多启动一个 cmaster 服务，用来协调 slave 组网。对于每个 slave 节点，都内置一个 harbor 服务用于和其它 slave 节点通讯。<br>每个 skynet 服务都有一个全网唯一的地址，这个地址是一个 32bit 数字，其高 8bit 标识着它所属 slave 的号码。即 harbor id 。在 master/slave 网络中，id 为 0 是保留的。所以最多可以有 255 个 slave 节点。<br>在 master/slave 模式中，节点内的消息通讯和节点间的通讯是透明的。skynet 核心会根据目的地址的 harbor id 来决定是直接投递消息，还是把消息转发给 harbor 服务。<br>不要把这个模式用于跨机房的组网。所有 slave 节点都应该在同一局域网内（最好在同一交换机下）。不应该把系统设计成可以任意上线或下线 slave 的模式。<br>slave 的组网机制也限制了这一点。如果一个 slave 意外退出网络，这个 harbor id 就被废弃，不可再使用。这样是为了防止网络中其它服务还持有这个断开的 slave 上的服务地址；而一个新的进程以相同的 harbor id 接入时，是无法保证旧地址和新地址不重复的。</p>
+<p>cluster 模式<br>cluster 模块，它大部分用 lua 编写，只有通讯协议处理的部分涉及一个很小的 C 模块。<br>它的工作原理是这样的：<br>在每个 skynet 节点（单个进程）内，启动一个叫 clusterd 的服务。所有需要跨进程的消息投递都先把消息投递到这个服务上，再由它来转发到网络。</p>
+<p>要使用它之前，你需要编写一个 cluster 配置文件，配置集群内所有节点的名字和对应的监听端口。并将这个文件事先部署到所有节点</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db = <span class="string">&quot;127.0.0.1:2528&quot;</span></span><br></pre></td></tr></table></figure>
+<p>接下来，你需要在 db 的启动脚本里写上 cluster.open “db”<br>有两种方式可以访问到这个节点</p>
+<ul>
+<li>可以通过 cluster.call(nodename, service, …) 提起请求。这里 nodename 就是在配置表中给出的节点名。service 可以是一个字符串，或者直接是一个数字地址（如果你能从其它渠道获得地址的话）。当 service 是一个字符串时，只需要是那个节点可以见到的服务别名，可以是全局名或本地名。但更推荐是 . 开头的本地名，因为使用 cluster 模式时，似乎没有特别的理由还需要在那个节点上使用 master/slave 的架构（全局名也就没有特别的意义）。cluster.call 有可能因为 cluster 间连接不稳定而抛出 error 。但一旦因为 cluster 间连接断开而抛出 error 后，下一次调用前 cluster 间会尝试重新建立连接。</li>
+<li>可以通过 cluster.proxy(nodename, service) 生成一个本地代理。之后，就可以像访问一个本地服务一样，和这个远程服务通讯。但向这个代理服务 send 消息，有可能因为 cluster 间的连接不稳定而丢失。详见 cluster.send 的说明。</li>
+<li>如果想单向推送消息，可以调用 cluster.send(nodename, service, …) 。但注意，跨越节点推送消息有丢失消息的风险。因为 cluster 基于 tcp 连接，当 cluster 间的连接断开，cluster.send 的消息就可能丢失。而这个函数会立刻返回，所以调用者没有机会知道发送出错。</li>
+</ul>
+<p>Cluster 是去中心化的，所以需要在每台机器上都放置一份配置文件（通常是相同的）。通过调用 cluster.reload 可以让本进程重新加载配置。如果你修改了每个节点名字对应的地址，那么 reload 之后的请求都会发到新的地址。而之前没有收到回应的请求还是会在老地址上等待。如果你老的地址已经无效（通常是主动关闭了进程）那么请求方会收到一个错误。</p>
+<h2 id="某个节点配置多个通道"><a href="#某个节点配置多个通道" class="headerlink" title="某个节点配置多个通道"></a>某个节点配置多个通道</h2><p>在skynet框架中使用cluster模式，经常有消息在节点之间传递。大部分情况，我们在节点A和节点B之间只需要建立一个连接通道，但是在有些时候我们希望让一些比较独立的业务能占用一条单独的通道进行处理，不希望跟到正常的业务逻辑去抢通道资源。这个时候，我们就需要为某个节点配置多个通道了。</p>
+<p>比如，我们要在节点A中再开辟一条连接连通节点B的通道，由于一条通道就是一条tcp连接，所以我们需要为节点B再配置一个端口。我们打开集群的cluster配置文件，添加一个节点B的记录，新分配一个端口：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nodea &#x3D; &quot;127.0.0.1:50653&quot;</span><br><span class="line">nodeb &#x3D; &quot;127.0.0.1:50654&quot;</span><br><span class="line">nodeb2&#x3D; &quot;127.0.0.1:50655&quot;</span><br></pre></td></tr></table></figure>
+<p>然后重新启动节点，在节点B的启动脚本中，我们也需要在集群中打开nodeb2：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster.open(&quot;nodeb2&quot;)</span><br></pre></td></tr></table></figure>
+<p>然后，在节点A中，我们就可以进行跨节点访问了，这个时候，我们可以分别用nodeb和nodeb2进行访问，框架将使用2条tcp通道进行分别处理。你也可以使用netsta命令，查看nodeb和nodeb2的连接情况。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cluster.call(&quot;nodeb&quot;,&quot;.main&quot;,&quot;xxxxxx&quot;)</span><br><span class="line">cluster.call(&quot;nodeb2&quot;,&quot;.main&quot;,&quot;xxxxxx&quot;)</span><br></pre></td></tr></table></figure>
+<h2 id="关于cluster的实现"><a href="#关于cluster的实现" class="headerlink" title="关于cluster的实现"></a>关于cluster的实现</h2><p>为什么要cluster：<br>除非你的业务本来就是偏重 IO 的，也就是你根本不打算利用单台硬件的多核心优势来增强计算力，抹平本机和网络的差异是没有意义的。无论硬件怎样发展，你都不可能看到主板上的总线带宽和 TCP 网络的带宽工作在同一数量级的那一天，因为这是物理基本规律决定的。<br>当你的业务需要高计算力，把 actor 放在一台机器上才可以正常的发挥 CPU 能力去合作；如果你的系统又需要分布式扩展，那么一定是有很多组独立无关的业务可以平行处理。这两类工作必须由构架系统的人自己想清楚，规划好怎么部署这些 actor ，而不可能随手把 actor 扔在分布式系统中，随便挑台硬件运行就够了。<br>恰巧网络游戏服务就是这种业务类型。多组服务器、多个游戏场景之间交互很弱，但其中的个体又需要很强的计算力。这就是 skynet 切合的应用场景。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>skynet 的核心层之上，设计了 cluster 模块。它大部分用 lua 编写，只有通讯协议处理的部分涉及一个很小的 C 模块。用 Lua 编写可以提高系统的可维护性，和网络通讯的带宽相比，Lua 相对 C 在处理数据包的性能降低是微不足道的。<br>在每个 skynet 节点（单个进程）内，启动一个叫 clusterd 的服务。所有需要跨进程的消息投递都先把消息投递到这个服务上，再由它来转发到网络。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/skynet%EF%BC%9Acluster/" data-id="ckll11ktz003qionk68o9c62h" data-title="skynet：cluster" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/02/24/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E5%BC%80%E5%A7%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          skynet源码分析：开始
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/02/23/skynet%EF%BC%9A%E7%83%AD%E6%9B%B4%E6%96%B0-lua-%E4%BB%A3%E7%A0%81/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">skynet：热更新 lua 代码</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/page/2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-c-对象模型研究6：执行期" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T11:19:57.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/">c++对象模型研究6：执行期</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。<br>执行期语意学，即在程序执行时，编译器产生而外的指令调用，确保对象的构造，内存的释放，以及类型转换与临时对象的生成的安全进行。</p>
+<h2 id="对象的构造和析构"><a href="#对象的构造和析构" class="headerlink" title="对象的构造和析构"></a>对象的构造和析构</h2><p>一般而言，我们会把对象尽可能放置在使用它的那个程序区段附近，这样做可以节省不必要的对象产生操作和摧毁操作（主要是析构）。不建议把所有的对象放在函数或某个区段的起始处。</p>
+<p>全局对象<br>对于全局变量，C++会保证在调用全局变量之前，将全局变量构造出来。<br>而所有的全局变量都被放置在程序的数据段中（data segment），并且为没有显示指定值的变量初始化为0。<br>同时对于全局的类对象，在编译时期被放置于data segment中并且内容也为0.只有在程序启动时其对应的constructor才会实施。因此object需要静态初始化。<br>静态初始化的munch策略：<br>1.为每个需要静态初始化的文件产生一个_sti()函数，内含必要的constructor调用操作和inline expansions。<br>2.为每一个需要静态的内存释放操作的文件，产生一个_std()函数。<br>3.提供一个_main()函数调用所有的_sti()函数，一个_exit()函数调用所有的_std()函数</p>
+<p>局部静态对象<br>局部静态对象的构造函数只能被施行一次，析构函数也只有一次。<br>所以对于局部静态对象，一个很简单的思路就是导入一个临时性对象，当第一次传入时，设置为true，之后则不再进行处理。<br>条件式析构也是所有编译器所必须的，而局部静态对象需以构造的相反的顺序被析构。</p>
+<p>对象数组<br>对于以下数组定义，我们一般使用vec_new()函数来构造数组(这是在cfront中的方式), 对于VS等，则提供一个用来处理没有”virtual base class”的class，另一个用来处理”内含virtual base class”的class。后一个函数通常称为 vec_vnew()。<br>函数的原型一般如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*constructor)(<span class="keyword">void</span> *)        <span class="comment">//类的constructor函数指针</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
+<p>所以对上述的Point对象的初始化，对应的vec_new()的实例化如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vec_new( &amp;knots, <span class="keyword">sizeof</span>(Point), <span class="number">10</span>, &amp;Point::Point, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>同理，对于对象的删除，也有类似的vec_delete()来进行操作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
+<h2 id="new和delete运算符"><a href="#new和delete运算符" class="headerlink" title="new和delete运算符"></a>new和delete运算符</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *pi = <span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+<p>其实是通过两个步骤完成的，第一步通过适当的new运算符函数实例，配置所需的内存，然后将配置来的内存设定初值。</p>
+<p>使用pi，和使用pi所指的对象，其差别在于哪一个生命已经结束了。因为即使对象不合法，但是指针所指的对象也是合法的。<br>new其实是通过标准的c malloc完成的，每一次对new的调用必须传回一个独一无二的指针，指向默认1byte的内存地址。</p>
+<p>针对数组的new语意<br>如果类对象数组没定义constructor和destructor，则不会调用vec_new。<br>对于delete[] p_array, 只有中括号出现时，编译器才会寻找数组的维度，否则他只会假设单独的一个object要被删除。<br>那么如何记录数组的元素个数呢？一个明显的方法是为vec_new()所传回的每一个内存区域块设置一个额外的word，然后把元素个数包藏在那个word之中。而包藏的数值通常称为cookie。<br>在原始编译器中，有两个主要函数用来存取cookie</p>
+<p>注意，避免一个base class指针指向一个derived class object所组成的数组。</p>
+<p>如果一定要这样做，默认情况下只会交给施行vec_delete()函数的”被删除之指针类型的destructor“，也就是Point destructor。<br>所以，需要程序员如下显著的进行释放内存。</p>
+<p>placement Operator new语意</p>
+<h2 id="临时性对象"><a href="#临时性对象" class="headerlink" title="临时性对象"></a>临时性对象</h2><p>临时性对象的摧毁，应该是对完整表达式求值过程中最后一个步骤。该完整表达式造成临时对象的产生。<br>凡持有表达式执行结果的临时对象，应该保留到object的初始化操作完成为止。<br>如果一个临时对象被绑定于一个reference，对象将残留，直到初始化之reference生命结束，或直到临时对象的什么范畴结束。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/" data-id="ckll11ksy0015ionk8168bg8n" data-title="c++对象模型研究6：执行期" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-c-对象模型研究5：构造、解构、拷贝" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B65%EF%BC%9A%E6%9E%84%E9%80%A0%E3%80%81%E8%A7%A3%E6%9E%84%E3%80%81%E6%8B%B7%E8%B4%9D/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T09:33:18.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B65%EF%BC%9A%E6%9E%84%E9%80%A0%E3%80%81%E8%A7%A3%E6%9E%84%E3%80%81%E6%8B%B7%E8%B4%9D/">c++对象模型研究5：构造、解构、拷贝</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>纯虚函数<br>虚函数是为了重载和多态的需要，子类中可以重写或不重写该函数；纯虚函数在基类中是没有定义的，必须在子类中加以实现，很像Java中的interface。</p>
+<p>纯虚函数引入原因：<br>在很多情况下，基类本身生成对象是不合情理的。例如，动物作为一个基类可以派生出老虎、孔雀等子类，但动物本身生成对象明显不合常理。纯虚函数就是基类只定义了函数体，没有实现过程，定义方法如： virtual void Eat() = 0; 不要在cpp中定义；纯虚函数相当于接口，不能直接实例化，需要派生类来实现函数定义；</p>
+<p>纯虚函数不能调用的两处地方<br>1.在基类的构造函数中调用纯虚函数。<br>2.在基类的析构函数中调用纯虚函数。</p>
+<p>一些原则<br>纯虚函数的存在：一般来说不要把虚析构函数写成纯虚析构函数。<br>虚函数的存在：一般而言，把所有成员函数都声明成虚函数，然后再靠编译器优化操作吧非必要的virtual invocation去除，并不是好的设计观念。<br>虚函数中的const：因为不确定子类会不会更改数据，所以虚函数最好不要声明成const了。</p>
+<h2 id="无继承情况下的对象构造"><a href="#无继承情况下的对象构造" class="headerlink" title="无继承情况下的对象构造"></a>无继承情况下的对象构造</h2><p>三种对象的产生方式</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Point global;<span class="comment">//全局内存配置，生命周期等同整个程序的生命周期 </span></span><br><span class="line"><span class="function">Point <span class="title">foobar</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	Point local;<span class="comment">//局部内存配置，生命周期在&#123;&#125;之间	</span></span><br><span class="line">	Point *heap=<span class="keyword">new</span> Point;<span class="comment">//堆内存配置，生命周期在new和delete之间，但在此处指针*heap的生命周期在&#123;&#125;之间 </span></span><br><span class="line">	*heap=local;</span><br><span class="line">	<span class="keyword">delete</span> heap;</span><br><span class="line">	<span class="keyword">return</span> local;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>程序表现出<br>1.global内存配置<br>在C中，global被视为一个”临时性的定义”，因为它没有明确的初始化操作，一个”临时性的定义”可以在程序中发生多次.那些实例会被链接器折叠起来，只留下单独一个实体，被放在程序data segment中一个”特别保留给为初始化的global objects使用”的空间。<br>C++并不支持”临时性的定义”，这是因为 class 构造行为的隐含应用的缘故.global在C++中被视为完全定义。C++中所有全局对象都被当作”初始化过的数据”来对待。<br>2.local内存配置<br>3.heap内存配置</p>
+<p>无继承情况下的对象构造。plain old data约等于bitwise copy semantic，他们的构造函数是trivial，要不就是根本没有被构造，要不就是构造了也没有被调用。复制构造函数、析构函数也都是类似的情况。</p>
+<h2 id="继承体系下的对象构造"><a href="#继承体系下的对象构造" class="headerlink" title="继承体系下的对象构造"></a>继承体系下的对象构造</h2><p>A.继承情况下对象的构造过程<br>a. 调用所有的虚基类构造函数，从左到右，由最深到最浅（虚基类在对象模型中是以独特的方式（固定部分与共享部分）支持的，不涉及到在对象模型中的偏移量的问题）<br>b. 调用所有的上一层的基类构造函数，以基类的声明顺序为顺序（这是因为一般基类的子对象都会被放在对象的开始，并且按基类声明的次序放置）<br>c. 如果类对象有虚函数表指针，设定其初值，指向适当的虚函数表<br>d. 如果有一个成员对象并没有出现在成员初始化列表中，且它有一个默认构造函数，那么该默认构造函数必须被调用<br>e. 记录在成员初始化列表中的数据成员初始化操作会被放在构造函数的函数本身，并以成员声明的顺序为顺序。<br>f. 程序员自己的代码（在此步以上的操作均为编译器安插的）</p>
+<p>B.继承情况下对象构造过程中如何压制虚基类的构造函数的重复调用<br>“virtual base class constructors的调用”有着明确的定义：只有一个完整的classobject被定义出来时，它才会被调用；如果object只是某个完整的object的subject，它就不会被调用。</p>
+<p>class PVertex 的object中，在保存 PVertex 自己的数据之前，上面有很多个父类的subobject，那么虚基类Point的构造函数不会被其他的subobject所调用，它的构造函数只有当整个object被定义出来时，也即PVertex数据定义出来时才会被调用，也就是只会被PVertex所调用。而在PVertex之前的subobject 对虚基类构造函数的调用操作将会被抑制。另外，如果没有最下层的PVertex，那么就是被Vertex3d调用。综上所述，这样才能保证共享虚基类对象的一致性。</p>
+<h2 id="对象复制"><a href="#对象复制" class="headerlink" title="对象复制"></a>对象复制</h2><p>关于重载赋值操作符和复制拷贝构造函数的区别</p>
+<p>拷贝构造函数是用一个已存在的对象去构造一个不存在的对象（拷贝构造函数毕竟还是构造函数嘛），也就是初始化一个对象。<br>而赋值运算符重载函数是用一个存在的对象去给另一个已存在并初始化过（即已经过构造函数的初始化了）的对象进行赋值。</p>
+<p>当设计一个类，并以一个类对象指定给另一个对象时，我们有三种选择：<br>a.什么都不做，实施默认行为<br>b.提供一个explicit copy assignment operator<br>c.拒绝拷贝，拒绝拷贝方式：<br>1.将copy assignment operator私有化<br>2.不提供函数定义，导致在链接失败</p>
+<p>对象赋值（拷贝）函数是为了打开named value return（NVR）<br>对象赋值操作copy assignment operator的合成条件和构造函数类似<br>当不要Bitwise Copy Semantics时，类就需要合成一个对象赋值操作：<br>1.当类内含一个成员对象，而成员对象声明有一个copy constructor operator时<br>2.当类继承一个基类对象而后者存在有一个copy constructor operator时<br>3.当类声明了一个或多个virtual functions时，<br>4.当类派生自一个继承串链，其中有一个或多个virtual base classes时。此时无论基类有没有copy operator。</p>
+<h2 id="解构"><a href="#解构" class="headerlink" title="解构"></a>解构</h2><p>如果类没有定义析构函数，那么只有类存在成员对象且该成员对象含有析构函数的情况下，编译器才会自动合出一个析构函数来。默认情况下编译器并不会合成一个析构函数，即使是它拥有一个virtual function。<br>析构函数的扩展方式与构造函数相同，但顺序相反。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B65%EF%BC%9A%E6%9E%84%E9%80%A0%E3%80%81%E8%A7%A3%E6%9E%84%E3%80%81%E6%8B%B7%E8%B4%9D/" data-id="ckll11ksv000xionkc0c0fxpy" data-title="c++对象模型研究5：构造、解构、拷贝" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-c-对象模型研究3：数据" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B63%EF%BC%9A%E6%95%B0%E6%8D%AE/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T08:30:20.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B63%EF%BC%9A%E6%95%B0%E6%8D%AE/">c++对象模型研究3：数据</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>开始前先看看</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Y</span>:</span><span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Z</span>:</span><span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span><span class="keyword">public</span> Y,<span class="keyword">public</span> Z &#123;&#125;;</span><br></pre></td></tr></table></figure>
+<p>上述X，Y，Z，A中没有任何一个class内含明显的数据，其间只表示了继承关系。<br>按照书上的例子</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X = <span class="number">1</span></span><br><span class="line"><span class="keyword">sizeof</span> Y = <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Z = <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> A = <span class="number">12</span></span><br></pre></td></tr></table></figure>
+<p>译注是</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X = <span class="number">1</span></span><br><span class="line"><span class="keyword">sizeof</span> Y = <span class="number">4</span></span><br><span class="line"><span class="keyword">sizeof</span> Z = <span class="number">4</span></span><br><span class="line"><span class="keyword">sizeof</span> A = <span class="number">8</span></span><br></pre></td></tr></table></figure>
+<p>先看X，事实上并不是空的，编译器会安插进去一个char。使得这个class的对象在内存中配置独一无二的地址。</p>
+<p>至于Y和Z受到三个因素的影响：<br>1.语言本身所造成的额外负担。其实就是之前一直说的virtual问题。<br>2.编译器对于特殊情况所提供的优化处理。有些编译器会对这个1bytes作出不同的处理（例如省略）。<br>3.Alignment的限制，我的理解是字节对齐，在大部分机器上，群聚的结构体大小会受到alignment的限制，使它们能够更有效率地在内存中被存取。</p>
+<p>ps:一个虚基类对象只会在派生类中存在一份实体，不管它在class继承体系中出现了多少次。</p>
+<p>C++对象模型尽量以空间优化和存取速度优化的考虑来表现非static成员数据，并且保持和C语言struct数据配置的兼容性。它把数据直接存放在每一个类对象之中。对于继承而来的非static成员数据（不管是virtual还是非virtual基类）也是如此。而类的static成员数据是存放在全局中，只有一份实例（甚至即使该class没有任何对象实体，其static成员数据也已存在），但是一个template类的static成员数据的行为稍有不同。</p>
+<p>每一个类对象必须有足够的大小以容纳它所有的非static成员数据，它可能比你想象的还大，原因是：<br>1.由编译器自动加上的额外成员数据，用以支持某些语言特性（主要是各种virtual特性）。<br>2.因为alignment的需要。</p>
+<h2 id="成员数据的绑定"><a href="#成员数据的绑定" class="headerlink" title="成员数据的绑定"></a>成员数据的绑定</h2><p>先说说extern：<br>extern 表明该变量在别的地方已经定义过了,在这里要使用那个变量.。例如变量在xxx.cpp里面定义过了，现在在本头文件中，以extern int a; 的形式声明，那么include”本头文件”的cpp，都可以使用该变量。extern与（const&amp;static）不同，（const和static只在本模块中起作用） extern可以在其他模块中起作用。</p>
+<p>如果成员函数没参数，或者不闲的蛋疼把两个类型定义成同个关键字typedef。那么typedef或者成员数据放前放后都一样；如果出现了以上状况，那么必须把内联typedef 放在成员函数的参数之前。这个主要注意的是内联typedef声明需要放在类的起始处，而其他成员函数里面的数据，可以放在类里面的任何地方。</p>
+<h2 id="成员数据的布局"><a href="#成员数据的布局" class="headerlink" title="成员数据的布局"></a>成员数据的布局</h2><p>非static成员数据在类对象中的排列顺序将和其被声明的顺序一样，任何中间介入的static成员数据都不会被放进对象布局之中。</p>
+<p>c++ standard要求，同一个access section（访问级别）中，成员的排列只需要符合“较晚出现的成员在对象中有较高的地址”即可，并不一定要连续排列。原因之一是边界调整，原因之二是插入的关于virtual的东西，如vptr。<br>c++ standard也允许将多个access sections中的成员数据自由排列，不必在乎声明次序(是指access sections之间的自由排列)，但当前各家编译器都是把一个以上的access section连起来，依照声明次序，称为一个连续区块。另外access sections的多寡不会招来额外的负担。</p>
+<h2 id="成员数据的存取"><a href="#成员数据的存取" class="headerlink" title="成员数据的存取"></a>成员数据的存取</h2><p>static成员数据：在内存中只有一份实体，所以用什么方式，无论是指针也好，对象也罢；本子类的也好，从祖祖父继承来的也罢，都一样其存取路径还是一样的直接。</p>
+<p>非static成员数据：直接存放在每个对象中，所以只能由对象来对他们进行存取操作。对象分为explicit class object（自己定义的）和implicit class object（由this指针表达这个implicit class object）（成员函数中访问成员数据时用的）。</p>
+<p>从object origin存取”和“从pointer pt存取”的区别：<br>如果是关于virtual，这里就涉及多态的概念。如果用pt，那么我们不能说pt必然指向哪个class type（因此我们也就不知道编译时期这个成员真正的offset）所以这个存取操作必须延迟至执行期，经由一个额外的间接导引，才能解决。但如果用“.”那么class type就确定无疑了，也就没那么多的事儿了。</p>
+<h2 id="继承与成员数据"><a href="#继承与成员数据" class="headerlink" title="继承与成员数据"></a>继承与成员数据</h2><p>单一继承不含virtual函数<br>其数据布局是这样的，子类对象总是把从父类对象弄成一个子对象，然后把这个子对象放在自己的成员数据之前。因此，子类通过对象或者通过对象指针访问父类成员不会存在间接性，父类成员在编译期就可以确定其offset值（父类成员在父类中的offset值和在子类中的offset值是一样的，因为子类对象把整个父类对象给扒拉下来直接按头上了）。因为父类对象在子类对象的首部，这样当父类指针被子类赋值时，父类指针仍然指向子类对象的父类部分（子对象）起始地址。<br>当然这样的存放方式也是有缺点的（指的是没有虚函数，没有多态的情况）。</p>
+<p>加上多态<br>加上多态即虚函数后，首先是virtual table 和vptr 会创建出来，当然这个创建过程会影响到constructor、copy constructor（为vptr设初值）、destructor（结束后删除vptr）。<br>至于vptr放在哪里要看具体的编译器，vptr放在尾端，可以兼容c的struct object；vptr放在前端可以避免“从class object起始点开始量起的offset在执行期必须备妥，甚至于class vptr之间的offset也必须备妥”。</p>
+<p>多重继承<br>单一继承提供了一种“自然多态”形式，换句话说单一继承可以把子对象一个一个的叠加在derived object上面，based object和derived object 都是从相同地址开始的。所以derived object转based object比较方便（只要改变对象size就行了）。</p>
+<p>虚拟继承<br>如果一个class 内含一个或多个virtual based class subobjects，那它将会被分成两个部分：不变的部分和共享的部分。不变的部分不论后继如何衍化，总是拥有固定的offset（从object头算起），所以这部分数据可以被直接存取。共享部分表现出来的就是virtual base class（虚基类） subobject（因为虚基类被多个class继承，也会被多个子object 更改，为了保证虚基类的 object 的统一性，就需要单独把虚基类的 object 给拎出来了），这一部分其位置会因为派生对象操作而发生变化，所以只能被间接存取（引入一个新的指针，指向共享的内容）。<br>当然只是单纯的引入指针指向共享的virtual base class subobject的话会存在两个缺点：1是随着虚基类的增加，指针的个数也会增加；2是虚基类之间如果也存在虚继承的话，间接存取的层数也会增加（子对象-&gt;父虚基类对象-&gt;祖父虚基类对象···）。<br>对于第一个问题，有两种解决方案：1是设一个指针指向一张虚基类表，虚基类表中存放虚基类对象访问地址；2是在虚基类表中存放每一个虚基类的offset，而不是地址。</p>
+<h2 id="对象成员的访问效率"><a href="#对象成员的访问效率" class="headerlink" title="对象成员的访问效率"></a>对象成员的访问效率</h2><p>指向数据成员的指针，是一个有点神秘又颇有用处的语言特性，特别是如果你需要详细调查类成员的底层布局的话。这样的调查可以用于决定vptr是放在class的起始处或者尾端。另外一个用途是可以用来决定类中的access sections的次序。</p>
+<p>指向成员数据的指针的效率问题<br>具体要看编译器怎样优化了</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B63%EF%BC%9A%E6%95%B0%E6%8D%AE/" data-id="ckll11ksw000zionk2ailaxnc" data-title="c++对象模型研究3：数据" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-c-对象模型研究2：构造函数" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T07:50:00.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/">c++对象模型研究2：构造函数</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>关键词explicit之所以被导入这个语言，就是为了提供给程序员一种方法，使他们能够制止“单一参数的构造函数”被当做一个转换运算符。</p>
+<h2 id="默认构造函数的构建操作"><a href="#默认构造函数的构建操作" class="headerlink" title="默认构造函数的构建操作"></a>默认构造函数的构建操作</h2><p>以下四种情况类会被生成“有用的”默认构造函数<br>a.一个带有默认构造函数的成员对象类<br>  合成的默认构造函数是以inline的方式完成的，如果函数太复杂则会做成非inline的static实体</p>
+<p>b.带有默认构造函数的基类<br>  和上述情况相似，子类没有构造函数，编译器会默认合成一个调用基类默认（无参）构造函数的子类默认构造函数</p>
+<p>c.带有一个虚函数的class<br>  以下两种情况需要合成出默认构造函数<br>1）类声明（或继承）一个虚函数<br>2）类派生自一个继承串链，其中有一个或多个虚基类</p>
+<p>d.带有一个虚基类的类（菱形继承）</p>
+<p>关于默认构造函数的合成两点是需要注意的：<br>1）不是任何没有定义构造函数的类都会被合成出一个默认构造函数<br>2）编译器合成出来的默认构造函数不会对类内每一个成员数据都设定默认值</p>
+<h2 id="拷贝构造函数的构建操作"><a href="#拷贝构造函数的构建操作" class="headerlink" title="拷贝构造函数的构建操作"></a>拷贝构造函数的构建操作</h2><p>有三种情况，会以一个对象的内容作为另一个类对象的初值<br>1.对一个对象做明确的初始化操作<br>2.当对象被当作参数交给某个函数时<br>3.当函数传回一个类对象时</p>
+<p>一个类对象可以从两种方式复制得到，一种是拷贝构造，另一种是拷贝赋值操作（=）。</p>
+<p>关于复制<br>其实复制涉及到C++内部模型的两个概念，即Default Memberwise Initialization 和bitwise copy semantics。<br>Default Memberwise Initialization： 这是C 模型的内部一种实现方案,其原理就是对于同一类的两个对象直接的赋值进行的暗箱操作。说白了，就是将一个对象的内存空间中的数据，原封不动的拷贝出另一份来填满另一个对象的内存。<br>如果该类内含其他类的对象作为自己的成员变量的话，那赋值操作并不会对该对象变量进行赋值，而是递归的对其内部数据成员赋值（原理还是有关对象内存布局）。如果类中有个指针成员变量，而其指向堆中的一片区域，然而在赋值过程中，根据memberwise的概念，只是将指针的值进行了赋值，这样一来，这两个对象中的指针变量自然都是指向同一片内存区域了，即所谓的浅拷贝。所以这时就需要程序员自己来实现拷贝构造函数来完成那片堆内存的拷贝赋值操作，即所谓的深拷贝。</p>
+<p>不要bitwise copy semantic<br>什么时候一个类不展现出bitwise copy semantic呢？<br>1）当类内含有一个成员类对象，而这个成员类对象内有一个拷贝构造函数时（不论是class设计者明确声明，或者被编译器合成 ）。<br>2）当类继承自 一个基类，而基类有拷贝构造函数时（不论是类设计者明确声明，或者被编译器合成 ）。<br>3）当一个类声明了一个或多个virtual 函数时。<br>4）当类派生自一个继承串链，其中一个或者多个virtual基类。<br>在前两种情况中，编译器必须将成员或基类的“ 构造函数的调用操作” 安插到被合成的构造函数中。（就像构造函数中的操作那样）。<br>第三种情况，如果编译器对于每一个新产生的类对象的虚表不能成功而正确地设好其初值，将导致可怕的后果。因此，当编译器导入一个虚表到类之中时，该类就不再展现bitwise copy semantic了。如果没有 bitwise copy semantics的作用的话，很容易想到，编译器会用到默认复制来对两个对象的vptr进行复制，因为两个类对象的vp都指向同一个vptr，所以会导致可怕的后果。</p>
+<p>这里我都被bitwise 和Memberwise 搞昏了。反正就是以上四种情况，复制不是单纯的直接复制。编译器会开辟新内存。</p>
+<h2 id="构造函数使用"><a href="#构造函数使用" class="headerlink" title="构造函数使用"></a>构造函数使用</h2><p>在使用者层面做优化<br>一般来说是这么写的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">X <span class="title">bar</span><span class="params">(<span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	X xx;</span><br><span class="line">	xx.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	<span class="keyword">return</span> xx；</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//编译器内部的伪码：</span></span><br><span class="line"><span class="keyword">void</span> bar(X&amp; _result, <span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span><br><span class="line">&#123;</span><br><span class="line">	X xx;</span><br><span class="line">	xx.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	_result.X::XX(xx);<span class="comment">//copy constructor</span></span><br><span class="line">	<span class="keyword">return</span>;  <span class="comment">//什么也不返回</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果这么写</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">X <span class="title">bar</span><span class="params">(<span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> X(p1,p2);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//编译器内部的伪码：</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">(X&amp; _result, <span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	_result.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	<span class="keyword">return</span>;<span class="comment">//什么也不返回</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>相比较而言，少了个copy constructor。换句话说，少用局部变量，能直接计算返回的，就直接计算返回，这样可以少产生一个拷贝构造函数。</p>
+<p>在编译器层面做优化<br>在使用者层面做优化的例子，原先是使用者注意少用局部变量，能直接计算返回的，就直接计算返回，这样可以少产生一个拷贝构造函数。现在这件事情编译器代你做了，换句话说，即使我们仍用了xx做局部变量，保存计算结果，return xx，编译器也会自动把xx用_result替换掉，替你精简掉一个copy constructor。<br>然后呢，lippman把这种行为叫做“NRV优化”， NRV优化的本质是优化掉拷贝构造函数，当然去掉它的前提是作为使用者的我们用了xx做局部变量、return xx；如果我们没有这么做，而是直接return X(p1,p2) 那么这种行为也就不会发生了。</p>
+<p>要不要构造函数？<br>其实就是bitwise和Memberwise的问题了。如果类对象的成员数据以数值来储存。bitwise copy既不会导致memory leak，也不会产生address aliasing，因此它既快速又安全。如果类需要大量的memberwise初始化操作，例如以传值的方式传回对象，那么就需要explicit了。<br>当然，你也可以手动memcpy，但使用前提是：在class不含任何编译器产生的内部members。例如virtual相关内容。</p>
+<h2 id="成员们的初始化队列"><a href="#成员们的初始化队列" class="headerlink" title="成员们的初始化队列"></a>成员们的初始化队列</h2><p>当你写下一个构造函数的时候，你有机会设定类成员的初值。要不是经由成员初始化列表，就是在构造函数本身之内。除了四种情况，你的任何选择其实都差不多。</p>
+<p>必须使用初始化列表的情况<br>1）当初始化一个引用成员时<br>2）当初始化一个常量成员时<br>3）当调用一个基类的构造函数，而它拥有一组参数时<br>4）当调用一个类成员的构造函数，而它拥有一组参数时</p>
+<p>第一第二是因为：const对象或引用只能初始化但是不能赋值。构造函数的函数体内只能做赋值而不是初始化，因此初始化const对象或引用的唯一机会是构造函数函数体之前的初始化列表中。<br>第三第四是因为：主要是性能问题，如果类存在继承关系，派生类必须在其初始化列表中调用基类的构造函数。对于内置类型，如int, float等，使用初始化类表和在构造函数体内初始化差别不是很大，但是对于类类型来说，最好使用初始化列表，使用初始化列表少了一次调用默认构造函数的过程，这对于数据密集型的类来说，是非常高效的。</p>
+<p>所以一个好的原则是，能使用初始化列表的时候尽量使用初始化列表。<br>还有，对于初始化列表有些地方需要注意：list中的生成次序是由类中成员的声明次序决定的，而不是initialization list的排列次序决定的。</p>
+<p>全局对象的内存保证会在程序激活的时候被清为0。局部对象配置于程序的堆栈中，动态对象配置于自由空间中，都不一定会被清为0，它们的内容将是内存上次被使用后的遗迹。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/" data-id="ckll11kst000rionkd6xk2lhp" data-title="c++对象模型研究2：构造函数" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-c-对象模型研究1：关于对象" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B61%EF%BC%9A%E5%85%B3%E4%BA%8E%E5%AF%B9%E8%B1%A1/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T07:16:50.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B61%EF%BC%9A%E5%85%B3%E4%BA%8E%E5%AF%B9%E8%B1%A1/">c++对象模型研究1：关于对象</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="对象模型"><a href="#对象模型" class="headerlink" title="对象模型"></a>对象模型</h2><p>和c不同，c是将数据和处理数据的函数分开的（数据流过程决定函数编写，过程式的）；而c++把数据和处理数据的方法关联在了一起（对象发起动作，操纵数据）。那么像class一样将数据和方法包含在一起，甚至再用上模板是否会增加布局成本呢？</p>
+<p>C++对象模式<br>在C++中，有两种类成员数据：static和非static，以及三种类成员函数：static、非static和virtual。</p>
+<p>在C++对象模型中，非static成员数据被配置于每一个类对象之内，static成员数据则被放在所有类对象之外。static和非static成员函数也被放在所有的类对象之外。</p>
+<p>C++在布局以及存取时间上主要的额外负担是由virtual引起，包括<br>1.虚函数机制（执行时绑定）<br>2.虚基类。还有一些多重继承下的额外负担。</p>
+<p>virtual函数则以两个步骤支持之：<br>1.每一个类产生出一堆指向virtual函数的指针，放在表格之中。这个表格被称为virtual表。<br>2.第一个类对象被添加了一个指针，指向相关的virtual表。这个指针的设定和重置都由每一个类的构造函数，析构函数和拷贝赋值运算符自动完成。另外，虚函数表地址的前面设置了一个指向type_info的指针，RTTI（Run Time Type Identification）运行时类型识别是有编译器在编译器生成的特殊类型信息，包括对象继承关系，对象本身的描述，RTTI是为多态而生成的信息，所以只有具有虚函数的对象在会生成。</p>
+<p>和c相比，c++的布局成本主要来自于virtual，virtual使得class object需要先找虚表，再由虚表找所在地，增加了耗费。而像nonstatic data menber，跟c中struct完全一样，所以这些并不会增加c++的布局成本（相对于c而言）。</p>
+<p>对于C++中的单继承<br>C++实际模型是：对于一般继承是扩充已有存在的虚函数表；对于虚继承添加一个虚函数表指针。</p>
+<p>对于C++中的多继承<br>1）每一个基类都有自己的虚函数表，基类各有虚表<br>2）子类的虚函数被放到第一个基类的虚函数表中，子类与第一个父类共用一张虚表<br>3）内存布局中，基类的排列顺序就是基类的声明顺序<br>4）重写：每一个基类的虚表中的fun都被重写成子类的fun，这样做就是为了解决不同的基类类型的指针指向同一个子类实例，而能够调用到实际的函数。</p>
+<p>对于C++中的多继承中的虚继承<br>虚继承的子类，有单独的虚函数表，另外也单独保存一份父类的虚函数表。</p>
+<h2 id="如何访问成员"><a href="#如何访问成员" class="headerlink" title="如何访问成员"></a>如何访问成员</h2><p>数据成员如何访问（直接取址）？<br>跟实际对象模型相关联，根据对象起始地址+偏移量取得。</p>
+<p>函数成员如何访问（间接取址）？<br>跟实际对象模型相关联，普通函数（nonstatic、static）根据编译、链接的结果直接获取函数地址；如果是虚函数根据对象模型，取出对于虚函数地址，然后在虚函数表中查找函数地址。</p>
+<p>多态如何实现?<br>多态（Polymorphisn）在C++中是通过虚函数实现的。如果类中有虚函数，编译器就会自动生成一个虚函数表，对象中包含一个指向虚函数表的指针。能够实现多态的关键在于：虚函数是允许被派生类重写的，在虚函数表中，派生类函数对覆盖（override）基类函数。除此之外，还必须通过指针或引用调用方法才行，将派生类对象赋给基类对象。</p>
+<p>为什么析构函数设为虚函数是必要的？<br>带有多态性质的基类应该声明一个虚析构函数。如果一个类带有任何虚函数，它就应该拥有一个虚析构函数。 </p>
+<p>如果析构函数不定义为虚函数，那么派生类就不会重写基类的析构函数，在有多态行为的时候，派生类的析构函数不会被调用到（有内存泄漏的风险！）。<br>一个类的设计目的不是作为基类使用，或不是为了具备多态性，就不该声明虚析构函数。</p>
+<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p>本质上一个引用通常是以一个指针来实现，而且是const指针。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B61%EF%BC%9A%E5%85%B3%E4%BA%8E%E5%AF%B9%E8%B1%A1/" data-id="ckll11ksu000vionk59w7ar61" data-title="c++对象模型研究1：关于对象" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-C-11新特性" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/C-11%E6%96%B0%E7%89%B9%E6%80%A7/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T04:56:32.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/C-11%E6%96%B0%E7%89%B9%E6%80%A7/">C++11新特性</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>C+11的标准规范于2011年2月正式落稿，而此前10余年间，C++正式标准一直是C++98/03。相比C++98/03，C++11有了非常多的变化。<br>包括大量的新特性：主要特征像lambda表达式和移动语义，实用的类型推导关键字auto，更简单的容器遍历方法，和大量使模板更容易使用的改进。<br>C++11将修复大量缺陷和降低代码拖沓，比如lambda表达式的支持将使代码更简洁。像移动语义这种特性会提高语言内核的基础效率，使你可以写出更快的代码。对模板系统的优化可以使你更容易写出泛型的代码。<br>新的标准库同时也会包含新的特性，包括对模板”&gt;&gt;“写法的支持，对多线程的支持，优化智能指针，将给那些还没用类似于boost::shared_ptr的人提供更简单的内存管理方法。</p>
+<h2 id="C-11常用特性的使用经验总结"><a href="#C-11常用特性的使用经验总结" class="headerlink" title="C++11常用特性的使用经验总结"></a>C++11常用特性的使用经验总结</h2><h3 id="nullptr"><a href="#nullptr" class="headerlink" title="nullptr"></a>nullptr</h3><p>nullptr 出现的目的是为了替代 NULL。<br>在某种意义上来说，传统 C++ 会把 NULL、0 视为同一种东西，这取决于编译器如何定义 NULL，有些编译器会将 NULL 定义为 ((void*)0)，有些则会直接将其定义为 0。<br>C++ 不允许直接将 void * 隐式转换到其他类型，但如果 NULL 被定义为 ((void*)0)，那么当编译char *ch = NULL;时，NULL 只好被定义为 0。<br>而这依然会产生问题，将导致了 C++ 中重载特性会发生混乱，例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TestWork</span><span class="params">(<span class="keyword">int</span> index)</span></span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TestWork</span><span class="params">(<span class="keyword">int</span> * index)</span></span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>为了解决这个问题，C++11 引入了 nullptr 关键字，专门用来区分空指针、0。<br>当需要使用 NULL 时候，养成直接使用 nullptr的习惯。</p>
+<h3 id="类型推导"><a href="#类型推导" class="headerlink" title="类型推导"></a>类型推导</h3><p>C++11 引入了 auto 和 decltype 这两个关键字实现了类型推导，让编译器来操心变量的类型。<br>auto并没有让C++成为弱类型语言，也没有弱化变量什么，只是使用auto的时候，编译器根据上下文情况，确定auto变量的真正类型。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> index = <span class="number">10</span>;              <span class="comment">//int</span></span><br><span class="line"><span class="keyword">auto</span> str = <span class="string">&quot;abc&quot;</span>;            <span class="comment">//char*</span></span><br><span class="line"><span class="keyword">auto</span> arr = <span class="keyword">new</span> <span class="keyword">auto</span>(<span class="number">10</span>)     <span class="comment">//int *</span></span><br><span class="line"><span class="keyword">auto</span> ret = AddTest(<span class="number">1</span>,<span class="number">2</span>);    <span class="comment">//int</span></span><br></pre></td></tr></table></figure>
+<p><strong>auto不能做什么？</strong><br>auto 不能用于函数传参，因此下面的做法是无法通过编译的（考虑重载的问题，我们应该使用模板）。<br>auto 还不能用于推导数组类型。</p>
+<p><strong>decltype（Declared Type）“声明类型”</strong><br>decltype 关键字是为了解决 auto 关键字只能对变量进行类型推导的缺陷而出现的。它的用法和 sizeof 很相似：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">auto x &#x3D; 1;</span><br><span class="line">auto y &#x3D; 2;</span><br><span class="line">decltype(x+y) z;</span><br></pre></td></tr></table></figure>
+<p>在此过程中，编译器分析表达式并得到它的类型，却不实际计算表达式的值。<br>有时候，我们可能需要计算某个表达式的类型。</p>
+<h2 id="基于范围的-for-循环"><a href="#基于范围的-for-循环" class="headerlink" title="基于范围的 for 循环"></a>基于范围的 for 循环</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> numbers[] = &#123; <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span> &#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span> number : numbers)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; number &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="初始化列表"><a href="#初始化列表" class="headerlink" title="初始化列表"></a>初始化列表</h2><p>C++11 提供了统一的语法来初始化任意的对象</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A a &#123;<span class="number">1</span>, <span class="number">1.1</span>&#125;;    <span class="comment">// 统一的初始化语法</span></span><br><span class="line">B b &#123;<span class="number">2</span>, <span class="number">2.2</span>&#125;;</span><br></pre></td></tr></table></figure>
+<p>C++11 还把初始化列表的概念绑定到了类型上，并将其称之为 std::initializer_list，允许构造函数或其他函数像参数一样使用初始化列表，这就为类对象的初始化与普通数组和 POD 的初始化方法提供了统一的桥梁，例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;initializer_list&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Magic</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Magic(<span class="built_in">std</span>::<span class="built_in">initializer_list</span>&lt;<span class="keyword">int</span>&gt; <span class="built_in">list</span>) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Magic magic = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="模板增强"><a href="#模板增强" class="headerlink" title="模板增强"></a>模板增强</h2><p>在传统 C++ 的编译器中，&gt;&gt;一律被当做右移运算符来进行处理。但实际上我们很容易就写出了嵌套模板的代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; wow;</span><br></pre></td></tr></table></figure>
+<p>这在传统C++编译器下是不能够被编译的，而 C++11 开始，连续的右尖括号将变得合法，并且能够顺利通过编译。</p>
+<h2 id="Lambda-表达式"><a href="#Lambda-表达式" class="headerlink" title="Lambda 表达式"></a>Lambda 表达式</h2><p>lambda 表达式能够方便地构造匿名函数，假设你的代码里面存在大量的小函数，而这些函数一般仅仅被调用一次。那么最好还是将他们重构成 lambda 表达式.<br>C++11 的 lambda 表达式规范例如以下：<br>| [ capture ] ( params ) mutableexceptionattribute -&gt; ret {body }        | (1)  |<br>| ——–   | —–:  |<br>| [ capture ] ( params ) -&gt; ret { body }    | (2)     |<br>| [ capture ] ( params ) { body }   |   (3) |<br>| [ capture ] { body }   |  (4) |</p>
+<p>当中</p>
+<ul>
+<li>(1) 是完整的 lambda 表达式形式。</li>
+<li>(2) const 类型的 lambda 表达式，该类型的表达式不能改捕获(“capture”)列表中的值。</li>
+<li>(3)省略了返回值类型的 lambda 表达式。可是该 lambda 表达式的返回类型能够依照下列规则推演出来：<br>假设 lambda 代码块中包括了 return 语句，则该 lambda 表达式的返回类型由 return 语句的返回类型确定。<br>假设没有 return 语句。则类似 void f(…) 函数。</li>
+<li>(4)省略了參数列表，类似于无參函数 f()。</li>
+</ul>
+<p>mutable 修饰符说明 lambda 表达式体内的代码能够改动被捕获的变量。而且能够訪问被捕获对象的 non-const 方法。<br>exception 说明 lambda 表达式是否抛出异常(noexcept)。以及抛出何种异常，类似于void f()throw(X, Y)。<br>attribute 用来声明属性。<br>另外，capture 指定了在可见域范围内 lambda 表达式的代码内可见得外部变量的列表。详细解释例如以下：</p>
+<ul>
+<li>[a,&amp;b] a变量以值的方式呗捕获，b以引用的方式被捕获。</li>
+<li>[this] 以值的方式捕获 this 指针。</li>
+<li>[&amp;] 以引用的方式捕获全部的外部自己主动变量。</li>
+<li>[=] 以值的方式捕获全部的外部自己主动变量。</li>
+<li>[] 不捕获外部的不论什么变量。</li>
+</ul>
+<p>此外，params 指定 lambda 表达式的參数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Test test;</span><br><span class="line">    test.Add(add, <span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    TestAdd testAdd;</span><br><span class="line">    test.Add(<span class="built_in">std</span>::bind(&amp;TestAdd::Add, testAdd, <span class="built_in">std</span>::placeholders::_1, <span class="built_in">std</span>::placeholders::_2), <span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    test.Add([](<span class="keyword">int</span> a, <span class="keyword">int</span> b)-&gt;<span class="keyword">int</span> &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;lamda add fun&quot;</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span> a + b;</span><br><span class="line">    &#125;,<span class="number">1</span>,<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>联想仿函数 </p>
+<h2 id="新增容器"><a href="#新增容器" class="headerlink" title="新增容器"></a>新增容器</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">array</span></span><br><span class="line"><span class="built_in">std</span>::forward_list</span><br></pre></td></tr></table></figure>
+<p>C++11 引入了两组无序容器：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">unordered_map</span>/<span class="built_in">std</span>::<span class="built_in">unordered_multimap</span> 和 <span class="built_in">std</span>::<span class="built_in">unordered_set</span>/<span class="built_in">std</span>::<span class="built_in">unordered_multiset</span>。</span><br></pre></td></tr></table></figure>
+<h2 id="语言级线程支持"><a href="#语言级线程支持" class="headerlink" title="语言级线程支持"></a>语言级线程支持</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::thread </span><br><span class="line"><span class="built_in">std</span>::atomic</span><br><span class="line"><span class="built_in">std</span>::mutex/<span class="built_in">std</span>::unique_lock </span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">future</span>/<span class="built_in">std</span>::packaged_task </span><br><span class="line"><span class="built_in">std</span>::condition_variable</span><br></pre></td></tr></table></figure>
+<h2 id="智能指针内存管理"><a href="#智能指针内存管理" class="headerlink" title="智能指针内存管理"></a>智能指针内存管理</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span></span><br><span class="line"><span class="built_in">std</span>::weak_ptr</span><br></pre></td></tr></table></figure>
+<h2 id="右值引用和move语义"><a href="#右值引用和move语义" class="headerlink" title="右值引用和move语义"></a>右值引用和move语义</h2><p>#83 </p>
+<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><p>C++11 提供的正则表达式库操作 std::string 对象，对模式 std::regex (本质是 std::basic_regex)进行初始化，通过 std::regex_match 进行匹配，从而产生 std::smatch （本质是 std::match_results 对象）。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/C-11%E6%96%B0%E7%89%B9%E6%80%A7/" data-id="ckll11ksa0001ionk40zi3jjg" data-title="C++11新特性" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-垃圾回收" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T04:52:04.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">垃圾回收</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>RAII（Resource Acquisition Is Initialization）<br>“资源获取就是初始化”，简单的说，RAII 的做法是使用一个对象，在其构造时获取资源，在对象生命期控制对资源的访问使之始终保持有效，最后在对象析构的时候释放资源。</p>
+<p>大部分用c写的上规模的软件都存在一些内存方面的错误，需要花费大量的精力和时间把产品稳定下来<br>c++里可能出现的内存问题大致有这么几个方面：<br>1、缓冲区溢出<br>2、空悬指针/野指针<br>3、重复释放<br>4、内存泄漏<br>5、不配对的new[]/delete<br>6、内存碎片</p>
+<p>正确地使用智能指针能很轻易地解决前面5个问题，解决第6个问题需要另的思路。</p>
+<p>垃圾回收的方式虽然很多，但主要可以分为两大类：</p>
+<ul>
+<li>引用计数</li>
+<li>跟踪处理</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" data-id="ckll11kua004jionkhc8lhvn6" data-title="垃圾回收" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-c-11：左值、右值" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-11%EF%BC%9A%E5%B7%A6%E5%80%BC%E3%80%81%E5%8F%B3%E5%80%BC/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T04:47:10.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/c-11%EF%BC%9A%E5%B7%A6%E5%80%BC%E3%80%81%E5%8F%B3%E5%80%BC/">c++11：左值、右值</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>一个最为典型的判别方法就是，在赋值表达式中，出现在等号左边的就是“左值”，而在等号右边的，则称为“右值”。<br>还有一个说法，就是可以取地址的、有名字的就是左传，反之，不能取地址的、没有名字的就是右值。<br>右值又分将亡值（xvalue），纯右值。</p>
+<p>用右值引用变量声明，就会少一次对象的析构及一次对象的构造。避免无谓的复制，提高程序性能。</p>
+<p>引用类型本身自己并不拥有所绑定对象的内存，只是该对象的一个别名。左值引用是具名变量值的别名，而右值引用则是不具名（匿名）变量的别名。</p>
+<p>R-value能绑定到L-value reference？<br>不能，但可以绑定到常量左值引用上。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> A&amp; x = <span class="number">1</span>; <span class="comment">//compile</span></span><br><span class="line">x = <span class="number">2</span>;         <span class="comment">//error!</span></span><br><span class="line">A&amp;&amp; xxx = <span class="number">1</span>; <span class="comment">//compile</span></span><br><span class="line">A&amp; xx  = <span class="number">1</span>; <span class="comment">//does not compile.</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-11%EF%BC%9A%E5%B7%A6%E5%80%BC%E3%80%81%E5%8F%B3%E5%80%BC/" data-id="ckll11kss000pionkdwnv6y0w" data-title="c++11：左值、右值" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-c-11：模板" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-11%EF%BC%9A%E6%A8%A1%E6%9D%BF/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T03:35:28.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/c-11%EF%BC%9A%E6%A8%A1%E6%9D%BF/">c++11：模板</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>c++11中Universal Reference类型的模板参数的推导规则？</p>
+<p>简单来说就是type&amp;&amp; + syntax + type deduction，即可以引用左值，也可以引用右值。 </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T&amp;&amp; param)</span></span>; <span class="comment">// “&amp;&amp;” 可能 代表rvalue reference</span></span><br></pre></td></tr></table></figure>
+<p>如果一个变量或者参数被声明为T&amp;&amp;，其中T是被推导的类型，那这个变量或者参数就是一个universal reference。<br>“T需要是一个被推导类型”这个要求限制了universal references的出现范围。在实践当中，几乎所有的universal references都是函数模板的参数。因为auto声明的变量的类型推导规则本质上和模板是一样的，所以使用auto的时候你也可能得到一个universal references。<br>一个universal reference必须具有形如T&amp;&amp;。<br>和所有的引用一样，你必须对universal references进行初始化，而且正是universal reference的initializer决定了它到底代表的是lvalue reference 还是 rvalue reference:</p>
+<ul>
+<li>如果用来初始化universal reference的表达式是一个左值，那么universal reference就变成lvalue reference。</li>
+<li>如果用来初始化universal reference的表达式是一个右值，那么universal reference就变成rvalue reference。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-11%EF%BC%9A%E6%A8%A1%E6%9D%BF/" data-id="ckll11ksu000tionk7rnn8ndd" data-title="c++11：模板" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-skynet：数据共享" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/24/skynet%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB/" class="article-date">
+  <time class="dt-published" datetime="2021-02-24T14:43:14.000Z" itemprop="datePublished">2021-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/24/skynet%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB/">skynet：数据共享</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>当你把业务拆分到多个服务中去后，数据如何共享，可能是最易面临的问题。</p>
+<p>最简单粗暴的方法是通过消息传递数据。如果 A 服务需要 B 服务中的数据，可以由 B 服务发送一个消息，将数据打包携带过去。如果是一份数据，很多地方都需要获得它，那么用一个服务装下这组数据，提供一组查询接口即可。DataCenter 模块对此做了简单的封装。</p>
+<p>如果你仅仅需要一组只读的结构信息分享给很多服务（比如一些配置数据），你可以把数据写到一个 lua 文件中，让不同的服务加载它。Cluster 的配置文件就是这样做的。注意：默认 skynet 使用自带的修改版 lua ，会缓存 lua 源文件。当一个 lua 文件通过 loadfile 加载后，磁盘上的修改不会影响下一次加载。所以你需要直接用 io.open 打开文件，再用 load 加载内存中的 string 。</p>
+<p>另一个更好的方法是使用 sharedata 模块。<br>当大量的服务可能需要共享一大块并不太需要更新的结构化数据，每个服务却只使用其中一小部分。你可以设想成，这些数据在开发时就放在一个数据仓库中，各个服务按需要检索出需要的部分。<br>整个工程需要的数据仓库可能规模庞大，每个服务却只需要使用其中一小部分数据，如果每个服务都把所有数据加载进内存，服务数量很多时，就因为重复加载了大量不会触碰的数据而浪费了大量内存。在开发期，却很难把数据切分成更小的粒度，因为很难时刻根据需求的变化重新切分。<br>如果使用 DataCenter 这种中心式管理方案，却无法避免每次在检索数据时都要进行一次 RPC 调用，性能或许无法承受。<br>sharedata 模块正是为了解决这种需求而设计出来的。sharedata 只支持在同一节点内（同一进程下）共享数据，如果需要跨节点，需要自行同步处理。</p>
+<p>datasheet：<br>它能做的是：把一个复杂的有一定限制的 lua 表，转换为一块 C 内存，由多个 lua 服务共享读取。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/24/skynet%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB/" data-id="ckll11ku2003wionk3gjnaz4g" data-title="skynet：数据共享" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

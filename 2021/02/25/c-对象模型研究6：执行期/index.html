@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>c++对象模型研究6：执行期 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。执行期语意学，即在程序执行时，编译器产生而外的指令调用，确保对象的构造，内存的释放，以及类型转换与临时对象的生成的安全进行。 对象的构造和析构一般而言，我们会把对象尽可能放置在使用它的那个程序区段附近，这样做可以节省不必要的对象产生操作和摧毁操作（主要是析构）。不建议把所有的对象放在函数或某个区段的起始处。 全局对象对于全局变量，C++会">
+<meta property="og:type" content="article">
+<meta property="og:title" content="c++对象模型研究6：执行期">
+<meta property="og:url" content="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。执行期语意学，即在程序执行时，编译器产生而外的指令调用，确保对象的构造，内存的释放，以及类型转换与临时对象的生成的安全进行。 对象的构造和析构一般而言，我们会把对象尽可能放置在使用它的那个程序区段附近，这样做可以节省不必要的对象产生操作和摧毁操作（主要是析构）。不建议把所有的对象放在函数或某个区段的起始处。 全局对象对于全局变量，C++会">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-02-25T11:19:57.000Z">
+<meta property="article:modified_time" content="2021-02-25T15:33:28.182Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="cpp">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-c-对象模型研究6：执行期" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T11:19:57.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      c++对象模型研究6：执行期
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。<br>执行期语意学，即在程序执行时，编译器产生而外的指令调用，确保对象的构造，内存的释放，以及类型转换与临时对象的生成的安全进行。</p>
+<h2 id="对象的构造和析构"><a href="#对象的构造和析构" class="headerlink" title="对象的构造和析构"></a>对象的构造和析构</h2><p>一般而言，我们会把对象尽可能放置在使用它的那个程序区段附近，这样做可以节省不必要的对象产生操作和摧毁操作（主要是析构）。不建议把所有的对象放在函数或某个区段的起始处。</p>
+<p>全局对象<br>对于全局变量，C++会保证在调用全局变量之前，将全局变量构造出来。<br>而所有的全局变量都被放置在程序的数据段中（data segment），并且为没有显示指定值的变量初始化为0。<br>同时对于全局的类对象，在编译时期被放置于data segment中并且内容也为0.只有在程序启动时其对应的constructor才会实施。因此object需要静态初始化。<br>静态初始化的munch策略：<br>1.为每个需要静态初始化的文件产生一个_sti()函数，内含必要的constructor调用操作和inline expansions。<br>2.为每一个需要静态的内存释放操作的文件，产生一个_std()函数。<br>3.提供一个_main()函数调用所有的_sti()函数，一个_exit()函数调用所有的_std()函数</p>
+<p>局部静态对象<br>局部静态对象的构造函数只能被施行一次，析构函数也只有一次。<br>所以对于局部静态对象，一个很简单的思路就是导入一个临时性对象，当第一次传入时，设置为true，之后则不再进行处理。<br>条件式析构也是所有编译器所必须的，而局部静态对象需以构造的相反的顺序被析构。</p>
+<p>对象数组<br>对于以下数组定义，我们一般使用vec_new()函数来构造数组(这是在cfront中的方式), 对于VS等，则提供一个用来处理没有”virtual base class”的class，另一个用来处理”内含virtual base class”的class。后一个函数通常称为 vec_vnew()。<br>函数的原型一般如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*constructor)(<span class="keyword">void</span> *)        <span class="comment">//类的constructor函数指针</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
+<p>所以对上述的Point对象的初始化，对应的vec_new()的实例化如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vec_new( &amp;knots, <span class="keyword">sizeof</span>(Point), <span class="number">10</span>, &amp;Point::Point, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>同理，对于对象的删除，也有类似的vec_delete()来进行操作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
+<h2 id="new和delete运算符"><a href="#new和delete运算符" class="headerlink" title="new和delete运算符"></a>new和delete运算符</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *pi = <span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+<p>其实是通过两个步骤完成的，第一步通过适当的new运算符函数实例，配置所需的内存，然后将配置来的内存设定初值。</p>
+<p>使用pi，和使用pi所指的对象，其差别在于哪一个生命已经结束了。因为即使对象不合法，但是指针所指的对象也是合法的。<br>new其实是通过标准的c malloc完成的，每一次对new的调用必须传回一个独一无二的指针，指向默认1byte的内存地址。</p>
+<p>针对数组的new语意<br>如果类对象数组没定义constructor和destructor，则不会调用vec_new。<br>对于delete[] p_array, 只有中括号出现时，编译器才会寻找数组的维度，否则他只会假设单独的一个object要被删除。<br>那么如何记录数组的元素个数呢？一个明显的方法是为vec_new()所传回的每一个内存区域块设置一个额外的word，然后把元素个数包藏在那个word之中。而包藏的数值通常称为cookie。<br>在原始编译器中，有两个主要函数用来存取cookie</p>
+<p>注意，避免一个base class指针指向一个derived class object所组成的数组。</p>
+<p>如果一定要这样做，默认情况下只会交给施行vec_delete()函数的”被删除之指针类型的destructor“，也就是Point destructor。<br>所以，需要程序员如下显著的进行释放内存。</p>
+<p>placement Operator new语意</p>
+<h2 id="临时性对象"><a href="#临时性对象" class="headerlink" title="临时性对象"></a>临时性对象</h2><p>临时性对象的摧毁，应该是对完整表达式求值过程中最后一个步骤。该完整表达式造成临时对象的产生。<br>凡持有表达式执行结果的临时对象，应该保留到object的初始化操作完成为止。<br>如果一个临时对象被绑定于一个reference，对象将残留，直到初始化之reference生命结束，或直到临时对象的什么范畴结束。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/" data-id="ckll11ksy0015ionk8168bg8n" data-title="c++对象模型研究6：执行期" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B67%EF%BC%9A%E7%AB%99%E5%9C%A8%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%A1%B6%E7%AB%AF/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          c++对象模型研究7：站在对象模型的顶端
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B65%EF%BC%9A%E6%9E%84%E9%80%A0%E3%80%81%E8%A7%A3%E6%9E%84%E3%80%81%E6%8B%B7%E8%B4%9D/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">c++对象模型研究5：构造、解构、拷贝</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

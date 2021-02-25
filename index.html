@@ -71,10 +71,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-提交不停弹出登陆弹窗的问题" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-Android与Linux以及GNU的关系" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2021/01/26/%E6%8F%90%E4%BA%A4%E4%B8%8D%E5%81%9C%E5%BC%B9%E5%87%BA%E7%99%BB%E9%99%86%E5%BC%B9%E7%AA%97%E7%9A%84%E9%97%AE%E9%A2%98/" class="article-date">
-  <time class="dt-published" datetime="2021-01-25T16:21:21.000Z" itemprop="datePublished">2021-01-26</time>
+    <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T14:25:35.000Z" itemprop="datePublished">2021-02-25</time>
 </a>
     
   </div>
@@ -85,7 +85,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/01/26/%E6%8F%90%E4%BA%A4%E4%B8%8D%E5%81%9C%E5%BC%B9%E5%87%BA%E7%99%BB%E9%99%86%E5%BC%B9%E7%AA%97%E7%9A%84%E9%97%AE%E9%A2%98/">提交不停弹出登陆弹窗的问题</a>
+      <a class="p-name article-title" href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
     </h1>
   
 
@@ -93,14 +93,12 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p>无论是用git push 还是tortoisegit push，都会不停弹出登录窗口<br>结果不论如何填写用户名和密码，他永远说我logon failed。</p>
-<p>google了一下，发现原来有个git credentials manager这个软件，这是安装git的时候勾选安装的，这个弹窗就是这个软件弹出来的。</p>
-<p>根据提示，执行了“git credential-manager uninstall”。世界清静了，提交直接push就行了。</p>
+        <p><img src="https://user-images.githubusercontent.com/11263320/109167098-5e04e900-77b8-11eb-867e-0c69c82d5436.jpg" alt="Android与Linux以及GNU的关系"></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/01/26/%E6%8F%90%E4%BA%A4%E4%B8%8D%E5%81%9C%E5%BC%B9%E5%87%BA%E7%99%BB%E9%99%86%E5%BC%B9%E7%AA%97%E7%9A%84%E9%97%AE%E9%A2%98/" data-id="ckkmfw4px000bi4nkg3rm4720" data-title="提交不停弹出登陆弹窗的问题" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/" data-id="ckll11ksf0003ionk554xabrm" data-title="Android与Linux以及GNU的关系" class="article-share-link">Share</a>
       
       
       
@@ -112,10 +110,10 @@
 
 
   
-    <article id="post-连接Github与本地" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-net简介" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2021/01/25/%E8%BF%9E%E6%8E%A5Github%E4%B8%8E%E6%9C%AC%E5%9C%B0/" class="article-date">
-  <time class="dt-published" datetime="2021-01-25T08:26:56.000Z" itemprop="datePublished">2021-01-25</time>
+    <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T14:22:57.000Z" itemprop="datePublished">2021-02-25</time>
 </a>
     
   </div>
@@ -126,7 +124,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/01/25/%E8%BF%9E%E6%8E%A5Github%E4%B8%8E%E6%9C%AC%E5%9C%B0/">连接Github与本地</a>
+      <a class="p-name article-title" href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
     </h1>
   
 
@@ -134,117 +132,15 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p>首先输入下面命令：<br>git config –global user.name “你的github用户名”<br>git config –global user.email “你的github注册邮箱”</p>
-<p>用户名和邮箱根据你注册github的信息自行修改。</p>
-<p>然后生成密钥SSH key：<br>ssh-keygen -t rsa -C “你的注册邮箱”</p>
-<p>打开github，在头像下面点击settings，再点击SSH and GPG keys，新建一个SSH，名字随便。<br>cmd中cat ~/.ssh/id_rsa.pub</p>
-<p>将输出的内容复制到框中，点击确定保存。<br>输入ssh -T <a href="mailto:&#x67;&#x69;&#116;&#64;&#x67;&#x69;&#116;&#x68;&#x75;&#98;&#x2e;&#99;&#111;&#109;">&#x67;&#x69;&#116;&#64;&#x67;&#x69;&#116;&#x68;&#x75;&#98;&#x2e;&#99;&#111;&#109;</a>，出现你的用户名，那就成功了。</p>
+        <p>.net 指的是框架，框架包含很多东西例如：</p>
+<blockquote>
+<p>语言: VB, C#, C++, Ruby, Python …<br>类库: 网络通讯，图像处理, 安全，IO，数据链接访问 …<br>界面技术：Asp.net(针对网站)， Winform（针对桌面应用）<br>底层运行环境：资源回收，内存管理，异常处理 …<br>可以看到，asp.net只是.net框架里很小的一部分， 参考下面的图也会显示的很清楚。<br><img src="https://user-images.githubusercontent.com/11263320/109166713-f8186180-77b7-11eb-9a10-c9ab3a78cc5a.jpg" alt="78310a55b319ebc477367ffa8226cffc1e171602"></p>
+</blockquote>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/01/25/%E8%BF%9E%E6%8E%A5Github%E4%B8%8E%E6%9C%AC%E5%9C%B0/" data-id="ckkmfw4pw0009i4nk70ul906t" data-title="连接Github与本地" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/github/" rel="tag">github</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-Hexo-GitHub-Pages博客搭建" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/01/25/Hexo-GitHub-Pages%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" class="article-date">
-  <time class="dt-published" datetime="2021-01-25T07:54:54.000Z" itemprop="datePublished">2021-01-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/01/25/Hexo-GitHub-Pages%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">Hexo+GitHub Pages博客搭建</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h2><p>Hexo是一种使用Node.js编写的静态博客框架，快速、简洁、扩展丰富。</p>
-<h2 id="安装Node"><a href="#安装Node" class="headerlink" title="安装Node"></a>安装Node</h2><p>安装Node.js</p>
-<p>添加阿里的国内镜像源<br>npm config set registry <a target="_blank" rel="noopener" href="https://registry.npm.taobao.org/">https://registry.npm.taobao.org</a></p>
-<h2 id="使用GitHub-Pages"><a href="#使用GitHub-Pages" class="headerlink" title="使用GitHub Pages"></a>使用GitHub Pages</h2><p><a target="_blank" rel="noopener" href="https://pages.github.com/">GitHub Pages</a> 是一个GitHub提供的静态站点托管服务。<br>新建一个项目<br>你的账号名.github.io</p>
-<p>然后项目就建成了，点击Settings，向下拉到最后有个GitHub Pages，点击Choose a theme选择一个主题。</p>
-<p>然后等一会儿，再回到GitHub Pages<br>点击那个链接，就会出现自己的网页啦</p>
-<h2 id="安装Hexo"><a href="#安装Hexo" class="headerlink" title="安装Hexo"></a>安装Hexo</h2><p>在合适的地方新建一个文件夹，用来存放自己的博客文件，比如我的博客文件都存放在D:\blog目录下。<br>cmd定位到该目录下，输入npm i hexo-cli -g安装Hexo。会有几个报错，无视它就行。<br>安装完后输入hexo -v验证是否安装成功。</p>
-<p>如遇到，无法加载文件 .ps1，因为在此系统中禁止执行脚本<br>执行<br>set-executionpolicy remotesigned<br>输入y即可</p>
-<p>然后就要初始化我们的网站，输入hexo init初始化文件夹，接着输入npm install安装必备的组件。</p>
-<p>这样本地的网站配置也弄好啦，输入hexo g生成静态网页，然后输入hexo s打开本地服务器，然后浏览器打开<br><a target="_blank" rel="noopener" href="http://localhost:4000/">http://localhost:4000/</a><br>就可以看到我们的博客啦</p>
-<h2 id="写文章、发布文章"><a href="#写文章、发布文章" class="headerlink" title="写文章、发布文章"></a>写文章、发布文章</h2><p>首先在博客根目录下右键打开git bash，安装一个扩展npm i hexo-deployer-git。</p>
-<p>然后输入hexo new post “article title”，新建一篇文章。</p>
-<p>然后打开D:\blog\source_posts的目录，可以发现下面多了一个文件夹和一个.md文件，一个用来存放你的图片等数据，另一个就是你的文章文件啦。</p>
-<p>编写完markdown文件后，根目录下输入hexo g生成静态网页，然后输入hexo s可以本地预览效果，最后输入hexo d上传到github上。这时打开你的github.io主页就能看到发布的文章啦。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/01/25/Hexo-GitHub-Pages%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" data-id="ckkmfw4oz0000i4nk77nf79n0" data-title="Hexo+GitHub Pages博客搭建" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blog/" rel="tag">blog</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-LT-和-ET" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/01/25/LT-%E5%92%8C-ET/" class="article-date">
-  <time class="dt-published" datetime="2021-01-25T06:31:11.000Z" itemprop="datePublished">2021-01-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/01/25/LT-%E5%92%8C-ET/">LT 和 ET</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>使用os提供的api如epoll，<a target="_blank" rel="noopener" href="https://github.com/losophy/notes/blob/master/content/epoll/kqueue.cc">kqueue</a>编写并发应用程序</p>
-<ul>
-<li>  <a target="_blank" rel="noopener" href="https://github.com/losophy/notes/blob/master/content/epoll/epoll.cc">epoll.cc</a>，演示了epoll的通常用法，使用epoll的LT模式</li>
-<li>  <a target="_blank" rel="noopener" href="https://github.com/losophy/notes/blob/master/content/epoll/epoll-et.cc">epoll-et.cc</a>，演示了epoll的ET模式，与LT模式非常像，区别主要体现在不需要手动开关EPOLLOUT事件</li>
-</ul>
-<p>LT 和 ET本质的区别是：</p>
-<p>LT模式状态时，主线程正在epoll_wait等待事件时，请求到了，epoll_wait返回后没有去处理请求(recv)，那么下次epoll_wait时此请求还是会返回（立刻返回了）；而ET模式状态下，这次没处理，下次epoll_wait时将不返回（所以我们应该每次一定要处理），可见很大程度降低了epoll的触发次数（记住这句话先）。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/01/25/LT-%E5%92%8C-ET/" data-id="ckkmfw4pe0001i4nkgy005cic" data-title="LT 和 ET" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/25/net%E7%AE%80%E4%BB%8B/" data-id="ckll11kti002fionkf8ar6mpf" data-title=".net简介" class="article-share-link">Share</a>
       
       
       
@@ -256,10 +152,10 @@
 
 
   
-    <article id="post-用脚本将-issues-转换成博客" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-STL源码分析：Adapters" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2021/01/24/%E7%94%A8%E8%84%9A%E6%9C%AC%E5%B0%86-issues-%E8%BD%AC%E6%8D%A2%E6%88%90%E5%8D%9A%E5%AE%A2/" class="article-date">
-  <time class="dt-published" datetime="2021-01-24T15:14:33.000Z" itemprop="datePublished">2021-01-24</time>
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T13:51:02.000Z" itemprop="datePublished">2021-02-25</time>
 </a>
     
   </div>
@@ -270,7 +166,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/01/24/%E7%94%A8%E8%84%9A%E6%9C%AC%E5%B0%86-issues-%E8%BD%AC%E6%8D%A2%E6%88%90%E5%8D%9A%E5%AE%A2/">用脚本将 issues 转换成博客</a>
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
     </h1>
   
 
@@ -278,21 +174,17 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前已经用<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/6">Hexo+GitHub Pages博客搭建</a></p>
-<p>Hexo默认文章存放于source分支，没有评论系统，不过都可以通过插件进行扩展。本文介绍如何将hexo的文章与评论存放于Github Issue中（issue内容为博客内容，issue评论为博客评论）。</p>
-<h2 id="前言使用github-issue存放文章"><a href="#前言使用github-issue存放文章" class="headerlink" title="前言使用github issue存放文章"></a>前言使用github issue存放文章</h2><p>这种方案主要优点是，可以专心写博客系统，不用关注Hexo本身内容。还可以直接使用GitHub的图床（已墙），使用GitHub图床非常简单，把图片文件拖到编辑框就行了。</p>
-<h2 id="安装插件"><a href="#安装插件" class="headerlink" title="安装插件"></a>安装插件</h2><p>npm install hexo-migrator-github-issue –save</p>
-<h2 id="导入文章"><a href="#导入文章" class="headerlink" title="导入文章"></a>导入文章</h2><p>hexo migrate github-issue 你的Github用户名/你存放hexo的仓库名</p>
-<p>然后生成部署即可。<br>hexo g<br>hexo d</p>
-<h2 id="根据issue的label为文章生成标签"><a href="#根据issue的label为文章生成标签" class="headerlink" title="根据issue的label为文章生成标签"></a>根据issue的label为文章生成标签</h2><h2 id="使用github-issue存放评论"><a href="#使用github-issue存放评论" class="headerlink" title="使用github issue存放评论"></a>使用github issue存放评论</h2>
+        <p>配接器在STL组件的灵活组合运用功能上，扮演着轴承、转换器的角色。Adaper这个概念，事实上是一种设计模式。在《设计模式》中adapter定义如下：将一个class的接口转换为另一个class的接口，使原本因接口不兼容而不能合作的classes，可以一起运作。</p>
+<p>配接器分为<br>function adapter（通过它们之间的绑定，组合，修饰能力，几乎可以无限制地创造出各种可能的表达式）<br>container adapter（如queue和stack）<br>iterator adapter（如insert iterators，reverse iterators，iostream iterators）</p>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/01/24/%E7%94%A8%E8%84%9A%E6%9C%AC%E5%B0%86-issues-%E8%BD%AC%E6%8D%A2%E6%88%90%E5%8D%9A%E5%AE%A2/" data-id="ckkmfw4pu0007i4nk2tw72qqo" data-title="用脚本将 issues 转换成博客" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/" data-id="ckll11ksl0009ionkfkdagiq3" data-title="STL源码分析：Adapters" class="article-share-link">Share</a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blog/" rel="tag">blog</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
 
     </footer>
   </div>
@@ -302,10 +194,10 @@
 
 
   
-    <article id="post-使用pdb调试" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-STL源码分析：Functors" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2021/01/24/%E4%BD%BF%E7%94%A8pdb%E8%B0%83%E8%AF%95/" class="article-date">
-  <time class="dt-published" datetime="2021-01-24T14:37:02.000Z" itemprop="datePublished">2021-01-24</time>
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T13:49:07.000Z" itemprop="datePublished">2021-02-25</time>
 </a>
     
   </div>
@@ -316,7 +208,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/01/24/%E4%BD%BF%E7%94%A8pdb%E8%B0%83%E8%AF%95/">使用pdb调试</a>
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
     </h1>
   
 
@@ -324,20 +216,16 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <div align="right">
-<a target="_blank" rel="noopener" href="https://github.com/losophy/raindrop/blob/master/README.md">  about</a>
-</div> 
+        <p>仿函数其实上就是一个“行为类似函数”的对象。仿函数可以让STL算法有更灵活的演出。<br>c++11中已经引入lamda表达式，相当于将这部分内容加入了语法。</p>
 
-<h1 id="pdb"><a href="#pdb" class="headerlink" title="pdb"></a>pdb</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">import pdb</span><br><span class="line">pdb.set_trace()</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">(Pdb) h</span><br><span class="line">Documented commands (type help &lt;topic&gt;):</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">EOF    bt         cont      enable  jump  pp       run      unt</span><br><span class="line">a      c          continue  exit    l     q        s        until</span><br><span class="line">alias  cl         d         h       list  quit     step     up</span><br><span class="line">args   clear      debug     help    n     r        tbreak   w</span><br><span class="line">b      commands   disable   ignore  next  restart  u        whatis</span><br><span class="line">break  condition  down      j       p     return   unalias  where</span><br><span class="line"></span><br><span class="line">(Pdb) h c</span><br><span class="line">c(ont(inue))</span><br><span class="line">Continue execution, only stop when a breakpoint is encountered.</span><br></pre></td></tr></table></figure>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/01/24/%E4%BD%BF%E7%94%A8pdb%E8%B0%83%E8%AF%95/" data-id="ckkmfw4ps0005i4nkaudkg4xu" data-title="使用pdb调试" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/" data-id="ckll11kso000eionk12v641cp" data-title="STL源码分析：Functors" class="article-share-link">Share</a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
 
     </footer>
   </div>
@@ -347,10 +235,10 @@
 
 
   
-    <article id="post-mongodb的一些命令" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-STL源码分析：Algorithms" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2021/01/24/mongodb%E7%9A%84%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/" class="article-date">
-  <time class="dt-published" datetime="2021-01-24T14:34:47.000Z" itemprop="datePublished">2021-01-24</time>
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T13:41:37.000Z" itemprop="datePublished">2021-02-25</time>
 </a>
     
   </div>
@@ -361,7 +249,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/01/24/mongodb%E7%9A%84%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/">mongodb的一些命令</a>
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
     </h1>
   
 
@@ -369,21 +257,17 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p><b><details><summary>start</summary></b></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mongod --dbpath&#x3D;&#x2F;data&#x2F;db     #serve rup</span><br><span class="line"></span><br><span class="line">sudo mongo                        #client up</span><br></pre></td></tr></table></figure>
-</details>
-
-<p><b><details><summary>scripts</summary></b><br>some js scripts</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">db.getCollection(&#39;Player&#39;).find(&#123;&#125;)  &#x2F;&#x2F;select * from player</span><br><span class="line"></span><br><span class="line">db.getCollection(&#39;Player&#39;).find(&#123;&quot;checkIn&quot;:&#123;&quot;$exists&quot;:true&#125;&#125;) &#x2F;&#x2F;select checkIn from player</span><br><span class="line"></span><br><span class="line">db.getCollection(&#39;Player&#39;).find(&#123;&quot;boss.1001.night&quot;:&#123;&quot;$exists&quot;:true&#125;&#125;) &#x2F;&#x2F;select boss.1001.night from player</span><br><span class="line"></span><br><span class="line">db.getCollection(&#39;Player&#39;).update(&#123;&#125;,&#123;$unset:&#123;&quot;checkIn&quot;:&quot;&quot;&#125;&#125;,false,true) &#x2F;&#x2F;update player set checkIn &#x3D; &quot;&quot;</span><br><span class="line"></span><br><span class="line">db.getCollection(&#39;Player&#39;).update(&#123;&#125;,&#123;$unset:&#123;&quot;boss.1001.night&quot;:&quot;&quot;&#125;&#125;,false,true) &#x2F;&#x2F;update player set boss.1001.night &#x3D; &quot;&quot;</span><br></pre></td></tr></table></figure>
-</details>
+        <p>所有泛型算法的前两个参数都是一对迭代器，通常称为first和last，用以标示算法的操作区间。STL习惯采用前闭后开区间，写成[first,last)，表示区间涵盖first至last（不含last）之间的所有元素。当first==last时，上述所表现的便是一个空区间。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/01/24/mongodb%E7%9A%84%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/" data-id="ckkmfw4pq0004i4nk1drhcjok" data-title="mongodb的一些命令" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/" data-id="ckll11ksm000bionk70wq5aar" data-title="STL源码分析：Algorithms" class="article-share-link">Share</a>
       
       
       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
     </footer>
   </div>
   
@@ -392,10 +276,10 @@
 
 
   
-    <article id="post-linux下一些工具" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-STL源码分析：Containers" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2021/01/24/linux%E4%B8%8B%E4%B8%80%E4%BA%9B%E5%B7%A5%E5%85%B7/" class="article-date">
-  <time class="dt-published" datetime="2021-01-24T14:27:08.000Z" itemprop="datePublished">2021-01-24</time>
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T12:24:49.000Z" itemprop="datePublished">2021-02-25</time>
 </a>
     
   </div>
@@ -406,7 +290,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/01/24/linux%E4%B8%8B%E4%B8%80%E4%BA%9B%E5%B7%A5%E5%85%B7/">linux下一些工具</a>
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/">STL源码分析：Containers</a>
     </h1>
   
 
@@ -414,59 +298,227 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p><b><details><summary>grep</summary></b></p>
-<p>If you want to know which files contain the content your want, you can use grep.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -rn &quot;hello,world!&quot; *</span><br></pre></td></tr></table></figure>
-</details>
-
-<p><b><details><summary>gdb</summary></b></p>
-<p>cmd:gdb<br><br>gdb$ file yourpram</p>
-<ul>
-<li><p>save commands history<br><br>echo ‘set history save on’ &gt;&gt; ~/.gdbinit &amp;&amp; chmod 600 ~/.gdbinit<br><br>gdb$ show history</p>
-</li>
-<li><p>set parameter<br><br>gdb$ set args(e.g. set args 10 20 30 40 50)<br><br>gdb$ show args<br></p>
-</li>
-<li><p>start<br></p>
-</li>
-<li><p>break<br><br>gdb$ b gdb_test.c:3 <br><br>gdb$ info b</p>
-</li>
-<li><p>print<br><br>gdb$ p i<br><br>gdb$ p/x i</p>
-</li>
-<li><p>UI interface(TUI mode) <br><br>ctrl+X+A</p>
-</li>
-</ul>
-</details>
-
-<p><b><details><summary>git</summary></b></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout .  #reset all files to the original state</span><br><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;Wuchenwcf&#x2F;MyCode.git --depth&#x3D;&#x3D;1   #just clone last commit</span><br></pre></td></tr></table></figure>
-<p>github</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">followers:&gt;10</span><br><span class="line">language:c++</span><br><span class="line">location:uk</span><br></pre></td></tr></table></figure>
-</details>
-
-<p><b><details><summary>netstat</summary></b></p>
-<h1 id="judge-the-health-of-the-connection"><a href="#judge-the-health-of-the-connection" class="headerlink" title="judge the health of the connection"></a>judge the health of the connection</h1><p>netstat -anp | grep xxxx<br><br>netstat -anp | grep pid<br></p>
-<p>netstat -n | awk ‘/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}’<br></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">LAST_ACK 5  </span><br><span class="line">SYN_RECV 30  </span><br><span class="line">ESTABLISHED 15  </span><br><span class="line">FIN_WAIT1 51  </span><br><span class="line">FIN_WAIT2 5  </span><br><span class="line">TIME_WAIT 10  </span><br></pre></td></tr></table></figure>
-</details>
-
-<p><b><details><summary>pstack</summary></b><br> print every thread stack </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pstack $pid</span><br></pre></td></tr></table></figure>
-</details>
-
-<p><b><details><summary>os</summary></b></p>
-<h1 id="os-information"><a href="#os-information" class="headerlink" title="os information"></a>os information</h1><p>lsb_release -a</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">No LSB modules are available.</span><br><span class="line">Distributor ID: Ubuntu</span><br><span class="line">Description:    Ubuntu 16.04.5 LTS</span><br><span class="line">Release:        16.04</span><br><span class="line">Codename:       xenial</span><br></pre></td></tr></table></figure>
-<p>uname -a</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux coding.ide 3.10.107-1-tlinux2_kvm_guest-0046.cd.nosign #1 SMP Wed Jan 31 15:25:12 CST 2018 x86_64 x86_64 x86_64 GNU&#x2F;Linux</span><br></pre></td></tr></table></figure>
-</details>
+        <p>STL容器分两种：序列式容器，关联式容器。<br><img src="https://user-images.githubusercontent.com/11263320/109159391-83d9c000-77af-11eb-9e56-9ddb4852a996.png" alt="20180320143955869"><br>上图以内缩方式来表达基层与衍生层的关系。<br>heap内含一个vector，priority-queue内含一个heap、stack和queue都含一个deque，set/map/multiset/multimap都内含一个RB-tree，hash_x都内含一个hastable。</p>
+<h2 id="序列式容器"><a href="#序列式容器" class="headerlink" title="序列式容器"></a>序列式容器</h2><p>所谓序列式容器，其中的元素都可序(ordered)，但未必有序(sorted)。C++语言本身提供了一个序列式容器array。STL另外再提供 上列呈现的序列式容器。</p>
+<h3 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h3><p>vector的数据安排以及操作方式与array非常相似。两者唯一差别在于空间的运用的灵活性上。array是静态空间，设定要先定义空间。vector是动态空间，它的内部机制会自行扩充空间以容纳新元素。vector人运用对于内存的合理利用与运用的灵活性有很大的帮助。<br>vector的实现技术，关键在于其对大小的控制以及重新配置时的数据移动效率。这里具体要看空间配置的策略。<br>vector的数据结构：线性连续空间。它以两个迭代器start和finish分别指向配置得来的连续空间中目前已被使用的范围，并以迭代器end_of_storage指向整块连续空间（含备用空间）的尾端。为了降低空间配置时的速度成本，vector实际配置的大小可能比客户端需求量更大一些，以备将来可能的扩充。这便是容量（capacity）的观念。<br>vector的迭代器：因为普通指针就可以满足vector的所有必要条件，而vector支持随机存取，所以vector提供的是Random Access Iterators。</p>
+<h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>list的好处是每次插入或删除一个元素，就配置或释放一个元素空间。list对于空间的运用有绝对的精准，一点也不浪费。而且对于任何位置的元素插入或无素移除，list永远是常数时间。<br>list和vector的选择最多视所元素的多寡、元素的构造复杂度、元素存取行为的特性而定。<br>list的数据结构：从list的节点结构看，STL中的list是个双向链表。<br>list的迭代器：所其操作上看，其迭代器是Bidirectional Itertors。</p>
+<h3 id="deque"><a href="#deque" class="headerlink" title="deque"></a>deque</h3><p>vector是单向开口的连续线性空间，deque则是一种双向开口的连续线性空间。<br>deque没有容量观念。不像vector那样“因旧空间不足而重新配置一块更大空间，然后复制元素，再释放旧空间”。<br>deque的数据结构：array无法成长，vector虽可成长，却只能向尾端成长，而且是个假象。deque采用一块“map”作缓冲区，利用这个map成长。<br>deque的迭代器：和vector相似，是Random Access Iterators。</p>
+<h3 id="stack与queue"><a href="#stack与queue" class="headerlink" title="stack与queue"></a>stack与queue</h3><p>这两种都没有迭代器，数据结构是用deque实现的（其实用list也可以）。</p>
+<h3 id="heap"><a href="#heap" class="headerlink" title="heap"></a>heap</h3><p>heap不归属于stl容器组件，它是priority queue的助手。priority queue允许用户以任何次序将任何元素推入容器内，但取出时一定是从优先权最高（也就是数值最高）的元素开始取。binary max heap正是具有这样的特性，适合作为priority queue的底层机制。<br>heap底部容器：以vector表现的完全二叉树。<br>实现算法：最大堆。</p>
+<p>priority_queue<br>priority_queue是一个拥有权值观念的queue。<br>priority_queue没有迭代器。</p>
+<h3 id="slist"><a href="#slist" class="headerlink" title="slist"></a>slist</h3><p>这是个单向链表，所以迭代器变为Forward Iterator。</p>
+<h2 id="关联式容器"><a href="#关联式容器" class="headerlink" title="关联式容器"></a>关联式容器</h2><p>标准的STL关联式容器分为set（集合）和map（映射表）两大类，以及这两大类的衍生体mutiset（多键集合）和multimap（多键映射表）。这些容器的底层机制均以RB-tree（红黑树）完成。RB-tree也是一个独立容器，但并不开放给外界使用。<br>此外，STL还提供了一个关联式容器：hash_table（散列表），以及以此为底层机制而完成的hash_set（散列集合）、hash_map（散列映射表）、hash_multiset（散列多键集合）、hash_multimap（散列多键映射表）。</p>
+<p>所谓关联式容器，观念上类似关联式数据库（key-value）。当元素被插入到关联式容器中时，容器内部结构（可能是RB-tree，也可能是hash-table）便依照其键值大小，以某种特定规则将这个元素放置于适当位置。<br>关联式容器没有所谓头尾（只有最大元素与最小元素）。<br>一般而言，关联式容器的内部结构是一个balanced binary tree，以便获得良好的搜寻效率。</p>
+<h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>set的特性是所有元素都会根据元素的键值自动被排序。set元素的键值就是实值，实值就是健值。set不允许两个元素有相同的键值。</p>
+<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p>map的特性是，所有元素都会根据元素的键值自动被排序。map的所有元素都是pair。</p>
+<h3 id="multiset与multimap"><a href="#multiset与multimap" class="headerlink" title="multiset与multimap"></a>multiset与multimap</h3><p>特性以及用法和各自兄弟(set，map)完全相同，唯一的差别在于它们允许键值重复。</p>
+<h3 id="hashtable"><a href="#hashtable" class="headerlink" title="hashtable"></a>hashtable</h3><p>二叉搜索树表现的构造在一个假设上：输入数据有足够的随机性。而hash_table（散列表）的数据结构的操作表现是以统计为基础，不需仰赖输入元素的随机性。<br>hash_set、hash_map、hash_multiset、hash_multimap<br>都是以hash_table为底层机制。但其实元素不能自动排序。</p>
+<h2 id="Hash与Map的区别"><a href="#Hash与Map的区别" class="headerlink" title="Hash与Map的区别"></a>Hash与Map的区别</h2><p>权衡三个因素: 查找速度, 数据量, 内存使用，可扩展性，有序性。<br>总体来说，hash查找速度会比RB树快，而且查找速度基本和数据量大小无关，属于常数级别;而RB树的查找速度是log(n)级别。并不一定常数就比log(n) 小，hash还有hash函数的耗时，明白了吧，如果你考虑效率，特别是在元素达到一定数量级时，考虑考虑hash。但若你对内存使用特别严格， 希望程序尽可能少消耗内存，那么一定要小心，hash可能会让你陷入尴尬，特别是当你的hash对象特别多时，你就更无法控制了，而且 hash的构造速度较慢。</p>
+<p>红黑树并不适应所有应用树的领域。如果数据基本上是静态的，那么让他们待在他们能够插入，并且不影响平衡的地方会具有更好的性能。如果数据完全是静态的，例如，做一个哈希表，性能可能会更好一些。<br>在实际的系统中，例如，需要使用动态规则的防火墙系统，使用红黑树而不是散列表被实践证明具有更好的伸缩性。Linux内核在管理vm_area_struct时就是采用了红黑树来维护内存块的。<br>红黑树是有序的，Hash是无序的，根据需求来选择。</p>
+<p>拿红黑树实现的Map和Hash实现的HashMap相比：<br>如果只需要判断Map中某个值是否存在之类的操作，当然是Hash实现的要更加高效。<br>如果是需要将两个Map求并集交集差集等大量比较操作，就是红黑树实现的Map更加高效。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/01/24/linux%E4%B8%8B%E4%B8%80%E4%BA%9B%E5%B7%A5%E5%85%B7/" data-id="ckkmfw4pn0003i4nk14nw2ofy" data-title="linux下一些工具" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/" data-id="ckll11ksp000gionkfcuw3bax" data-title="STL源码分析：Containers" class="article-share-link">Share</a>
       
       
       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-STL源码分析：Iterators" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T12:14:01.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/">STL源码分析：Iterators</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>提供一种方法，使之能够依序巡访某个聚合物（容器）所含的各个元素，而又无需暴露该聚合物的内部表述方式。</p>
+<h2 id="智能指针"><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h2><p>迭代器是一种行为类似指针人对象。而指针的各种行为中最常见也最重要的便是内容提领(*)和成员访问(-&gt;)，迭代器最重要的编程工作就是对这两个操作进行重载工作。</p>
+<h2 id="Traits编程技法（STL源代码门钥）"><a href="#Traits编程技法（STL源代码门钥）" class="headerlink" title="Traits编程技法（STL源代码门钥）"></a>Traits编程技法（STL源代码门钥）</h2><p>Traits就像一台“特性萃取机”，榨取各个迭代器的特性（相应型别）<br><img src="https://user-images.githubusercontent.com/11263320/109153358-c8f9f400-77a7-11eb-9fc2-f553290702c7.png" alt="20180320140804433"><br>迭代器相应有以上↑这五种型别。如果你希望你所开发的容器能与stl兼容，一定要为你的容器迭代器定义这五种相应型别。<br>value type：迭代器所指对象的型别。<br>difference type：两个迭代器之间的距离。<br>reference type：引用<br>pointer type：指针</p>
+<p>iterator_category：这里就是移动特性与施行操作了。<br>也就是迭代器的五类：<br>Input Iterator<br>Output Iterator<br>Forward Iterator<br>Bidirectional Iterator<br>Random Access Iterator</p>
+<p>为了符合规范，任何迭代器都应该提供五个内嵌相应型别，以利于traits萃取。STL提供了一个iterators class，继承它，就可以保证符合stl所需之规范。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/" data-id="ckll11ksq000lionk9vvb0531" data-title="STL源码分析：Iterators" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-STL源码分析：Allocator" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAllocator/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T12:03:44.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAllocator/">STL源码分析：Allocator</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。</p>
+<p>考虚到小型区块所可能造成的内存破碎问题，SGI设计了双层级配置器，第一级配置器直接使用malloc()和free()，第二级配置器则视情况采用不同的策略：当配置区块超过128bytes时，视之为“足够大”，便调用第一级配置器；当配置区块小于128bytes时，视之为“过小”，为了降低额外负担，便采用复杂的memory pool整理方式，而不再求助于第一级配置器。</p>
+<p>内存池<br>从内存池中取空间给free list使用，是chunk_alloc()的工作。</p>
+<p>内存基本处理工具<br>STL定义有五个全局函数，作用于未初始化空间上。这样的功能对于容器的实现很有帮助。<br>分别是用于构造的construct()和用于析构的destroy()，另三个函数是uninitialized_copy()，uninitialized_fill()，uninitialized_fill_n()，分别对应该于高层次函数copy()，fill()，fill_n()。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAllocator/" data-id="ckll11ksq000jionkh1euhrl5" data-title="STL源码分析：Allocator" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-STL源码分析：泛型编程与STL" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B%E4%B8%8ESTL/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T11:50:26.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B%E4%B8%8ESTL/">STL源码分析：泛型编程与STL</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>定义抽象的concepts，并根据抽象的concepts来撰写算法与数据结构，是泛型编程的本质。</p>
+<p>运用STL时的几个最重要的观念：<br>1.所谓使用STL，就是去扩充它。<br>2.STL的算法和容器是独立分离的。<br>3.无须继承。<br>4.抽象化并不意味效率低。</p>
+<p>STL所实现的，是依据泛型思维架设起来的一个概念结构。这个以抽象概念为主体而非以实际类为主体的结构，形成了一个严谨的接口标准。在此接口下，任何组件都有最大的独立性，并以所谓迭代器胶合起来，或以所谓配接器互相配接，或以所谓仿函数动态选择某种策略。</p>
+<p>六大组件交互关系<br>Container通过Allocator取得数据储存空间，Algorithm通过Iterator存取Container内容，Functor可以协助Algorithm完成不同的策略变化，Adapter可以修饰或套接Functor。</p>
+<h2 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h2><p>Iterator可说是STL最重要的一个创新发明，它使”将算法与其相关数据结构的关系切割分离“一事变得可能。</p>
+<p>何为Concept？<br>如果Concept既非class，也非function或template，那么它是什么？有三种方式可以了解Concepts，这些方式一开始似乎大不相同，但是最后证明都是相通的。这三种方式有助于了解泛型 算法的一些重要观点。</p>
+<p>第一，Concept可以想象是一组型别条件。如果说型别Ｔ是Concept Ｃ的一个model，则Ｔ必 须满足Ｃ的所有条件。描述某个型别所必须具备的性质几乎是最容易具体指明Concept的方式了。<br>第二，Concept可以想成是型别的集合。举例来说，Concept input iterator可涵盖char<em>、int</em>、node* 等型别。如果型别Ｔ是Concept C 的model，意思便是说Ｔ隶属于Ｃ所代表的那个型别集合。由于集合中的所有型别都满足那一系列条件，其实是以不同的角度看待同一件事情。<br>第三，Concept可以想象成是一组合法程序。依次定义，那么像input iterator这样的Concept，其重要性在于find以及其他许多算法都会用到它。这个Concept自身包含iterator及那些算法共有的 性质。这种定义似乎比前两者更加抽象，但是却很重要，因为就某种意义来说，这是三中方法中 最实用的。这也是新的概念的发掘方法。是的，我们并非藉由写下一组需求条件来发掘和描述新 的概念，而是藉由定义特别的算法并研究模板参数如何运行于这些算法身上的过程来完成。我们 研究find，过程中导出了 input iterator。本书其他各种概念同样是肇因与算法。 </p>
+<p>Iterator是指针的概括物，它们是”用来指向其他对象“的一种对象。<br>Iterator对于泛型编程之所以重要，原因是它是算法与数据结构之间的接口。</p>
+<p>1、Input Iterator ：只允许作为输入，也就是只读（Read Only）<br>2、Output Iterator ：只允许作为输出，也就是只写（Write Only）<br>3、Forward Iterator ：允许读写，但只能做前向移动<br>4、Bidirectional Iterator ：允许读写，可以做双向移动<br>5、Random Access Iterator ：允许读写，可以任意移动，可作（P+N和P-N）、（P[n]）、（P1-P2）、（P1 &lt; P2）</p>
+<h2 id="Function-objects"><a href="#Function-objects" class="headerlink" title="Function objects"></a>Function objects</h2><p>Function objects是非常一般化的概念，它们可以将任何种类的行为参数化。几乎任何算法都能以“将其行为的某一部分抽象化为function object”的方式来加以一般化。</p>
+<h2 id="Containers"><a href="#Containers" class="headerlink" title="Containers"></a>Containers</h2><p>STL预定义的所有container classes都是一种Forward Container，其中大多数甚至是Bidirectional Container。有一些像block之类的container classes，则属于Random Access Container。</p>
+<h2 id="Allocators"><a href="#Allocators" class="headerlink" title="Allocators"></a>Allocators</h2><p>很多containers以动态方式分配内存（但非全部如此，例如block就不是）。配置器，它代表一种特定内存模型，并提供一种抽象概念，以便将对内存的申请最终转变为对内存的直接调用。<br>STL提供了很多泛型容器，如vector，list和map。程序员在使用这些容器时只需关心何时往容器内塞对象，而不用关心如何管理内存，需要用多少内存，这些STL容器极大地方便了C++程序的编写。</p>
+<h2 id="Algorithms"><a href="#Algorithms" class="headerlink" title="Algorithms"></a>Algorithms</h2><p>各种常用算法，如sort,search,copy,erase。从实现的角度讲，STL算法是一种function template。</p>
+<h2 id="Adapters"><a href="#Adapters" class="headerlink" title="Adapters"></a>Adapters</h2><p>一种用来修饰容器或仿函数或迭代器接口的东西。<br>改变functor接口者，称为function adapter;<br>改变contrainer接口者，称为contrainer adapter;<br>改变iterator接口者，称为iterator adapter。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B%E4%B8%8ESTL/" data-id="ckll11ksr000nionk42a7cpkr" data-title="STL源码分析：泛型编程与STL" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-c-对象模型研究7：站在对象模型的顶端" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B67%EF%BC%9A%E7%AB%99%E5%9C%A8%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%A1%B6%E7%AB%AF/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T11:27:23.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B67%EF%BC%9A%E7%AB%99%E5%9C%A8%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%A1%B6%E7%AB%AF/">c++对象模型研究7：站在对象模型的顶端</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="template"><a href="#template" class="headerlink" title="template"></a>template</h2><p>在C++发明阶段，C++之父Stroustrup和贝尔实验室的C++小组对原先的宏方法进行了修订，对其进行了简化并将它从预处理范围移入了编译器。这种新的代码替换装置被称为模板，而且它变现了完全不同的代码重用方法：模板对源代码重用，而不是通过继承和组合重用对象代码。当用户使用模板时，参数由编译器来替换，这非常像原来的宏方法，却更清晰，更容易使用。</p>
+<p>未使用的template member function不应该被实例化。<br>对于template的错误检查，只有在实例化操作时才会进行类型类型检查，而所有的语汇（lexing）错误和解析（parsing）错误都会在处理template声明的过程中被表示出来。也就是用到了语法分析器。<br>在目前的编译器中，面对一个template声明，在它被一组实际参数实例化之前，只能施以有限的错误检查。</p>
+<p>template中的名称决议法，分为 scope of the template definition 和 scope of the template instantiation.<br>template之中，对于一个nonmember的决议结果，是根据这个name的使用是否与“用以实例化该template的参数类型”有关而决定。如果互不相关，则使用“scope of the template declaration”来决定name，否则以“scope of the template instantiation”来决定name。<br>函数的决议结果，只和函数的原型有关，和函数的返回值没有关系。</p>
+<p>对于member function的实例化行为，编译器设计者需要考虑以下3种问题：<br>1.编译器如何找打函数的定义？ –&gt; 答案是产生template program text file, 有点类似header<br>2.编译器如何能够只实例化程序中用到的member function？ –&gt; 解法方法之一，是忽略此项要求，只要class的object被实例化，就全部产生出来；另一个解决方法是模拟链接操作，检测看看哪个函数真正需要，然后只为他们产生实例<br>3.编译器如何组织member definition在多个 .o文件中被实例化？  –&gt;方法是产生多个实例，但只在链接器中保存一个。</p>
+<p>对于member function，每个member function的地址都被放在active classes的virtual table中。<br>如果virtual table被产生出来，每个virtual function 都必须被实例化。</p>
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>欲支持exception handling，编译器的主要工作是找到catch子句，以处理被抛出来的exception。</p>
+<h2 id="执行期类型识别"><a href="#执行期类型识别" class="headerlink" title="执行期类型识别"></a>执行期类型识别</h2><p>dynamic_cast运算符可以在执行期决定真正的类型。<br>如果downcast是安全的，也就是说base type pointer指向一个derived class object。这个运算符会传回被适当转换过的指针。<br>如果downcast是不安全的，这个运算符会传回0。<br>dynamic_cast的成本是编译时会产生一个类型描述器。<br>执行期对一个class指针施以dynamic_cast运算符，会返回true或false，true指的是返回真正的地址，false表示没有指向任何对象。</p>
+<p>dynamic_cast运算符也适用于reference。<br>若将一个reference设为0，会引起一个临时对象被产生出来，该临时对象的初值为0，这个reference然后被设定成该临时对象的别名。<br>如果真正参考到derived class，downcast会继续执行程序，反之，会跑出一个bad_cast exception操作。</p>
+<p>typeid运算符<br>typeid运算符传回一个const reference。类型为type_info.<br>RTT1只适合于多态类，但是typeid同时也适用于内建类型。 如typeid(double) 会传回一个 const type_info&amp;。这个时候type_info object是静态取得，而非执行期取得。</p>
+<h2 id="效率、弹性"><a href="#效率、弹性" class="headerlink" title="效率、弹性"></a>效率、弹性</h2><p>传统的C++对象模型提供有效率的执行期支持。这份效率，再加上与C之间的兼容性，造成了C++的广泛被接受度。然而，在某些领域方面，像是动态共享函数库、共享内存、以及分布式对象方面，这个对象模型的弹性还是不够。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B67%EF%BC%9A%E7%AB%99%E5%9C%A8%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%A1%B6%E7%AB%AF/" data-id="ckll11ksx0013ionk4grg37ro" data-title="c++对象模型研究7：站在对象模型的顶端" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
     </footer>
   </div>
   
@@ -476,6 +528,11 @@
 
   
 
+
+  <nav id="page-nav">
+    
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+  </nav>
 
 </section>
         
@@ -488,7 +545,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/" rel="tag">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
     </div>
   </div>
 
@@ -498,7 +555,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/blog/" style="font-size: 20px;">blog</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/python/" style="font-size: 10px;">python</a>
+      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
     </div>
   </div>
 
@@ -507,7 +564,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
     </div>
   </div>
 
@@ -520,23 +577,23 @@
       <ul>
         
           <li>
-            <a href="/2021/01/26/%E6%8F%90%E4%BA%A4%E4%B8%8D%E5%81%9C%E5%BC%B9%E5%87%BA%E7%99%BB%E9%99%86%E5%BC%B9%E7%AA%97%E7%9A%84%E9%97%AE%E9%A2%98/">提交不停弹出登陆弹窗的问题</a>
+            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
           </li>
         
           <li>
-            <a href="/2021/01/25/%E8%BF%9E%E6%8E%A5Github%E4%B8%8E%E6%9C%AC%E5%9C%B0/">连接Github与本地</a>
+            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
           </li>
         
           <li>
-            <a href="/2021/01/25/Hexo-GitHub-Pages%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">Hexo+GitHub Pages博客搭建</a>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
           </li>
         
           <li>
-            <a href="/2021/01/25/LT-%E5%92%8C-ET/">LT 和 ET</a>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
           </li>
         
           <li>
-            <a href="/2021/01/24/%E7%94%A8%E8%84%9A%E6%9C%AC%E5%B0%86-issues-%E8%BD%AC%E6%8D%A2%E6%88%90%E5%8D%9A%E5%AE%A2/">用脚本将 issues 转换成博客</a>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
           </li>
         
       </ul>

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/page/5/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-lua：lua环境搭建" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/lua%EF%BC%9Alua%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" class="article-date">
+  <time class="dt-published" datetime="2021-02-23T02:55:25.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/23/lua%EF%BC%9Alua%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">lua：lua环境搭建</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Lua除了是一门扩展的言语外，还是一门“胶水语言”。最著名的就是作为游戏的脚本开发。</p>
+<p>这里主要说lua怎样与c交互。<br>Lua和c语言通信的主要方法是一个无所不在的虚拟栈。几乎所有的API调用都会操作这个栈上的值。所有的数据交换，无论是Lua到C语言或C语言到Lua都通过这个栈来完成。栈可以解决Lua和C语言之间存在的两大差异，第一种差异是Lua使用垃圾收集，而C语言要求显式地释放内存；第二种是Lua使用动态类型，而C语言使用静态类型。</p>
+<p>下载好Lua源码，可以选择在不同的平台编译，编译也很简单，下面是在windows下的编译方法。（我用的是lua5.1，感觉新版本变化很大，相应的教程也没有5.1的多。）<br>1.打开vs的命令行工具，工具–&gt;visual studio 2005 command prompt<br>2.跳转到 etc的上一级目录，如：cd /d d:\lua<br>2.执行：etc\luavs.bat（ 注意，是 \ 不是 /,写错了不能执行编译 )<br>3.然后lua51.dll, lua51.lib, lua.exe, and luac.exe就生成在 src路径下了。<br>当然，也可以自定义生成文件的名字,具体请看luavs.bat。<br>然后就可以编写第一个c与lua交互的程序。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;lua.h&quot;</span></span></span><br><span class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;lauxlib.h&quot;</span></span></span><br><span class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;lualib.h&quot;</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">&quot;lua.lib&quot;</span>)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buff[<span class="number">256</span>];</span><br><span class="line">    <span class="keyword">int</span> error;</span><br><span class="line">    lua_State *L = luaL_newstate();<span class="comment">//创建一个新的环境</span></span><br><span class="line">    luaL_openlibs(L);<span class="comment">//打开标准库</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(fgets(buff,<span class="keyword">sizeof</span>(buff),<span class="built_in">stdin</span>)!=<span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        error = luaL_loadbuffer(L,buff,<span class="built_in">strlen</span>(buff),<span class="string">&quot;line&quot;</span>) || lua_pcall(L,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (error)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>,<span class="string">&quot;%s&quot;</span>,lua_tostring(L,<span class="number">-1</span>));</span><br><span class="line">            lua_pop(L,<span class="number">1</span>);<span class="comment">//从栈中弹出错误消息</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    lua_close(L);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>luaL_newstate用c运行库的内存分配函数。<br>lua_newstate可自定义内存分配函数。</p>
+<p>头文件lua.h定义了lua提供的基础函数，包括创建lua环境、调用lua函数（如lua_pcall）、读写lua环境中全局变量，以及注册供lua调用的新函数等。Lua.h中定义所有内容都有一个lua_前缀。<br>头文件lauxlib.h定义了辅助库（auxiliary library,auxlib）提供的函数。它的所有定义都以luaL_开头（如luaL_loadbuffer）。辅助库是一个使用lua.h中API编写出的一个较高的抽象层。Lua的所有标准库编写都用到了辅助库。</p>
+<p>注意：Lua脚本的编译执行是相互独立的，在不同的线程上执行。通过luaL_newstate()函数可以申请一个虚拟机，返回指针类型lua_State。今后其他所有Lua Api函数的调用都需要此指针作为第一参数，用来指定某个虚拟机。所以lua_State代表一个lua虚拟机对像，luaL_newstate()分配一个虚拟机。lua类库管理着所有的虚拟机。销毁指定虚拟机的所有对像（如果有垃圾回收相关的无方法则会调用该方法）并收回所有由该虚拟机动态分配产生的内存，在有些平台下我们不需要调用此函数，因为当主程序退出时，资源会被自然的释放掉，但是但一个长时间运行的程序，比如后台运行的web服务器，需要立即回收虚拟机资源以避免内存过高占用。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/lua%EF%BC%9Alua%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" data-id="ckll11kt5001nionkg8lz2u0v" data-title="lua：lua环境搭建" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lua/" rel="tag">lua</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-lua：认识" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/lua%EF%BC%9A%E8%AE%A4%E8%AF%86/" class="article-date">
+  <time class="dt-published" datetime="2021-02-23T02:32:51.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/23/lua%EF%BC%9A%E8%AE%A4%E8%AF%86/">lua：认识</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Lua实现了一个安全的运行环境、一套自动内存管理机制、优秀的字符串处理能力和动态大小数据的处理功能。</p>
+<p>我们都知道，只要应用程序加入lua解析器的功能，就能解析lua脚本。那lua脚本是怎样执行的？<br>我们通常用dofile去打开编译一个lua脚本。当应用程序调用dofile后，在执行完脚本后，才能后到主程序中，这lua脚本相当于一个函数。要等函数执行完才能回到主程序中。<br>在lua脚本中，一般有变量，函数，这些东西都保存在一个常规的table中，这个table称为“环境”。</p>
+<h2 id="loadfile、dofile、require"><a href="#loadfile、dofile、require" class="headerlink" title="loadfile、dofile、require"></a>loadfile、dofile、require</h2><p>loadfile——只加载编译，不运行<br>dofile——执行<br>require——我只执行一次</p>
+<p>用require函数只能加载一次,因为它的特性是:<br>1、require函数会搜索目录加载文件<br>2、require会判断是否文件已经加载避免重复加载同一文件。<br>但当有一些特殊的需求需要反复加载某个lua文件，那如何实现反复加载一个lua文件?<br>答案是:二次加载前加这一句<br>package.loaded[luafile] = nil</p>
+<h2 id="调试库"><a href="#调试库" class="headerlink" title="调试库"></a>调试库</h2><p>调试库由两类函数组成：自省函数和钩子。自省函数允许检查一个正在运行中程序的各个方面，例如它的活动函数栈、当前执行的行、局部变量的名称和值。钩子则允许跟踪一个程序的执行。</p>
+<h2 id="lua使用优化建议"><a href="#lua使用优化建议" class="headerlink" title="lua使用优化建议"></a>lua使用优化建议</h2><p>使用局部变量local<br>这是最基础也是最有用的策略，虽然使用全局变量并不能完全避免，但还是应该尽量避免，取而代之使用局部变量即local。这里的局部变量也包括函数function，因为在Lua里函数也是一个变量。局部变量的存取会更快，而且在生命周期之外就会释放掉。</p>
+<p>使用尾调用</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/lua%EF%BC%9A%E8%AE%A4%E8%AF%86/" data-id="ckll11ktc001zionkhwvj6a0h" data-title="lua：认识" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lua/" rel="tag">lua</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-分布式与RPC" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8ERPC/" class="article-date">
+  <time class="dt-published" datetime="2021-02-23T02:11:38.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/23/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8ERPC/">分布式与RPC</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>RPC（Remote Procedure Call）—远程过程调用，RPC使得开发包括网络分布式多程序在内的应用程序更加容易。</p>
+<h2 id="充分利用资源"><a href="#充分利用资源" class="headerlink" title="充分利用资源"></a>充分利用资源</h2><p>并发编程有两种基本模型，一种是message passing，另一种是shared memory。在分布式系统中，运行在多台机器上的多个进程的并行编程只有一种实用模型message passing。<br>在单机上，我们也可以照搬message passing作为多个进程的并发模型。这样整个分布式系统的架构的一致性很强，扩容起来也较容易。</p>
+<h2 id="进程间通信只用tcp"><a href="#进程间通信只用tcp" class="headerlink" title="进程间通信只用tcp"></a>进程间通信只用tcp</h2><p>进程间通信只用tcp<br>其最大的好处在于：可以跨主机，具有伸缩性。反正都是多进程了，如果一台机器的处理能力不够，很自然地就能用多台机器来处理。把进程分散到同一局域网的多台机器上，程序改改host:port配置就能继续用。<br>tcp port由一个进程独占，且操作系统会自动回收（listening port和已建立连接的TCP socket都是文件描述符，在进程结束时操作系统会关闭所有文件描述符）。这说明，即使程序意外退出，也不会给系统留下垃圾，程序重启之后能比较容易地恢复，而不需要重启操作系统。还有一个好处，既然port是独占的，那么可以防止程序重复启动，后面那个进程抢不到port，自然就没法初始化了，避免造成意料之外的结果。<br>两个进程通过tcp通信，如果一个崩溃了，操作系统会关闭连接，另一个进程几乎立刻就能感知，可以快速failover。<br>tcp还能跨语言。</p>
+<p>生产环境下的数据库服务器往往是独立的高配置服务器，一般不会同时运行其他占资源的程序。</p>
+<h2 id="分布式系统中使用TCP长连接通信"><a href="#分布式系统中使用TCP长连接通信" class="headerlink" title="分布式系统中使用TCP长连接通信"></a>分布式系统中使用TCP长连接通信</h2><p>分布式系统的软件设计和功能划分一般应该以“进程”为单位。从宏观上看，一个分布式系统是由运行在多台机器上的多个进程组成的，进程之间采用TCP长连接通信。<br>使用tcp长连接的好处有两点：一是容易定位分布式系统中的服务之间的依赖关系。</p>
+<h2 id="使用tcp长连接的好处有两点"><a href="#使用tcp长连接的好处有两点" class="headerlink" title="使用tcp长连接的好处有两点"></a>使用tcp长连接的好处有两点</h2><p>一是容易定位分布式系统中的服务之间的依赖关系。只要在机器上运行netstat -tpna | grep : port 就能立刻列出用到某服务的客户端地址，然后在客户端的机器上用netstat或lsof命令找出是哪个进程发起的连接。这样在迁移服务的时候能有效地防止出现outage。TCP短连接和UDP则不具备这一特性。<br>二是通过接收和发送队列的长度也较容易定位网络或程序故障。在正常运行的时候，netstat打印的Recv-Q和Send-Q都应该接近0，或者在0附近摆动。如果Recv-Q保持不变或持续增加，则通常意味着服务进程的处理速度变慢，可能发生了死锁或阻塞。如果Send-Q保持不变或持续增加，有可能是对方服务器太忙、来不及处理，也有可能是网络中间某个路由器或交换机故障造成丢包，甚至对方服务器掉线，这些因素都可能表现为数据发送不出去。通过持续监控Recv-Q和Send-Q就能及早预警性能或可用性故障。</p>
+<p>必须用单线程的场合<br>1.程序可能会fork;<br>2.限制程序的CPU占用率。</p>
+<p>多线程的适用场景是：提高响应速度，让IO和“计算”相互重叠，降低latency。虽然多线程不能提高绝对性能，但能提高平均响应性能。</p>
+<p>线程的分类：<br>1.IO线程，这类线程的主循环是IO multiplexing，阻塞地等在select/poll/epoll_wait系统调用上。这类线程也处理定时事件。当然它的功能不止IO，有些简单计算也可以放入其中，比如消息的编码或解码。<br>2.计算线程，这类线程的主循环是blocking queue，阻塞地等在condition variable上。这类线程一般位于thread pool中。这种线程通常不涉及IO，一般要避免任何阻塞操作。<br>3.第三方库所用的线程，比如logging，又比如database connection。</p>
+<p>服务器程序一般不会频繁地启动和终止线程。甚至，create thread只在程序启动的时候调用，在服务运行期间是不调用的。<br>一个多线程的进程和多个相同的单线程进程该如何取舍？<br>可以根据工作集的大小来取舍。工作集是指服务程序响应一次请求所访问的内存大小。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8ERPC/" data-id="ckll11ku8004dionkgclrg2r1" data-title="分布式与RPC" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-网络异常查找" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/%E7%BD%91%E7%BB%9C%E5%BC%82%E5%B8%B8%E6%9F%A5%E6%89%BE/" class="article-date">
+  <time class="dt-published" datetime="2021-02-23T02:06:48.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/23/%E7%BD%91%E7%BB%9C%E5%BC%82%E5%B8%B8%E6%9F%A5%E6%89%BE/">网络异常查找</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>服务器如何知道客户端异常断开连接？</p>
+<p>心跳：<br>在服务器端可以采用SetSockOpt来设置keepalive属性，同时修改注册表，这样出现客户端异常退出的时候，服务器端就能够知道，并且上报应用层</p>
+<p>time_wait状态与FIN状态<br>首先启动socket服务端，然后用客户端进行连接，用netstat –ant命令查看目前套接字的状态：</p>
+<p>发现客户端和服务器的套接字都进入了established状态，说明客户端和服务端都正常工作，此时我们在服务端输入Ctrl+C终端服务端程序，再次输入netstat–ant命令，这是就看到了服务端进入了FIN_WAIT2状态，而客户端进入了CLOSE_WAIT状态。</p>
+<p>关于断开套接字断开连接时的四次握手在这里不再赘述，而这个FIN_WAIT2状态就是服务端在主动发起断开的连接请求时，发送FIN并收到客户端的ACK进入的等待客户端FIN的状态；而与FIN_WAIT2相对的FIN_WAIT1就是服务端发送完成FIN后还未接收到客户端返回的ACK时进入的状态，这个状态时长很短，在我本机上无法捕捉；这个CLOSE_WAIT状态是客户端接受到服务端的FIN并发送ACK后，等待用户手动关闭套接字的状态。</p>
+<p>此时如果关闭客户端的套接字，直接在客户端输入Ctrl+C，服务端就会进入我们熟悉的TIME_WAIT状态</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/%E7%BD%91%E7%BB%9C%E5%BC%82%E5%B8%B8%E6%9F%A5%E6%89%BE/" data-id="ckll11kum005eionk8lfr7qdk" data-title="网络异常查找" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-网络游戏的状态同步设计策略" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E7%9A%84%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5%E8%AE%BE%E8%AE%A1%E7%AD%96%E7%95%A5/" class="article-date">
+  <time class="dt-published" datetime="2021-02-23T01:19:59.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/23/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E7%9A%84%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5%E8%AE%BE%E8%AE%A1%E7%AD%96%E7%95%A5/">网络游戏的状态同步设计策略</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>光速：3×10＾8m/s，300000km/s<br>中国东西约5200公里,南北约5500公里（玩家最大相距按5000km计算）<br>16 ms 只够光信号在 2500 km 的距离上跑一个来回</p>
+<h2 id="状态同步（Server同步）"><a href="#状态同步（Server同步）" class="headerlink" title="状态同步（Server同步）"></a>状态同步（Server同步）</h2><p>服务器负责计算全部的游戏逻辑，并且广播这些计算的结果，客户端仅仅负责发送玩家的操作，以及表现收到的游戏结果。一般来说，玩家发送一个操作到服务器上，服务器根据玩家操作去修改内存中的游戏世界模型，同时运算游戏世界对这个操作的反应，然后把这些反应都广播给相关的多个客户端，每个客户端负责把这些数据表现出来给玩家看。</p>
+<p>当然这种模式只适合一些若交互的游戏，比如rpg，卡牌，slg类型的游戏，这些游戏共有的特点就是和服务器交互的频率不高，服务器手机所有玩家的操作信息，进行演算之后把演算结果转发给其他玩家，其他玩家做相应的模拟和显示。</p>
+<h2 id="帧同步"><a href="#帧同步" class="headerlink" title="帧同步"></a>帧同步</h2><p>锁定步进算法（lockstep ）<br>就是让网络上所有的机器都同时执行一样的操作，得到一样的结果。执行 lockstep 同步时，其实和时间是无关的，只和动作一致性有关。<br>lockstep 的核心其实是按回合锁定游戏进程，逐步推演。时钟周期对游戏规则其实并不重要，超时机制的存在是客户端用来解决如何确定当前回合要提交的多少操作而设定的；而模拟层的心跳周期则影响了表现层如何把离散状态拟合成连续状态。<br>War3/星际等采用，基于指令驱动各个客户端自计算逻辑。服务端只管分发指令，每个客户端根据完整的规则运算整个战场。<br>每个客户端播放效果就像是看视频。<br>对视觉同步要求较高。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>因为只需要同步指令，所以流量消耗非常小</p>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><p>断线需要补帧，即一旦你的战场状态没有了，必须从头开始，从第一个指令运算到连回去的战场状态。</p>
+<p>适用于一般moba，rts等大型多人在线游戏。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E7%9A%84%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5%E8%AE%BE%E8%AE%A1%E7%AD%96%E7%95%A5/" data-id="ckll11kum005gionkhk0e0w8e" data-title="网络游戏的状态同步设计策略" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-根据日志查看QPS" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/%E6%A0%B9%E6%8D%AE%E6%97%A5%E5%BF%97%E6%9F%A5%E7%9C%8BQPS/" class="article-date">
+  <time class="dt-published" datetime="2021-02-22T17:02:10.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/23/%E6%A0%B9%E6%8D%AE%E6%97%A5%E5%BF%97%E6%9F%A5%E7%9C%8BQPS/">根据日志查看QPS</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="如何根据日志查看一个服务的qps"><a href="#如何根据日志查看一个服务的qps" class="headerlink" title="如何根据日志查看一个服务的qps"></a>如何根据日志查看一个服务的qps</h2><p>tail -f XXX.log</p>
+<p>命令：tail -f XXX.log | grep recommend.components.KeywordService | cut -d’ ‘ -f2 | cut -d’:’ -f3 | uniq -c<br>说明：取增量 | 一个请求取一行 | 把时间截取出来 | 把秒数截取出来 | 去重取计数</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/%E6%A0%B9%E6%8D%AE%E6%97%A5%E5%BF%97%E6%9F%A5%E7%9C%8BQPS/" data-id="ckll11kuh0050ionk45380mqf" data-title="根据日志查看QPS" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-游戏服务器架构" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9E%B6%E6%9E%84/" class="article-date">
+  <time class="dt-published" datetime="2021-02-22T16:45:32.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/23/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9E%B6%E6%9E%84/">游戏服务器架构</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="登录服务器"><a href="#登录服务器" class="headerlink" title="登录服务器"></a>登录服务器</h2><p>只是负责验证用户名和密码，验证之后返回token，token是有有效时间的，在有效时间内，并没有保持连接的必要，所以，这里的RequestResponse可以做成短连接（http请求响应模式），提升并发。</p>
+<p>如果超过了有效时间还没有进入游戏，令牌失效，在登录验证时将被踢回重新获取令牌。</p>
+<p>登录服务器和网关之间需要有一个固定的连接传递新生成的令牌。</p>
+<h2 id="中心服务器"><a href="#中心服务器" class="headerlink" title="中心服务器"></a>中心服务器</h2><p>管理各种服务器<br>登记各种服务器<br>广播各种服务器上线、下线<br>反映各服务器状态</p>
+<p>记录最大在线人数<br>记录各个服务器的在线（人数\连接数）</p>
+<h2 id="agent"><a href="#agent" class="headerlink" title="agent"></a>agent</h2><p>玩家确实进入游戏之后，每一个玩家都会有一个对应的Agent来维护。包括玩家的即时游戏数据，存档游戏数据。所有与游戏内容相关的都称为游戏服务器。这部分的工作量将是游戏开发过程中最大的。</p>
+<p>主要就是从网关发送的消息队列中不断读取消息，然后进行处理。对于游戏来说，整个世界是在一个循环体中的，所以首先肯定会有一个大的世界循环体，然后是每个Agent的存在更新。鉴于现在的网游都没有存档的设计，全是数据统一入库的，所以，Agent还需要负责玩家数据的持久化。我只打算做定期持久化，如果像王者那样即时持久化，需要的代码量和代码的耦合让人不太舒服。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9E%B6%E6%9E%84/" data-id="ckll11kui0054ionkaunnbg8r" data-title="游戏服务器架构" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-mysql：锁" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/mysql%EF%BC%9A%E9%94%81/" class="article-date">
+  <time class="dt-published" datetime="2021-02-22T16:42:29.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/23/mysql%EF%BC%9A%E9%94%81/">mysql：锁</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>锁机制用于管理对共享资源的并发访问。</p>
+<h2 id="行级锁"><a href="#行级锁" class="headerlink" title="行级锁"></a>行级锁</h2><p>行级锁只在存储引擎层实现，在服务器层没有实现。</p>
+<h2 id="mysql乐观锁、悲观锁"><a href="#mysql乐观锁、悲观锁" class="headerlink" title="mysql乐观锁、悲观锁"></a>mysql乐观锁、悲观锁</h2><p>latch门闩，因为其要求锁定的时间必须非常短。若持续的时间长，则应用的性能会非常差。在InnoDB存储引擎中，latch又可以分为mutex（互斥量）和rwlock（读写锁）。其目的是用来保证并发线程操作临界资源的正确性，并且通常没有死锁检测的机制。</p>
+<p>lock的对象是事务，用来锁定的是数据库中的对象，如表、页、行。并且一般lock的对象仅在事务commt或rollback后进行释放（不同事务隔离级别释放的时间可能不同）。此外，lock，正如在大多数数据库中一样，是有死锁机制的。</p>
+<h2 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h2><p>死锁是指两个或两个以上的事务在执行过程中，因争夺锁资源而造成的一种互相等待的现象</p>
+<h2 id="锁升级"><a href="#锁升级" class="headerlink" title="锁升级"></a>锁升级</h2><p>锁升级是指将当前锁的粒度降低。比如，数据库可以把一个表的1000个行锁升级为一个页锁，或者将页锁升级为表负。如果在数据库的设计中认为锁是一种稀有资源，而且想避免锁的开销，那数据库中会频繁出现锁升级现象</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/mysql%EF%BC%9A%E9%94%81/" data-id="ckll11ktk002kionk9vra8boc" data-title="mysql：锁" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-mysql：事务" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/mysql%EF%BC%9A%E4%BA%8B%E5%8A%A1/" class="article-date">
+  <time class="dt-published" datetime="2021-02-22T16:21:10.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/23/mysql%EF%BC%9A%E4%BA%8B%E5%8A%A1/">mysql：事务</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>如果一个数据库声称支持事务的操作，那么该数据库必须要具备以下四个特性：<br>⑴ 原子性（Atomicity）<br>　　原子性是指事务包含的所有操作要么全部成功，要么全部失败回滚，这和前面两篇博客介绍事务的功能是一样的概念，因此事务的操作如果成功就必须要完全应用到数据库，如果操作失败则不能对数据库有任何影响。</p>
+<p>⑵ 一致性（Consistency）<br>　　一致性是指事务必须使数据库从一个一致性状态变换到另一个一致性状态，也就是说一个事务执行之前和执行之后都必须处于一致性状态。<br>　　拿转账来说，假设用户A和用户B两者的钱加起来一共是5000，那么不管A和B之间如何转账，转几次账，事务结束后两个用户的钱相加起来应该还得是5000，这就是事务的一致性。</p>
+<p>⑶ 隔离性（Isolation）<br>　　隔离性是当多个用户并发访问数据库时，比如操作同一张表时，数据库为每一个用户开启的事务，不能被其他事务的操作所干扰，多个并发事务之间要相互隔离。<br>　　即要达到这么一种效果：对于任意两个并发的事务T1和T2，在事务T1看来，T2要么在T1开始之前就已经结束，要么在T1结束之后才开始，这样每个事务都感觉不到有其他事务在并发地执行。<br>　　关于事务的隔离性数据库提供了多种隔离级别，稍后会介绍到。</p>
+<p>⑷ 持久性（Durability）<br>　　持久性是指一个事务一旦被提交了，那么对数据库中的数据的改变就是永久性的，即便是在数据库系统遇到故障的情况下也不会丢失提交事务的操作。<br>　　例如我们在使用JDBC操作数据库时，在提交事务方法后，提示用户事务操作完成，当我们程序执行完成直到看到提示后，就可以认定事务以及正确提交，即使这时候数据库出现了问题，也必须要将我们的事务完全执行完成，否则就会造成我们看到提示事务处理完毕，但是数据库因为故障而没有执行事务的重大错误。</p>
+<p>以上介绍完事务的四大特性(简称ACID)</p>
+<p>死锁是指两个或者多个事务在同一资源上相互占用，并请求锁定对方占用的资源，从而导致恶性循环的现象。<br>mysql服务器层不管理事务，事务是由下层的存储引擎实现的。所以在同一个事务中使用多种存储引擎是不可靠的。</p>
+<p>输入：MySQL的 ROLLBACK 命令用来回退（撤销）MySQL语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">select * from ordertotals;</span><br><span class="line">start transaction;</span><br><span class="line">delete from ordertotals;</span><br><span class="line">select * from ordertotals;</span><br><span class="line">rollback;</span><br><span class="line">select * from ordertotals;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/mysql%EF%BC%9A%E4%BA%8B%E5%8A%A1/" data-id="ckll11ktd0023ionkg2rjat4a" data-title="mysql：事务" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-git仓库太大的处理方法" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/22/git%E4%BB%93%E5%BA%93%E5%A4%AA%E5%A4%A7%E7%9A%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/" class="article-date">
+  <time class="dt-published" datetime="2021-02-22T15:11:09.000Z" itemprop="datePublished">2021-02-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/22/git%E4%BB%93%E5%BA%93%E5%A4%AA%E5%A4%A7%E7%9A%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/">git仓库太大的处理方法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="只下载最后一次的提交"><a href="#只下载最后一次的提交" class="headerlink" title="只下载最后一次的提交"></a>只下载最后一次的提交</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;Wuchenwcf&#x2F;MyCode.git --depth&#x3D;&#x3D;1</span><br></pre></td></tr></table></figure>
+<h2 id="git仓库压缩瘦身"><a href="#git仓库压缩瘦身" class="headerlink" title="git仓库压缩瘦身"></a>git仓库压缩瘦身</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 查看历史大文件</span><br><span class="line">git rev-list --objects --all | grep &quot;$(git verify-pack -v .git&#x2F;objects&#x2F;pack&#x2F;*.idx | sort -k 3 -n | tail -5 | awk &#39;&#123;print$1&#125;&#39;)&quot;</span><br><span class="line"># 从历史中删除 target&#x2F; 这个文件夹</span><br><span class="line">git filter-branch --force --index-filter &#39;git rm -r  --cached --ignore-unmatch target&#x2F;&#39; --prune-empty --tag-name-filter cat -- --all</span><br><span class="line"># 执行仓库压缩</span><br><span class="line">git gc --prune&#x3D;now</span><br><span class="line"># 推送到远程仓库</span><br><span class="line">git push origin --force --all</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/22/git%E4%BB%93%E5%BA%93%E5%A4%AA%E5%A4%A7%E7%9A%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/" data-id="ckll11ksz0017ionk541lg004" data-title="git仓库太大的处理方法" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/" rel="tag">git</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/4/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/6/">Next &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>c++对象模型研究3：数据 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="开始前先看看 1234class X &amp;#123;&amp;#125;;class Y:public virtual X &amp;#123;&amp;#125;;class Z:public virtual X &amp;#123;&amp;#125;;class A:public Y,public Z &amp;#123;&amp;#125;; 上述X，Y，Z，A中没有任何一个class内含明显的数据，其间只表示了继承关系。按照书上的例子 1234">
+<meta property="og:type" content="article">
+<meta property="og:title" content="c++对象模型研究3：数据">
+<meta property="og:url" content="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B63%EF%BC%9A%E6%95%B0%E6%8D%AE/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="开始前先看看 1234class X &amp;#123;&amp;#125;;class Y:public virtual X &amp;#123;&amp;#125;;class Z:public virtual X &amp;#123;&amp;#125;;class A:public Y,public Z &amp;#123;&amp;#125;; 上述X，Y，Z，A中没有任何一个class内含明显的数据，其间只表示了继承关系。按照书上的例子 1234">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-02-25T08:30:20.000Z">
+<meta property="article:modified_time" content="2021-02-25T15:33:28.184Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="cpp">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-c-对象模型研究3：数据" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B63%EF%BC%9A%E6%95%B0%E6%8D%AE/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T08:30:20.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      c++对象模型研究3：数据
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>开始前先看看</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Y</span>:</span><span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Z</span>:</span><span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span><span class="keyword">public</span> Y,<span class="keyword">public</span> Z &#123;&#125;;</span><br></pre></td></tr></table></figure>
+<p>上述X，Y，Z，A中没有任何一个class内含明显的数据，其间只表示了继承关系。<br>按照书上的例子</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X = <span class="number">1</span></span><br><span class="line"><span class="keyword">sizeof</span> Y = <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Z = <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> A = <span class="number">12</span></span><br></pre></td></tr></table></figure>
+<p>译注是</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X = <span class="number">1</span></span><br><span class="line"><span class="keyword">sizeof</span> Y = <span class="number">4</span></span><br><span class="line"><span class="keyword">sizeof</span> Z = <span class="number">4</span></span><br><span class="line"><span class="keyword">sizeof</span> A = <span class="number">8</span></span><br></pre></td></tr></table></figure>
+<p>先看X，事实上并不是空的，编译器会安插进去一个char。使得这个class的对象在内存中配置独一无二的地址。</p>
+<p>至于Y和Z受到三个因素的影响：<br>1.语言本身所造成的额外负担。其实就是之前一直说的virtual问题。<br>2.编译器对于特殊情况所提供的优化处理。有些编译器会对这个1bytes作出不同的处理（例如省略）。<br>3.Alignment的限制，我的理解是字节对齐，在大部分机器上，群聚的结构体大小会受到alignment的限制，使它们能够更有效率地在内存中被存取。</p>
+<p>ps:一个虚基类对象只会在派生类中存在一份实体，不管它在class继承体系中出现了多少次。</p>
+<p>C++对象模型尽量以空间优化和存取速度优化的考虑来表现非static成员数据，并且保持和C语言struct数据配置的兼容性。它把数据直接存放在每一个类对象之中。对于继承而来的非static成员数据（不管是virtual还是非virtual基类）也是如此。而类的static成员数据是存放在全局中，只有一份实例（甚至即使该class没有任何对象实体，其static成员数据也已存在），但是一个template类的static成员数据的行为稍有不同。</p>
+<p>每一个类对象必须有足够的大小以容纳它所有的非static成员数据，它可能比你想象的还大，原因是：<br>1.由编译器自动加上的额外成员数据，用以支持某些语言特性（主要是各种virtual特性）。<br>2.因为alignment的需要。</p>
+<h2 id="成员数据的绑定"><a href="#成员数据的绑定" class="headerlink" title="成员数据的绑定"></a>成员数据的绑定</h2><p>先说说extern：<br>extern 表明该变量在别的地方已经定义过了,在这里要使用那个变量.。例如变量在xxx.cpp里面定义过了，现在在本头文件中，以extern int a; 的形式声明，那么include”本头文件”的cpp，都可以使用该变量。extern与（const&amp;static）不同，（const和static只在本模块中起作用） extern可以在其他模块中起作用。</p>
+<p>如果成员函数没参数，或者不闲的蛋疼把两个类型定义成同个关键字typedef。那么typedef或者成员数据放前放后都一样；如果出现了以上状况，那么必须把内联typedef 放在成员函数的参数之前。这个主要注意的是内联typedef声明需要放在类的起始处，而其他成员函数里面的数据，可以放在类里面的任何地方。</p>
+<h2 id="成员数据的布局"><a href="#成员数据的布局" class="headerlink" title="成员数据的布局"></a>成员数据的布局</h2><p>非static成员数据在类对象中的排列顺序将和其被声明的顺序一样，任何中间介入的static成员数据都不会被放进对象布局之中。</p>
+<p>c++ standard要求，同一个access section（访问级别）中，成员的排列只需要符合“较晚出现的成员在对象中有较高的地址”即可，并不一定要连续排列。原因之一是边界调整，原因之二是插入的关于virtual的东西，如vptr。<br>c++ standard也允许将多个access sections中的成员数据自由排列，不必在乎声明次序(是指access sections之间的自由排列)，但当前各家编译器都是把一个以上的access section连起来，依照声明次序，称为一个连续区块。另外access sections的多寡不会招来额外的负担。</p>
+<h2 id="成员数据的存取"><a href="#成员数据的存取" class="headerlink" title="成员数据的存取"></a>成员数据的存取</h2><p>static成员数据：在内存中只有一份实体，所以用什么方式，无论是指针也好，对象也罢；本子类的也好，从祖祖父继承来的也罢，都一样其存取路径还是一样的直接。</p>
+<p>非static成员数据：直接存放在每个对象中，所以只能由对象来对他们进行存取操作。对象分为explicit class object（自己定义的）和implicit class object（由this指针表达这个implicit class object）（成员函数中访问成员数据时用的）。</p>
+<p>从object origin存取”和“从pointer pt存取”的区别：<br>如果是关于virtual，这里就涉及多态的概念。如果用pt，那么我们不能说pt必然指向哪个class type（因此我们也就不知道编译时期这个成员真正的offset）所以这个存取操作必须延迟至执行期，经由一个额外的间接导引，才能解决。但如果用“.”那么class type就确定无疑了，也就没那么多的事儿了。</p>
+<h2 id="继承与成员数据"><a href="#继承与成员数据" class="headerlink" title="继承与成员数据"></a>继承与成员数据</h2><p>单一继承不含virtual函数<br>其数据布局是这样的，子类对象总是把从父类对象弄成一个子对象，然后把这个子对象放在自己的成员数据之前。因此，子类通过对象或者通过对象指针访问父类成员不会存在间接性，父类成员在编译期就可以确定其offset值（父类成员在父类中的offset值和在子类中的offset值是一样的，因为子类对象把整个父类对象给扒拉下来直接按头上了）。因为父类对象在子类对象的首部，这样当父类指针被子类赋值时，父类指针仍然指向子类对象的父类部分（子对象）起始地址。<br>当然这样的存放方式也是有缺点的（指的是没有虚函数，没有多态的情况）。</p>
+<p>加上多态<br>加上多态即虚函数后，首先是virtual table 和vptr 会创建出来，当然这个创建过程会影响到constructor、copy constructor（为vptr设初值）、destructor（结束后删除vptr）。<br>至于vptr放在哪里要看具体的编译器，vptr放在尾端，可以兼容c的struct object；vptr放在前端可以避免“从class object起始点开始量起的offset在执行期必须备妥，甚至于class vptr之间的offset也必须备妥”。</p>
+<p>多重继承<br>单一继承提供了一种“自然多态”形式，换句话说单一继承可以把子对象一个一个的叠加在derived object上面，based object和derived object 都是从相同地址开始的。所以derived object转based object比较方便（只要改变对象size就行了）。</p>
+<p>虚拟继承<br>如果一个class 内含一个或多个virtual based class subobjects，那它将会被分成两个部分：不变的部分和共享的部分。不变的部分不论后继如何衍化，总是拥有固定的offset（从object头算起），所以这部分数据可以被直接存取。共享部分表现出来的就是virtual base class（虚基类） subobject（因为虚基类被多个class继承，也会被多个子object 更改，为了保证虚基类的 object 的统一性，就需要单独把虚基类的 object 给拎出来了），这一部分其位置会因为派生对象操作而发生变化，所以只能被间接存取（引入一个新的指针，指向共享的内容）。<br>当然只是单纯的引入指针指向共享的virtual base class subobject的话会存在两个缺点：1是随着虚基类的增加，指针的个数也会增加；2是虚基类之间如果也存在虚继承的话，间接存取的层数也会增加（子对象-&gt;父虚基类对象-&gt;祖父虚基类对象···）。<br>对于第一个问题，有两种解决方案：1是设一个指针指向一张虚基类表，虚基类表中存放虚基类对象访问地址；2是在虚基类表中存放每一个虚基类的offset，而不是地址。</p>
+<h2 id="对象成员的访问效率"><a href="#对象成员的访问效率" class="headerlink" title="对象成员的访问效率"></a>对象成员的访问效率</h2><p>指向数据成员的指针，是一个有点神秘又颇有用处的语言特性，特别是如果你需要详细调查类成员的底层布局的话。这样的调查可以用于决定vptr是放在class的起始处或者尾端。另外一个用途是可以用来决定类中的access sections的次序。</p>
+<p>指向成员数据的指针的效率问题<br>具体要看编译器怎样优化了</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B63%EF%BC%9A%E6%95%B0%E6%8D%AE/" data-id="ckll11ksw000zionk2ailaxnc" data-title="c++对象模型研究3：数据" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B65%EF%BC%9A%E6%9E%84%E9%80%A0%E3%80%81%E8%A7%A3%E6%9E%84%E3%80%81%E6%8B%B7%E8%B4%9D/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          c++对象模型研究5：构造、解构、拷贝
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">c++对象模型研究2：构造函数</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

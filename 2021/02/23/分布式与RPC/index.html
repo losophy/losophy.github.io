@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>分布式与RPC | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="RPC（Remote Procedure Call）—远程过程调用，RPC使得开发包括网络分布式多程序在内的应用程序更加容易。 充分利用资源并发编程有两种基本模型，一种是message passing，另一种是shared memory。在分布式系统中，运行在多台机器上的多个进程的并行编程只有一种实用模型message passing。在单机上，我们也可以照搬message passing作为多个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式与RPC">
+<meta property="og:url" content="http://example.com/2021/02/23/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8ERPC/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="RPC（Remote Procedure Call）—远程过程调用，RPC使得开发包括网络分布式多程序在内的应用程序更加容易。 充分利用资源并发编程有两种基本模型，一种是message passing，另一种是shared memory。在分布式系统中，运行在多台机器上的多个进程的并行编程只有一种实用模型message passing。在单机上，我们也可以照搬message passing作为多个">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-02-23T02:11:38.000Z">
+<meta property="article:modified_time" content="2021-02-25T15:33:32.068Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-分布式与RPC" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8ERPC/" class="article-date">
+  <time class="dt-published" datetime="2021-02-23T02:11:38.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      分布式与RPC
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>RPC（Remote Procedure Call）—远程过程调用，RPC使得开发包括网络分布式多程序在内的应用程序更加容易。</p>
+<h2 id="充分利用资源"><a href="#充分利用资源" class="headerlink" title="充分利用资源"></a>充分利用资源</h2><p>并发编程有两种基本模型，一种是message passing，另一种是shared memory。在分布式系统中，运行在多台机器上的多个进程的并行编程只有一种实用模型message passing。<br>在单机上，我们也可以照搬message passing作为多个进程的并发模型。这样整个分布式系统的架构的一致性很强，扩容起来也较容易。</p>
+<h2 id="进程间通信只用tcp"><a href="#进程间通信只用tcp" class="headerlink" title="进程间通信只用tcp"></a>进程间通信只用tcp</h2><p>进程间通信只用tcp<br>其最大的好处在于：可以跨主机，具有伸缩性。反正都是多进程了，如果一台机器的处理能力不够，很自然地就能用多台机器来处理。把进程分散到同一局域网的多台机器上，程序改改host:port配置就能继续用。<br>tcp port由一个进程独占，且操作系统会自动回收（listening port和已建立连接的TCP socket都是文件描述符，在进程结束时操作系统会关闭所有文件描述符）。这说明，即使程序意外退出，也不会给系统留下垃圾，程序重启之后能比较容易地恢复，而不需要重启操作系统。还有一个好处，既然port是独占的，那么可以防止程序重复启动，后面那个进程抢不到port，自然就没法初始化了，避免造成意料之外的结果。<br>两个进程通过tcp通信，如果一个崩溃了，操作系统会关闭连接，另一个进程几乎立刻就能感知，可以快速failover。<br>tcp还能跨语言。</p>
+<p>生产环境下的数据库服务器往往是独立的高配置服务器，一般不会同时运行其他占资源的程序。</p>
+<h2 id="分布式系统中使用TCP长连接通信"><a href="#分布式系统中使用TCP长连接通信" class="headerlink" title="分布式系统中使用TCP长连接通信"></a>分布式系统中使用TCP长连接通信</h2><p>分布式系统的软件设计和功能划分一般应该以“进程”为单位。从宏观上看，一个分布式系统是由运行在多台机器上的多个进程组成的，进程之间采用TCP长连接通信。<br>使用tcp长连接的好处有两点：一是容易定位分布式系统中的服务之间的依赖关系。</p>
+<h2 id="使用tcp长连接的好处有两点"><a href="#使用tcp长连接的好处有两点" class="headerlink" title="使用tcp长连接的好处有两点"></a>使用tcp长连接的好处有两点</h2><p>一是容易定位分布式系统中的服务之间的依赖关系。只要在机器上运行netstat -tpna | grep : port 就能立刻列出用到某服务的客户端地址，然后在客户端的机器上用netstat或lsof命令找出是哪个进程发起的连接。这样在迁移服务的时候能有效地防止出现outage。TCP短连接和UDP则不具备这一特性。<br>二是通过接收和发送队列的长度也较容易定位网络或程序故障。在正常运行的时候，netstat打印的Recv-Q和Send-Q都应该接近0，或者在0附近摆动。如果Recv-Q保持不变或持续增加，则通常意味着服务进程的处理速度变慢，可能发生了死锁或阻塞。如果Send-Q保持不变或持续增加，有可能是对方服务器太忙、来不及处理，也有可能是网络中间某个路由器或交换机故障造成丢包，甚至对方服务器掉线，这些因素都可能表现为数据发送不出去。通过持续监控Recv-Q和Send-Q就能及早预警性能或可用性故障。</p>
+<p>必须用单线程的场合<br>1.程序可能会fork;<br>2.限制程序的CPU占用率。</p>
+<p>多线程的适用场景是：提高响应速度，让IO和“计算”相互重叠，降低latency。虽然多线程不能提高绝对性能，但能提高平均响应性能。</p>
+<p>线程的分类：<br>1.IO线程，这类线程的主循环是IO multiplexing，阻塞地等在select/poll/epoll_wait系统调用上。这类线程也处理定时事件。当然它的功能不止IO，有些简单计算也可以放入其中，比如消息的编码或解码。<br>2.计算线程，这类线程的主循环是blocking queue，阻塞地等在condition variable上。这类线程一般位于thread pool中。这种线程通常不涉及IO，一般要避免任何阻塞操作。<br>3.第三方库所用的线程，比如logging，又比如database connection。</p>
+<p>服务器程序一般不会频繁地启动和终止线程。甚至，create thread只在程序启动的时候调用，在服务运行期间是不调用的。<br>一个多线程的进程和多个相同的单线程进程该如何取舍？<br>可以根据工作集的大小来取舍。工作集是指服务程序响应一次请求所访问的内存大小。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8ERPC/" data-id="ckll11ku8004dionkgclrg2r1" data-title="分布式与RPC" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/02/23/lua%EF%BC%9A%E8%AE%A4%E8%AF%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          lua：认识
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/02/23/%E7%BD%91%E7%BB%9C%E5%BC%82%E5%B8%B8%E6%9F%A5%E6%89%BE/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">网络异常查找</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

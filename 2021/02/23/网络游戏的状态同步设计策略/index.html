@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>网络游戏的状态同步设计策略 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="光速：3×10＾8m&#x2F;s，300000km&#x2F;s中国东西约5200公里,南北约5500公里（玩家最大相距按5000km计算）16 ms 只够光信号在 2500 km 的距离上跑一个来回 状态同步（Server同步）服务器负责计算全部的游戏逻辑，并且广播这些计算的结果，客户端仅仅负责发送玩家的操作，以及表现收到的游戏结果。一般来说，玩家发送一个操作到服务器上，服务器根据玩家操作去修改内存中的游戏世界模">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络游戏的状态同步设计策略">
+<meta property="og:url" content="http://example.com/2021/02/23/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E7%9A%84%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5%E8%AE%BE%E8%AE%A1%E7%AD%96%E7%95%A5/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="光速：3×10＾8m&#x2F;s，300000km&#x2F;s中国东西约5200公里,南北约5500公里（玩家最大相距按5000km计算）16 ms 只够光信号在 2500 km 的距离上跑一个来回 状态同步（Server同步）服务器负责计算全部的游戏逻辑，并且广播这些计算的结果，客户端仅仅负责发送玩家的操作，以及表现收到的游戏结果。一般来说，玩家发送一个操作到服务器上，服务器根据玩家操作去修改内存中的游戏世界模">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-02-23T01:19:59.000Z">
+<meta property="article:modified_time" content="2021-02-25T15:33:32.068Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-网络游戏的状态同步设计策略" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/23/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E7%9A%84%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5%E8%AE%BE%E8%AE%A1%E7%AD%96%E7%95%A5/" class="article-date">
+  <time class="dt-published" datetime="2021-02-23T01:19:59.000Z" itemprop="datePublished">2021-02-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      网络游戏的状态同步设计策略
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>光速：3×10＾8m/s，300000km/s<br>中国东西约5200公里,南北约5500公里（玩家最大相距按5000km计算）<br>16 ms 只够光信号在 2500 km 的距离上跑一个来回</p>
+<h2 id="状态同步（Server同步）"><a href="#状态同步（Server同步）" class="headerlink" title="状态同步（Server同步）"></a>状态同步（Server同步）</h2><p>服务器负责计算全部的游戏逻辑，并且广播这些计算的结果，客户端仅仅负责发送玩家的操作，以及表现收到的游戏结果。一般来说，玩家发送一个操作到服务器上，服务器根据玩家操作去修改内存中的游戏世界模型，同时运算游戏世界对这个操作的反应，然后把这些反应都广播给相关的多个客户端，每个客户端负责把这些数据表现出来给玩家看。</p>
+<p>当然这种模式只适合一些若交互的游戏，比如rpg，卡牌，slg类型的游戏，这些游戏共有的特点就是和服务器交互的频率不高，服务器手机所有玩家的操作信息，进行演算之后把演算结果转发给其他玩家，其他玩家做相应的模拟和显示。</p>
+<h2 id="帧同步"><a href="#帧同步" class="headerlink" title="帧同步"></a>帧同步</h2><p>锁定步进算法（lockstep ）<br>就是让网络上所有的机器都同时执行一样的操作，得到一样的结果。执行 lockstep 同步时，其实和时间是无关的，只和动作一致性有关。<br>lockstep 的核心其实是按回合锁定游戏进程，逐步推演。时钟周期对游戏规则其实并不重要，超时机制的存在是客户端用来解决如何确定当前回合要提交的多少操作而设定的；而模拟层的心跳周期则影响了表现层如何把离散状态拟合成连续状态。<br>War3/星际等采用，基于指令驱动各个客户端自计算逻辑。服务端只管分发指令，每个客户端根据完整的规则运算整个战场。<br>每个客户端播放效果就像是看视频。<br>对视觉同步要求较高。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>因为只需要同步指令，所以流量消耗非常小</p>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><p>断线需要补帧，即一旦你的战场状态没有了，必须从头开始，从第一个指令运算到连回去的战场状态。</p>
+<p>适用于一般moba，rts等大型多人在线游戏。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/23/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E7%9A%84%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5%E8%AE%BE%E8%AE%A1%E7%AD%96%E7%95%A5/" data-id="ckll11kum005gionkhk0e0w8e" data-title="网络游戏的状态同步设计策略" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/02/23/%E7%BD%91%E7%BB%9C%E5%BC%82%E5%B8%B8%E6%9F%A5%E6%89%BE/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          网络异常查找
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/02/23/%E6%A0%B9%E6%8D%AE%E6%97%A5%E5%BF%97%E6%9F%A5%E7%9C%8BQPS/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">根据日志查看QPS</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
