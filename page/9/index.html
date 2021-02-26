@@ -71,61 +71,6 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-IO设计模式：Actor、Reactor、Proactor" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/13/IO%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%9AActor%E3%80%81Reactor%E3%80%81Proactor/" class="article-date">
-  <time class="dt-published" datetime="2021-02-13T01:31:26.000Z" itemprop="datePublished">2021-02-13</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/13/IO%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%9AActor%E3%80%81Reactor%E3%80%81Proactor/">IO设计模式：Actor、Reactor、Proactor</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前有提过<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/19">IO模型</a>，而这些介绍下，用这些IO模型发展出来的IO设计模式</p>
-<h2 id="先介绍两种高性能服务器模式Reactor、Proactor"><a href="#先介绍两种高性能服务器模式Reactor、Proactor" class="headerlink" title="先介绍两种高性能服务器模式Reactor、Proactor"></a>先介绍两种高性能服务器模式Reactor、Proactor</h2><h3 id="Reactor模型"><a href="#Reactor模型" class="headerlink" title="Reactor模型"></a>Reactor模型</h3><p>1 向事件分发器注册事件回调<br>2 事件发生<br>4 事件分发器调用之前注册的函数<br>4 在回调函数中读取数据，对数据进行后续处理<br>Reactor模型实例：libevent，Redis、ACE</p>
-<h3 id="Proactor模型"><a href="#Proactor模型" class="headerlink" title="Proactor模型"></a>Proactor模型</h3><p>1 向事件分发器注册事件回调<br>2 事件发生<br>3 操作系统读取数据，并放入应用缓冲区，然后通知事件分发器<br>4 事件分发器调用之前注册的函数<br>5 在回调函数中对数据进行后续处理<br>Preactor模型实例：ASIO</p>
-<h3 id="reactor和proactor的主要区别"><a href="#reactor和proactor的主要区别" class="headerlink" title="reactor和proactor的主要区别"></a>reactor和proactor的主要区别</h3><h4 id="主动和被动"><a href="#主动和被动" class="headerlink" title="主动和被动"></a>主动和被动</h4><p>以主动写为例：<br>Reactor将handle放到select()，等待可写就绪，然后调用write()写入数据；写完处理后续逻辑；<br>Proactor调用aoi_write后立刻返回，由内核负责写操作，写完后调用相应的回调函数处理后续逻辑；</p>
-<p>可以看出，Reactor被动的等待指示事件的到来并做出反应；它有一个等待的过程，做什么都要先放入到监听事件集合中等待handler可用时再进行操作；<br>Proactor直接调用异步读写操作，调用完后立刻返回；</p>
-<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>Reactor实现了一个被动的事件分离和分发模型，服务等待请求事件的到来，再通过不受间断的同步处理事件，从而做出反应；<br>Proactor实现了一个主动的事件分离和分发模型；这种设计允许多个任务并发的执行，从而提高吞吐量；并可执行耗时长的任务（各个任务间互不影响）</p>
-<h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><p>Reactor实现相对简单，对于耗时短的处理场景处理高效；<br>操作系统可以在多个事件源上等待，并且避免了多线程编程相关的性能开销和编程复杂性；<br>事件的串行化对应用是透明的，可以顺序的同步执行而不需要加锁；<br>事务分离：将与应用无关的多路分解和分配机制和与应用相关的回调函数分离开来，<br>Proactor性能更高，能够处理耗时长的并发场景；</p>
-<h4 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h4><p>Reactor处理耗时长的操作会造成事件分发的阻塞，影响到后续事件的处理；<br>Proactor实现逻辑复杂；依赖操作系统对异步的支持，目前实现了纯异步操作的操作系统少，实现优秀的如windows IOCP，但由于其windows系统用于服务器的局限性，目前应用范围较小；而Unix/Linux系统对纯异步的支持有限，应用事件驱动的主流还是通过select/epoll来实现；</p>
-<h4 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h4><p>Reactor：同时接收多个服务请求，并且依次同步的处理它们的事件驱动程序；<br>Proactor：异步接收和同时处理多个服务请求的事件驱动程序；</p>
-<h2 id="再说Actor模型"><a href="#再说Actor模型" class="headerlink" title="再说Actor模型"></a>再说Actor模型</h2><p>Actor模型被称为高并发事务的终极解决方案，<br>实体之通过消息通讯，各自处理自己的数据，能够实现这并行。<br>actor模型实例：skynet，Erlang </p>
-<p>Actor模型是一个概念模型，用于处理并发计算。它定义了一系列系统组件应该如何动作和交互的通用规则，最著名的使用这套规则的编程语言是Erlang。<br>一个Actor指的是一个最基本的计算单元。它能接收一个消息并且基于其执行计算。<br>这个理念很像面向对象语言，一个对象接收一条消息（方法调用），然后根据接收的消息做事（调用了哪个方法）。</p>
-<p>Actors一大重要特征在于actors之间相互隔离，它们并不互相共享内存。这点区别于上述的对象。也就是说，一个actor能维持一个私有的状态，并且这个状态不可能被另一个actor所改变。</p>
-<h3 id="思路方向"><a href="#思路方向" class="headerlink" title="思路方向"></a>思路方向</h3><p>其实无论是使用数据库锁 还是多线程，这里有一个共同思路，就是将数据喂给线程，就如同计算机是一套加工流水线，数据作为原材料投入这个流水线的开始，流水线出来后就是成品，这套模式的前提是数据是被动的，自身不复杂，没有自身业务逻辑要求。适合大数据处理或互联网网站应用等等。</p>
-<p>但是如果数据自身要求有严格的一致性，也就是事务机制，数据就不能被动被加工，要让数据自己有行为能力保护实现自己的一致性，就像孩子小的时候可以任由爸妈怎么照顾关心都可以，但是如果孩子长大有自己的思想和要求，他就可能不喜欢被爸妈照顾，他要求自己通过行动实现自己的要求。</p>
-<p>数据也是如此。<br>只有我们改变思路，让数据自己有行为维护自己的一致性，才能真正安全实现真正的事务。<br>我们可以看到<br>Actor模型=数据+行为+消息。<br>Actor模型内部的状态由自己的行为维护，外部线程不能直接调用对象的行为，必须通过消息才能激发行为，这样就保证Actor内部数据只有被自己修改。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/13/IO%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%9AActor%E3%80%81Reactor%E3%80%81Proactor/" data-id="ckll11ksi0007ionk6g90cg13" data-title="IO设计模式：Actor、Reactor、Proactor" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
     <article id="post-IO模型-select-poll-epoll" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/02/12/IO%E6%A8%A1%E5%9E%8B-select-poll-epoll/" class="article-date">
@@ -179,7 +124,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/12/IO%E6%A8%A1%E5%9E%8B-select-poll-epoll/" data-id="ckll11ksh0004ionk5w1k5mqy" data-title="IO模型:select,poll,epoll" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/12/IO%E6%A8%A1%E5%9E%8B-select-poll-epoll/" data-id="cklltjbo90004qcnk004k97kl" data-title="IO模型:select,poll,epoll" class="article-share-link">Share</a>
       
       
       
@@ -251,7 +196,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/09/%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" data-id="ckll11kun005hionk62p592tf" data-title="虚拟文件系统" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/09/%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" data-id="cklltjbqi005sqcnkeveu04pk" data-title="虚拟文件系统" class="article-share-link">Share</a>
       
       
       
@@ -309,7 +254,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/07/%E5%A0%86%E4%B8%8E%E5%A0%86%E6%8E%92%E5%BA%8F/" data-id="ckll11kub004lionkb1j9ffsp" data-title="堆与堆排序" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/07/%E5%A0%86%E4%B8%8E%E5%A0%86%E6%8E%92%E5%BA%8F/" data-id="cklltjbq3004pqcnk7b5g1bzi" data-title="堆与堆排序" class="article-share-link">Share</a>
       
       
       
@@ -349,7 +294,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/06/x86%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E4%BB%8E%E5%AE%9E%E6%A8%A1%E5%BC%8F%E5%88%B0%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/" data-id="ckll11ku40042ionk55lg96nc" data-title="x86汇编语言:从实模式到保护模式" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/06/x86%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80-%E4%BB%8E%E5%AE%9E%E6%A8%A1%E5%BC%8F%E5%88%B0%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/" data-id="cklltjbpw0048qcnk8mgidki6" data-title="x86汇编语言:从实模式到保护模式" class="article-share-link">Share</a>
       
       
       
@@ -399,7 +344,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/04/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E9%82%A3%E4%BA%9B%E4%BA%8B/" data-id="ckll11kul005cionkfr1v7iwo" data-title="统计学那些事" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/04/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E9%82%A3%E4%BA%9B%E4%BA%8B/" data-id="cklltjbqf005kqcnkfkmzh2zt" data-title="统计学那些事" class="article-share-link">Share</a>
       
       
       
@@ -446,7 +391,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/04/%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1%E9%82%A3%E4%B9%88%E4%BA%8B/" data-id="ckll11kun005iionkgh17eddo" data-title="软件设计那么事" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/04/%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1%E9%82%A3%E4%B9%88%E4%BA%8B/" data-id="cklltjbqh005pqcnk5dow9xjn" data-title="软件设计那么事" class="article-share-link">Share</a>
       
       
       
@@ -487,7 +432,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/04/node-js%E4%B8%80%E4%BA%9B%E7%AC%94%E8%AE%B0/" data-id="ckll11ktl002mionk7a8z5vkx" data-title="node.js一些笔记" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/04/node-js%E4%B8%80%E4%BA%9B%E7%AC%94%E8%AE%B0/" data-id="cklltjbpc002mqcnk696g7afe" data-title="node.js一些笔记" class="article-share-link">Share</a>
       
       
       
@@ -527,7 +472,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/04/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E7%8B%AC%E7%AB%8B%E5%8A%9F%E8%83%BD%E7%9A%84%E5%AE%9E%E7%8E%B0/" data-id="ckll11ktq002yionkhgk8fbkl" data-title="redis源码：独立功能的实现" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/04/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E7%8B%AC%E7%AB%8B%E5%8A%9F%E8%83%BD%E7%9A%84%E5%AE%9E%E7%8E%B0/" data-id="cklltjbpj0035qcnkagpueri9" data-title="redis源码：独立功能的实现" class="article-share-link">Share</a>
       
       
       
@@ -581,7 +526,52 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/04/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%A4%9A%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" data-id="ckll11ktm002rionk17hn68le" data-title="redis源码：多机数据库的实现" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/04/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%A4%9A%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" data-id="cklltjbph0030qcnkgzw7ajvb" data-title="redis源码：多机数据库的实现" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-redis源码：单机数据库的实现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/03/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" class="article-date">
+  <time class="dt-published" datetime="2021-02-03T08:15:36.000Z" itemprop="datePublished">2021-02-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/03/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/">redis源码：单机数据库的实现</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>redis服务器将所有数据库都保存在服务器状态db数组中。<br>dbnum由conf文件database选项决定。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> &#123;</span></span><br><span class="line">    <span class="keyword">char</span> *configfile;             <span class="comment">// 配置文件的绝对路径</span></span><br><span class="line">    <span class="keyword">int</span> hz;                       <span class="comment">// serverCron() 每秒调用的次数</span></span><br><span class="line">    redisDb *db;    <span class="comment">// 数据库</span></span><br><span class="line"></span><br><span class="line">   ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>分析rdb文件<br>od -c dump.rdb</p>
+<h2 id="redis事件驱动"><a href="#redis事件驱动" class="headerlink" title="redis事件驱动"></a>redis事件驱动</h2><p>redis服务器是一个事件驱动程序，服务器需要处理以下两类事件：<br>文件事件：文件事件就是服务器对套接字操作的抽象。<br>时间事件：时间事件就是服务器对这类定时操作的抽象。</p>
+<p>redis基于reactor模式开发了自己的网络事件处理器。<br>与Memcached不同，Redis并没有直接使用Libevent，而是自己完成了一个非常轻量级的对select、epoll、evport、kqueue这些通用的接口的实现。在不同的系统调用选用适合的接口，linux下默认是epoll。因为Libevent比较重更通用代码量也就很庞大，拥有很多Redis用不上的功能，Redis为了追求“轻巧”并且去除依赖，就选择自己去封装了一套。</p>
+<h2 id="redis协议（aof文件写入也是这个格式）"><a href="#redis协议（aof文件写入也是这个格式）" class="headerlink" title="redis协议（aof文件写入也是这个格式）"></a>redis协议（aof文件写入也是这个格式）</h2>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/03/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" data-id="cklltjbph002yqcnkhq3cfidu" data-title="redis源码：单机数据库的实现" class="article-share-link">Share</a>
       
       
       
@@ -645,10 +635,6 @@
       <ul>
         
           <li>
-            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
-          </li>
-        
-          <li>
             <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
           </li>
         
@@ -662,6 +648,10 @@
         
           <li>
             <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/">STL源码分析：Containers</a>
           </li>
         
       </ul>

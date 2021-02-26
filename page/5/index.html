@@ -71,53 +71,6 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-lua：lua环境搭建" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/23/lua%EF%BC%9Alua%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" class="article-date">
-  <time class="dt-published" datetime="2021-02-23T02:55:25.000Z" itemprop="datePublished">2021-02-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/23/lua%EF%BC%9Alua%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">lua：lua环境搭建</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Lua除了是一门扩展的言语外，还是一门“胶水语言”。最著名的就是作为游戏的脚本开发。</p>
-<p>这里主要说lua怎样与c交互。<br>Lua和c语言通信的主要方法是一个无所不在的虚拟栈。几乎所有的API调用都会操作这个栈上的值。所有的数据交换，无论是Lua到C语言或C语言到Lua都通过这个栈来完成。栈可以解决Lua和C语言之间存在的两大差异，第一种差异是Lua使用垃圾收集，而C语言要求显式地释放内存；第二种是Lua使用动态类型，而C语言使用静态类型。</p>
-<p>下载好Lua源码，可以选择在不同的平台编译，编译也很简单，下面是在windows下的编译方法。（我用的是lua5.1，感觉新版本变化很大，相应的教程也没有5.1的多。）<br>1.打开vs的命令行工具，工具–&gt;visual studio 2005 command prompt<br>2.跳转到 etc的上一级目录，如：cd /d d:\lua<br>2.执行：etc\luavs.bat（ 注意，是 \ 不是 /,写错了不能执行编译 )<br>3.然后lua51.dll, lua51.lib, lua.exe, and luac.exe就生成在 src路径下了。<br>当然，也可以自定义生成文件的名字,具体请看luavs.bat。<br>然后就可以编写第一个c与lua交互的程序。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;lua.h&quot;</span></span></span><br><span class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;lauxlib.h&quot;</span></span></span><br><span class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;lualib.h&quot;</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">&quot;lua.lib&quot;</span>)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buff[<span class="number">256</span>];</span><br><span class="line">    <span class="keyword">int</span> error;</span><br><span class="line">    lua_State *L = luaL_newstate();<span class="comment">//创建一个新的环境</span></span><br><span class="line">    luaL_openlibs(L);<span class="comment">//打开标准库</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(fgets(buff,<span class="keyword">sizeof</span>(buff),<span class="built_in">stdin</span>)!=<span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        error = luaL_loadbuffer(L,buff,<span class="built_in">strlen</span>(buff),<span class="string">&quot;line&quot;</span>) || lua_pcall(L,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (error)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>,<span class="string">&quot;%s&quot;</span>,lua_tostring(L,<span class="number">-1</span>));</span><br><span class="line">            lua_pop(L,<span class="number">1</span>);<span class="comment">//从栈中弹出错误消息</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    lua_close(L);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>luaL_newstate用c运行库的内存分配函数。<br>lua_newstate可自定义内存分配函数。</p>
-<p>头文件lua.h定义了lua提供的基础函数，包括创建lua环境、调用lua函数（如lua_pcall）、读写lua环境中全局变量，以及注册供lua调用的新函数等。Lua.h中定义所有内容都有一个lua_前缀。<br>头文件lauxlib.h定义了辅助库（auxiliary library,auxlib）提供的函数。它的所有定义都以luaL_开头（如luaL_loadbuffer）。辅助库是一个使用lua.h中API编写出的一个较高的抽象层。Lua的所有标准库编写都用到了辅助库。</p>
-<p>注意：Lua脚本的编译执行是相互独立的，在不同的线程上执行。通过luaL_newstate()函数可以申请一个虚拟机，返回指针类型lua_State。今后其他所有Lua Api函数的调用都需要此指针作为第一参数，用来指定某个虚拟机。所以lua_State代表一个lua虚拟机对像，luaL_newstate()分配一个虚拟机。lua类库管理着所有的虚拟机。销毁指定虚拟机的所有对像（如果有垃圾回收相关的无方法则会调用该方法）并收回所有由该虚拟机动态分配产生的内存，在有些平台下我们不需要调用此函数，因为当主程序退出时，资源会被自然的释放掉，但是但一个长时间运行的程序，比如后台运行的web服务器，需要立即回收虚拟机资源以避免内存过高占用。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/lua%EF%BC%9Alua%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" data-id="ckll11kt5001nionkg8lz2u0v" data-title="lua：lua环境搭建" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lua/" rel="tag">lua</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
     <article id="post-lua：认识" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/02/23/lua%EF%BC%9A%E8%AE%A4%E8%AF%86/" class="article-date">
@@ -151,7 +104,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/lua%EF%BC%9A%E8%AE%A4%E8%AF%86/" data-id="ckll11ktc001zionkhwvj6a0h" data-title="lua：认识" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/23/lua%EF%BC%9A%E8%AE%A4%E8%AF%86/" data-id="cklltjbp40020qcnk4nl873yc" data-title="lua：认识" class="article-share-link">Share</a>
       
       
       
@@ -201,7 +154,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8ERPC/" data-id="ckll11ku8004dionkgclrg2r1" data-title="分布式与RPC" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/23/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8ERPC/" data-id="cklltjbq2004lqcnk318x1xug" data-title="分布式与RPC" class="article-share-link">Share</a>
       
       
       
@@ -245,7 +198,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/%E7%BD%91%E7%BB%9C%E5%BC%82%E5%B8%B8%E6%9F%A5%E6%89%BE/" data-id="ckll11kum005eionk8lfr7qdk" data-title="网络异常查找" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/23/%E7%BD%91%E7%BB%9C%E5%BC%82%E5%B8%B8%E6%9F%A5%E6%89%BE/" data-id="cklltjbqf005iqcnk9bl34ifo" data-title="网络异常查找" class="article-share-link">Share</a>
       
       
       
@@ -290,7 +243,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E7%9A%84%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5%E8%AE%BE%E8%AE%A1%E7%AD%96%E7%95%A5/" data-id="ckll11kum005gionkhk0e0w8e" data-title="网络游戏的状态同步设计策略" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/23/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E7%9A%84%E7%8A%B6%E6%80%81%E5%90%8C%E6%AD%A5%E8%AE%BE%E8%AE%A1%E7%AD%96%E7%95%A5/" data-id="cklltjbqg005nqcnkdv5g7ttd" data-title="网络游戏的状态同步设计策略" class="article-share-link">Share</a>
       
       
       
@@ -330,7 +283,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/%E6%A0%B9%E6%8D%AE%E6%97%A5%E5%BF%97%E6%9F%A5%E7%9C%8BQPS/" data-id="ckll11kuh0050ionk45380mqf" data-title="根据日志查看QPS" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/23/%E6%A0%B9%E6%8D%AE%E6%97%A5%E5%BF%97%E6%9F%A5%E7%9C%8BQPS/" data-id="cklltjbqb0056qcnk4gra1bwx" data-title="根据日志查看QPS" class="article-share-link">Share</a>
       
       
       
@@ -375,7 +328,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9E%B6%E6%9E%84/" data-id="ckll11kui0054ionkaunnbg8r" data-title="游戏服务器架构" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/23/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9E%B6%E6%9E%84/" data-id="cklltjbqc005aqcnkbwakdioc" data-title="游戏服务器架构" class="article-share-link">Share</a>
       
       
       
@@ -419,7 +372,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/mysql%EF%BC%9A%E9%94%81/" data-id="ckll11ktk002kionk9vra8boc" data-title="mysql：锁" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/23/mysql%EF%BC%9A%E9%94%81/" data-id="cklltjbpb002kqcnk5l4i6e5t" data-title="mysql：锁" class="article-share-link">Share</a>
       
       
       
@@ -466,7 +419,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/mysql%EF%BC%9A%E4%BA%8B%E5%8A%A1/" data-id="ckll11ktd0023ionkg2rjat4a" data-title="mysql：事务" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/23/mysql%EF%BC%9A%E4%BA%8B%E5%8A%A1/" data-id="cklltjbp9002fqcnk46v07z8g" data-title="mysql：事务" class="article-share-link">Share</a>
       
       
       
@@ -507,11 +460,60 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/git%E4%BB%93%E5%BA%93%E5%A4%AA%E5%A4%A7%E7%9A%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/" data-id="ckll11ksz0017ionk541lg004" data-title="git仓库太大的处理方法" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/22/git%E4%BB%93%E5%BA%93%E5%A4%AA%E5%A4%A7%E7%9A%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/" data-id="cklltjbot0018qcnka3pr83pn" data-title="git仓库太大的处理方法" class="article-share-link">Share</a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/" rel="tag">git</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-linux下的一些网络调试命令" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/22/linux%E4%B8%8B%E7%9A%84%E4%B8%80%E4%BA%9B%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4/" class="article-date">
+  <time class="dt-published" datetime="2021-02-22T14:55:06.000Z" itemprop="datePublished">2021-02-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/22/linux%E4%B8%8B%E7%9A%84%E4%B8%80%E4%BA%9B%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4/">linux下的一些网络调试命令</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="测试到达目的主机的网络是否连接-但ping无法检查系统端口是否开放"><a href="#测试到达目的主机的网络是否连接-但ping无法检查系统端口是否开放" class="headerlink" title="测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放"></a>测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping www.google.com</span><br></pre></td></tr></table></figure>
+<h2 id="检查某个端口是否开放"><a href="#检查某个端口是否开放" class="headerlink" title="检查某个端口是否开放"></a>检查某个端口是否开放</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet ip_addr:port</span><br></pre></td></tr></table></figure>
+<h2 id="检测发出数据包的主机到目标主机之间所经过的网关数量"><a href="#检测发出数据包的主机到目标主机之间所经过的网关数量" class="headerlink" title="检测发出数据包的主机到目标主机之间所经过的网关数量"></a>检测发出数据包的主机到目标主机之间所经过的网关数量</h2><p>traceroute 的原理是试图以最小的TTL发出探测包来跟踪数据包到达目标主机所经过的网关，然后监听一个来自网关ICMP的应答。<br>程序利用增加存活时间（TTL）值来实现其功能。每当数据包经过一个路由器，其存活时间就会减1。当其存活时间是0时，主机便取消数据包，并传送一个ICMP TTL数据包给原数据包的发出者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute www.google.com</span><br></pre></td></tr></table></figure>
+<h2 id="判断连接是否健康"><a href="#判断连接是否健康" class="headerlink" title="判断连接是否健康"></a>判断连接是否健康</h2><h3 id="查看服务器端口有没有客户端来连接"><a href="#查看服务器端口有没有客户端来连接" class="headerlink" title="查看服务器端口有没有客户端来连接"></a>查看服务器端口有没有客户端来连接</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -anp | grep xxxx</span><br></pre></td></tr></table></figure>
+<h3 id="查看到进程id之后，使用netstat命令查看其占用的端口"><a href="#查看到进程id之后，使用netstat命令查看其占用的端口" class="headerlink" title="查看到进程id之后，使用netstat命令查看其占用的端口"></a>查看到进程id之后，使用netstat命令查看其占用的端口</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -nap | grep pid</span><br></pre></td></tr></table></figure>
+<h3 id="查看tcp连接数及状态"><a href="#查看tcp连接数及状态" class="headerlink" title="查看tcp连接数及状态"></a>查看tcp连接数及状态</h3><p>netstat -n | awk ‘/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}’</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">LAST_ACK 5  </span><br><span class="line">SYN_RECV 30  </span><br><span class="line">ESTABLISHED 15  </span><br><span class="line">FIN_WAIT1 51  </span><br><span class="line">FIN_WAIT2 5  </span><br><span class="line">TIME_WAIT 10  </span><br></pre></td></tr></table></figure>
+<p>状态：描述<br>CLOSED：无连接是活动的或正在进行<br>LISTEN：服务器在等待进入呼叫<br>SYN_RECV：一个连接请求已经到达，等待确认<br>SYN_SENT：应用已经开始，打开一个连接<br>ESTABLISHED：正常数据传输状态<br>FIN_WAIT1：应用说它已经完成<br>FIN_WAIT2：另一边已同意释放<br>ITMED_WAIT：等待所有分组死掉<br>CLOSING：两边同时尝试关闭<br>TIME_WAIT表示处理完毕，等待超时结束的请求数。<br>LAST_ACK：等待所有分组死掉</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/22/linux%E4%B8%8B%E7%9A%84%E4%B8%80%E4%BA%9B%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4/" data-id="cklltjbou001aqcnk463w5gcz" data-title="linux下的一些网络调试命令" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
 
     </footer>
   </div>
@@ -571,10 +573,6 @@
       <ul>
         
           <li>
-            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
-          </li>
-        
-          <li>
             <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
           </li>
         
@@ -588,6 +586,10 @@
         
           <li>
             <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/">STL源码分析：Containers</a>
           </li>
         
       </ul>

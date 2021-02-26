@@ -71,55 +71,6 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-linux下的一些网络调试命令" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/22/linux%E4%B8%8B%E7%9A%84%E4%B8%80%E4%BA%9B%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4/" class="article-date">
-  <time class="dt-published" datetime="2021-02-22T14:55:06.000Z" itemprop="datePublished">2021-02-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/22/linux%E4%B8%8B%E7%9A%84%E4%B8%80%E4%BA%9B%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4/">linux下的一些网络调试命令</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="测试到达目的主机的网络是否连接-但ping无法检查系统端口是否开放"><a href="#测试到达目的主机的网络是否连接-但ping无法检查系统端口是否开放" class="headerlink" title="测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放"></a>测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping www.google.com</span><br></pre></td></tr></table></figure>
-<h2 id="检查某个端口是否开放"><a href="#检查某个端口是否开放" class="headerlink" title="检查某个端口是否开放"></a>检查某个端口是否开放</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet ip_addr:port</span><br></pre></td></tr></table></figure>
-<h2 id="检测发出数据包的主机到目标主机之间所经过的网关数量"><a href="#检测发出数据包的主机到目标主机之间所经过的网关数量" class="headerlink" title="检测发出数据包的主机到目标主机之间所经过的网关数量"></a>检测发出数据包的主机到目标主机之间所经过的网关数量</h2><p>traceroute 的原理是试图以最小的TTL发出探测包来跟踪数据包到达目标主机所经过的网关，然后监听一个来自网关ICMP的应答。<br>程序利用增加存活时间（TTL）值来实现其功能。每当数据包经过一个路由器，其存活时间就会减1。当其存活时间是0时，主机便取消数据包，并传送一个ICMP TTL数据包给原数据包的发出者</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute www.google.com</span><br></pre></td></tr></table></figure>
-<h2 id="判断连接是否健康"><a href="#判断连接是否健康" class="headerlink" title="判断连接是否健康"></a>判断连接是否健康</h2><h3 id="查看服务器端口有没有客户端来连接"><a href="#查看服务器端口有没有客户端来连接" class="headerlink" title="查看服务器端口有没有客户端来连接"></a>查看服务器端口有没有客户端来连接</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -anp | grep xxxx</span><br></pre></td></tr></table></figure>
-<h3 id="查看到进程id之后，使用netstat命令查看其占用的端口"><a href="#查看到进程id之后，使用netstat命令查看其占用的端口" class="headerlink" title="查看到进程id之后，使用netstat命令查看其占用的端口"></a>查看到进程id之后，使用netstat命令查看其占用的端口</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -nap | grep pid</span><br></pre></td></tr></table></figure>
-<h3 id="查看tcp连接数及状态"><a href="#查看tcp连接数及状态" class="headerlink" title="查看tcp连接数及状态"></a>查看tcp连接数及状态</h3><p>netstat -n | awk ‘/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}’</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">LAST_ACK 5  </span><br><span class="line">SYN_RECV 30  </span><br><span class="line">ESTABLISHED 15  </span><br><span class="line">FIN_WAIT1 51  </span><br><span class="line">FIN_WAIT2 5  </span><br><span class="line">TIME_WAIT 10  </span><br></pre></td></tr></table></figure>
-<p>状态：描述<br>CLOSED：无连接是活动的或正在进行<br>LISTEN：服务器在等待进入呼叫<br>SYN_RECV：一个连接请求已经到达，等待确认<br>SYN_SENT：应用已经开始，打开一个连接<br>ESTABLISHED：正常数据传输状态<br>FIN_WAIT1：应用说它已经完成<br>FIN_WAIT2：另一边已同意释放<br>ITMED_WAIT：等待所有分组死掉<br>CLOSING：两边同时尝试关闭<br>TIME_WAIT表示处理完毕，等待超时结束的请求数。<br>LAST_ACK：等待所有分组死掉</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/linux%E4%B8%8B%E7%9A%84%E4%B8%80%E4%BA%9B%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4/" data-id="ckll11kt1001eionk1tpb2jhl" data-title="linux下的一些网络调试命令" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
     <article id="post-mysql：索引" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/02/22/mysql%EF%BC%9A%E7%B4%A2%E5%BC%95/" class="article-date">
@@ -167,7 +118,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/mysql%EF%BC%9A%E7%B4%A2%E5%BC%95/" data-id="ckll11ktj002hionk3bhmerr7" data-title="mysql：索引" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/22/mysql%EF%BC%9A%E7%B4%A2%E5%BC%95/" data-id="cklltjbpd002oqcnk8z5ic1qz" data-title="mysql：索引" class="article-share-link">Share</a>
       
       
       
@@ -212,7 +163,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/%E6%80%8E%E6%A0%B7%E7%9C%8Bmysql%E6%80%A7%E8%83%BD/" data-id="ckll11kud004rionkfsq05vgk" data-title="怎样看mysql性能" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/22/%E6%80%8E%E6%A0%B7%E7%9C%8Bmysql%E6%80%A7%E8%83%BD/" data-id="cklltjbq7004yqcnkfy5g214i" data-title="怎样看mysql性能" class="article-share-link">Share</a>
       
       
       
@@ -266,7 +217,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/mysql%EF%BC%9A%E6%9E%B6%E6%9E%84/" data-id="ckll11kth002cionkf4zpbf6v" data-title="mysql：架构" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/22/mysql%EF%BC%9A%E6%9E%B6%E6%9E%84/" data-id="cklltjbpa002iqcnk4z6na39e" data-title="mysql：架构" class="article-share-link">Share</a>
       
       
       
@@ -313,7 +264,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/mysql%EF%BC%9A%E5%A4%87%E4%BB%BD%E3%80%81%E5%A4%8D%E5%88%B6/" data-id="ckll11kte0025ionkg2vmh5ye" data-title="mysql：备份、复制" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/22/mysql%EF%BC%9A%E5%A4%87%E4%BB%BD%E3%80%81%E5%A4%8D%E5%88%B6/" data-id="cklltjbp60026qcnkdal0cwk8" data-title="mysql：备份、复制" class="article-share-link">Share</a>
       
       
       
@@ -369,7 +320,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/redis%E5%9C%A8%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/" data-id="ckll11ktn002uionk9zno0ixu" data-title="redis在游戏开发中的应用" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/22/redis%E5%9C%A8%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/" data-id="cklltjbpf002vqcnk4gcdc61u" data-title="redis在游戏开发中的应用" class="article-share-link">Share</a>
       
       
       
@@ -424,7 +375,7 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/redis%EF%BC%9A%E6%A8%A1%E5%BC%8F/" data-id="ckll11ktt0038ionk934f59fo" data-title="redis：模式" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/22/redis%EF%BC%9A%E6%A8%A1%E5%BC%8F/" data-id="cklltjbpl003bqcnkbqxk6gvc" data-title="redis：模式" class="article-share-link">Share</a>
       
       
       
@@ -466,7 +417,7 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/%E4%B8%80%E4%BA%9Bsql%E8%AF%AD%E5%8F%A5/" data-id="ckll11ku60047ionkasfr8i5v" data-title="一些sql语句" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/22/%E4%B8%80%E4%BA%9Bsql%E8%AF%AD%E5%8F%A5/" data-id="cklltjbpz004hqcnk0jexdki3" data-title="一些sql语句" class="article-share-link">Share</a>
       
       
       
@@ -523,7 +474,7 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/redis%EF%BC%9A%E6%8C%81%E4%B9%85%E5%8C%96/" data-id="ckll11kts0036ionk4yu5eydx" data-title="redis：持久化" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/22/redis%EF%BC%9A%E6%8C%81%E4%B9%85%E5%8C%96/" data-id="cklltjbpl0039qcnk0bnj0l0y" data-title="redis：持久化" class="article-share-link">Share</a>
       
       
       
@@ -570,10 +521,59 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BA%89/" data-id="ckll11kuj0056ionkhowshw16" data-title="游戏服务器语言之争" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2021/02/22/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BA%89/" data-id="cklltjbqd005cqcnkdb9c21tu" data-title="游戏服务器语言之争" class="article-share-link">Share</a>
       
       
       
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-redis设置过期方式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/22/redis%E8%AE%BE%E7%BD%AE%E8%BF%87%E6%9C%9F%E6%96%B9%E5%BC%8F/" class="article-date">
+  <time class="dt-published" datetime="2021-02-21T17:59:57.000Z" itemprop="datePublished">2021-02-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/22/redis%E8%AE%BE%E7%BD%AE%E8%BF%87%E6%9C%9F%E6%96%B9%E5%BC%8F/">redis设置过期方式</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="redis-conf中的默认的过期策略是"><a href="#redis-conf中的默认的过期策略是" class="headerlink" title="redis.conf中的默认的过期策略是"></a>redis.conf中的默认的过期策略是</h2><p>volatile-lru</p>
+<h2 id="maxmemory-policy-六种方式"><a href="#maxmemory-policy-六种方式" class="headerlink" title="maxmemory-policy 六种方式"></a>maxmemory-policy 六种方式</h2><ul>
+<li>volatile-lru<br>只对设置了过期时间的key进行LRU（默认值） </li>
+<li>allkeys-lru<br>删除lru算法的key   </li>
+<li>volatile-random<br>随机删除即将过期key   </li>
+<li>allkeys-random<br>随机删除   </li>
+<li>volatile-ttl<br>删除即将过期的   </li>
+<li>noeviction<br>永不过期，返回错误</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/22/redis%E8%AE%BE%E7%BD%AE%E8%BF%87%E6%9C%9F%E6%96%B9%E5%BC%8F/" data-id="cklltjbpj0033qcnk4v96f8xw" data-title="redis设置过期方式" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
     </footer>
   </div>
   
@@ -632,10 +632,6 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
       <ul>
         
           <li>
-            <a href="/2021/02/25/Android%E4%B8%8ELinux%E4%BB%A5%E5%8F%8AGNU%E7%9A%84%E5%85%B3%E7%B3%BB/">Android与Linux以及GNU的关系</a>
-          </li>
-        
-          <li>
             <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
           </li>
         
@@ -649,6 +645,10 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
         
           <li>
             <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/">STL源码分析：Containers</a>
           </li>
         
       </ul>
