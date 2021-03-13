@@ -71,6 +71,317 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-redis在游戏开发中的应用" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/22/redis%E5%9C%A8%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/" class="article-date">
+  <time class="dt-published" datetime="2021-02-22T02:55:18.000Z" itemprop="datePublished">2021-02-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/22/redis%E5%9C%A8%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">redis在游戏开发中的应用</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Redis是一个新兴的NoSql数据缓存组件，与memcache类似，但是功能却比memcache多一些。<br>首先，Redis和memcache都是基于内存的，所以读取和写入速度都非常快。但是memcache只支持简单的key-value数据的存储方式，而Redis对key-value ,hash,list,set,SortSet等数据结构有很好的支持。</p>
+<p>下面就Redis在游戏的开发应用中做一些简单的介绍。</p>
+<h2 id="数据的缓存"><a href="#数据的缓存" class="headerlink" title="数据的缓存"></a>数据的缓存</h2><p>在这一点上，redis和memcache是一样的。都是把数据提前放入到内存中。当逻辑处理中需要用到数据时，先从内存中读取，相同的，写的时候也先向内存中写入，然后再操作数据库，以增加数据处理的速度。不同的是，redis带有把数据写入到硬盘的功能，具体的写入策略可以在redis的配置文件中配置。这样当主机突然出现故障时，比如断电，重启机器不会造成数据的丢失。这个在游戏的应用中特别重要。一般在游戏开发中，数据的处理会采用：缓存 + 持久化队列 + 数据库(mysql)的架构。执行的流程是先把数据写入到缓存，然后把需要持久化的数据放入到持久化队列中，启动一个守护线程，从持久化队列中不断的取出数据，并存入或更新到数据库。如果使用memcache这样没有写入到硬盘功能的缓存组件，出现故障时，持久人队列中如果还有没有处理完的数据，那么就会造成数据的丢失，引用玩家的数据出现短暂的回档。当然这些也可以自己开发一些功能去防止，但是增加了开发成本。</p>
+<h2 id="不丢失数据的持久化队列的实现"><a href="#不丢失数据的持久化队列的实现" class="headerlink" title="不丢失数据的持久化队列的实现"></a>不丢失数据的持久化队列的实现</h2><p>上面说过Redis具有把数据写入到硬盘的功能，而且支持多种数据结构。那么就可以利用Redis的list实现持久化队列，而且当机器出现故障时，不会出现队列中数据丢失的情况，重启之后，数据会自动加载到redis的list之中。<br>具体实现方法：<br>    （1）在Redis中构造一个list存储<br>    （2）一个线程使用Redis的lpush方法，向list的左边加入数据<br>    （3）另外一个线程使用Redis的rpop方法，从list取出数据进行处理，并且从list中删除了取出的数据。这样就实现了一个简单的生产者–消费者模式的队列。</p>
+<h2 id="对并发操作的控制（跨房间）"><a href="#对并发操作的控制（跨房间）" class="headerlink" title="对并发操作的控制（跨房间）"></a>对并发操作的控制（跨房间）</h2><p>一般来说，我们操作一个数据的流程是这样的，取出–处理—存储，这样在单线程中操作是没有任务问题的，但是在多线程环境中就不适用了，我们必须考虑数据同步的问题，保证数据操作的原子性。如果在游戏中，对玩家战队的属性进行更新，一般在数据库中都会保存一个TeamInfo表，里面有玩家相应的属性，比如名字，等级，金币，钻石等等。在memcache中保存一个TeamInfo对象，这时玩家获得金币，我们就需要取出玩家所有的属性，然后set金币，完成后再存储整个对象。这个时候就得考虑数据的同步了，如果在操作的时候，另外一个线程B修改了钻石，并完成了存储，而这个时候我把金币修改完成之后，再存储，这时，就出现了数据混乱的结果。考虑数据同步无非也是加锁或乐观同步。不但增加了代码量，还增加了维护的难度。而在Redis中，它支持对hash数据结构的操作。我们可以把玩家的对象按每个字段存储到redis的hash中。</p>
+<p>结构如下图：<br>当我需要更新金币时，比如增加或减少，我可以使用Redis自带的原子操作方法：hincrby(String key,String field,int value)进行操作，value是正为加，是负为减，这样就简化和避免了一些并发操作，而且这个操做还减少了对数据的操作步骤，因为没有取出，再操作的过程了，只有一次写入。而且在游戏中很少一次更新非常多的字段，如果有这样的情况，下面的方法可以解决</p>
+<h2 id="对事务的支持"><a href="#对事务的支持" class="headerlink" title="对事务的支持"></a>对事务的支持</h2><p>redis提供了一个事务操作的机制，MULTI 命令用于开启一个事务，它总是返回 OK 。<br>MULTI 执行之后， 客户端可以继续向服务器发送任意多条命令， 这些命令不会立即被执行， 而是被放到一个队列中， 当 EXEC 命令被调用时， 所有队列中的命令才会被执行。<br>另一方面， 通过调用 DISCARD ， 客户端可以清空事务队列， 并放弃执行事务。<br>以下是一个事务例子， 它原子地增加了 foo 和 bar 两个键的值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; MULTI</span><br><span class="line">OK</span><br><span class="line">&gt; INCR foo</span><br><span class="line">QUEUED</span><br><span class="line">&gt; INCR bar</span><br><span class="line">QUEUED</span><br><span class="line">&gt; EXEC</span><br><span class="line">1) (integer) 1</span><br><span class="line">2) (integer) 1</span><br></pre></td></tr></table></figure>
+<p>EXEC 命令的回复是一个数组， 数组中的每个元素都是执行事务中的命令所产生的回复。 其中， 回复元素的先后顺序和命令发送的先后顺序一致。当客户端处于事务状态时， 所有传入的命令都会返回一个内容为 QUEUED 的状态回复（status reply）， 这些被入队的命令将在 EXEC命令被调用时执行。从 Redis 2.6.5 开始，服务器会对命令入队失败的情况进行记录，并在客户端调用 EXEC 命令时，拒绝执行并自动放弃这个事务。</p>
+<h2 id="提供外部的CAS行为，实现乐观锁机制"><a href="#提供外部的CAS行为，实现乐观锁机制" class="headerlink" title="提供外部的CAS行为，实现乐观锁机制"></a>提供外部的CAS行为，实现乐观锁机制</h2><p>在游戏开发中，有时候需要我们自己在外部实现乐观锁机制，WATCH 命令可以为 Redis 事务提供 check-and-set （CAS）行为，被 WATCH 的键会被监视，并会发觉这些键是否被改动过了。 如果有至少一个被监视的键在 EXEC 执行之前被修改了， 那么整个事务都会被取消， EXEC 返回空多条批量回复（null multi-bulk reply）来表示事务已经失败。<br>举个例子， 假设我们需要原子性地为某个值进行增 1 操作（假设 INCR 不存在）。<br>首先我们可能会这样做：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">val &#x3D; GET mykey</span><br><span class="line">val &#x3D; val + 1</span><br><span class="line">SET mykey $val</span><br></pre></td></tr></table></figure>
+<p>上面的这个实现在只有一个客户端的时候可以执行得很好。 但是， 当多个客户端同时对同一个键进行这样的操作时， 就会产生竞争条件。<br>举个例子， 如果客户端 A 和 B 都读取了键原来的值， 比如 10 ， 那么两个客户端都会将键的值设为 11 ， 但正确的结果应该是 12 才对。<br>有了 WATCH ， 我们就可以轻松地解决这类问题了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">WATCH mykey</span><br><span class="line">val &#x3D; GET mykey</span><br><span class="line">val &#x3D; val + 1</span><br><span class="line">MULTI</span><br><span class="line">SET mykey $val</span><br><span class="line">EXEC</span><br></pre></td></tr></table></figure>
+<p>使用上面的代码， 如果在 WATCH 执行之后， EXEC 执行之前， 有其他客户端修改了 mykey 的值， 那么当前客户端的事务就会失败。 程序需要做的， 就是不断重试这个操作， 直到没有发生碰撞为止。这种形式的锁被称作乐观锁， 它是一种非常强大的锁机制。 并且因为大多数情况下， 不同的客户端会访问不同的键， 碰撞的情况一般都很少， 所以通常并不需要进行重试。</p>
+<h2 id="缓存生命周期的控制"><a href="#缓存生命周期的控制" class="headerlink" title="缓存生命周期的控制"></a>缓存生命周期的控制</h2><p>在游戏服务器中，为了节省性能，我们没有必要把所有玩家的信息都缓存到内存中。比如有一些不常登陆的玩家，那么他的信息就没必要一直呆在缓存中了，需要清除。Redis为这个功能提供了一个方法：expire，它可以为key设置以秒为单位的生命周期，比如设置为300s，那么五分钟之后，这条记录就会在内存中删除。这样不仅可以节省内存，而且增加了服务器的性能</p>
+<h2 id="排行榜"><a href="#排行榜" class="headerlink" title="排行榜"></a>排行榜</h2><p>游戏服务器中涉及到很多排行信息，比如玩家等级排名、金钱排名、战斗力排名等。<br>一般情况下仅需要取排名的前N名就可以了，这时可以利用数据库的排序功能，或者自己维护一个元素数量有限的top集合。<br>但是有时候我们需要每一个玩家的排名，玩家的数量太多，不能利用数据库（全表排序压力太大），自己维护也会比较麻烦。<br>使用Redis可以很好的解决这个问题。它提供的有序Set，支持每个键值（比如玩家id）拥有一个分数（score），每次往这个set里添加元素，<br>Redis会对其进行排序，修改某一元素的score后，也会更新排序，在获取数据时，可以指定排序范围。<br>更重要的是，这个排序结果会被保存起来，不用在服务器启动时重新计算。<br>通过它，排行榜的实时刷新、全服排行都不再成为麻烦事。</p>
+<h2 id="邮件"><a href="#邮件" class="headerlink" title="邮件"></a>邮件</h2>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/22/redis%E5%9C%A8%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/" data-id="cklltjbpf002vqcnk4gcdc61u" data-title="redis在游戏开发中的应用" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-redis：模式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/22/redis%EF%BC%9A%E6%A8%A1%E5%BC%8F/" class="article-date">
+  <time class="dt-published" datetime="2021-02-22T02:38:58.000Z" itemprop="datePublished">2021-02-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/22/redis%EF%BC%9A%E6%A8%A1%E5%BC%8F/">redis：模式</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="单节点模式"><a href="#单节点模式" class="headerlink" title="单节点模式"></a>单节点模式</h2><p>执行命令：redis-server.exe redis6379.conf<br>该命令指定了配置文件，不指定的情况下默认读取的配置文件是redis.conf配置文件</p>
+<h2 id="主从模式（数据备份）"><a href="#主从模式（数据备份）" class="headerlink" title="主从模式（数据备份）"></a>主从模式（数据备份）</h2><ul>
+<li>主节点和从节点使用完全相同的服务器实现， 它们的功能（functionally）也完全一样， 但从节点通常仅用于替换失效的主节点。</li>
+<li>不过， 如果不需要保证“先写入，后读取”操作的一致性（read-after-write consistency）， 那么可以使用从节点来执行只读查询。</li>
+</ul>
+<p>配置一主二从模式，拷贝两份redis6379.conf，分别命名redis6380.conf、redis6381.conf<br>修改redis6380.conf配置文件的如下几个参数，参数前面不要出现空格：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bind 127.0.0.1</span><br><span class="line">port 6380</span><br><span class="line">slaveof 127.0.0.1 6379  &#x2F;&#x2F; 设置该slave的master服务器为6379</span><br></pre></td></tr></table></figure>
+<p>同理修改redis6381.conf<br>分别启动master、slave1、slave2，命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">    redis-server.exe redis6379.conf</span><br><span class="line">    redis-server.exe redis6380.conf</span><br><span class="line">    redis-server.exe redis6381.conf</span><br><span class="line">&#96;&#96;</span><br><span class="line"> 所有节点启动后，可以在master界面看到挂载两个slave节点的日志信息</span><br><span class="line"></span><br><span class="line">## 哨兵模式</span><br><span class="line">哨兵模式是主从模式的升级版，他会在后台有一个监控，监控当前的主机，巡逻主机下面的从机，如果某一时刻主机挂掉了，那么他会通过一种投票的机制从从机之中选举一台作为新的主机，并且，其余的从机将会连接到这个新的主机上面。</span><br><span class="line"></span><br><span class="line">配置一主二从三sentinel模式</span><br><span class="line">redis的配置文件同主从模式下的文件配置</span><br><span class="line">创建三份sentinel.conf文件，分别命名为sentinel26379.conf、sentinel26380.conf、sentinel26381.conf</span><br><span class="line"></span><br><span class="line">文件中的配置参数如下(另外两个配置文件同样配置)：</span><br></pre></td></tr></table></figure>
+<p>port 26379 // 当前Sentinel服务运行的端口<br>sentinel monitor mymaster 127.0.0.1 6379 2   // 去监视一个名为mymaster的主redis实例，这个主实例的IP地址为本机地址127.0.0.1，端口号为6379，而将这个主实例判断为失效至少需要2个 Sentinel进程的同意，只要同意Sentinel的数量不达标，自动failover就不会执行<br>sentinel down-after-milliseconds mymaster 5000  // 指定了Sentinel认为Redis实例已经失效所需的毫秒数。当 实例超过该时间没有返回PING，或者直接返回错误，那么Sentinel将这个实例标记为主观下线。只有一个 Sentinel进程将实例标记为主观下线并不一定会引起实例的自动故障迁移：只有在足够数量的Sentinel都将一个实例标记为主观下线之后，实例才会被标记为客观下线，这时自动故障迁移才会执行<br>sentinel parallel-syncs mymaster 1  // 指定了在执行故障转移时，最多可以有多少个从Redis实例在同步新的主实例，在从Redis实例较多的情况下这个数字越小，同步的时间越长，完成故障转移所需的时间就越长<br>sentinel failover-timeout mymaster 15000 // 如果在该时间（ms）内未能完成failover操作，则认为该failover失败</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">分别启动redis服务器同主从模式下一样</span><br><span class="line">分别启动sentinel服务器，命令如下：</span><br></pre></td></tr></table></figure>
+<pre><code>redis-server.exe sentinel26379.conf --sentinel  
+redis-server.exe sentinel26380.conf --sentinel  
+redis-server.exe sentinel26381.conf --sentinel</code></pre>
+<p>```</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/22/redis%EF%BC%9A%E6%A8%A1%E5%BC%8F/" data-id="cklltjbpl003bqcnkbqxk6gvc" data-title="redis：模式" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-一些sql语句" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/22/%E4%B8%80%E4%BA%9Bsql%E8%AF%AD%E5%8F%A5/" class="article-date">
+  <time class="dt-published" datetime="2021-02-21T18:17:51.000Z" itemprop="datePublished">2021-02-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/22/%E4%B8%80%E4%BA%9Bsql%E8%AF%AD%E5%8F%A5/">一些sql语句</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="GROUP分组"><a href="#GROUP分组" class="headerlink" title="GROUP分组"></a>GROUP分组</h2><p>GROUP BY 聚合函数在聚合行的时候顺序？</p>
+<p>GROUP BY 聚合函数在聚合行的时候顺序是不确定的，多次运行的结果都有可能会不同。<br>必须要用子查询或者程序逻辑来获取特定的行的结果。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> T.<span class="operator">*</span> <span class="keyword">FROM</span> (<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> `test` <span class="keyword">order</span> <span class="keyword">by</span> b <span class="keyword">desc</span> limit <span class="number">999999</span>) T <span class="keyword">group</span> <span class="keyword">by</span> T.a</span><br></pre></td></tr></table></figure>
+<h2 id="循环语句"><a href="#循环语句" class="headerlink" title="循环语句"></a>循环语句</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">declare</span> <span class="variable">@i</span> <span class="type">int</span></span><br><span class="line"><span class="keyword">set</span> <span class="variable">@i</span><span class="operator">=</span><span class="number">1</span></span><br><span class="line">while <span class="variable">@i</span><span class="operator">&lt;</span><span class="number">30</span></span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test (userid) <span class="keyword">values</span>(<span class="variable">@i</span>)</span><br><span class="line"><span class="keyword">set</span> <span class="variable">@i</span><span class="operator">=</span><span class="variable">@i</span><span class="operator">+</span><span class="number">1</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="用-临时表-While循环-的方法-对Customers表中的CompanyName列进行遍历"><a href="#用-临时表-While循环-的方法-对Customers表中的CompanyName列进行遍历" class="headerlink" title="用 临时表 + While循环 的方法, 对Customers表中的CompanyName列进行遍历"></a>用 临时表 + While循环 的方法, 对Customers表中的CompanyName列进行遍历</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> #temp</span><br><span class="line">(</span><br><span class="line">  id <span class="type">int</span> <span class="keyword">identity</span>(<span class="number">1</span>,<span class="number">1</span>),</span><br><span class="line">  customer nvarchar(<span class="number">50</span>)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">declare</span> <span class="variable">@customer</span> nvarchar(<span class="number">50</span>)</span><br><span class="line"><span class="keyword">declare</span> <span class="variable">@n</span>        <span class="type">int</span></span><br><span class="line"><span class="keyword">declare</span> <span class="variable">@rows</span>     <span class="type">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@n</span><span class="operator">=</span><span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> #temp(customer) <span class="keyword">select</span> <span class="keyword">distinct</span> companyname <span class="keyword">from</span> customers</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@rows</span> <span class="operator">=</span> @<span class="variable">@rowcount</span></span><br><span class="line"></span><br><span class="line">while <span class="variable">@n</span> <span class="operator">&lt;=</span> <span class="variable">@rows</span></span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@customer</span> <span class="operator">=</span> companyname</span><br><span class="line"><span class="keyword">from</span> customers</span><br><span class="line">     <span class="keyword">where</span> companyname<span class="operator">=</span>(<span class="keyword">select</span> customer <span class="keyword">from</span> #temp <span class="keyword">where</span> id <span class="operator">=</span> <span class="variable">@n</span>)</span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> companyname <span class="keyword">desc</span></span><br><span class="line"></span><br><span class="line">print(<span class="variable">@customer</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@n</span> <span class="operator">=</span> <span class="variable">@n</span> <span class="operator">+</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="备份和恢复mysql数据库"><a href="#备份和恢复mysql数据库" class="headerlink" title="备份和恢复mysql数据库"></a>备份和恢复mysql数据库</h2><p>备份：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u root -p密码 数据库名&gt;data.bak</span><br></pre></td></tr></table></figure>
+<p>恢复</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p密码 数据库名&lt;data.bak</span><br></pre></td></tr></table></figure>
+<h2 id="查看mysql-的端口号"><a href="#查看mysql-的端口号" class="headerlink" title="查看mysql 的端口号"></a>查看mysql 的端口号</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;port&#x27;</span>;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/22/%E4%B8%80%E4%BA%9Bsql%E8%AF%AD%E5%8F%A5/" data-id="cklltjbpz004hqcnk0jexdki3" data-title="一些sql语句" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-redis：持久化" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/22/redis%EF%BC%9A%E6%8C%81%E4%B9%85%E5%8C%96/" class="article-date">
+  <time class="dt-published" datetime="2021-02-21T18:15:27.000Z" itemprop="datePublished">2021-02-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/22/redis%EF%BC%9A%E6%8C%81%E4%B9%85%E5%8C%96/">redis：持久化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Redis由于支持非常丰富的内存数据结构类型，如何把这些复杂的内存组织方式持久化到磁盘上是一个难题，所以Redis的持久化方式与传统数据库的方式有比较多的差别，Redis主要支持下面两种持久化方式，分别是：<br>定时快照方式(RDB)<br>基于语句追加文件的方式(AOF)</p>
+<p>Redis 还可以同时使用 AOF 持久化和 RDB 持久化。 在这种情况下， 当 Redis 重启时， 它会优先使用 AOF 文件来还原数据集， 因为 AOF 文件保存的数据集通常比 RDB 文件所保存的数据集更完整。</p>
+<h2 id="定时快照方式-snapshot，RDB-快照"><a href="#定时快照方式-snapshot，RDB-快照" class="headerlink" title="定时快照方式(snapshot，RDB 快照)"></a>定时快照方式(snapshot，RDB 快照)</h2><p>该持久化方式实际是在Redis内部一个定时器事件，每隔固定时间去检查当前数据发生的改变次数与时间是否满足配置的持久化触发的条件，如果满足则 通过操作系统fork调用来创建出一个子进程，这个子进程默认会与父进程共享相同的地址空间，这时就可以通过子进程来遍历整个内存来进行存储操作，而主进 程则仍然可以提供服务，当有写入时由操作系统按照内存页(page)为单位来进行copy-on-write保证父子进程之间不会互相影响。</p>
+<p>该持久化的主要缺点是定时快照只是代表一段时间内的内存映像，所以系统重启会丢失上次快照与重启之间所有的数据。<br>在默认情况下，Redis 将数据库快照保存在名字为 dump.rdb 的二进制文件中。<br>可以在.conf文件中修改</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#   save &quot;&quot;</span><br><span class="line">save 60 1000</span><br><span class="line"></span><br><span class="line"># The filename where to dump the DB</span><br><span class="line">dbfilename &quot;dump.rdb&quot;</span><br></pre></td></tr></table></figure>
+<p>你也可以通过调用 SAVE 或者 BGSAVE ， 手动让 Redis 进行数据集保存操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SAVE</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; BGSAVE</span><br><span class="line">Background saving started</span><br></pre></td></tr></table></figure>
+<h3 id="Redis恢复数据"><a href="#Redis恢复数据" class="headerlink" title="Redis恢复数据"></a>Redis恢复数据</h3><p>只要覆盖一下dump.rdb，再重启下redis就可以了。</p>
+<h2 id="基于语句追加方式-AOF"><a href="#基于语句追加方式-AOF" class="headerlink" title="基于语句追加方式(AOF)"></a>基于语句追加方式(AOF)</h2><p>aof方式实际类似mysql的基于语句的binlog方式，即每条会使Redis内存数据发生改变的命令都会追加到一个log文件中，也就是说这个log文件就是Redis的持久化数据。</p>
+<p>aof的方式的主要缺点是追加log文件可能导致体积过大，当系统重启恢复数据时如果是aof的方式则加载数据会非常慢，几十G的数据可能需要几小 时才能加载完，当然这个耗时并不是因为磁盘文件读取速度慢，而是由于读取的所有命令都要在内存中执行一遍。另外由于每条命令都要写log,所以使用aof 的方式，Redis的读写性能也会有所下降。</p>
+<p>AOF 重写和 RDB 创建快照一样，都巧妙地利用了写时复制机制。 打开只需要写入conf文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
+<h2 id="RDB-和-AOF，应该用哪一个"><a href="#RDB-和-AOF，应该用哪一个" class="headerlink" title="RDB 和 AOF，应该用哪一个"></a>RDB 和 AOF，应该用哪一个</h2><p>一般来说， 如果想达到足以媲美 PostgreSQL 的数据安全性， 你应该同时使用两种持久化功能。</p>
+<p>如果你非常关心你的数据， 但仍然可以承受数分钟以内的数据丢失， 那么你可以只使用 RDB 持久化。</p>
+<p>有很多用户都只使用 AOF 持久化， 但我们并不推荐这种方式： 因为定时生成 RDB 快照（snapshot）非常便于进行数据库备份， 并且 RDB 恢复数据集的速度也要比 AOF 恢复的速度要快， 除此之外， 使用 RDB 还可以避免之前提到的 AOF 程序的 bug 。</p>
+<h2 id="实验阶段"><a href="#实验阶段" class="headerlink" title="实验阶段"></a>实验阶段</h2><h3 id="虚拟内存方式"><a href="#虚拟内存方式" class="headerlink" title="虚拟内存方式"></a>虚拟内存方式</h3><p>虚拟内存方式是Redis来进行用户空间的数据换入换出的一个策略，此种方式在实现的效果上比较差，主要问题是代码复杂，重启慢，复制慢等等，目前已经被作者放弃。</p>
+<h3 id="diskstore方式："><a href="#diskstore方式：" class="headerlink" title="diskstore方式："></a>diskstore方式：</h3><p>diskstore方式是作者放弃了虚拟内存方式后选择的一种新的实现方式，也就是传统的B-tree的方式，目前仍在实验阶段，后续是否可用我们可以拭目以待。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/22/redis%EF%BC%9A%E6%8C%81%E4%B9%85%E5%8C%96/" data-id="cklltjbpl0039qcnk0bnj0l0y" data-title="redis：持久化" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-游戏服务器语言之争" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/22/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BA%89/" class="article-date">
+  <time class="dt-published" datetime="2021-02-21T18:07:57.000Z" itemprop="datePublished">2021-02-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/22/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BA%89/">游戏服务器语言之争</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>业界主要的是c/c++ + Python/lua模式做游戏服务器。c/c++做网络通讯数据传输，python/lua做业务逻辑。这样既保持了网络传输的效率(c++)，又提升开发效率(Python/lua)，同时也支持热更新。</p>
+<p>当然，也有其他服务器开发语言，erlang(页游公司用的多),node.js(少量游戏用的,还有一个node.js写的引擎叫pemolo)</p>
+<p>常见 MMORPG 服务器在技术层面的特性需求：<br>网络IO密集。高频率的视野同步消息（一般在 10-60Hz 之间），与玩家数量的关系是 O(n^2) 的复杂度，对于一些侧重国战等玩法的 MMORPG 尤其压力山大。通常都需要配合相关视野管理算法来减少消息发包数量，甚至需要配合架构做广播的负载分流。</p>
+<p>CPU密集。MMORPG 的玩法规则都需要服务器做权威性的计算，简单些的也需要大量怪物的 AI 和寻路计算，以及实时战斗的逻辑和技能运算等等；一些先进的 3D MMORPG 服务器甚至整合了物理引擎，来做碰撞检测和校验。</p>
+<p>实时性。此类游戏侧重实时战斗和交互体验，能容忍的响应延迟通常在 200ms 以内，即使可以通过客户端预演算进行缓和。考虑到网络延迟这个不能通过语言和架构来解决的要素，两次游戏逻辑更新发包的间隔最好控制在几十毫秒这一量级。（所以一些 GC 不太注重实时性的语言，可能会有潜在的负面体验影响）。</p>
+<p>稳定性和容灾。常 Crash 的服务器，轻则影响玩家体验，重则导致公司倒闭。</p>
+<p>开发效率。这个方面除了受语言特性本身影响，还需要考量其它要素，比如生态圈丰富程度（需要的功能可以容易找到稳定好用的库）、周边工具链完善程度、人员补充难易程度（是否是学校培训的主力语言、是否是领域比较主流的语言，或者是否足够简单好培训）、现有遗留人力和技术资源的价值等等。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/22/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BA%89/" data-id="cklltjbqd005cqcnkdb9c21tu" data-title="游戏服务器语言之争" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-redis设置过期方式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/22/redis%E8%AE%BE%E7%BD%AE%E8%BF%87%E6%9C%9F%E6%96%B9%E5%BC%8F/" class="article-date">
+  <time class="dt-published" datetime="2021-02-21T17:59:57.000Z" itemprop="datePublished">2021-02-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/22/redis%E8%AE%BE%E7%BD%AE%E8%BF%87%E6%9C%9F%E6%96%B9%E5%BC%8F/">redis设置过期方式</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="redis-conf中的默认的过期策略是"><a href="#redis-conf中的默认的过期策略是" class="headerlink" title="redis.conf中的默认的过期策略是"></a>redis.conf中的默认的过期策略是</h2><p>volatile-lru</p>
+<h2 id="maxmemory-policy-六种方式"><a href="#maxmemory-policy-六种方式" class="headerlink" title="maxmemory-policy 六种方式"></a>maxmemory-policy 六种方式</h2><ul>
+<li>volatile-lru<br>只对设置了过期时间的key进行LRU（默认值） </li>
+<li>allkeys-lru<br>删除lru算法的key   </li>
+<li>volatile-random<br>随机删除即将过期key   </li>
+<li>allkeys-random<br>随机删除   </li>
+<li>volatile-ttl<br>删除即将过期的   </li>
+<li>noeviction<br>永不过期，返回错误</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/22/redis%E8%AE%BE%E7%BD%AE%E8%BF%87%E6%9C%9F%E6%96%B9%E5%BC%8F/" data-id="cklltjbpj0033qcnk4v96f8xw" data-title="redis设置过期方式" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-mysql：数据结构" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/02/22/mysql%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" class="article-date">
@@ -233,6 +544,7 @@
       
         <h2 id="查看进程内存占用情况"><a href="#查看进程内存占用情况" class="headerlink" title="查看进程内存占用情况"></a>查看进程内存占用情况</h2><p>以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户的进程内存使用情况的话可以使用如下的命令：</p>
 <p>(1)top<br>top命令是Linux下常用的性能分析工具，能够实时显示系统中各个进程的资源占用状况，类似于Windows的任务管理器<br>可以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户的进程内存使用情况的话可以使用如下的命令：<br>$ top -u oracle</p>
+<h3 id="与ps的不同"><a href="#与ps的不同" class="headerlink" title="与ps的不同"></a>与ps的不同</h3><p>ps看到的是命令执行瞬间的进程信息,而top可以持续的监视<br>ps只是查看进程,而top还可以监视系统性能,如平均负载,cpu和内存的消耗</p>
 <h2 id="打印某个程序的线程栈"><a href="#打印某个程序的线程栈" class="headerlink" title="打印某个程序的线程栈"></a>打印某个程序的线程栈</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pstack $pid</span><br></pre></td></tr></table></figure>
 <h2 id="查看存储空间"><a href="#查看存储空间" class="headerlink" title="查看存储空间"></a>查看存储空间</h2><p>先看看根目录下面<br>du -sh /* </p>
 <p>下面这条命令就是显示所有隐藏文件和非隐藏文件的大小并根据占用空间排序的语句<br>du -sh .[!.]* * | sort -hr  </p>
@@ -249,342 +561,6 @@
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-make，cmake" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/22/make%EF%BC%8Ccmake/" class="article-date">
-  <time class="dt-published" datetime="2021-02-21T16:24:22.000Z" itemprop="datePublished">2021-02-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/22/make%EF%BC%8Ccmake/">make，cmake</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="make"><a href="#make" class="headerlink" title="make"></a>make</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-<h2 id="cmake"><a href="#cmake" class="headerlink" title="cmake"></a>cmake</h2><p>CMake是一个比make更高级的编译配置工具，它可以根据不同平台、不同的编译器，生成相应的Makefile或者vcproj项目。通过编写CMakeLists.txt，可以控制生成的Makefile，从而控制编译过程。CMake自动生成的Makefile不仅可以通过make命令构建项目生成目标文件，还支持安装（make install）、测试安装的程序是否能正确执行（make test，或者ctest）、生成当前平台的安装包（make package）、生成源码包（make package_source）、产生Dashboard显示数据并上传等高级功能，只要在CMakeLists.txt中简单配置，就可以完成很多复杂的功能，包括写测试用例。如果有嵌套目录，子目录下可以有自己的CMakeLists.txt。</p>
-<h3 id="外部编译"><a href="#外部编译" class="headerlink" title="外部编译"></a>外部编译</h3><p>外部编译，一个最大的好处是，对于原有的工程没<br>有任何影响，所有动作全部发生在编译目录。通过这一点，也足以说服我们全部采用外部编<br>译方式构建工程。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">#确定cmake最低版本需求</span><br><span class="line">cmake_minimum_required(VERSION 3.0.0)</span><br><span class="line"></span><br><span class="line">#打印</span><br><span class="line">MESSAGE(STATUS &quot;This is install dir &quot; $&#123;CMAKE_INSTALL_PREFIX&#125;)</span><br><span class="line"></span><br><span class="line">#确定工程名</span><br><span class="line">#(这一行会引入两个变量XXX_BINARY_DIR (二进制文件保存路径)和 #XXX_SOURCE_DIR(源代码保存路径))</span><br><span class="line">project(XXX)</span><br><span class="line"></span><br><span class="line">#添加需要的库</span><br><span class="line">set(CMAKE_PREFIX_PATH $&#123;CMAKE_PREFIX_PATH&#125; &quot;&#x2F;usr&#x2F;local&#x2F;share&#x2F;OpenCV&quot;)</span><br><span class="line">find_package(OpenCV 3.2.0 REQUIRED)</span><br><span class="line"></span><br><span class="line">#添加需要的头文件</span><br><span class="line">include_directories(include)</span><br><span class="line">include_directories($&#123;OpenCV_INCLUDE_DIRS&#125;)</span><br><span class="line">include_directories(&#x2F;usr&#x2F;local&#x2F;cuda-8.0&#x2F;include&#x2F;)</span><br><span class="line"></span><br><span class="line">#确定编译语言</span><br><span class="line">#add_definitions(-std&#x3D;c++11)</span><br><span class="line">set(CMAKE_CXX_STANDARD 11)</span><br><span class="line"></span><br><span class="line">#设定变量</span><br><span class="line">ADD_DEFINITIONS( -DGPU -DCUDNN )</span><br><span class="line"></span><br><span class="line">#添加源代码</span><br><span class="line">aux_source_directory($&#123;CMAKE_CURRENT_LIST_DIR&#125;&#x2F;src src)</span><br><span class="line"></span><br><span class="line">#编译动态库并链接库文件</span><br><span class="line">link_directories($&#123;PROJECT_SOURCE_DIR&#125;)</span><br><span class="line">add_library(plate_recognition SHARED $&#123;SRC&#125;)</span><br><span class="line">target_link_libraries(plate_recognition $&#123;OpenCV_LIBS&#125;)</span><br><span class="line">target_link_libraries(plate_recognition -llianghao  -lpthread -lm -lstdc++)</span><br><span class="line"></span><br><span class="line">#生成可执行文件</span><br><span class="line">link_directories($&#123;PROJECT_SOURCE_DIR&#125;)</span><br><span class="line">add_executable(Test $&#123;SRC&#125;)</span><br><span class="line">target_link_libraries(Test $&#123;OpenCV_LIBS&#125;)</span><br><span class="line">target_link_libraries(Test -llianghao  -lpthread -lm -lstdc++)</span><br><span class="line"></span><br><span class="line">#make install</span><br><span class="line">SET(CMAKE_INSTALL_PREFIX $&#123;CMAKE_SOURCE_DIR&#125;)</span><br><span class="line"></span><br><span class="line">INSTALL(TARGETS myengine</span><br><span class="line">    DESTINATION ..&#x2F;assets&#x2F;bin&#x2F;</span><br><span class="line">   )</span><br></pre></td></tr></table></figure>
-<h3 id="项目删除"><a href="#项目删除" class="headerlink" title="项目删除"></a>项目删除</h3><p>CMake 默认不提供 uninstall 这个 target，想要的话，输入：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xargs rm &lt; install_manifest.txt</span><br></pre></td></tr></table></figure>
-<p>对于不修改配置的项目足够了，manifest.txt 是CMake 生成的安装文件列表。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/make%EF%BC%8Ccmake/" data-id="cklltjbp60024qcnk2bqucf2j" data-title="make，cmake" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-线程，进程，锁，协程" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/22/%E7%BA%BF%E7%A8%8B%EF%BC%8C%E8%BF%9B%E7%A8%8B%EF%BC%8C%E9%94%81%EF%BC%8C%E5%8D%8F%E7%A8%8B/" class="article-date">
-  <time class="dt-published" datetime="2021-02-21T16:02:26.000Z" itemprop="datePublished">2021-02-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/22/%E7%BA%BF%E7%A8%8B%EF%BC%8C%E8%BF%9B%E7%A8%8B%EF%BC%8C%E9%94%81%EF%BC%8C%E5%8D%8F%E7%A8%8B/">线程，进程，锁，协程</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>进程是资源（CPU、内存等）分配的基本单位，它是程序执行时的一个实例。</p>
-<p>线程是程序执行时的最小单位，它是进程的一个执行流，是CPU调度和分派的基本单位，一个进程可以由很多个线程组成，线程间共享进程的所有资源，每个线程有自己的堆栈、局部变量和指令指针。</p>
-<h2 id="线程和进程的区别和优劣"><a href="#线程和进程的区别和优劣" class="headerlink" title="线程和进程的区别和优劣"></a>线程和进程的区别和优劣</h2><ul>
-<li>进程是资源分配的最小单位，线程是程序执行的最小单位。</li>
-<li>进程有自己的独立地址空间，每启动一个进程，系统就会为它分配地址空间，建立数据表来维护代码段、堆栈段和数据段，这种操作非常昂贵。而线程是共享进程中的数据的，使用相同的地址空间，因此CPU切换一个线程的花费远比进程要小很多，同时创建一个线程的开销也比进程要小很多。</li>
-<li>线程之间的通信更方便，同一进程下的线程共享全局变量、静态变量等数据，而进程之间的通信需要以通信的方式（IPC)进行。不过如何处理好同步与互斥是编写多线程程序的难点。</li>
-<li>多进程程序更健壮，多线程程序只要有一个线程死掉，整个进程也死掉了，而一个进程死掉并不会对另外一个进程造成影响，因为进程有自己独立的地址空间。</li>
-</ul>
-<h2 id="线程：锁"><a href="#线程：锁" class="headerlink" title="线程：锁"></a>线程：锁</h2><p>互斥锁、自旋锁、读写锁和条件变量</p>
-<h3 id="互斥锁（mutex-lock）"><a href="#互斥锁（mutex-lock）" class="headerlink" title="互斥锁（mutex lock）"></a>互斥锁（mutex lock）</h3><p><strong>一条线程加锁锁住临界区，另一条线程尝试访问改临界区的时候，会发生阻塞，并进入休眠状态。临界区是锁lock和unlock之间的代码片段，一般是多条线程能够共同访问的部分。</strong><br>具体说明：假设一台机器上的cpu有两个核心core0和core1，现在有线程A、B、C，此时core0运行线程A，core1运行线程B，此时线程B使用Mutex锁，锁住一个临界区，当线程A试图访问该临界区时，因为线程B已经将其锁住，因此线程A被挂起，进入休眠状态，此时core0进行上下文切换，将线程A放入休眠队列中，然后core0运行线程C，当线程B完成临界区的流程并执行解锁之后，线程A又会被唤醒，core0重新运行线程A</p>
-<h3 id="自旋锁（spinlock）"><a href="#自旋锁（spinlock）" class="headerlink" title="自旋锁（spinlock）"></a>自旋锁（spinlock）</h3><p><strong>一条线程加锁锁住临界区，另一条线程尝试访问该临界区的时候，会发生阻塞，但是不会进入休眠状态，并且不断轮询该锁，直至原来锁住临界区的线程解锁。</strong><br>具体说明：假设一台机器上有两个核心core0和core1，现在有线程A、B、C，此时core0运行线程A，core1运行线程B，此时线程B调用spin lock锁住临界区，当线程A尝试访问该临界区时，因为B已经加锁，此时线程A会阻塞，并且不断轮询该锁，不会交出core0的使用权，当线程B释放锁时，A开始执行临界区逻辑</p>
-<h3 id="读写锁（readers–writer-lock）"><a href="#读写锁（readers–writer-lock）" class="headerlink" title="读写锁（readers–writer lock）"></a>读写锁（readers–writer lock）</h3><p>一共三种状态</p>
-<ul>
-<li>读状态时加锁，此时为共享锁，当一个线程加了读锁时，其他线程如果也尝试以读模式进入临界区，那么不会发生阻塞，直接访问临界区</li>
-<li>写状态时加锁，此时为独占锁，当某个线程加了写锁，那么其他线程尝试访问该临界区（不论是读还是写），都会阻塞等待</li>
-<li>不加锁<br>某线程加读取锁时，允许其他线程以读模式进入，此时如果有一个线程尝试以写模式访问临界区时，该线程会被阻塞，而其后尝试以读方式访问该临界区的线程也会被阻塞<br>读写锁适合在读远大于写的情形中使用</li>
-</ul>
-<h3 id="条件变量（condition-variables）"><a href="#条件变量（condition-variables）" class="headerlink" title="条件变量（condition variables）"></a>条件变量（condition variables）</h3><p>假设A,B,C三条线程，其中B,C线程加了condwait锁并投入睡眠，而A线程则在某个条件触发时，会通过signal通知B,C线程，从而唤醒B和C线程。</p>
-<h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><p>从概念上讲线程与协同程序的主要区别在于，一个具有多个线程的程序可以同时运行几个线程，而协同程序却需要彼此协作地运行。就是说，一个具有多个协同程序的程序在任意时刻只能运行一个协同程序，并且正在运行的协同程序只会在其显式地要求挂起（suspend）时，它的执行才会暂停。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/%E7%BA%BF%E7%A8%8B%EF%BC%8C%E8%BF%9B%E7%A8%8B%EF%BC%8C%E9%94%81%EF%BC%8C%E5%8D%8F%E7%A8%8B/" data-id="cklltjbqe005gqcnkfy039u50" data-title="线程，进程，锁，协程" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-单例模式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/21/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" class="article-date">
-  <time class="dt-published" datetime="2021-02-21T15:09:34.000Z" itemprop="datePublished">2021-02-21</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/21/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">单例模式</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>游戏中用到单例模式的例子很多，几乎适用于系统资源管理类中，如聊天，道具，日志等等。<br>单例模式（Singleton），保证了全局有且只有一个实例对象，保证自动地初始化该对象，使得程序在任何时候任何地方都可以访问、获取该对象。</p>
-<p>通常我们可以让一个全局变量使得一个对象被访问，但它不能防止你实例化多个对象。一个最好的办法就是让类自身保存它的唯一实例。这个类可以保证没有其他实例可以被创建，并且它可以提供一个访问该实例的方法。</p>
-<p>基本上类图都像这样：</p>
-<p>这里把构造函数定义为private或protected，可以防止外界利用new创建此类实例。而且GetInstance是一个静态的函数，主要负责创建自己的唯一实例。而且GetInstance是一个静态的函数，主要负责创建自己的唯一实例。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取某个类的单例</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetClassInstance( classname ) static_cast<span class="meta-string">&lt;classname*&gt;( CMySingleton&lt;classname&gt;::GetInstance() )</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//单例模板</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CMySingleton</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    CMySingleton();</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ~CMySingleton();</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取全局唯一实例对象。如果还没有创建，创建她。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> T* <span class="title">GetInstance</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;        </span><br><span class="line">        <span class="keyword">if</span> (m_pInstance == <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            m_pInstance= <span class="keyword">new</span> T();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m_pInstance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 消除全局唯一实例对象。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Destroy</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (m_pInstance != <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">delete</span> m_pInstance;</span><br><span class="line">            m_pInstance = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> T* m_pInstance;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>但有时候，在多线程的程序中，多个线程同时访问Singleton，调用GetInstance()方法，会有可能造成创建多个实例。这时候就要给程序加锁。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取某个类的单例</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetClassInstance( classname ) static_cast<span class="meta-string">&lt;classname*&gt;( CMySingleton&lt;classname&gt;::GetInstance() )</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//单例模板</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CMySingleton</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    CMySingleton()</span><br><span class="line">    &#123;</span><br><span class="line">        pthread_mutex_init(&amp;m_mutex, <span class="literal">NULL</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ~CMySingleton()</span><br><span class="line">    &#123;</span><br><span class="line">        pthread_mutex_destory(&amp;m_mutex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取全局唯一实例对象。如果还没有创建，创建她。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> T* <span class="title">GetInstance</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;        </span><br><span class="line">        <span class="keyword">if</span> (m_pInstance == <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            pthread_mutex_lock(&amp;m_mutex);</span><br><span class="line">            <span class="keyword">if</span> (m_pInstance == <span class="literal">NULL</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                m_pInstance= <span class="keyword">new</span> T();</span><br><span class="line">            &#125;</span><br><span class="line">            pthread_mutex_unlock(&amp;m_mutex);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m_pInstance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 消除全局唯一实例对象。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Destroy</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        pthread_mutex_lock(&amp;m_mutex);<span class="comment">//此处无需双重检测，因为delete null并不会导致bug.</span></span><br><span class="line">        <span class="keyword">if</span> (m_pInstance != <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">delete</span> m_pInstance;</span><br><span class="line">            m_pInstance = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> T* m_pInstance;</span><br><span class="line">    <span class="keyword">pthread_mutex_t</span> m_mutex;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>这里有个疑惑，为什么在lock后，还需要做一次instance实例是否存在的判断？<br>当instance为null并且同时有两个纯种调用GetInstance()方法时，它们将都可以通过第一重判断。然后由于lock机制，这两个线程则只有一个进入，另一个在外排队等候，必须要其中的一个进入并出来后，另一个才能进入。而此时如果没有了第二重的判断，则第一个线程创建了实例，而第二个线程还是可以继续再创建新的实例，这就没有达到单例的目的了。</p>
-<p>总结<br>单例模式有以下的特点：<br>1 单例类只可有一个实例。<br>2 单例类必须自己创建自己这惟一的实例。<br>3 单例类必须给所有其他对象提供这一实例。<br>4 在大并发程序里，可能有多个线程同时访问单例，所以一定要记得加锁。</p>
-<p>多线程时：<br>单例模式主要有2中形式，一种是饿汉式，一种是懒汉式。<br>饿汉式：程序一加载单例模式就已经创建了，也就很饥饿嘛。因为是静态属性进行单例初始化，所以优点是线程是安全的，缺点是无论用户是否使用单例对象都会创建单例对象。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//静态属性类外初始化</span></span><br><span class="line">Singleton_Hungry* Singleton_Hungry::singleton = <span class="keyword">new</span> Singleton_Hungry;</span><br></pre></td></tr></table></figure>
-<p>懒汉式：当用户使用单例对象时，才去创建单例对象，所以很懒惰嘛。优点是用户不使用就不会创建对象，缺点是 当遇到多线程是，是线程不安全的，但是我们可以使用加强版的也就是线程安全的懒汉式。（上面用到的是这个）。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/21/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" data-id="cklltjbq3004nqcnkfeee6w5k" data-title="单例模式" class="article-share-link">Share</a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-工厂模式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/21/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" class="article-date">
-  <time class="dt-published" datetime="2021-02-21T15:00:52.000Z" itemprop="datePublished">2021-02-21</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/21/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">工厂模式</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>现在的网游更新很快，要延长网络游戏生命周期的方法是，更新，不断地更新，不断的将新内容呈现于玩家面前。这要求游戏程序的设计要有弹性，代码的重用至关重要。</p>
-<p>今天就说说游戏中的工厂模式。<br>说到工厂模式，有简单工厂模式，工厂方法模式，抽象工厂模式。</p>
-<p>（一）简单工厂模式<br>ps：面向对象的编程，并不是类越多越好，类的划分是为了封装，但分类的基础是抽象，具有相同属性和功能的对象的抽象集合才是类。<br>主要用于创建对象。新添加类时，不会影响以前的系统代码。核心思想是用一个工厂来根据输入的条件产生不同的类，然后根据不同类的virtual函数得到不同的结果。</p>
-<p>（工厂类与基类为关联关系）</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//基类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">COperation</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> m_nFirst;</span><br><span class="line">    <span class="keyword">int</span> m_nSecond;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">double</span> <span class="title">GetResult</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">double</span> dResult=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> dResult;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//加法</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AddOperation</span> :</span> <span class="keyword">public</span> COperation</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">double</span> <span class="title">GetResult</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> m_nFirst+m_nSecond;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//减法</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SubOperation</span> :</span> <span class="keyword">public</span> COperation</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">double</span> <span class="title">GetResult</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> m_nFirst-m_nSecond;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//工厂类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CCalculatorFactory</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> COperation* <span class="title">Create</span><span class="params">(<span class="keyword">char</span> cOperator)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">COperation* <span class="title">CCalculatorFactory::Create</span><span class="params">(<span class="keyword">char</span> cOperator)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    COperation *oper;</span><br><span class="line">    <span class="comment">//在C#中可以用反射来取消判断时用的switch，在C++中用什么呢？RTTI？？</span></span><br><span class="line">    <span class="keyword">switch</span> (cOperator)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&#x27;+&#x27;</span>:</span><br><span class="line">        oper=<span class="keyword">new</span> AddOperation();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&#x27;-&#x27;</span>:</span><br><span class="line">        oper=<span class="keyword">new</span> SubOperation();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        oper=<span class="keyword">new</span> AddOperation();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> oper;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>客户端</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a,b;</span><br><span class="line">    <span class="built_in">cin</span>&gt;&gt;a&gt;&gt;b;</span><br><span class="line">    COperation * op=CCalculatorFactory::Create(<span class="string">&#x27;-&#x27;</span>);</span><br><span class="line">    op-&gt;m_nFirst=a;</span><br><span class="line">    op-&gt;m_nSecond=b;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;op-&gt;GetResult()&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>优：适用于不同情况创建不同的类时。<br>劣：客户端必须要知道基类和工厂类，耦合性差。</p>
-<p>（二）工厂方法模式<br>简单工厂模式的最大优点在于工厂类中包含了必要的逻辑判断，根据客户端的选择条件动态实例化相关的类，对于客户端来说，去除了与具体产品的依赖。但简单工厂模式中不遵守开放－封闭原则。代码耦合性差。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="comment">//实例基类，相当于Product(为了方便，没用抽象)</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LeiFeng</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Sweep</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;雷锋扫地&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//学雷锋的大学生，相当于ConcreteProduct</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span>:</span> <span class="keyword">public</span> LeiFeng</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Sweep</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;大学生扫地&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//学雷锋的志愿者，相当于ConcreteProduct</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Volenter</span>:</span> <span class="keyword">public</span> LeiFeng</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span> :</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Sweep</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;志愿者&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//工场基类Creator</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LeiFengFactory</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> LeiFeng* <span class="title">CreateLeiFeng</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> LeiFeng();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//工场具体类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StudentFactory</span> :</span> <span class="keyword">public</span> LeiFengFactory</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span> :</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> LeiFeng* <span class="title">CreateLeiFeng</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Student();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VolenterFactory</span> :</span> <span class="keyword">public</span> LeiFengFactory</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> LeiFeng* <span class="title">CreateLeiFeng</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Volenter();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>客户端</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    LeiFengFactory *sf=<span class="keyword">new</span> LeiFengFactory();</span><br><span class="line">    LeiFeng *s=sf-&gt;CreateLeiFeng();</span><br><span class="line">    s-&gt;Sweep();</span><br><span class="line">    <span class="keyword">delete</span> s;</span><br><span class="line">    <span class="keyword">delete</span> sf;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>优：修正了简单工厂模式中不遵守开放－封闭原则。工厂方法模式把选择判断移到了客户端去实现，如果想添加新功能就不用修改原来的类，直接修改客户端即可。</p>
-<p>（三）抽象工厂模式<br>提供一个创建一系列相关或相互依赖的接口，而无需指定它们的具体类。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//用户抽象接口</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IUser</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span> :</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetUser</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertUser</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//部门抽象接口</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IDepartment</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetDepartment</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertDepartment</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//ACCESS用户</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CAccessUser</span> :</span> <span class="keyword">public</span> IUser</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Access GetUser&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Access InsertUser&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//ACCESS部门</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CAccessDepartment</span> :</span> <span class="keyword">public</span> IDepartment</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Access GetDepartment&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Access InsertDepartment&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//SQL用户</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CSqlUser</span> :</span> <span class="keyword">public</span> IUser</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Sql User&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Sql User&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//SQL部门类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CSqlDepartment</span>:</span> <span class="keyword">public</span> IDepartment</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;sql getDepartment&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;sql insertdepartment&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//抽象工厂</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IFactory</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IUser* <span class="title">CreateUser</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDepartment* <span class="title">CreateDepartment</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//ACCESS工厂</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AccessFactory</span> :</span> <span class="keyword">public</span> IFactory</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IUser* <span class="title">CreateUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span>  CAccessUser();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDepartment* <span class="title">CreateDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CAccessDepartment();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//SQL工厂</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SqlFactory</span> :</span> <span class="keyword">public</span> IFactory</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IUser* <span class="title">CreateUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span>  CSqlUser();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDepartment* <span class="title">CreateDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CSqlDepartment();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>客户端：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    IFactory* factory= <span class="keyword">new</span> SqlFactory();</span><br><span class="line">    IUser* user=factory-&gt;CreateUser();</span><br><span class="line">    IDepartment* depart = factory-&gt;CreateDepartment();</span><br><span class="line">    user-&gt;GetUser();</span><br><span class="line">    depart-&gt;GetDepartment();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/21/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" data-id="cklltjbq4004tqcnk6dtm0zkc" data-title="工厂模式" class="article-share-link">Share</a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-红黑树" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/21/%E7%BA%A2%E9%BB%91%E6%A0%91/" class="article-date">
-  <time class="dt-published" datetime="2021-02-21T13:59:54.000Z" itemprop="datePublished">2021-02-21</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/21/%E7%BA%A2%E9%BB%91%E6%A0%91/">红黑树</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>红黑树（Red Black Tree） 是一种自平衡二叉查找树，是在计算机科学中用到的一种数据结构，典型的用途是实现关联数组。<br>红黑树和AVL树类似，都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡，从而获得较高的查找性能。<br>它虽然是复杂的，但它的最坏情况运行时间也是非常良好的，并且在实践中是高效的： 它可以在O(log n)时间内做查找，插入和删除，这里的n 是树中元素的数目。</p>
-<p>先看一颗典型的红黑树：<br><img src="https://user-images.githubusercontent.com/11263320/108627363-1b799e80-7490-11eb-96d6-ce51723b9a49.png" alt="1425134-20190312161431312-398656278"></p>
-<p>除了符合二叉查找树基本特性外，红黑树还具有下列性质：<br>1.每一个节点或者着成红色，或者着成黑色。<br>2.根是黑色的。<br>3.如果一个节点是红色的，那么它的子节点必须是黑色的。<br>4.从一个节点到一个NULL指针的每一条路径必须包含相同数目的黑色节点。<br>5.所有NULL结点称为叶子节点，且认为颜色为黑。</p>
-<p>正是因为这些规则限制，才保证了红黑树的自平衡。红黑树从根到叶子的最长路径不会超过最短路径的2倍。<br>当插入或删除节点的时候，红黑树的规则有可能被打破。这时候就需要做出一些调整，来继续维持我们的规则。</p>
-<p>调整有两种方法：变色和旋转。<br>而旋转又分成两种形式：左旋转和右旋转。<br>变色：为了重新符合红黑树的规则，尝试把红色节点变为黑色，或者把黑色节点变为红色。<br>左旋转：逆时针旋转红黑树的两个节点，使得父节点被自己的右孩子取代，而自己成为自己的左孩子。<br>右旋转：顺时针旋转红黑树的两个节点，使得父节点被自己的左孩子取代，而自己成为自己的右孩子。</p>
-<p>经历了如下步骤：<br>变色 -&gt; 左旋转 -&gt; 变色 -&gt; 右旋转 -&gt; 变色</p>
-<p>这里有几个问题：<br>为什么插入的节点着色为”红色”，而不是黑色呢？<br>因为每条路径必须包含相同的黑色节点，所以插入红色意味着我们需要处理的情况越少。<br>当然，如果树是NULL，根据根节点为黑色的原则，我们就必须播放黑色了。</p>
-<p>至于删除，参考插入就好了。</p>
-<p>红黑树结构：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">RBTColor</span>&#123;</span>RED, BLACK&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RBTNode</span>&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        RBTColor color;    <span class="comment">// 颜色</span></span><br><span class="line">        T key;            <span class="comment">// 关键字(键值)</span></span><br><span class="line">        RBTNode *left;    <span class="comment">// 左孩子</span></span><br><span class="line">        RBTNode *right;    <span class="comment">// 右孩子</span></span><br><span class="line">        RBTNode *parent; <span class="comment">// 父结点</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>左转c++实现：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * 对红黑树的节点(x)进行左旋转</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 左旋示意图(对节点x进行左旋)：</span></span><br><span class="line"><span class="comment"> *      px                              px</span></span><br><span class="line"><span class="comment"> *     /                               /</span></span><br><span class="line"><span class="comment"> *    x                               y                </span></span><br><span class="line"><span class="comment"> *   /  \      --(左旋)--&gt;           / \                #</span></span><br><span class="line"><span class="comment"> *  lx   y                          x  ry     </span></span><br><span class="line"><span class="comment"> *     /   \                       /  \</span></span><br><span class="line"><span class="comment"> *    ly   ry                     lx  ly  </span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="keyword">void</span> RBTree&lt;T&gt;::leftRotate(RBTNode&lt;T&gt;* &amp;root, RBTNode&lt;T&gt;* x)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 设置x的右孩子为y</span></span><br><span class="line">    RBTNode&lt;T&gt; *y = x-&gt;right;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “y的左孩子” 设为 “x的右孩子”；</span></span><br><span class="line">    <span class="comment">// 如果y的左孩子非空，将 “x” 设为 “y的左孩子的父亲”</span></span><br><span class="line">    x-&gt;right = y-&gt;left;</span><br><span class="line">    <span class="keyword">if</span> (y-&gt;left != <span class="literal">NULL</span>)</span><br><span class="line">        y-&gt;left-&gt;parent = x;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “x的父亲” 设为 “y的父亲”</span></span><br><span class="line">    y-&gt;parent = x-&gt;parent;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (x-&gt;parent == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        root = y;            <span class="comment">// 如果 “x的父亲” 是空节点，则将y设为根节点</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (x-&gt;parent-&gt;left == x)</span><br><span class="line">            x-&gt;parent-&gt;left = y;    <span class="comment">// 如果 x是它父节点的左孩子，则将y设为“x的父节点的左孩子”</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            x-&gt;parent-&gt;right = y;    <span class="comment">// 如果 x是它父节点的左孩子，则将y设为“x的父节点的左孩子”</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 将 “x” 设为 “y的左孩子”</span></span><br><span class="line">    y-&gt;left = x;</span><br><span class="line">    <span class="comment">// 将 “x的父节点” 设为 “y”</span></span><br><span class="line">    x-&gt;parent = y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>右转c++实现</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * 对红黑树的节点(y)进行右旋转</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 右旋示意图(对节点y进行左旋)：</span></span><br><span class="line"><span class="comment"> *            py                               py</span></span><br><span class="line"><span class="comment"> *           /                                /</span></span><br><span class="line"><span class="comment"> *          y                                x                  </span></span><br><span class="line"><span class="comment"> *         /  \      --(右旋)--&gt;            /  \                     #</span></span><br><span class="line"><span class="comment"> *        x   ry                           lx   y  </span></span><br><span class="line"><span class="comment"> *       / \                                   / \                   #</span></span><br><span class="line"><span class="comment"> *      lx  rx                                rx  ry</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="keyword">void</span> RBTree&lt;T&gt;::rightRotate(RBTNode&lt;T&gt;* &amp;root, RBTNode&lt;T&gt;* y)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 设置x是当前节点的左孩子。</span></span><br><span class="line">    RBTNode&lt;T&gt; *x = y-&gt;left;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “x的右孩子” 设为 “y的左孩子”；</span></span><br><span class="line">    <span class="comment">// 如果&quot;x的右孩子&quot;不为空的话，将 “y” 设为 “x的右孩子的父亲”</span></span><br><span class="line">    y-&gt;left = x-&gt;right;</span><br><span class="line">    <span class="keyword">if</span> (x-&gt;right != <span class="literal">NULL</span>)</span><br><span class="line">        x-&gt;right-&gt;parent = y;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “y的父亲” 设为 “x的父亲”</span></span><br><span class="line">    x-&gt;parent = y-&gt;parent;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (y-&gt;parent == <span class="literal">NULL</span>) </span><br><span class="line">    &#123;</span><br><span class="line">        root = x;            <span class="comment">// 如果 “y的父亲” 是空节点，则将x设为根节点</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (y == y-&gt;parent-&gt;right)</span><br><span class="line">            y-&gt;parent-&gt;right = x;    <span class="comment">// 如果 y是它父节点的右孩子，则将x设为“y的父节点的右孩子”</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            y-&gt;parent-&gt;left = x;    <span class="comment">// (y是它父节点的左孩子) 将x设为“x的父节点的左孩子”</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “y” 设为 “x的右孩子”</span></span><br><span class="line">    x-&gt;right = y;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “y的父节点” 设为 “x”</span></span><br><span class="line">    y-&gt;parent = x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/21/%E7%BA%A2%E9%BB%91%E6%A0%91/" data-id="cklltjbqe005eqcnk4t4i5d6y" data-title="红黑树" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-二叉树" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/21/%E4%BA%8C%E5%8F%89%E6%A0%91/" class="article-date">
-  <time class="dt-published" datetime="2021-02-21T13:43:34.000Z" itemprop="datePublished">2021-02-21</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/21/%E4%BA%8C%E5%8F%89%E6%A0%91/">二叉树</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前写了一些链表和排序的blog，其中有说到多链表，堆，其中提到了一种特殊的数据结构：树。<br>人们发明树结构，用于储存和搜索海量的数据。</p>
-<h2 id="树的种类"><a href="#树的种类" class="headerlink" title="树的种类"></a>树的种类</h2><p>无序树：树中任意节点的子结点之间没有顺序关系，这种树称为无序树,也称为自由树;<br>有序树：树中任意节点的子结点之间有顺序关系，这种树称为有序树；<br>二叉树：每个节点最多含有两个子树的树称为二叉树；<br>完全二叉树：二叉树的所有子树要么没有孩子，要么一定有左孩子。堆是一种完全二叉树。<br>红黑树：红黑树是把树中的结点定义为红、黑两种颜色，并通过规则确保从根结点到叶结点的最长路径的长度不超过最短路径的两倍。在c++的STL中，set、multiset、map、multimap等数据结构都是基于红黑树实现的。<br>满二叉树：除最后一层无任何子节点外，每一层上的所有结点都有两个子结点（最后一层上的无子结点的结点为叶子结点）。<br>霍夫曼树：带权路径最短的二叉树称为哈夫曼树或最优二叉树；</p>
-<p>如果二叉树不是平衡的，那么它就退化为一个链表，而搜索时间也退化为一个线性函数。</p>
-<h2 id="树的深度"><a href="#树的深度" class="headerlink" title="树的深度"></a>树的深度</h2><p>定义一棵树的根结点层次为1，其他节点的层次是其父结点层次加1。一棵树中所有结点的层次的最大值称为这棵树的深度。</p>
-<h2 id="树的遍历"><a href="#树的遍历" class="headerlink" title="树的遍历"></a>树的遍历</h2><p>所谓遍历(Traversal)是指沿着某条搜索路线，依次对树中每个结点均做一次且仅做一次访问。访问结点所做的操作依赖于具体的应用问 题。 遍历是二叉树上最重要的运算之一，是二叉树上进行其它运算之基础。</p>
-<h2 id="遍历命名"><a href="#遍历命名" class="headerlink" title="遍历命名"></a>遍历命名</h2><p>根据访问结点操作发生位置命名：<br>① NLR：前序遍历(PreorderTraversal亦称（先序遍历））<br>——访问根结点的操作发生在遍历其左右子树之前。如10、6、4、8、14、12、16。<br>② LNR：中序遍历(InorderTraversal)<br>——访问根结点的操作发生在遍历其左右子树之中（间）。如4、6、8、10、12、14、16。<br>③ LRN：后序遍历(PostorderTraversal)<br>——访问根结点的操作发生在遍历其左右子树之后。如4、8、6、12、16、14、10。</p>
-<h2 id="中序遍历的投影法"><a href="#中序遍历的投影法" class="headerlink" title="中序遍历的投影法"></a>中序遍历的投影法</h2><h2 id="一般二叉树的定义"><a href="#一般二叉树的定义" class="headerlink" title="一般二叉树的定义"></a>一般二叉树的定义</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">BiTNode</span>&#123;</span></span><br><span class="line">    TElemType data;</span><br><span class="line">    BiTNode *lchild,*rchild;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="二叉树的遍历操作"><a href="#二叉树的遍历操作" class="headerlink" title="二叉树的遍历操作"></a>二叉树的遍历操作</h2><p>1．先序遍历（DLR）<br>先序遍历的递归过程为：若二叉树为空，遍历结束。否则，<br>（1） 访问根结点；<br>（2） 先序遍历根结点的左子树；<br>（3） 先序遍历根结点的右子树。</p>
-<p>先序遍历二叉树的递归算法如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PreOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*先序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) <span class="keyword">return</span>; <span class="comment">/*递归调用的结束条件*/</span></span><br><span class="line">      Visite(bt-&gt;data);     <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line">      PreOrder(bt-&gt;lchild); <span class="comment">/*先序递归遍历bt 的左子树*/</span></span><br><span class="line">      PreOrder(bt-&gt;rchild); <span class="comment">/*先序递归遍历bt 的右子树*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>2．中序遍历（LDR）<br>中序遍历的递归过程为：若二叉树为空，遍历结束。否则，<br>（1）中序遍历根结点的左子树；<br>（2）访问根结点；<br>（3）中序遍历根结点的右子树。</p>
-<p>中序遍历二叉树的递归算法如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">InOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*中序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) <span class="keyword">return</span>; <span class="comment">/*递归调用的结束条件*/</span></span><br><span class="line">     InOrder(bt-&gt;lchild); <span class="comment">/*中序递归遍历bt 的左子树*/</span></span><br><span class="line">     Visite(bt-&gt;data);     <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line">     InOrder(bt-&gt;rchild); <span class="comment">/*中序递归遍历bt 的右子树*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>3．后序遍历（LRD）<br>后序遍历的递归过程为：若二叉树为空，遍历结束。否则，<br>（1）后序遍历根结点的左子树；<br>（2）后序遍历根结点的右子树。<br>（3）访问根结点；</p>
-<p>后序遍历二叉树的递归算法如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PostOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*后序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) <span class="keyword">return</span>; <span class="comment">/*递归调用的结束条件*/</span></span><br><span class="line">     PostOrder(bt-&gt;lchild); <span class="comment">/*后序递归遍历bt 的左子树*/</span></span><br><span class="line">     PostOrder(bt-&gt;rchild); <span class="comment">/*后序递归遍历bt 的右子树*/</span></span><br><span class="line">     Visite(bt-&gt;data); <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>从表面上看，从代码中，遍历语句的位置可以看出是什么遍历。</p>
-<p>4．层次遍历（宽度优先遍历）<br>由层次遍历的定义可以推知，在进行层次遍历时，对一层结点访问完后，再按照它们的访问次序对各个结点的左孩子和右孩子顺序访问，这样一层一层进行，先遇到的结点先访问，这与队列的操作原则比较吻合。因此，在进行层次遍历时，可设置一个队列结构，遍历从二叉树的根结点开始，首先将根结点指针入队列，然后从对头取出一个元素，每取一个元素，执行下面两个操作：<br>（1） 访问该元素所指结点；<br>（2） 若该元素所指结点的左、右孩子结点非空，则将该元素所指结点的左孩子指针和右孩子指针顺序入队。<br>此过程不断进行，当队列为空时，二叉树的层次遍历结束。</p>
-<p>在下面的层次遍历算法中，二叉树以二叉链表存放，一维数组Queue[MAXNODE]用以实现队列，变量front 和rear 分别表示当前对首元素和队尾元素在数组中的位置。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">LevelOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*层次遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    BiTree Queue[MAXNODE];</span><br><span class="line">    <span class="keyword">int</span> front,rear;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) </span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    front=<span class="number">-1</span>;</span><br><span class="line">    rear=<span class="number">0</span>;</span><br><span class="line">    <span class="built_in">queue</span>[rear]=bt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(front!=rear)</span><br><span class="line">    &#123;</span><br><span class="line">        front++;</span><br><span class="line">        Visite(<span class="built_in">queue</span>[front]-&gt;data); <span class="comment">/*访问队首结点的数据域*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">queue</span>[front]-&gt;lchild!=<span class="literal">NULL</span>) <span class="comment">/*将队首结点的左孩子结点入队列*/</span></span><br><span class="line">        &#123; </span><br><span class="line">            rear++;</span><br><span class="line">            <span class="built_in">queue</span>[rear]=<span class="built_in">queue</span>[front]-&gt;lchild;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">queue</span>[front]-&gt;rchild!=<span class="literal">NULL</span>) <span class="comment">/*将队首结点的右孩子结点入队列*/</span></span><br><span class="line">        &#123; </span><br><span class="line">            rear++;</span><br><span class="line">            <span class="built_in">queue</span>[rear]=<span class="built_in">queue</span>[front]-&gt;rchild;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="二叉树遍历的非递归实现"><a href="#二叉树遍历的非递归实现" class="headerlink" title="二叉树遍历的非递归实现"></a>二叉树遍历的非递归实现</h2><p>从二叉树各种遍历来说，各种遍历都是从根结点开始的，且在遍历过程中经过结点的路线是一样的，只是访问的时机不同而已。这一路线都是从根结点开始沿左子树深入下去，当深入到最左端，无法再深入<br>下去时，则返回，再逐一进入刚才深入时遇到结点的右子树，再进行如此的深入和返回，直到最后从根结点的右子树返回到根结点为止。先序遍历是在深入时遇到结点就访问，中序遍历是在从左子树返回时遇到结点访问，后序遍历是在从右子树返回时遇到结点访问。</p>
-<p>这种路线可以用栈来实现。其实递归在本质上就是一个栈结构。</p>
-<p>在这一过程中，返回结点的顺序与深入结点的顺序相反，即后深入先返回，正好符合栈结构后进先出的点。因此，可以用栈来帮助实现这一遍历路线。其过程如下。在沿左子树深入时，深入一个结点入栈一个结点，若为先序遍历，则在入栈之前访问之；当沿左分支深入不下去时，则返回，即从堆栈中弹出前面压入的结点，若为中序遍历，则此时访问该结点，然后从该结点的右子树继续深入；若为后序遍历，则将此结点再次入栈，然后从该结点的右子树继续深入，与前面类同，仍为深入一个结点入栈一个结点，深入不下去再返回，直到第二次从栈里弹出该结点，才访问之。</p>
-<ol>
-<li><p>先序遍历的非递归实现<br>在下面算法中，二叉树以二叉链表存放，一维数组 stack[MAXNODE] 用以实现栈，变量top 用来表示当前栈顶的位置。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">NRPreOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*非递归先序遍历二叉树*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    BiTree <span class="built_in">stack</span>[MAXNODE],p;</span><br><span class="line">    <span class="keyword">int</span> top;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) </span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    top=<span class="number">0</span>;</span><br><span class="line">    p=bt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(!(p==<span class="literal">NULL</span>&amp;&amp;top==<span class="number">0</span>))</span><br><span class="line">    &#123; </span><br><span class="line">        <span class="keyword">while</span>(p!=<span class="literal">NULL</span>)</span><br><span class="line">        &#123; </span><br><span class="line">            Visite(p-&gt;data);   <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (top&lt;MAXNODE<span class="number">-1</span>) <span class="comment">/*将当前指针p 压栈*/</span></span><br><span class="line">            &#123; </span><br><span class="line">                <span class="built_in">stack</span>[top]=p;</span><br><span class="line">                top++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">            &#123; </span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;栈溢出&quot;</span>)；</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            p=p-&gt;lchild; <span class="comment">/*指针指向p 的左孩子*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (top&lt;=<span class="number">0</span>) </span><br><span class="line">            <span class="keyword">return</span>; <span class="comment">/*栈空时结束*/</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123; </span><br><span class="line">            top--;</span><br><span class="line">            p=<span class="built_in">stack</span>[top]; <span class="comment">/*从栈中弹出栈顶元素*/</span></span><br><span class="line">            p=p-&gt;rchild; <span class="comment">/*指针指向p 的右孩子结点*/</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>中序遍历的非递归实现<br>中序遍历的非递归算法的实现，只需将先序遍历的非递归算法中的 Visite(p-&gt;data) 移到 p=stack[top] 和 p=p-&gt;rchild 之间即可。</p>
-</li>
-<li><p>后序遍历的非递归实现<br>由前面的讨论可知，后序遍历与先序遍历和中序遍历不同，在后序遍历过程中，结点在第一次出栈后，还需再次入栈，也就是说，结点要入两次栈，出两次栈，而访问结点是在第二次出栈时访问。因此，为了区别同一个结点指针的两次出栈，设置一标志flag，令：<br>flag = 1 -&gt; 第一次出栈，结点不能访问<br>flag = 2 -&gt; 第二次出栈，结点可以访问<br>当结点指针进、出栈时，其标志flag 也同时进、出栈。因此，可将栈中元素的数据类型定义为指针和标志flag 合并的结构体类型。定义如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    BiTree link;</span><br><span class="line">    <span class="keyword">int</span> flag;</span><br><span class="line">&#125; stacktype;</span><br></pre></td></tr></table></figure>
-<p>后序遍历二叉树的非递归算法如下。在算法中，一维数组 stack[MAXNODE] 用于实现栈的结构，指针变量p 指向当前要处理的结点，整型变量top 用来表示当前栈顶的位置，整型变量 sign 为结点 p 的标志量。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">NRPostOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*非递归后序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    stacktype <span class="built_in">stack</span>[MAXNODE];</span><br><span class="line">    BiTree p;</span><br><span class="line">    <span class="keyword">int</span> top,sign;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) </span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    top=<span class="number">-1</span>   <span class="comment">/*栈顶位置初始化*/</span></span><br><span class="line">    p=bt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (!(p==<span class="literal">NULL</span> &amp;&amp; top==<span class="number">-1</span>))</span><br><span class="line">    &#123; </span><br><span class="line">        <span class="keyword">if</span> (p!=<span class="literal">NULL</span>)    <span class="comment">/*结点第一次进栈*/</span></span><br><span class="line">        &#123; </span><br><span class="line">            top++;</span><br><span class="line">            <span class="built_in">stack</span>[top].link=p;</span><br><span class="line">            <span class="built_in">stack</span>[top].flag=<span class="number">1</span>;</span><br><span class="line">            p=p-&gt;lchild;   <span class="comment">/*找该结点的左孩子*/</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> </span><br><span class="line">        &#123; </span><br><span class="line">            p=<span class="built_in">stack</span>[top].link;</span><br><span class="line">            sign=<span class="built_in">stack</span>[top].flag;</span><br><span class="line">            top--;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (sign==<span class="number">1</span>)   <span class="comment">/*结点第二次进栈*/</span></span><br><span class="line">            &#123;</span><br><span class="line">                top++;</span><br><span class="line">                <span class="built_in">stack</span>[top].link=p;</span><br><span class="line">                <span class="built_in">stack</span>[top].flag=<span class="number">2</span>;   <span class="comment">/*标记第二次出栈*/</span></span><br><span class="line">                p=p-&gt;rchild;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">            &#123; </span><br><span class="line">                Visite(p-&gt;data);   <span class="comment">/*访问该结点数据域值*/</span></span><br><span class="line">                p=<span class="literal">NULL</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/21/%E4%BA%8C%E5%8F%89%E6%A0%91/" data-id="cklltjbpx004aqcnk6bio1v9r" data-title="二叉树" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li></ul>
 
     </footer>
   </div>
@@ -622,7 +598,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
+      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
     </div>
   </div>
 
@@ -631,7 +607,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
     </div>
   </div>
 
@@ -644,23 +620,23 @@
       <ul>
         
           <li>
-            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
+            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
+            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
+            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/">STL源码分析：Containers</a>
+            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
           </li>
         
       </ul>

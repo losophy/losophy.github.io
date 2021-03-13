@@ -71,6 +71,264 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-网络游戏服务器开发注意事项" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" class="article-date">
+  <time class="dt-published" datetime="2021-03-09T07:46:18.000Z" itemprop="datePublished">2021-03-09</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="逻辑问题"><a href="#逻辑问题" class="headerlink" title="逻辑问题"></a>逻辑问题</h2><p>==判断限制太死了，少用点<br>使用while true时，可能造成死循环，应该添加保险措施，必现因为逻辑问题导致的死循环</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> weaponType ~= sword <span class="keyword">do</span></span><br><span class="line">    check = check + <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> <span class="number">1000</span> &lt; check <span class="keyword">then</span></span><br><span class="line">          <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>local不能热更，用local时，要考虑会不会有热更的情况<br>因为不同语言的版本会共用一套代码，不同时区发时间会有问题，同步会有问题，改用发时间戳<br>禁止广泛采用param arg等表示某一类参数，统一加上对应的模块或功能特性声明，比如：CreateRole(roleParam)</p>
+<h2 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h2><p>协议字段要小，省宽带<br>协议接口目录统一，方便热更新</p>
+<h2 id="检查验收"><a href="#检查验收" class="headerlink" title="检查验收"></a>检查验收</h2><p>查看传入参数判空，长命名，默认值，参数检测，snsaerro中断会发生的问题<br>用户登录时，不要有中断发生<br>用户登录时，所有下推合成一个包发送</p>
+<p>所有的物品接口是遵循这个规律的（物品先扣再发）：<br>1.检测<br>2.扣钱、资源<br>3.发物品,修改数据</p>
+<h2 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h2><h3 id="mongodb"><a href="#mongodb" class="headerlink" title="mongodb"></a>mongodb</h3><p>odm不要设计成第一层就用map，后续加字段会很困难</p>
+<h3 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h3><p>数据库用cache，定时存入<br>因为mysql写入的数据都是冷数据（只增，部分读），所以处理比较简单<br>（核查记录，邮件）这些业务交给网页部门，服务器拿网页接口</p>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p>配置文件转换时，不要出现值为2.0这种错误</p>
+<h3 id="编写validate-lua"><a href="#编写validate-lua" class="headerlink" title="编写validate.lua"></a>编写validate.lua</h3><p>每新增配置表，策划有可能会配置错误的项目都需要添加检测。确保跑validate时，不会因配置错误，而出现程序出错。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" data-id="ckm7sd6cr0005d0nk1k8b0ekz" data-title="网络游戏服务器开发注意事项" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-删除svn冲突" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/" class="article-date">
+  <time class="dt-published" datetime="2021-03-08T07:18:57.000Z" itemprop="datePublished">2021-03-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>一般遇到svn冲突时，我们都下意识clean下。其实，有更加好的方法。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">G:\project\.svn<span class="operator">&gt;</span>sqlite3.exe wc.db</span><br><span class="line">SQLite version <span class="number">3.7</span><span class="number">.15</span><span class="number">.2</span> <span class="number">2013</span><span class="number">-01</span><span class="number">-09</span> <span class="number">11</span>:<span class="number">53</span>:<span class="number">05</span></span><br><span class="line">Enter &quot;.help&quot; <span class="keyword">for</span> instructions</span><br><span class="line">Enter <span class="keyword">SQL</span> statements terminated <span class="keyword">with</span> a &quot;;&quot;</span><br><span class="line">sqlite<span class="operator">&gt;</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> work_queue;</span><br><span class="line"><span class="number">5046</span><span class="operator">|</span>(file<span class="operator">-</span>install Resources<span class="operator">/</span>pc<span class="operator">/</span>base<span class="operator">/</span>effects<span class="operator">/</span><span class="number">500000001.</span>unity3d <span class="number">1</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span>)</span><br><span class="line">sqlite<span class="operator">&gt;</span> <span class="keyword">delete</span> <span class="keyword">from</span> work_queue;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/" data-id="ckm7sd6cn0004d0nkgpcfhg1t" data-title="删除svn冲突" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-vscode-vps调试c程序" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/" class="article-date">
+  <time class="dt-published" datetime="2021-03-03T08:07:51.000Z" itemprop="datePublished">2021-03-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="使用ssh实现vscode远程连接"><a href="#使用ssh实现vscode远程连接" class="headerlink" title="使用ssh实现vscode远程连接"></a>使用ssh实现vscode远程连接</h2><p>在vscode安装插件remote-ssh，安装完后可以看到这个图标<br><img src="https://user-images.githubusercontent.com/11263320/110116260-37673380-7df2-11eb-8b71-7f0520d4c01c.JPG" alt="fgfsdgs"><br>输入vps ip就可以直接连上了</p>
+<h2 id="vscode调试c程序"><a href="#vscode调试c程序" class="headerlink" title="vscode调试c程序"></a>vscode调试c程序</h2><p>这时候如果直接debug，选择chrome，在工作目录下会出现.vscode文件夹。<br>将下面这两个文件复制到vscode下，就可以远程调试了。<br>launch.json</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Use IntelliSense to learn about possible attributes.</span></span><br><span class="line">    <span class="comment">// Hover to view descriptions of existing attributes.</span></span><br><span class="line">    <span class="comment">// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</span></span><br><span class="line">    <span class="attr">&quot;version&quot;</span>: <span class="string">&quot;0.2.0&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;configurations&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">&quot;name&quot;</span>: <span class="string">&quot;(gdb) Launch&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;cppdbg&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;request&quot;</span>: <span class="string">&quot;launch&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;program&quot;</span>: <span class="string">&quot;$&#123;workspaceRoot&#125;/skynet&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;args&quot;</span>: [<span class="string">&quot;examples/config&quot;</span>],</span><br><span class="line">            <span class="attr">&quot;stopAtEntry&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">            <span class="attr">&quot;cwd&quot;</span>: <span class="string">&quot;$&#123;workspaceFolder&#125;&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;environment&quot;</span>: [],</span><br><span class="line">            <span class="attr">&quot;externalConsole&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">            <span class="attr">&quot;MIMode&quot;</span>: <span class="string">&quot;gdb&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;setupCommands&quot;</span>: [</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="attr">&quot;description&quot;</span>: <span class="string">&quot;Enable pretty-printing for gdb&quot;</span>,</span><br><span class="line">                    <span class="attr">&quot;text&quot;</span>: <span class="string">&quot;-enable-pretty-printing&quot;</span>,</span><br><span class="line">                    <span class="attr">&quot;ignoreFailures&quot;</span>: <span class="literal">true</span></span><br><span class="line">                &#125;</span><br><span class="line">            ],</span><br><span class="line">            <span class="attr">&quot;preLaunchTask&quot;</span>: <span class="string">&quot;build-debug&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>tasks.json</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;version&quot;</span>: <span class="string">&quot;2.0.0&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;tasks&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;build&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;command&quot;</span>: <span class="string">&quot;make&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;args&quot;</span>: [<span class="string">&quot;linux&quot;</span>],</span><br><span class="line">            <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;shell&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;build-debug&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;command&quot;</span>: <span class="string">&quot;make&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;args&quot;</span>: [<span class="string">&quot;linux&quot;</span>],</span><br><span class="line">            <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;shell&quot;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;clean&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;command&quot;</span>: <span class="string">&quot;make&quot;</span>,</span><br><span class="line">            <span class="attr">&quot;args&quot;</span>: [<span class="string">&quot;clean&quot;</span>],</span><br><span class="line">            <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;shell&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>根据不同程序的需求，需要改写一些参数</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/" data-id="ckm7sd6ci0003d0nk94e30d3a" data-title="vscode+vps调试c程序" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-lua的一些问题" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/" class="article-date">
+  <time class="dt-published" datetime="2021-03-01T11:28:16.000Z" itemprop="datePublished">2021-03-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="堆栈溢出"><a href="#堆栈溢出" class="headerlink" title="堆栈溢出"></a>堆栈溢出</h2><p>我们在运行lua的时候，有可能遇到这样一种报错 “stack overflow”，先看看下面一段代码</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">func_r</span><span class="params">(a)</span></span></span><br><span class="line">    a = a + <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> a &gt; <span class="number">100000</span> <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">print</span>(a)</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        func_r(a)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> a</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"> </span><br><span class="line">x = <span class="number">1</span></span><br><span class="line">func_r(x)</span><br></pre></td></tr></table></figure>
+<p>语法上的确没有任何问题，但在执行的时候就会出现 stack overflow 的报错。是什么原因导致堆栈溢出呢？这个就要追究到Lua源码：Lua虚拟机会对堆栈进行一系列的检查（函数：luaL_checkstack），错误类型就有：<br>“too many arguments”，<br>“assume array is smaller than 2^40 “，<br>“string slice too long”，<br>“too many captures”，<br>“too many arguments to script”，<br>“too many nested functions”<br>例如，上面的代码就属于递归嵌套次数太多，默认限制20000。</p>
+<h2 id="不支持边遍历表边删除表中字段"><a href="#不支持边遍历表边删除表中字段" class="headerlink" title="不支持边遍历表边删除表中字段"></a>不支持边遍历表边删除表中字段</h2><p>当在遍历表的时候为不存在的字段赋值时，next的遍历顺序是未知的，然而，你可以在遍历时修改已有的字段，或者，你可以删除已经存在的字段。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/" data-id="ckm7sd6cd0001d0nk7zow6jj6" data-title="lua的一些问题" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lua/" rel="tag">lua</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-gdb调试" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/" class="article-date">
+  <time class="dt-published" datetime="2021-02-27T16:36:17.000Z" itemprop="datePublished">2021-02-28</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">cmd:gdb</span><br><span class="line">gdb$ file yourpram</span><br><span class="line"></span><br><span class="line">* 保存历史命令</span><br><span class="line">echo &#39;set history save on&#39; &gt;&gt; ~&#x2F;.gdbinit &amp;&amp; chmod 600 ~&#x2F;.gdbinit</span><br><span class="line">gdb$ show history</span><br><span class="line"></span><br><span class="line">* 设置参数</span><br><span class="line">gdb$ set args(e.g. set args 10 20 30 40 50)</span><br><span class="line">gdb$ show args</span><br><span class="line"></span><br><span class="line">* 执行程序至 main() 主函数的起始位置，即在 main() 函数的第一行语句处停止执行（该行代码尚未执行）。</span><br><span class="line">gdb$ start</span><br><span class="line"></span><br><span class="line">* 加断点</span><br><span class="line">gdb$ b gdb_test.c:3 </span><br><span class="line">gdb$ info b</span><br><span class="line"> </span><br><span class="line"> * 打印参数</span><br><span class="line">gdb$ p i</span><br><span class="line">gdb$ p&#x2F;x i</span><br><span class="line"></span><br><span class="line">* run 指令会执行程序至第一个断点处，没有指令就一直执行程序</span><br><span class="line">gdb$ run</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>UI interface(TUI mode)<br>ctrl+X+A</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/28/gdb%E8%B0%83%E8%AF%95/" data-id="ckm7sd6by0000d0nk9i13e5h6" data-title="gdb调试" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-计算机业余英语" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/26/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%9A%E4%BD%99%E8%8B%B1%E8%AF%AD/" class="article-date">
+  <time class="dt-published" datetime="2021-02-26T08:50:50.000Z" itemprop="datePublished">2021-02-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/26/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%9A%E4%BD%99%E8%8B%B1%E8%AF%AD/">计算机业余英语</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>knapsack-&gt;背包<br>copy-&gt;游戏副本<br>redPacket-&gt;红包</p>
+<h2 id="常见缩写化简字段名大小"><a href="#常见缩写化简字段名大小" class="headerlink" title="常见缩写化简字段名大小"></a>常见缩写化简字段名大小</h2><p>level-&gt;lv<br>current-&gt;cur</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/26/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%9A%E4%BD%99%E8%8B%B1%E8%AF%AD/" data-id="ckm7sd6cs0006d0nka4kh2nna" data-title="计算机业余英语" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-net简介" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/" class="article-date">
@@ -237,315 +495,6 @@
 
 
   
-    <article id="post-STL源码分析：Containers" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T12:24:49.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/">STL源码分析：Containers</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>STL容器分两种：序列式容器，关联式容器。<br><img src="https://user-images.githubusercontent.com/11263320/109159391-83d9c000-77af-11eb-9e56-9ddb4852a996.png" alt="20180320143955869"><br>上图以内缩方式来表达基层与衍生层的关系。<br>heap内含一个vector，priority-queue内含一个heap、stack和queue都含一个deque，set/map/multiset/multimap都内含一个RB-tree，hash_x都内含一个hastable。</p>
-<h2 id="序列式容器"><a href="#序列式容器" class="headerlink" title="序列式容器"></a>序列式容器</h2><p>所谓序列式容器，其中的元素都可序(ordered)，但未必有序(sorted)。C++语言本身提供了一个序列式容器array。STL另外再提供 上列呈现的序列式容器。</p>
-<h3 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h3><p>vector的数据安排以及操作方式与array非常相似。两者唯一差别在于空间的运用的灵活性上。array是静态空间，设定要先定义空间。vector是动态空间，它的内部机制会自行扩充空间以容纳新元素。vector人运用对于内存的合理利用与运用的灵活性有很大的帮助。<br>vector的实现技术，关键在于其对大小的控制以及重新配置时的数据移动效率。这里具体要看空间配置的策略。<br>vector的数据结构：线性连续空间。它以两个迭代器start和finish分别指向配置得来的连续空间中目前已被使用的范围，并以迭代器end_of_storage指向整块连续空间（含备用空间）的尾端。为了降低空间配置时的速度成本，vector实际配置的大小可能比客户端需求量更大一些，以备将来可能的扩充。这便是容量（capacity）的观念。<br>vector的迭代器：因为普通指针就可以满足vector的所有必要条件，而vector支持随机存取，所以vector提供的是Random Access Iterators。</p>
-<h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>list的好处是每次插入或删除一个元素，就配置或释放一个元素空间。list对于空间的运用有绝对的精准，一点也不浪费。而且对于任何位置的元素插入或无素移除，list永远是常数时间。<br>list和vector的选择最多视所元素的多寡、元素的构造复杂度、元素存取行为的特性而定。<br>list的数据结构：从list的节点结构看，STL中的list是个双向链表。<br>list的迭代器：所其操作上看，其迭代器是Bidirectional Itertors。</p>
-<h3 id="deque"><a href="#deque" class="headerlink" title="deque"></a>deque</h3><p>vector是单向开口的连续线性空间，deque则是一种双向开口的连续线性空间。<br>deque没有容量观念。不像vector那样“因旧空间不足而重新配置一块更大空间，然后复制元素，再释放旧空间”。<br>deque的数据结构：array无法成长，vector虽可成长，却只能向尾端成长，而且是个假象。deque采用一块“map”作缓冲区，利用这个map成长。<br>deque的迭代器：和vector相似，是Random Access Iterators。</p>
-<h3 id="stack与queue"><a href="#stack与queue" class="headerlink" title="stack与queue"></a>stack与queue</h3><p>这两种都没有迭代器，数据结构是用deque实现的（其实用list也可以）。</p>
-<h3 id="heap"><a href="#heap" class="headerlink" title="heap"></a>heap</h3><p>heap不归属于stl容器组件，它是priority queue的助手。priority queue允许用户以任何次序将任何元素推入容器内，但取出时一定是从优先权最高（也就是数值最高）的元素开始取。binary max heap正是具有这样的特性，适合作为priority queue的底层机制。<br>heap底部容器：以vector表现的完全二叉树。<br>实现算法：最大堆。</p>
-<p>priority_queue<br>priority_queue是一个拥有权值观念的queue。<br>priority_queue没有迭代器。</p>
-<h3 id="slist"><a href="#slist" class="headerlink" title="slist"></a>slist</h3><p>这是个单向链表，所以迭代器变为Forward Iterator。</p>
-<h2 id="关联式容器"><a href="#关联式容器" class="headerlink" title="关联式容器"></a>关联式容器</h2><p>标准的STL关联式容器分为set（集合）和map（映射表）两大类，以及这两大类的衍生体mutiset（多键集合）和multimap（多键映射表）。这些容器的底层机制均以RB-tree（红黑树）完成。RB-tree也是一个独立容器，但并不开放给外界使用。<br>此外，STL还提供了一个关联式容器：hash_table（散列表），以及以此为底层机制而完成的hash_set（散列集合）、hash_map（散列映射表）、hash_multiset（散列多键集合）、hash_multimap（散列多键映射表）。</p>
-<p>所谓关联式容器，观念上类似关联式数据库（key-value）。当元素被插入到关联式容器中时，容器内部结构（可能是RB-tree，也可能是hash-table）便依照其键值大小，以某种特定规则将这个元素放置于适当位置。<br>关联式容器没有所谓头尾（只有最大元素与最小元素）。<br>一般而言，关联式容器的内部结构是一个balanced binary tree，以便获得良好的搜寻效率。</p>
-<h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>set的特性是所有元素都会根据元素的键值自动被排序。set元素的键值就是实值，实值就是健值。set不允许两个元素有相同的键值。</p>
-<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p>map的特性是，所有元素都会根据元素的键值自动被排序。map的所有元素都是pair。</p>
-<h3 id="multiset与multimap"><a href="#multiset与multimap" class="headerlink" title="multiset与multimap"></a>multiset与multimap</h3><p>特性以及用法和各自兄弟(set，map)完全相同，唯一的差别在于它们允许键值重复。</p>
-<h3 id="hashtable"><a href="#hashtable" class="headerlink" title="hashtable"></a>hashtable</h3><p>二叉搜索树表现的构造在一个假设上：输入数据有足够的随机性。而hash_table（散列表）的数据结构的操作表现是以统计为基础，不需仰赖输入元素的随机性。<br>hash_set、hash_map、hash_multiset、hash_multimap<br>都是以hash_table为底层机制。但其实元素不能自动排序。</p>
-<h2 id="Hash与Map的区别"><a href="#Hash与Map的区别" class="headerlink" title="Hash与Map的区别"></a>Hash与Map的区别</h2><p>权衡三个因素: 查找速度, 数据量, 内存使用，可扩展性，有序性。<br>总体来说，hash查找速度会比RB树快，而且查找速度基本和数据量大小无关，属于常数级别;而RB树的查找速度是log(n)级别。并不一定常数就比log(n) 小，hash还有hash函数的耗时，明白了吧，如果你考虑效率，特别是在元素达到一定数量级时，考虑考虑hash。但若你对内存使用特别严格， 希望程序尽可能少消耗内存，那么一定要小心，hash可能会让你陷入尴尬，特别是当你的hash对象特别多时，你就更无法控制了，而且 hash的构造速度较慢。</p>
-<p>红黑树并不适应所有应用树的领域。如果数据基本上是静态的，那么让他们待在他们能够插入，并且不影响平衡的地方会具有更好的性能。如果数据完全是静态的，例如，做一个哈希表，性能可能会更好一些。<br>在实际的系统中，例如，需要使用动态规则的防火墙系统，使用红黑树而不是散列表被实践证明具有更好的伸缩性。Linux内核在管理vm_area_struct时就是采用了红黑树来维护内存块的。<br>红黑树是有序的，Hash是无序的，根据需求来选择。</p>
-<p>拿红黑树实现的Map和Hash实现的HashMap相比：<br>如果只需要判断Map中某个值是否存在之类的操作，当然是Hash实现的要更加高效。<br>如果是需要将两个Map求并集交集差集等大量比较操作，就是红黑树实现的Map更加高效。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/" data-id="cklltjboj000iqcnk7xtjg3zz" data-title="STL源码分析：Containers" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-STL源码分析：Iterators" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T12:14:01.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/">STL源码分析：Iterators</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>提供一种方法，使之能够依序巡访某个聚合物（容器）所含的各个元素，而又无需暴露该聚合物的内部表述方式。</p>
-<h2 id="智能指针"><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h2><p>迭代器是一种行为类似指针人对象。而指针的各种行为中最常见也最重要的便是内容提领(*)和成员访问(-&gt;)，迭代器最重要的编程工作就是对这两个操作进行重载工作。</p>
-<h2 id="Traits编程技法（STL源代码门钥）"><a href="#Traits编程技法（STL源代码门钥）" class="headerlink" title="Traits编程技法（STL源代码门钥）"></a>Traits编程技法（STL源代码门钥）</h2><p>Traits就像一台“特性萃取机”，榨取各个迭代器的特性（相应型别）<br><img src="https://user-images.githubusercontent.com/11263320/109153358-c8f9f400-77a7-11eb-9fc2-f553290702c7.png" alt="20180320140804433"><br>迭代器相应有以上↑这五种型别。如果你希望你所开发的容器能与stl兼容，一定要为你的容器迭代器定义这五种相应型别。<br>value type：迭代器所指对象的型别。<br>difference type：两个迭代器之间的距离。<br>reference type：引用<br>pointer type：指针</p>
-<p>iterator_category：这里就是移动特性与施行操作了。<br>也就是迭代器的五类：<br>Input Iterator<br>Output Iterator<br>Forward Iterator<br>Bidirectional Iterator<br>Random Access Iterator</p>
-<p>为了符合规范，任何迭代器都应该提供五个内嵌相应型别，以利于traits萃取。STL提供了一个iterators class，继承它，就可以保证符合stl所需之规范。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/" data-id="cklltjbol000nqcnk17gk70u1" data-title="STL源码分析：Iterators" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-STL源码分析：Allocator" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAllocator/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T12:03:44.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAllocator/">STL源码分析：Allocator</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。</p>
-<p>考虚到小型区块所可能造成的内存破碎问题，SGI设计了双层级配置器，第一级配置器直接使用malloc()和free()，第二级配置器则视情况采用不同的策略：当配置区块超过128bytes时，视之为“足够大”，便调用第一级配置器；当配置区块小于128bytes时，视之为“过小”，为了降低额外负担，便采用复杂的memory pool整理方式，而不再求助于第一级配置器。</p>
-<p>内存池<br>从内存池中取空间给free list使用，是chunk_alloc()的工作。</p>
-<p>内存基本处理工具<br>STL定义有五个全局函数，作用于未初始化空间上。这样的功能对于容器的实现很有帮助。<br>分别是用于构造的construct()和用于析构的destroy()，另三个函数是uninitialized_copy()，uninitialized_fill()，uninitialized_fill_n()，分别对应该于高层次函数copy()，fill()，fill_n()。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAllocator/" data-id="cklltjboc000bqcnkfggn3kfn" data-title="STL源码分析：Allocator" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-STL源码分析：泛型编程与STL" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B%E4%B8%8ESTL/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T11:50:26.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B%E4%B8%8ESTL/">STL源码分析：泛型编程与STL</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>定义抽象的concepts，并根据抽象的concepts来撰写算法与数据结构，是泛型编程的本质。</p>
-<p>运用STL时的几个最重要的观念：<br>1.所谓使用STL，就是去扩充它。<br>2.STL的算法和容器是独立分离的。<br>3.无须继承。<br>4.抽象化并不意味效率低。</p>
-<p>STL所实现的，是依据泛型思维架设起来的一个概念结构。这个以抽象概念为主体而非以实际类为主体的结构，形成了一个严谨的接口标准。在此接口下，任何组件都有最大的独立性，并以所谓迭代器胶合起来，或以所谓配接器互相配接，或以所谓仿函数动态选择某种策略。</p>
-<p>六大组件交互关系<br>Container通过Allocator取得数据储存空间，Algorithm通过Iterator存取Container内容，Functor可以协助Algorithm完成不同的策略变化，Adapter可以修饰或套接Functor。</p>
-<h2 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h2><p>Iterator可说是STL最重要的一个创新发明，它使”将算法与其相关数据结构的关系切割分离“一事变得可能。</p>
-<p>何为Concept？<br>如果Concept既非class，也非function或template，那么它是什么？有三种方式可以了解Concepts，这些方式一开始似乎大不相同，但是最后证明都是相通的。这三种方式有助于了解泛型 算法的一些重要观点。</p>
-<p>第一，Concept可以想象是一组型别条件。如果说型别Ｔ是Concept Ｃ的一个model，则Ｔ必 须满足Ｃ的所有条件。描述某个型别所必须具备的性质几乎是最容易具体指明Concept的方式了。<br>第二，Concept可以想成是型别的集合。举例来说，Concept input iterator可涵盖char<em>、int</em>、node* 等型别。如果型别Ｔ是Concept C 的model，意思便是说Ｔ隶属于Ｃ所代表的那个型别集合。由于集合中的所有型别都满足那一系列条件，其实是以不同的角度看待同一件事情。<br>第三，Concept可以想象成是一组合法程序。依次定义，那么像input iterator这样的Concept，其重要性在于find以及其他许多算法都会用到它。这个Concept自身包含iterator及那些算法共有的 性质。这种定义似乎比前两者更加抽象，但是却很重要，因为就某种意义来说，这是三中方法中 最实用的。这也是新的概念的发掘方法。是的，我们并非藉由写下一组需求条件来发掘和描述新 的概念，而是藉由定义特别的算法并研究模板参数如何运行于这些算法身上的过程来完成。我们 研究find，过程中导出了 input iterator。本书其他各种概念同样是肇因与算法。 </p>
-<p>Iterator是指针的概括物，它们是”用来指向其他对象“的一种对象。<br>Iterator对于泛型编程之所以重要，原因是它是算法与数据结构之间的接口。</p>
-<p>1、Input Iterator ：只允许作为输入，也就是只读（Read Only）<br>2、Output Iterator ：只允许作为输出，也就是只写（Write Only）<br>3、Forward Iterator ：允许读写，但只能做前向移动<br>4、Bidirectional Iterator ：允许读写，可以做双向移动<br>5、Random Access Iterator ：允许读写，可以任意移动，可作（P+N和P-N）、（P[n]）、（P1-P2）、（P1 &lt; P2）</p>
-<h2 id="Function-objects"><a href="#Function-objects" class="headerlink" title="Function objects"></a>Function objects</h2><p>Function objects是非常一般化的概念，它们可以将任何种类的行为参数化。几乎任何算法都能以“将其行为的某一部分抽象化为function object”的方式来加以一般化。</p>
-<h2 id="Containers"><a href="#Containers" class="headerlink" title="Containers"></a>Containers</h2><p>STL预定义的所有container classes都是一种Forward Container，其中大多数甚至是Bidirectional Container。有一些像block之类的container classes，则属于Random Access Container。</p>
-<h2 id="Allocators"><a href="#Allocators" class="headerlink" title="Allocators"></a>Allocators</h2><p>很多containers以动态方式分配内存（但非全部如此，例如block就不是）。配置器，它代表一种特定内存模型，并提供一种抽象概念，以便将对内存的申请最终转变为对内存的直接调用。<br>STL提供了很多泛型容器，如vector，list和map。程序员在使用这些容器时只需关心何时往容器内塞对象，而不用关心如何管理内存，需要用多少内存，这些STL容器极大地方便了C++程序的编写。</p>
-<h2 id="Algorithms"><a href="#Algorithms" class="headerlink" title="Algorithms"></a>Algorithms</h2><p>各种常用算法，如sort,search,copy,erase。从实现的角度讲，STL算法是一种function template。</p>
-<h2 id="Adapters"><a href="#Adapters" class="headerlink" title="Adapters"></a>Adapters</h2><p>一种用来修饰容器或仿函数或迭代器接口的东西。<br>改变functor接口者，称为function adapter;<br>改变contrainer接口者，称为contrainer adapter;<br>改变iterator接口者，称为iterator adapter。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B%E4%B8%8ESTL/" data-id="cklltjbok000lqcnketjvcg1k" data-title="STL源码分析：泛型编程与STL" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-c-对象模型研究7：站在对象模型的顶端" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B67%EF%BC%9A%E7%AB%99%E5%9C%A8%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%A1%B6%E7%AB%AF/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T11:27:23.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B67%EF%BC%9A%E7%AB%99%E5%9C%A8%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%A1%B6%E7%AB%AF/">c++对象模型研究7：站在对象模型的顶端</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="template"><a href="#template" class="headerlink" title="template"></a>template</h2><p>在C++发明阶段，C++之父Stroustrup和贝尔实验室的C++小组对原先的宏方法进行了修订，对其进行了简化并将它从预处理范围移入了编译器。这种新的代码替换装置被称为模板，而且它变现了完全不同的代码重用方法：模板对源代码重用，而不是通过继承和组合重用对象代码。当用户使用模板时，参数由编译器来替换，这非常像原来的宏方法，却更清晰，更容易使用。</p>
-<p>未使用的template member function不应该被实例化。<br>对于template的错误检查，只有在实例化操作时才会进行类型类型检查，而所有的语汇（lexing）错误和解析（parsing）错误都会在处理template声明的过程中被表示出来。也就是用到了语法分析器。<br>在目前的编译器中，面对一个template声明，在它被一组实际参数实例化之前，只能施以有限的错误检查。</p>
-<p>template中的名称决议法，分为 scope of the template definition 和 scope of the template instantiation.<br>template之中，对于一个nonmember的决议结果，是根据这个name的使用是否与“用以实例化该template的参数类型”有关而决定。如果互不相关，则使用“scope of the template declaration”来决定name，否则以“scope of the template instantiation”来决定name。<br>函数的决议结果，只和函数的原型有关，和函数的返回值没有关系。</p>
-<p>对于member function的实例化行为，编译器设计者需要考虑以下3种问题：<br>1.编译器如何找打函数的定义？ –&gt; 答案是产生template program text file, 有点类似header<br>2.编译器如何能够只实例化程序中用到的member function？ –&gt; 解法方法之一，是忽略此项要求，只要class的object被实例化，就全部产生出来；另一个解决方法是模拟链接操作，检测看看哪个函数真正需要，然后只为他们产生实例<br>3.编译器如何组织member definition在多个 .o文件中被实例化？  –&gt;方法是产生多个实例，但只在链接器中保存一个。</p>
-<p>对于member function，每个member function的地址都被放在active classes的virtual table中。<br>如果virtual table被产生出来，每个virtual function 都必须被实例化。</p>
-<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>欲支持exception handling，编译器的主要工作是找到catch子句，以处理被抛出来的exception。</p>
-<h2 id="执行期类型识别"><a href="#执行期类型识别" class="headerlink" title="执行期类型识别"></a>执行期类型识别</h2><p>dynamic_cast运算符可以在执行期决定真正的类型。<br>如果downcast是安全的，也就是说base type pointer指向一个derived class object。这个运算符会传回被适当转换过的指针。<br>如果downcast是不安全的，这个运算符会传回0。<br>dynamic_cast的成本是编译时会产生一个类型描述器。<br>执行期对一个class指针施以dynamic_cast运算符，会返回true或false，true指的是返回真正的地址，false表示没有指向任何对象。</p>
-<p>dynamic_cast运算符也适用于reference。<br>若将一个reference设为0，会引起一个临时对象被产生出来，该临时对象的初值为0，这个reference然后被设定成该临时对象的别名。<br>如果真正参考到derived class，downcast会继续执行程序，反之，会跑出一个bad_cast exception操作。</p>
-<p>typeid运算符<br>typeid运算符传回一个const reference。类型为type_info.<br>RTT1只适合于多态类，但是typeid同时也适用于内建类型。 如typeid(double) 会传回一个 const type_info&amp;。这个时候type_info object是静态取得，而非执行期取得。</p>
-<h2 id="效率、弹性"><a href="#效率、弹性" class="headerlink" title="效率、弹性"></a>效率、弹性</h2><p>传统的C++对象模型提供有效率的执行期支持。这份效率，再加上与C之间的兼容性，造成了C++的广泛被接受度。然而，在某些领域方面，像是动态共享函数库、共享内存、以及分布式对象方面，这个对象模型的弹性还是不够。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B67%EF%BC%9A%E7%AB%99%E5%9C%A8%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%A1%B6%E7%AB%AF/" data-id="cklltjbos0016qcnkfcr4axf8" data-title="c++对象模型研究7：站在对象模型的顶端" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-c-对象模型研究6：执行期" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T11:19:57.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/">c++对象模型研究6：执行期</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。<br>执行期语意学，即在程序执行时，编译器产生而外的指令调用，确保对象的构造，内存的释放，以及类型转换与临时对象的生成的安全进行。</p>
-<h2 id="对象的构造和析构"><a href="#对象的构造和析构" class="headerlink" title="对象的构造和析构"></a>对象的构造和析构</h2><p>一般而言，我们会把对象尽可能放置在使用它的那个程序区段附近，这样做可以节省不必要的对象产生操作和摧毁操作（主要是析构）。不建议把所有的对象放在函数或某个区段的起始处。</p>
-<p>全局对象<br>对于全局变量，C++会保证在调用全局变量之前，将全局变量构造出来。<br>而所有的全局变量都被放置在程序的数据段中（data segment），并且为没有显示指定值的变量初始化为0。<br>同时对于全局的类对象，在编译时期被放置于data segment中并且内容也为0.只有在程序启动时其对应的constructor才会实施。因此object需要静态初始化。<br>静态初始化的munch策略：<br>1.为每个需要静态初始化的文件产生一个_sti()函数，内含必要的constructor调用操作和inline expansions。<br>2.为每一个需要静态的内存释放操作的文件，产生一个_std()函数。<br>3.提供一个_main()函数调用所有的_sti()函数，一个_exit()函数调用所有的_std()函数</p>
-<p>局部静态对象<br>局部静态对象的构造函数只能被施行一次，析构函数也只有一次。<br>所以对于局部静态对象，一个很简单的思路就是导入一个临时性对象，当第一次传入时，设置为true，之后则不再进行处理。<br>条件式析构也是所有编译器所必须的，而局部静态对象需以构造的相反的顺序被析构。</p>
-<p>对象数组<br>对于以下数组定义，我们一般使用vec_new()函数来构造数组(这是在cfront中的方式), 对于VS等，则提供一个用来处理没有”virtual base class”的class，另一个用来处理”内含virtual base class”的class。后一个函数通常称为 vec_vnew()。<br>函数的原型一般如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*constructor)(<span class="keyword">void</span> *)        <span class="comment">//类的constructor函数指针</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
-<p>所以对上述的Point对象的初始化，对应的vec_new()的实例化如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vec_new( &amp;knots, <span class="keyword">sizeof</span>(Point), <span class="number">10</span>, &amp;Point::Point, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
-<p>同理，对于对象的删除，也有类似的vec_delete()来进行操作。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
-<h2 id="new和delete运算符"><a href="#new和delete运算符" class="headerlink" title="new和delete运算符"></a>new和delete运算符</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *pi = <span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
-<p>其实是通过两个步骤完成的，第一步通过适当的new运算符函数实例，配置所需的内存，然后将配置来的内存设定初值。</p>
-<p>使用pi，和使用pi所指的对象，其差别在于哪一个生命已经结束了。因为即使对象不合法，但是指针所指的对象也是合法的。<br>new其实是通过标准的c malloc完成的，每一次对new的调用必须传回一个独一无二的指针，指向默认1byte的内存地址。</p>
-<p>针对数组的new语意<br>如果类对象数组没定义constructor和destructor，则不会调用vec_new。<br>对于delete[] p_array, 只有中括号出现时，编译器才会寻找数组的维度，否则他只会假设单独的一个object要被删除。<br>那么如何记录数组的元素个数呢？一个明显的方法是为vec_new()所传回的每一个内存区域块设置一个额外的word，然后把元素个数包藏在那个word之中。而包藏的数值通常称为cookie。<br>在原始编译器中，有两个主要函数用来存取cookie</p>
-<p>注意，避免一个base class指针指向一个derived class object所组成的数组。</p>
-<p>如果一定要这样做，默认情况下只会交给施行vec_delete()函数的”被删除之指针类型的destructor“，也就是Point destructor。<br>所以，需要程序员如下显著的进行释放内存。</p>
-<p>placement Operator new语意</p>
-<h2 id="临时性对象"><a href="#临时性对象" class="headerlink" title="临时性对象"></a>临时性对象</h2><p>临时性对象的摧毁，应该是对完整表达式求值过程中最后一个步骤。该完整表达式造成临时对象的产生。<br>凡持有表达式执行结果的临时对象，应该保留到object的初始化操作完成为止。<br>如果一个临时对象被绑定于一个reference，对象将残留，直到初始化之reference生命结束，或直到临时对象的什么范畴结束。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/" data-id="cklltjboq0010qcnkcdxm25cg" data-title="c++对象模型研究6：执行期" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
@@ -574,7 +523,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
+      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
     </div>
   </div>
 
@@ -583,7 +532,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
     </div>
   </div>
 
@@ -596,23 +545,23 @@
       <ul>
         
           <li>
-            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
+            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
+            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
+            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/">STL源码分析：Containers</a>
+            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
           </li>
         
       </ul>

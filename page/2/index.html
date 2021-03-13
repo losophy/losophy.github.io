@@ -71,6 +71,315 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-STL源码分析：Containers" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T12:24:49.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/">STL源码分析：Containers</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>STL容器分两种：序列式容器，关联式容器。<br><img src="https://user-images.githubusercontent.com/11263320/109159391-83d9c000-77af-11eb-9e56-9ddb4852a996.png" alt="20180320143955869"><br>上图以内缩方式来表达基层与衍生层的关系。<br>heap内含一个vector，priority-queue内含一个heap、stack和queue都含一个deque，set/map/multiset/multimap都内含一个RB-tree，hash_x都内含一个hastable。</p>
+<h2 id="序列式容器"><a href="#序列式容器" class="headerlink" title="序列式容器"></a>序列式容器</h2><p>所谓序列式容器，其中的元素都可序(ordered)，但未必有序(sorted)。C++语言本身提供了一个序列式容器array。STL另外再提供 上列呈现的序列式容器。</p>
+<h3 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h3><p>vector的数据安排以及操作方式与array非常相似。两者唯一差别在于空间的运用的灵活性上。array是静态空间，设定要先定义空间。vector是动态空间，它的内部机制会自行扩充空间以容纳新元素。vector人运用对于内存的合理利用与运用的灵活性有很大的帮助。<br>vector的实现技术，关键在于其对大小的控制以及重新配置时的数据移动效率。这里具体要看空间配置的策略。<br>vector的数据结构：线性连续空间。它以两个迭代器start和finish分别指向配置得来的连续空间中目前已被使用的范围，并以迭代器end_of_storage指向整块连续空间（含备用空间）的尾端。为了降低空间配置时的速度成本，vector实际配置的大小可能比客户端需求量更大一些，以备将来可能的扩充。这便是容量（capacity）的观念。<br>vector的迭代器：因为普通指针就可以满足vector的所有必要条件，而vector支持随机存取，所以vector提供的是Random Access Iterators。</p>
+<h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>list的好处是每次插入或删除一个元素，就配置或释放一个元素空间。list对于空间的运用有绝对的精准，一点也不浪费。而且对于任何位置的元素插入或无素移除，list永远是常数时间。<br>list和vector的选择最多视所元素的多寡、元素的构造复杂度、元素存取行为的特性而定。<br>list的数据结构：从list的节点结构看，STL中的list是个双向链表。<br>list的迭代器：所其操作上看，其迭代器是Bidirectional Itertors。</p>
+<h3 id="deque"><a href="#deque" class="headerlink" title="deque"></a>deque</h3><p>vector是单向开口的连续线性空间，deque则是一种双向开口的连续线性空间。<br>deque没有容量观念。不像vector那样“因旧空间不足而重新配置一块更大空间，然后复制元素，再释放旧空间”。<br>deque的数据结构：array无法成长，vector虽可成长，却只能向尾端成长，而且是个假象。deque采用一块“map”作缓冲区，利用这个map成长。<br>deque的迭代器：和vector相似，是Random Access Iterators。</p>
+<h3 id="stack与queue"><a href="#stack与queue" class="headerlink" title="stack与queue"></a>stack与queue</h3><p>这两种都没有迭代器，数据结构是用deque实现的（其实用list也可以）。</p>
+<h3 id="heap"><a href="#heap" class="headerlink" title="heap"></a>heap</h3><p>heap不归属于stl容器组件，它是priority queue的助手。priority queue允许用户以任何次序将任何元素推入容器内，但取出时一定是从优先权最高（也就是数值最高）的元素开始取。binary max heap正是具有这样的特性，适合作为priority queue的底层机制。<br>heap底部容器：以vector表现的完全二叉树。<br>实现算法：最大堆。</p>
+<p>priority_queue<br>priority_queue是一个拥有权值观念的queue。<br>priority_queue没有迭代器。</p>
+<h3 id="slist"><a href="#slist" class="headerlink" title="slist"></a>slist</h3><p>这是个单向链表，所以迭代器变为Forward Iterator。</p>
+<h2 id="关联式容器"><a href="#关联式容器" class="headerlink" title="关联式容器"></a>关联式容器</h2><p>标准的STL关联式容器分为set（集合）和map（映射表）两大类，以及这两大类的衍生体mutiset（多键集合）和multimap（多键映射表）。这些容器的底层机制均以RB-tree（红黑树）完成。RB-tree也是一个独立容器，但并不开放给外界使用。<br>此外，STL还提供了一个关联式容器：hash_table（散列表），以及以此为底层机制而完成的hash_set（散列集合）、hash_map（散列映射表）、hash_multiset（散列多键集合）、hash_multimap（散列多键映射表）。</p>
+<p>所谓关联式容器，观念上类似关联式数据库（key-value）。当元素被插入到关联式容器中时，容器内部结构（可能是RB-tree，也可能是hash-table）便依照其键值大小，以某种特定规则将这个元素放置于适当位置。<br>关联式容器没有所谓头尾（只有最大元素与最小元素）。<br>一般而言，关联式容器的内部结构是一个balanced binary tree，以便获得良好的搜寻效率。</p>
+<h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>set的特性是所有元素都会根据元素的键值自动被排序。set元素的键值就是实值，实值就是健值。set不允许两个元素有相同的键值。</p>
+<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p>map的特性是，所有元素都会根据元素的键值自动被排序。map的所有元素都是pair。</p>
+<h3 id="multiset与multimap"><a href="#multiset与multimap" class="headerlink" title="multiset与multimap"></a>multiset与multimap</h3><p>特性以及用法和各自兄弟(set，map)完全相同，唯一的差别在于它们允许键值重复。</p>
+<h3 id="hashtable"><a href="#hashtable" class="headerlink" title="hashtable"></a>hashtable</h3><p>二叉搜索树表现的构造在一个假设上：输入数据有足够的随机性。而hash_table（散列表）的数据结构的操作表现是以统计为基础，不需仰赖输入元素的随机性。<br>hash_set、hash_map、hash_multiset、hash_multimap<br>都是以hash_table为底层机制。但其实元素不能自动排序。</p>
+<h2 id="Hash与Map的区别"><a href="#Hash与Map的区别" class="headerlink" title="Hash与Map的区别"></a>Hash与Map的区别</h2><p>权衡三个因素: 查找速度, 数据量, 内存使用，可扩展性，有序性。<br>总体来说，hash查找速度会比RB树快，而且查找速度基本和数据量大小无关，属于常数级别;而RB树的查找速度是log(n)级别。并不一定常数就比log(n) 小，hash还有hash函数的耗时，明白了吧，如果你考虑效率，特别是在元素达到一定数量级时，考虑考虑hash。但若你对内存使用特别严格， 希望程序尽可能少消耗内存，那么一定要小心，hash可能会让你陷入尴尬，特别是当你的hash对象特别多时，你就更无法控制了，而且 hash的构造速度较慢。</p>
+<p>红黑树并不适应所有应用树的领域。如果数据基本上是静态的，那么让他们待在他们能够插入，并且不影响平衡的地方会具有更好的性能。如果数据完全是静态的，例如，做一个哈希表，性能可能会更好一些。<br>在实际的系统中，例如，需要使用动态规则的防火墙系统，使用红黑树而不是散列表被实践证明具有更好的伸缩性。Linux内核在管理vm_area_struct时就是采用了红黑树来维护内存块的。<br>红黑树是有序的，Hash是无序的，根据需求来选择。</p>
+<p>拿红黑树实现的Map和Hash实现的HashMap相比：<br>如果只需要判断Map中某个值是否存在之类的操作，当然是Hash实现的要更加高效。<br>如果是需要将两个Map求并集交集差集等大量比较操作，就是红黑树实现的Map更加高效。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/" data-id="cklltjboj000iqcnk7xtjg3zz" data-title="STL源码分析：Containers" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-STL源码分析：Iterators" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T12:14:01.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/">STL源码分析：Iterators</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>提供一种方法，使之能够依序巡访某个聚合物（容器）所含的各个元素，而又无需暴露该聚合物的内部表述方式。</p>
+<h2 id="智能指针"><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h2><p>迭代器是一种行为类似指针人对象。而指针的各种行为中最常见也最重要的便是内容提领(*)和成员访问(-&gt;)，迭代器最重要的编程工作就是对这两个操作进行重载工作。</p>
+<h2 id="Traits编程技法（STL源代码门钥）"><a href="#Traits编程技法（STL源代码门钥）" class="headerlink" title="Traits编程技法（STL源代码门钥）"></a>Traits编程技法（STL源代码门钥）</h2><p>Traits就像一台“特性萃取机”，榨取各个迭代器的特性（相应型别）<br><img src="https://user-images.githubusercontent.com/11263320/109153358-c8f9f400-77a7-11eb-9fc2-f553290702c7.png" alt="20180320140804433"><br>迭代器相应有以上↑这五种型别。如果你希望你所开发的容器能与stl兼容，一定要为你的容器迭代器定义这五种相应型别。<br>value type：迭代器所指对象的型别。<br>difference type：两个迭代器之间的距离。<br>reference type：引用<br>pointer type：指针</p>
+<p>iterator_category：这里就是移动特性与施行操作了。<br>也就是迭代器的五类：<br>Input Iterator<br>Output Iterator<br>Forward Iterator<br>Bidirectional Iterator<br>Random Access Iterator</p>
+<p>为了符合规范，任何迭代器都应该提供五个内嵌相应型别，以利于traits萃取。STL提供了一个iterators class，继承它，就可以保证符合stl所需之规范。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/" data-id="cklltjbol000nqcnk17gk70u1" data-title="STL源码分析：Iterators" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-STL源码分析：Allocator" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAllocator/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T12:03:44.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAllocator/">STL源码分析：Allocator</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。</p>
+<p>考虚到小型区块所可能造成的内存破碎问题，SGI设计了双层级配置器，第一级配置器直接使用malloc()和free()，第二级配置器则视情况采用不同的策略：当配置区块超过128bytes时，视之为“足够大”，便调用第一级配置器；当配置区块小于128bytes时，视之为“过小”，为了降低额外负担，便采用复杂的memory pool整理方式，而不再求助于第一级配置器。</p>
+<p>内存池<br>从内存池中取空间给free list使用，是chunk_alloc()的工作。</p>
+<p>内存基本处理工具<br>STL定义有五个全局函数，作用于未初始化空间上。这样的功能对于容器的实现很有帮助。<br>分别是用于构造的construct()和用于析构的destroy()，另三个函数是uninitialized_copy()，uninitialized_fill()，uninitialized_fill_n()，分别对应该于高层次函数copy()，fill()，fill_n()。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAllocator/" data-id="cklltjboc000bqcnkfggn3kfn" data-title="STL源码分析：Allocator" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-STL源码分析：泛型编程与STL" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B%E4%B8%8ESTL/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T11:50:26.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B%E4%B8%8ESTL/">STL源码分析：泛型编程与STL</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>定义抽象的concepts，并根据抽象的concepts来撰写算法与数据结构，是泛型编程的本质。</p>
+<p>运用STL时的几个最重要的观念：<br>1.所谓使用STL，就是去扩充它。<br>2.STL的算法和容器是独立分离的。<br>3.无须继承。<br>4.抽象化并不意味效率低。</p>
+<p>STL所实现的，是依据泛型思维架设起来的一个概念结构。这个以抽象概念为主体而非以实际类为主体的结构，形成了一个严谨的接口标准。在此接口下，任何组件都有最大的独立性，并以所谓迭代器胶合起来，或以所谓配接器互相配接，或以所谓仿函数动态选择某种策略。</p>
+<p>六大组件交互关系<br>Container通过Allocator取得数据储存空间，Algorithm通过Iterator存取Container内容，Functor可以协助Algorithm完成不同的策略变化，Adapter可以修饰或套接Functor。</p>
+<h2 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h2><p>Iterator可说是STL最重要的一个创新发明，它使”将算法与其相关数据结构的关系切割分离“一事变得可能。</p>
+<p>何为Concept？<br>如果Concept既非class，也非function或template，那么它是什么？有三种方式可以了解Concepts，这些方式一开始似乎大不相同，但是最后证明都是相通的。这三种方式有助于了解泛型 算法的一些重要观点。</p>
+<p>第一，Concept可以想象是一组型别条件。如果说型别Ｔ是Concept Ｃ的一个model，则Ｔ必 须满足Ｃ的所有条件。描述某个型别所必须具备的性质几乎是最容易具体指明Concept的方式了。<br>第二，Concept可以想成是型别的集合。举例来说，Concept input iterator可涵盖char<em>、int</em>、node* 等型别。如果型别Ｔ是Concept C 的model，意思便是说Ｔ隶属于Ｃ所代表的那个型别集合。由于集合中的所有型别都满足那一系列条件，其实是以不同的角度看待同一件事情。<br>第三，Concept可以想象成是一组合法程序。依次定义，那么像input iterator这样的Concept，其重要性在于find以及其他许多算法都会用到它。这个Concept自身包含iterator及那些算法共有的 性质。这种定义似乎比前两者更加抽象，但是却很重要，因为就某种意义来说，这是三中方法中 最实用的。这也是新的概念的发掘方法。是的，我们并非藉由写下一组需求条件来发掘和描述新 的概念，而是藉由定义特别的算法并研究模板参数如何运行于这些算法身上的过程来完成。我们 研究find，过程中导出了 input iterator。本书其他各种概念同样是肇因与算法。 </p>
+<p>Iterator是指针的概括物，它们是”用来指向其他对象“的一种对象。<br>Iterator对于泛型编程之所以重要，原因是它是算法与数据结构之间的接口。</p>
+<p>1、Input Iterator ：只允许作为输入，也就是只读（Read Only）<br>2、Output Iterator ：只允许作为输出，也就是只写（Write Only）<br>3、Forward Iterator ：允许读写，但只能做前向移动<br>4、Bidirectional Iterator ：允许读写，可以做双向移动<br>5、Random Access Iterator ：允许读写，可以任意移动，可作（P+N和P-N）、（P[n]）、（P1-P2）、（P1 &lt; P2）</p>
+<h2 id="Function-objects"><a href="#Function-objects" class="headerlink" title="Function objects"></a>Function objects</h2><p>Function objects是非常一般化的概念，它们可以将任何种类的行为参数化。几乎任何算法都能以“将其行为的某一部分抽象化为function object”的方式来加以一般化。</p>
+<h2 id="Containers"><a href="#Containers" class="headerlink" title="Containers"></a>Containers</h2><p>STL预定义的所有container classes都是一种Forward Container，其中大多数甚至是Bidirectional Container。有一些像block之类的container classes，则属于Random Access Container。</p>
+<h2 id="Allocators"><a href="#Allocators" class="headerlink" title="Allocators"></a>Allocators</h2><p>很多containers以动态方式分配内存（但非全部如此，例如block就不是）。配置器，它代表一种特定内存模型，并提供一种抽象概念，以便将对内存的申请最终转变为对内存的直接调用。<br>STL提供了很多泛型容器，如vector，list和map。程序员在使用这些容器时只需关心何时往容器内塞对象，而不用关心如何管理内存，需要用多少内存，这些STL容器极大地方便了C++程序的编写。</p>
+<h2 id="Algorithms"><a href="#Algorithms" class="headerlink" title="Algorithms"></a>Algorithms</h2><p>各种常用算法，如sort,search,copy,erase。从实现的角度讲，STL算法是一种function template。</p>
+<h2 id="Adapters"><a href="#Adapters" class="headerlink" title="Adapters"></a>Adapters</h2><p>一种用来修饰容器或仿函数或迭代器接口的东西。<br>改变functor接口者，称为function adapter;<br>改变contrainer接口者，称为contrainer adapter;<br>改变iterator接口者，称为iterator adapter。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B%E4%B8%8ESTL/" data-id="cklltjbok000lqcnketjvcg1k" data-title="STL源码分析：泛型编程与STL" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-c-对象模型研究7：站在对象模型的顶端" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B67%EF%BC%9A%E7%AB%99%E5%9C%A8%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%A1%B6%E7%AB%AF/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T11:27:23.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B67%EF%BC%9A%E7%AB%99%E5%9C%A8%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%A1%B6%E7%AB%AF/">c++对象模型研究7：站在对象模型的顶端</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="template"><a href="#template" class="headerlink" title="template"></a>template</h2><p>在C++发明阶段，C++之父Stroustrup和贝尔实验室的C++小组对原先的宏方法进行了修订，对其进行了简化并将它从预处理范围移入了编译器。这种新的代码替换装置被称为模板，而且它变现了完全不同的代码重用方法：模板对源代码重用，而不是通过继承和组合重用对象代码。当用户使用模板时，参数由编译器来替换，这非常像原来的宏方法，却更清晰，更容易使用。</p>
+<p>未使用的template member function不应该被实例化。<br>对于template的错误检查，只有在实例化操作时才会进行类型类型检查，而所有的语汇（lexing）错误和解析（parsing）错误都会在处理template声明的过程中被表示出来。也就是用到了语法分析器。<br>在目前的编译器中，面对一个template声明，在它被一组实际参数实例化之前，只能施以有限的错误检查。</p>
+<p>template中的名称决议法，分为 scope of the template definition 和 scope of the template instantiation.<br>template之中，对于一个nonmember的决议结果，是根据这个name的使用是否与“用以实例化该template的参数类型”有关而决定。如果互不相关，则使用“scope of the template declaration”来决定name，否则以“scope of the template instantiation”来决定name。<br>函数的决议结果，只和函数的原型有关，和函数的返回值没有关系。</p>
+<p>对于member function的实例化行为，编译器设计者需要考虑以下3种问题：<br>1.编译器如何找打函数的定义？ –&gt; 答案是产生template program text file, 有点类似header<br>2.编译器如何能够只实例化程序中用到的member function？ –&gt; 解法方法之一，是忽略此项要求，只要class的object被实例化，就全部产生出来；另一个解决方法是模拟链接操作，检测看看哪个函数真正需要，然后只为他们产生实例<br>3.编译器如何组织member definition在多个 .o文件中被实例化？  –&gt;方法是产生多个实例，但只在链接器中保存一个。</p>
+<p>对于member function，每个member function的地址都被放在active classes的virtual table中。<br>如果virtual table被产生出来，每个virtual function 都必须被实例化。</p>
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>欲支持exception handling，编译器的主要工作是找到catch子句，以处理被抛出来的exception。</p>
+<h2 id="执行期类型识别"><a href="#执行期类型识别" class="headerlink" title="执行期类型识别"></a>执行期类型识别</h2><p>dynamic_cast运算符可以在执行期决定真正的类型。<br>如果downcast是安全的，也就是说base type pointer指向一个derived class object。这个运算符会传回被适当转换过的指针。<br>如果downcast是不安全的，这个运算符会传回0。<br>dynamic_cast的成本是编译时会产生一个类型描述器。<br>执行期对一个class指针施以dynamic_cast运算符，会返回true或false，true指的是返回真正的地址，false表示没有指向任何对象。</p>
+<p>dynamic_cast运算符也适用于reference。<br>若将一个reference设为0，会引起一个临时对象被产生出来，该临时对象的初值为0，这个reference然后被设定成该临时对象的别名。<br>如果真正参考到derived class，downcast会继续执行程序，反之，会跑出一个bad_cast exception操作。</p>
+<p>typeid运算符<br>typeid运算符传回一个const reference。类型为type_info.<br>RTT1只适合于多态类，但是typeid同时也适用于内建类型。 如typeid(double) 会传回一个 const type_info&amp;。这个时候type_info object是静态取得，而非执行期取得。</p>
+<h2 id="效率、弹性"><a href="#效率、弹性" class="headerlink" title="效率、弹性"></a>效率、弹性</h2><p>传统的C++对象模型提供有效率的执行期支持。这份效率，再加上与C之间的兼容性，造成了C++的广泛被接受度。然而，在某些领域方面，像是动态共享函数库、共享内存、以及分布式对象方面，这个对象模型的弹性还是不够。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B67%EF%BC%9A%E7%AB%99%E5%9C%A8%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%9A%84%E9%A1%B6%E7%AB%AF/" data-id="cklltjbos0016qcnkfcr4axf8" data-title="c++对象模型研究7：站在对象模型的顶端" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-c-对象模型研究6：执行期" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/" class="article-date">
+  <time class="dt-published" datetime="2021-02-25T11:19:57.000Z" itemprop="datePublished">2021-02-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/">c++对象模型研究6：执行期</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。<br>执行期语意学，即在程序执行时，编译器产生而外的指令调用，确保对象的构造，内存的释放，以及类型转换与临时对象的生成的安全进行。</p>
+<h2 id="对象的构造和析构"><a href="#对象的构造和析构" class="headerlink" title="对象的构造和析构"></a>对象的构造和析构</h2><p>一般而言，我们会把对象尽可能放置在使用它的那个程序区段附近，这样做可以节省不必要的对象产生操作和摧毁操作（主要是析构）。不建议把所有的对象放在函数或某个区段的起始处。</p>
+<p>全局对象<br>对于全局变量，C++会保证在调用全局变量之前，将全局变量构造出来。<br>而所有的全局变量都被放置在程序的数据段中（data segment），并且为没有显示指定值的变量初始化为0。<br>同时对于全局的类对象，在编译时期被放置于data segment中并且内容也为0.只有在程序启动时其对应的constructor才会实施。因此object需要静态初始化。<br>静态初始化的munch策略：<br>1.为每个需要静态初始化的文件产生一个_sti()函数，内含必要的constructor调用操作和inline expansions。<br>2.为每一个需要静态的内存释放操作的文件，产生一个_std()函数。<br>3.提供一个_main()函数调用所有的_sti()函数，一个_exit()函数调用所有的_std()函数</p>
+<p>局部静态对象<br>局部静态对象的构造函数只能被施行一次，析构函数也只有一次。<br>所以对于局部静态对象，一个很简单的思路就是导入一个临时性对象，当第一次传入时，设置为true，之后则不再进行处理。<br>条件式析构也是所有编译器所必须的，而局部静态对象需以构造的相反的顺序被析构。</p>
+<p>对象数组<br>对于以下数组定义，我们一般使用vec_new()函数来构造数组(这是在cfront中的方式), 对于VS等，则提供一个用来处理没有”virtual base class”的class，另一个用来处理”内含virtual base class”的class。后一个函数通常称为 vec_vnew()。<br>函数的原型一般如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*constructor)(<span class="keyword">void</span> *)        <span class="comment">//类的constructor函数指针</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
+<p>所以对上述的Point对象的初始化，对应的vec_new()的实例化如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vec_new( &amp;knots, <span class="keyword">sizeof</span>(Point), <span class="number">10</span>, &amp;Point::Point, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>同理，对于对象的删除，也有类似的vec_delete()来进行操作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
+<h2 id="new和delete运算符"><a href="#new和delete运算符" class="headerlink" title="new和delete运算符"></a>new和delete运算符</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *pi = <span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+<p>其实是通过两个步骤完成的，第一步通过适当的new运算符函数实例，配置所需的内存，然后将配置来的内存设定初值。</p>
+<p>使用pi，和使用pi所指的对象，其差别在于哪一个生命已经结束了。因为即使对象不合法，但是指针所指的对象也是合法的。<br>new其实是通过标准的c malloc完成的，每一次对new的调用必须传回一个独一无二的指针，指向默认1byte的内存地址。</p>
+<p>针对数组的new语意<br>如果类对象数组没定义constructor和destructor，则不会调用vec_new。<br>对于delete[] p_array, 只有中括号出现时，编译器才会寻找数组的维度，否则他只会假设单独的一个object要被删除。<br>那么如何记录数组的元素个数呢？一个明显的方法是为vec_new()所传回的每一个内存区域块设置一个额外的word，然后把元素个数包藏在那个word之中。而包藏的数值通常称为cookie。<br>在原始编译器中，有两个主要函数用来存取cookie</p>
+<p>注意，避免一个base class指针指向一个derived class object所组成的数组。</p>
+<p>如果一定要这样做，默认情况下只会交给施行vec_delete()函数的”被删除之指针类型的destructor“，也就是Point destructor。<br>所以，需要程序员如下显著的进行释放内存。</p>
+<p>placement Operator new语意</p>
+<h2 id="临时性对象"><a href="#临时性对象" class="headerlink" title="临时性对象"></a>临时性对象</h2><p>临时性对象的摧毁，应该是对完整表达式求值过程中最后一个步骤。该完整表达式造成临时对象的产生。<br>凡持有表达式执行结果的临时对象，应该保留到object的初始化操作完成为止。<br>如果一个临时对象被绑定于一个reference，对象将残留，直到初始化之reference生命结束，或直到临时对象的什么范畴结束。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B66%EF%BC%9A%E6%89%A7%E8%A1%8C%E6%9C%9F/" data-id="cklltjboq0010qcnkcdxm25cg" data-title="c++对象模型研究6：执行期" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-c-对象模型研究5：构造、解构、拷贝" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B65%EF%BC%9A%E6%9E%84%E9%80%A0%E3%80%81%E8%A7%A3%E6%9E%84%E3%80%81%E6%8B%B7%E8%B4%9D/" class="article-date">
@@ -309,321 +618,6 @@
 
 
   
-    <article id="post-C-11新特性" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/C-11%E6%96%B0%E7%89%B9%E6%80%A7/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T04:56:32.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/25/C-11%E6%96%B0%E7%89%B9%E6%80%A7/">C++11新特性</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>C+11的标准规范于2011年2月正式落稿，而此前10余年间，C++正式标准一直是C++98/03。相比C++98/03，C++11有了非常多的变化。<br>包括大量的新特性：主要特征像lambda表达式和移动语义，实用的类型推导关键字auto，更简单的容器遍历方法，和大量使模板更容易使用的改进。<br>C++11将修复大量缺陷和降低代码拖沓，比如lambda表达式的支持将使代码更简洁。像移动语义这种特性会提高语言内核的基础效率，使你可以写出更快的代码。对模板系统的优化可以使你更容易写出泛型的代码。<br>新的标准库同时也会包含新的特性，包括对模板”&gt;&gt;“写法的支持，对多线程的支持，优化智能指针，将给那些还没用类似于boost::shared_ptr的人提供更简单的内存管理方法。</p>
-<h2 id="C-11常用特性的使用经验总结"><a href="#C-11常用特性的使用经验总结" class="headerlink" title="C++11常用特性的使用经验总结"></a>C++11常用特性的使用经验总结</h2><h3 id="nullptr"><a href="#nullptr" class="headerlink" title="nullptr"></a>nullptr</h3><p>nullptr 出现的目的是为了替代 NULL。<br>在某种意义上来说，传统 C++ 会把 NULL、0 视为同一种东西，这取决于编译器如何定义 NULL，有些编译器会将 NULL 定义为 ((void*)0)，有些则会直接将其定义为 0。<br>C++ 不允许直接将 void * 隐式转换到其他类型，但如果 NULL 被定义为 ((void*)0)，那么当编译char *ch = NULL;时，NULL 只好被定义为 0。<br>而这依然会产生问题，将导致了 C++ 中重载特性会发生混乱，例如：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TestWork</span><span class="params">(<span class="keyword">int</span> index)</span></span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TestWork</span><span class="params">(<span class="keyword">int</span> * index)</span></span>&#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>为了解决这个问题，C++11 引入了 nullptr 关键字，专门用来区分空指针、0。<br>当需要使用 NULL 时候，养成直接使用 nullptr的习惯。</p>
-<h3 id="类型推导"><a href="#类型推导" class="headerlink" title="类型推导"></a>类型推导</h3><p>C++11 引入了 auto 和 decltype 这两个关键字实现了类型推导，让编译器来操心变量的类型。<br>auto并没有让C++成为弱类型语言，也没有弱化变量什么，只是使用auto的时候，编译器根据上下文情况，确定auto变量的真正类型。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> index = <span class="number">10</span>;              <span class="comment">//int</span></span><br><span class="line"><span class="keyword">auto</span> str = <span class="string">&quot;abc&quot;</span>;            <span class="comment">//char*</span></span><br><span class="line"><span class="keyword">auto</span> arr = <span class="keyword">new</span> <span class="keyword">auto</span>(<span class="number">10</span>)     <span class="comment">//int *</span></span><br><span class="line"><span class="keyword">auto</span> ret = AddTest(<span class="number">1</span>,<span class="number">2</span>);    <span class="comment">//int</span></span><br></pre></td></tr></table></figure>
-<p><strong>auto不能做什么？</strong><br>auto 不能用于函数传参，因此下面的做法是无法通过编译的（考虑重载的问题，我们应该使用模板）。<br>auto 还不能用于推导数组类型。</p>
-<p><strong>decltype（Declared Type）“声明类型”</strong><br>decltype 关键字是为了解决 auto 关键字只能对变量进行类型推导的缺陷而出现的。它的用法和 sizeof 很相似：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">auto x &#x3D; 1;</span><br><span class="line">auto y &#x3D; 2;</span><br><span class="line">decltype(x+y) z;</span><br></pre></td></tr></table></figure>
-<p>在此过程中，编译器分析表达式并得到它的类型，却不实际计算表达式的值。<br>有时候，我们可能需要计算某个表达式的类型。</p>
-<h2 id="基于范围的-for-循环"><a href="#基于范围的-for-循环" class="headerlink" title="基于范围的 for 循环"></a>基于范围的 for 循环</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> numbers[] = &#123; <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span> &#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span> number : numbers)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; number &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="初始化列表"><a href="#初始化列表" class="headerlink" title="初始化列表"></a>初始化列表</h2><p>C++11 提供了统一的语法来初始化任意的对象</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A a &#123;<span class="number">1</span>, <span class="number">1.1</span>&#125;;    <span class="comment">// 统一的初始化语法</span></span><br><span class="line">B b &#123;<span class="number">2</span>, <span class="number">2.2</span>&#125;;</span><br></pre></td></tr></table></figure>
-<p>C++11 还把初始化列表的概念绑定到了类型上，并将其称之为 std::initializer_list，允许构造函数或其他函数像参数一样使用初始化列表，这就为类对象的初始化与普通数组和 POD 的初始化方法提供了统一的桥梁，例如：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;initializer_list&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Magic</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Magic(<span class="built_in">std</span>::<span class="built_in">initializer_list</span>&lt;<span class="keyword">int</span>&gt; <span class="built_in">list</span>) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Magic magic = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="模板增强"><a href="#模板增强" class="headerlink" title="模板增强"></a>模板增强</h2><p>在传统 C++ 的编译器中，&gt;&gt;一律被当做右移运算符来进行处理。但实际上我们很容易就写出了嵌套模板的代码：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; wow;</span><br></pre></td></tr></table></figure>
-<p>这在传统C++编译器下是不能够被编译的，而 C++11 开始，连续的右尖括号将变得合法，并且能够顺利通过编译。</p>
-<h2 id="Lambda-表达式"><a href="#Lambda-表达式" class="headerlink" title="Lambda 表达式"></a>Lambda 表达式</h2><p>lambda 表达式能够方便地构造匿名函数，假设你的代码里面存在大量的小函数，而这些函数一般仅仅被调用一次。那么最好还是将他们重构成 lambda 表达式.<br>C++11 的 lambda 表达式规范例如以下：<br>| [ capture ] ( params ) mutableexceptionattribute -&gt; ret {body }        | (1)  |<br>| ——–   | —–:  |<br>| [ capture ] ( params ) -&gt; ret { body }    | (2)     |<br>| [ capture ] ( params ) { body }   |   (3) |<br>| [ capture ] { body }   |  (4) |</p>
-<p>当中</p>
-<ul>
-<li>(1) 是完整的 lambda 表达式形式。</li>
-<li>(2) const 类型的 lambda 表达式，该类型的表达式不能改捕获(“capture”)列表中的值。</li>
-<li>(3)省略了返回值类型的 lambda 表达式。可是该 lambda 表达式的返回类型能够依照下列规则推演出来：<br>假设 lambda 代码块中包括了 return 语句，则该 lambda 表达式的返回类型由 return 语句的返回类型确定。<br>假设没有 return 语句。则类似 void f(…) 函数。</li>
-<li>(4)省略了參数列表，类似于无參函数 f()。</li>
-</ul>
-<p>mutable 修饰符说明 lambda 表达式体内的代码能够改动被捕获的变量。而且能够訪问被捕获对象的 non-const 方法。<br>exception 说明 lambda 表达式是否抛出异常(noexcept)。以及抛出何种异常，类似于void f()throw(X, Y)。<br>attribute 用来声明属性。<br>另外，capture 指定了在可见域范围内 lambda 表达式的代码内可见得外部变量的列表。详细解释例如以下：</p>
-<ul>
-<li>[a,&amp;b] a变量以值的方式呗捕获，b以引用的方式被捕获。</li>
-<li>[this] 以值的方式捕获 this 指针。</li>
-<li>[&amp;] 以引用的方式捕获全部的外部自己主动变量。</li>
-<li>[=] 以值的方式捕获全部的外部自己主动变量。</li>
-<li>[] 不捕获外部的不论什么变量。</li>
-</ul>
-<p>此外，params 指定 lambda 表达式的參数。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Test test;</span><br><span class="line">    test.Add(add, <span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    TestAdd testAdd;</span><br><span class="line">    test.Add(<span class="built_in">std</span>::bind(&amp;TestAdd::Add, testAdd, <span class="built_in">std</span>::placeholders::_1, <span class="built_in">std</span>::placeholders::_2), <span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    test.Add([](<span class="keyword">int</span> a, <span class="keyword">int</span> b)-&gt;<span class="keyword">int</span> &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;lamda add fun&quot;</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span> a + b;</span><br><span class="line">    &#125;,<span class="number">1</span>,<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>联想仿函数 </p>
-<h2 id="新增容器"><a href="#新增容器" class="headerlink" title="新增容器"></a>新增容器</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">array</span></span><br><span class="line"><span class="built_in">std</span>::forward_list</span><br></pre></td></tr></table></figure>
-<p>C++11 引入了两组无序容器：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">unordered_map</span>/<span class="built_in">std</span>::<span class="built_in">unordered_multimap</span> 和 <span class="built_in">std</span>::<span class="built_in">unordered_set</span>/<span class="built_in">std</span>::<span class="built_in">unordered_multiset</span>。</span><br></pre></td></tr></table></figure>
-<h2 id="语言级线程支持"><a href="#语言级线程支持" class="headerlink" title="语言级线程支持"></a>语言级线程支持</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::thread </span><br><span class="line"><span class="built_in">std</span>::atomic</span><br><span class="line"><span class="built_in">std</span>::mutex/<span class="built_in">std</span>::unique_lock </span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">future</span>/<span class="built_in">std</span>::packaged_task </span><br><span class="line"><span class="built_in">std</span>::condition_variable</span><br></pre></td></tr></table></figure>
-<h2 id="智能指针内存管理"><a href="#智能指针内存管理" class="headerlink" title="智能指针内存管理"></a>智能指针内存管理</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span></span><br><span class="line"><span class="built_in">std</span>::weak_ptr</span><br></pre></td></tr></table></figure>
-<h2 id="右值引用和move语义"><a href="#右值引用和move语义" class="headerlink" title="右值引用和move语义"></a>右值引用和move语义</h2><p>#83 </p>
-<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><p>C++11 提供的正则表达式库操作 std::string 对象，对模式 std::regex (本质是 std::basic_regex)进行初始化，通过 std::regex_match 进行匹配，从而产生 std::smatch （本质是 std::match_results 对象）。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/C-11%E6%96%B0%E7%89%B9%E6%80%A7/" data-id="cklltjbo40001qcnkhus520hn" data-title="C++11新特性" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-垃圾回收" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T04:52:04.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/25/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">垃圾回收</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>RAII（Resource Acquisition Is Initialization）<br>“资源获取就是初始化”，简单的说，RAII 的做法是使用一个对象，在其构造时获取资源，在对象生命期控制对资源的访问使之始终保持有效，最后在对象析构的时候释放资源。</p>
-<p>大部分用c写的上规模的软件都存在一些内存方面的错误，需要花费大量的精力和时间把产品稳定下来<br>c++里可能出现的内存问题大致有这么几个方面：<br>1、缓冲区溢出<br>2、空悬指针/野指针<br>3、重复释放<br>4、内存泄漏<br>5、不配对的new[]/delete<br>6、内存碎片</p>
-<p>正确地使用智能指针能很轻易地解决前面5个问题，解决第6个问题需要另的思路。</p>
-<p>垃圾回收的方式虽然很多，但主要可以分为两大类：</p>
-<ul>
-<li>引用计数</li>
-<li>跟踪处理</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" data-id="cklltjbq6004vqcnkdadbbwt6" data-title="垃圾回收" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-c-11：左值、右值" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/c-11%EF%BC%9A%E5%B7%A6%E5%80%BC%E3%80%81%E5%8F%B3%E5%80%BC/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T04:47:10.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/25/c-11%EF%BC%9A%E5%B7%A6%E5%80%BC%E3%80%81%E5%8F%B3%E5%80%BC/">c++11：左值、右值</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>一个最为典型的判别方法就是，在赋值表达式中，出现在等号左边的就是“左值”，而在等号右边的，则称为“右值”。<br>还有一个说法，就是可以取地址的、有名字的就是左传，反之，不能取地址的、没有名字的就是右值。<br>右值又分将亡值（xvalue），纯右值。</p>
-<p>用右值引用变量声明，就会少一次对象的析构及一次对象的构造。避免无谓的复制，提高程序性能。</p>
-<p>引用类型本身自己并不拥有所绑定对象的内存，只是该对象的一个别名。左值引用是具名变量值的别名，而右值引用则是不具名（匿名）变量的别名。</p>
-<p>R-value能绑定到L-value reference？<br>不能，但可以绑定到常量左值引用上。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> A&amp; x = <span class="number">1</span>; <span class="comment">//compile</span></span><br><span class="line">x = <span class="number">2</span>;         <span class="comment">//error!</span></span><br><span class="line">A&amp;&amp; xxx = <span class="number">1</span>; <span class="comment">//compile</span></span><br><span class="line">A&amp; xx  = <span class="number">1</span>; <span class="comment">//does not compile.</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/c-11%EF%BC%9A%E5%B7%A6%E5%80%BC%E3%80%81%E5%8F%B3%E5%80%BC/" data-id="cklltjbon000sqcnkcrbtggjc" data-title="c++11：左值、右值" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-c-11：模板" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/c-11%EF%BC%9A%E6%A8%A1%E6%9D%BF/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T03:35:28.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/25/c-11%EF%BC%9A%E6%A8%A1%E6%9D%BF/">c++11：模板</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>c++11中Universal Reference类型的模板参数的推导规则？</p>
-<p>简单来说就是type&amp;&amp; + syntax + type deduction，即可以引用左值，也可以引用右值。 </p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(T&amp;&amp; param)</span></span>; <span class="comment">// “&amp;&amp;” 可能 代表rvalue reference</span></span><br></pre></td></tr></table></figure>
-<p>如果一个变量或者参数被声明为T&amp;&amp;，其中T是被推导的类型，那这个变量或者参数就是一个universal reference。<br>“T需要是一个被推导类型”这个要求限制了universal references的出现范围。在实践当中，几乎所有的universal references都是函数模板的参数。因为auto声明的变量的类型推导规则本质上和模板是一样的，所以使用auto的时候你也可能得到一个universal references。<br>一个universal reference必须具有形如T&amp;&amp;。<br>和所有的引用一样，你必须对universal references进行初始化，而且正是universal reference的initializer决定了它到底代表的是lvalue reference 还是 rvalue reference:</p>
-<ul>
-<li>如果用来初始化universal reference的表达式是一个左值，那么universal reference就变成lvalue reference。</li>
-<li>如果用来初始化universal reference的表达式是一个右值，那么universal reference就变成rvalue reference。</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/c-11%EF%BC%9A%E6%A8%A1%E6%9D%BF/" data-id="cklltjbom000qqcnkeg4tbblj" data-title="c++11：模板" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-skynet：数据共享" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/24/skynet%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB/" class="article-date">
-  <time class="dt-published" datetime="2021-02-24T14:43:14.000Z" itemprop="datePublished">2021-02-24</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/24/skynet%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB/">skynet：数据共享</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>当你把业务拆分到多个服务中去后，数据如何共享，可能是最易面临的问题。</p>
-<p>最简单粗暴的方法是通过消息传递数据。如果 A 服务需要 B 服务中的数据，可以由 B 服务发送一个消息，将数据打包携带过去。如果是一份数据，很多地方都需要获得它，那么用一个服务装下这组数据，提供一组查询接口即可。DataCenter 模块对此做了简单的封装。</p>
-<p>如果你仅仅需要一组只读的结构信息分享给很多服务（比如一些配置数据），你可以把数据写到一个 lua 文件中，让不同的服务加载它。Cluster 的配置文件就是这样做的。注意：默认 skynet 使用自带的修改版 lua ，会缓存 lua 源文件。当一个 lua 文件通过 loadfile 加载后，磁盘上的修改不会影响下一次加载。所以你需要直接用 io.open 打开文件，再用 load 加载内存中的 string 。</p>
-<p>另一个更好的方法是使用 sharedata 模块。<br>当大量的服务可能需要共享一大块并不太需要更新的结构化数据，每个服务却只使用其中一小部分。你可以设想成，这些数据在开发时就放在一个数据仓库中，各个服务按需要检索出需要的部分。<br>整个工程需要的数据仓库可能规模庞大，每个服务却只需要使用其中一小部分数据，如果每个服务都把所有数据加载进内存，服务数量很多时，就因为重复加载了大量不会触碰的数据而浪费了大量内存。在开发期，却很难把数据切分成更小的粒度，因为很难时刻根据需求的变化重新切分。<br>如果使用 DataCenter 这种中心式管理方案，却无法避免每次在检索数据时都要进行一次 RPC 调用，性能或许无法承受。<br>sharedata 模块正是为了解决这种需求而设计出来的。sharedata 只支持在同一节点内（同一进程下）共享数据，如果需要跨节点，需要自行同步处理。</p>
-<p>datasheet：<br>它能做的是：把一个复杂的有一定限制的 lua 表，转换为一块 C 内存，由多个 lua 服务共享读取。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/24/skynet%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB/" data-id="cklltjbpt003xqcnkek0n92kk" data-title="skynet：数据共享" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-skynet源码分析：timer" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/24/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9Atimer/" class="article-date">
-  <time class="dt-published" datetime="2021-02-24T08:30:18.000Z" itemprop="datePublished">2021-02-24</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/02/24/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9Atimer/">skynet源码分析：timer</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>skynet中提供了一个简单的计时器实现，可以设置一个超时时间，时间到达后给对应的服务发送消息。</p>
-<p>skynet中没有使用signal信号的方式来实现计时器，而是程序自身进行计时并处理计时器事件。另外，skynet中将时间由近及远划分为五个level，在时间复杂度和空间复杂度上达到了平衡。<br>初始化计时器</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">skynet_timer_init</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br></pre></td></tr></table></figure>
-<p>设置超时时间及相应的回调消息</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">skynet_timeout</span><span class="params">(<span class="keyword">uint32_t</span> handle, <span class="keyword">int</span> time, <span class="keyword">int</span> session)</span></span>; </span><br></pre></td></tr></table></figure>
-<p>程序更新时间并触发相应计时器事件</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">skynet_updatetime</span><span class="params">(<span class="keyword">void</span>)</span></span>; </span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/24/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9Atimer/" data-id="cklltjbpn003fqcnkg3gy36a7" data-title="skynet源码分析：timer" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
@@ -652,7 +646,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.33px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.22px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.22px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.89px;">linux</a> <a href="/tags/lua/" style="font-size: 16.67px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 14.44px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.11px;">python</a> <a href="/tags/redis/" style="font-size: 15.56px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.78px;">skynet</a>
+      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
     </div>
   </div>
 
@@ -661,7 +655,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
     </div>
   </div>
 
@@ -674,23 +668,23 @@
       <ul>
         
           <li>
-            <a href="/2021/02/25/net%E7%AE%80%E4%BB%8B/">.net简介</a>
+            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAdapters/">STL源码分析：Adapters</a>
+            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">STL源码分析：Functors</a>
+            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">STL源码分析：Algorithms</a>
+            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
           </li>
         
           <li>
-            <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/">STL源码分析：Containers</a>
+            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
           </li>
         
       </ul>
