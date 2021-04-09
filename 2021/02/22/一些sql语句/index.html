@@ -1,255 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>一些sql语句 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="GROUP分组GROUP BY 聚合函数在聚合行的时候顺序？ GROUP BY 聚合函数在聚合行的时候顺序是不确定的，多次运行的结果都有可能会不同。必须要用子查询或者程序逻辑来获取特定的行的结果。 1SELECT T.* FROM (select * from &#96;test&#96; order by b desc limit 999999) T group by T.a 循环语句1234567declar">
-<meta property="og:type" content="article">
-<meta property="og:title" content="一些sql语句">
-<meta property="og:url" content="http://example.com/2021/02/22/%E4%B8%80%E4%BA%9Bsql%E8%AF%AD%E5%8F%A5/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="GROUP分组GROUP BY 聚合函数在聚合行的时候顺序？ GROUP BY 聚合函数在聚合行的时候顺序是不确定的，多次运行的结果都有可能会不同。必须要用子查询或者程序逻辑来获取特定的行的结果。 1SELECT T.* FROM (select * from &#96;test&#96; order by b desc limit 999999) T group by T.a 循环语句1234567declar">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-02-21T18:17:51.000Z">
-<meta property="article:modified_time" content="2021-03-13T13:49:43.106Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="mysql">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-一些sql语句" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/22/%E4%B8%80%E4%BA%9Bsql%E8%AF%AD%E5%8F%A5/" class="article-date">
-  <time class="dt-published" datetime="2021-02-21T18:17:51.000Z" itemprop="datePublished">2021-02-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      一些sql语句
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="GROUP分组"><a href="#GROUP分组" class="headerlink" title="GROUP分组"></a>GROUP分组</h2><p>GROUP BY 聚合函数在聚合行的时候顺序？</p>
-<p>GROUP BY 聚合函数在聚合行的时候顺序是不确定的，多次运行的结果都有可能会不同。<br>必须要用子查询或者程序逻辑来获取特定的行的结果。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> T.<span class="operator">*</span> <span class="keyword">FROM</span> (<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> `test` <span class="keyword">order</span> <span class="keyword">by</span> b <span class="keyword">desc</span> limit <span class="number">999999</span>) T <span class="keyword">group</span> <span class="keyword">by</span> T.a</span><br></pre></td></tr></table></figure>
-<h2 id="循环语句"><a href="#循环语句" class="headerlink" title="循环语句"></a>循环语句</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">declare</span> <span class="variable">@i</span> <span class="type">int</span></span><br><span class="line"><span class="keyword">set</span> <span class="variable">@i</span><span class="operator">=</span><span class="number">1</span></span><br><span class="line">while <span class="variable">@i</span><span class="operator">&lt;</span><span class="number">30</span></span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test (userid) <span class="keyword">values</span>(<span class="variable">@i</span>)</span><br><span class="line"><span class="keyword">set</span> <span class="variable">@i</span><span class="operator">=</span><span class="variable">@i</span><span class="operator">+</span><span class="number">1</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<h2 id="用-临时表-While循环-的方法-对Customers表中的CompanyName列进行遍历"><a href="#用-临时表-While循环-的方法-对Customers表中的CompanyName列进行遍历" class="headerlink" title="用 临时表 + While循环 的方法, 对Customers表中的CompanyName列进行遍历"></a>用 临时表 + While循环 的方法, 对Customers表中的CompanyName列进行遍历</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> #temp</span><br><span class="line">(</span><br><span class="line">  id <span class="type">int</span> <span class="keyword">identity</span>(<span class="number">1</span>,<span class="number">1</span>),</span><br><span class="line">  customer nvarchar(<span class="number">50</span>)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">declare</span> <span class="variable">@customer</span> nvarchar(<span class="number">50</span>)</span><br><span class="line"><span class="keyword">declare</span> <span class="variable">@n</span>        <span class="type">int</span></span><br><span class="line"><span class="keyword">declare</span> <span class="variable">@rows</span>     <span class="type">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@n</span><span class="operator">=</span><span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> #temp(customer) <span class="keyword">select</span> <span class="keyword">distinct</span> companyname <span class="keyword">from</span> customers</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@rows</span> <span class="operator">=</span> @<span class="variable">@rowcount</span></span><br><span class="line"></span><br><span class="line">while <span class="variable">@n</span> <span class="operator">&lt;=</span> <span class="variable">@rows</span></span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@customer</span> <span class="operator">=</span> companyname</span><br><span class="line"><span class="keyword">from</span> customers</span><br><span class="line">     <span class="keyword">where</span> companyname<span class="operator">=</span>(<span class="keyword">select</span> customer <span class="keyword">from</span> #temp <span class="keyword">where</span> id <span class="operator">=</span> <span class="variable">@n</span>)</span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> companyname <span class="keyword">desc</span></span><br><span class="line"></span><br><span class="line">print(<span class="variable">@customer</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@n</span> <span class="operator">=</span> <span class="variable">@n</span> <span class="operator">+</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<h2 id="备份和恢复mysql数据库"><a href="#备份和恢复mysql数据库" class="headerlink" title="备份和恢复mysql数据库"></a>备份和恢复mysql数据库</h2><p>备份：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u root -p密码 数据库名&gt;data.bak</span><br></pre></td></tr></table></figure>
-<p>恢复</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p密码 数据库名&lt;data.bak</span><br></pre></td></tr></table></figure>
-<h2 id="查看mysql-的端口号"><a href="#查看mysql-的端口号" class="headerlink" title="查看mysql 的端口号"></a>查看mysql 的端口号</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;port&#x27;</span>;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/%E4%B8%80%E4%BA%9Bsql%E8%AF%AD%E5%8F%A5/" data-id="cklltjbpz004hqcnk0jexdki3" data-title="一些sql语句" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/22/redis%EF%BC%9A%E6%A8%A1%E5%BC%8F/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          redis：模式
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/22/redis%EF%BC%9A%E6%8C%81%E4%B9%85%E5%8C%96/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">redis：持久化</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}

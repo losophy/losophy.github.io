@@ -1,269 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>c++对象模型研究2：构造函数 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="关键词explicit之所以被导入这个语言，就是为了提供给程序员一种方法，使他们能够制止“单一参数的构造函数”被当做一个转换运算符。 默认构造函数的构建操作以下四种情况类会被生成“有用的”默认构造函数a.一个带有默认构造函数的成员对象类  合成的默认构造函数是以inline的方式完成的，如果函数太复杂则会做成非inline的static实体 b.带有默认构造函数的基类  和上述情况相似，子类没有构">
-<meta property="og:type" content="article">
-<meta property="og:title" content="c++对象模型研究2：构造函数">
-<meta property="og:url" content="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="关键词explicit之所以被导入这个语言，就是为了提供给程序员一种方法，使他们能够制止“单一参数的构造函数”被当做一个转换运算符。 默认构造函数的构建操作以下四种情况类会被生成“有用的”默认构造函数a.一个带有默认构造函数的成员对象类  合成的默认构造函数是以inline的方式完成的，如果函数太复杂则会做成非inline的static实体 b.带有默认构造函数的基类  和上述情况相似，子类没有构">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-02-25T07:50:00.000Z">
-<meta property="article:modified_time" content="2021-02-26T04:49:31.026Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="cpp">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-c-对象模型研究2：构造函数" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T07:50:00.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      c++对象模型研究2：构造函数
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>关键词explicit之所以被导入这个语言，就是为了提供给程序员一种方法，使他们能够制止“单一参数的构造函数”被当做一个转换运算符。</p>
-<h2 id="默认构造函数的构建操作"><a href="#默认构造函数的构建操作" class="headerlink" title="默认构造函数的构建操作"></a>默认构造函数的构建操作</h2><p>以下四种情况类会被生成“有用的”默认构造函数<br>a.一个带有默认构造函数的成员对象类<br>  合成的默认构造函数是以inline的方式完成的，如果函数太复杂则会做成非inline的static实体</p>
-<p>b.带有默认构造函数的基类<br>  和上述情况相似，子类没有构造函数，编译器会默认合成一个调用基类默认（无参）构造函数的子类默认构造函数</p>
-<p>c.带有一个虚函数的class<br>  以下两种情况需要合成出默认构造函数<br>1）类声明（或继承）一个虚函数<br>2）类派生自一个继承串链，其中有一个或多个虚基类</p>
-<p>d.带有一个虚基类的类（菱形继承）</p>
-<p>关于默认构造函数的合成两点是需要注意的：<br>1）不是任何没有定义构造函数的类都会被合成出一个默认构造函数<br>2）编译器合成出来的默认构造函数不会对类内每一个成员数据都设定默认值</p>
-<h2 id="拷贝构造函数的构建操作"><a href="#拷贝构造函数的构建操作" class="headerlink" title="拷贝构造函数的构建操作"></a>拷贝构造函数的构建操作</h2><p>有三种情况，会以一个对象的内容作为另一个类对象的初值<br>1.对一个对象做明确的初始化操作<br>2.当对象被当作参数交给某个函数时<br>3.当函数传回一个类对象时</p>
-<p>一个类对象可以从两种方式复制得到，一种是拷贝构造，另一种是拷贝赋值操作（=）。</p>
-<p>关于复制<br>其实复制涉及到C++内部模型的两个概念，即Default Memberwise Initialization 和bitwise copy semantics。<br>Default Memberwise Initialization： 这是C 模型的内部一种实现方案,其原理就是对于同一类的两个对象直接的赋值进行的暗箱操作。说白了，就是将一个对象的内存空间中的数据，原封不动的拷贝出另一份来填满另一个对象的内存。<br>如果该类内含其他类的对象作为自己的成员变量的话，那赋值操作并不会对该对象变量进行赋值，而是递归的对其内部数据成员赋值（原理还是有关对象内存布局）。如果类中有个指针成员变量，而其指向堆中的一片区域，然而在赋值过程中，根据memberwise的概念，只是将指针的值进行了赋值，这样一来，这两个对象中的指针变量自然都是指向同一片内存区域了，即所谓的浅拷贝。所以这时就需要程序员自己来实现拷贝构造函数来完成那片堆内存的拷贝赋值操作，即所谓的深拷贝。</p>
-<p>不要bitwise copy semantic<br>什么时候一个类不展现出bitwise copy semantic呢？<br>1）当类内含有一个成员类对象，而这个成员类对象内有一个拷贝构造函数时（不论是class设计者明确声明，或者被编译器合成 ）。<br>2）当类继承自 一个基类，而基类有拷贝构造函数时（不论是类设计者明确声明，或者被编译器合成 ）。<br>3）当一个类声明了一个或多个virtual 函数时。<br>4）当类派生自一个继承串链，其中一个或者多个virtual基类。<br>在前两种情况中，编译器必须将成员或基类的“ 构造函数的调用操作” 安插到被合成的构造函数中。（就像构造函数中的操作那样）。<br>第三种情况，如果编译器对于每一个新产生的类对象的虚表不能成功而正确地设好其初值，将导致可怕的后果。因此，当编译器导入一个虚表到类之中时，该类就不再展现bitwise copy semantic了。如果没有 bitwise copy semantics的作用的话，很容易想到，编译器会用到默认复制来对两个对象的vptr进行复制，因为两个类对象的vp都指向同一个vptr，所以会导致可怕的后果。</p>
-<p>这里我都被bitwise 和Memberwise 搞昏了。反正就是以上四种情况，复制不是单纯的直接复制。编译器会开辟新内存。</p>
-<h2 id="构造函数使用"><a href="#构造函数使用" class="headerlink" title="构造函数使用"></a>构造函数使用</h2><p>在使用者层面做优化<br>一般来说是这么写的：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">X <span class="title">bar</span><span class="params">(<span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	X xx;</span><br><span class="line">	xx.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	<span class="keyword">return</span> xx；</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//编译器内部的伪码：</span></span><br><span class="line"><span class="keyword">void</span> bar(X&amp; _result, <span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span><br><span class="line">&#123;</span><br><span class="line">	X xx;</span><br><span class="line">	xx.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	_result.X::XX(xx);<span class="comment">//copy constructor</span></span><br><span class="line">	<span class="keyword">return</span>;  <span class="comment">//什么也不返回</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>如果这么写</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">X <span class="title">bar</span><span class="params">(<span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> X(p1,p2);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//编译器内部的伪码：</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">(X&amp; _result, <span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	_result.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	<span class="keyword">return</span>;<span class="comment">//什么也不返回</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>相比较而言，少了个copy constructor。换句话说，少用局部变量，能直接计算返回的，就直接计算返回，这样可以少产生一个拷贝构造函数。</p>
-<p>在编译器层面做优化<br>在使用者层面做优化的例子，原先是使用者注意少用局部变量，能直接计算返回的，就直接计算返回，这样可以少产生一个拷贝构造函数。现在这件事情编译器代你做了，换句话说，即使我们仍用了xx做局部变量，保存计算结果，return xx，编译器也会自动把xx用_result替换掉，替你精简掉一个copy constructor。<br>然后呢，lippman把这种行为叫做“NRV优化”， NRV优化的本质是优化掉拷贝构造函数，当然去掉它的前提是作为使用者的我们用了xx做局部变量、return xx；如果我们没有这么做，而是直接return X(p1,p2) 那么这种行为也就不会发生了。</p>
-<p>要不要构造函数？<br>其实就是bitwise和Memberwise的问题了。如果类对象的成员数据以数值来储存。bitwise copy既不会导致memory leak，也不会产生address aliasing，因此它既快速又安全。如果类需要大量的memberwise初始化操作，例如以传值的方式传回对象，那么就需要explicit了。<br>当然，你也可以手动memcpy，但使用前提是：在class不含任何编译器产生的内部members。例如virtual相关内容。</p>
-<h2 id="成员们的初始化队列"><a href="#成员们的初始化队列" class="headerlink" title="成员们的初始化队列"></a>成员们的初始化队列</h2><p>当你写下一个构造函数的时候，你有机会设定类成员的初值。要不是经由成员初始化列表，就是在构造函数本身之内。除了四种情况，你的任何选择其实都差不多。</p>
-<p>必须使用初始化列表的情况<br>1）当初始化一个引用成员时<br>2）当初始化一个常量成员时<br>3）当调用一个基类的构造函数，而它拥有一组参数时<br>4）当调用一个类成员的构造函数，而它拥有一组参数时</p>
-<p>第一第二是因为：const对象或引用只能初始化但是不能赋值。构造函数的函数体内只能做赋值而不是初始化，因此初始化const对象或引用的唯一机会是构造函数函数体之前的初始化列表中。<br>第三第四是因为：主要是性能问题，如果类存在继承关系，派生类必须在其初始化列表中调用基类的构造函数。对于内置类型，如int, float等，使用初始化类表和在构造函数体内初始化差别不是很大，但是对于类类型来说，最好使用初始化列表，使用初始化列表少了一次调用默认构造函数的过程，这对于数据密集型的类来说，是非常高效的。</p>
-<p>所以一个好的原则是，能使用初始化列表的时候尽量使用初始化列表。<br>还有，对于初始化列表有些地方需要注意：list中的生成次序是由类中成员的声明次序决定的，而不是initialization list的排列次序决定的。</p>
-<p>全局对象的内存保证会在程序激活的时候被清为0。局部对象配置于程序的堆栈中，动态对象配置于自由空间中，都不一定会被清为0，它们的内容将是内存上次被使用后的遗迹。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/" data-id="cklltjboo000uqcnk4dov83ro" data-title="c++对象模型研究2：构造函数" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B63%EF%BC%9A%E6%95%B0%E6%8D%AE/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          c++对象模型研究3：数据
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B61%EF%BC%9A%E5%85%B3%E4%BA%8E%E5%AF%B9%E8%B1%A1/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">c++对象模型研究1：关于对象</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}

@@ -1,271 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>lua与C/C++程序的整合 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="lua与C&#x2F;C++交互，主要靠lua API和向lua注册好的函数。如下图 注：LuaGlue就是让Lua脚本中可调用的C++函数的接口。即那些注册的函数。这里起关键作用的要数lua_State的结构，这就得讲一下Lua环境和Lua Stack。 Lua环境Lua环境由所有可操作的数据构成，如编译好的函数、变量以及其他运行时内存。这些数据保存在一个称做lua_State的结构中。所有Lua应用程序">
-<meta property="og:type" content="article">
-<meta property="og:title" content="lua与C&#x2F;C++程序的整合">
-<meta property="og:url" content="http://example.com/2021/02/23/lua%E4%B8%8EC-C-%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%95%B4%E5%90%88/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="lua与C&#x2F;C++交互，主要靠lua API和向lua注册好的函数。如下图 注：LuaGlue就是让Lua脚本中可调用的C++函数的接口。即那些注册的函数。这里起关键作用的要数lua_State的结构，这就得讲一下Lua环境和Lua Stack。 Lua环境Lua环境由所有可操作的数据构成，如编译好的函数、变量以及其他运行时内存。这些数据保存在一个称做lua_State的结构中。所有Lua应用程序">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-02-23T06:41:02.000Z">
-<meta property="article:modified_time" content="2021-02-26T04:49:33.503Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="lua">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-lua与C-C-程序的整合" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/23/lua%E4%B8%8EC-C-%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%95%B4%E5%90%88/" class="article-date">
-  <time class="dt-published" datetime="2021-02-23T06:41:02.000Z" itemprop="datePublished">2021-02-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      lua与C/C++程序的整合
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>lua与C/C++交互，主要靠lua API和向lua注册好的函数。如下图</p>
-<p>注：LuaGlue就是让Lua脚本中可调用的C++函数的接口。即那些注册的函数。<br>这里起关键作用的要数lua_State的结构，这就得讲一下Lua环境和Lua Stack。</p>
-<h2 id="Lua环境"><a href="#Lua环境" class="headerlink" title="Lua环境"></a>Lua环境</h2><p>Lua环境由所有可操作的数据构成，如编译好的函数、变量以及其他运行时内存。这些数据保存在一个称做lua_State的结构中。所有Lua应用程序都要求至少有一个lua_State，如果需要还可以有多个（如需要为两个不同的系统保存不同的数据时）。</p>
-<h2 id="Lua-Stack"><a href="#Lua-Stack" class="headerlink" title="Lua Stack"></a>Lua Stack</h2><p>对于我们来说，Lua环境是用来发送和接收数据的地方，它利用栈（Lua Stack）来达到该目的。所有的数据交换，无论是Lua到C/C++语言或C/C++语言到Lua都通过这个栈来完成。Lua栈不同于系统栈，它只能通过Lua的API函数访问。</p>
-<h2 id="注册到Lua中的函数"><a href="#注册到Lua中的函数" class="headerlink" title="注册到Lua中的函数"></a>注册到Lua中的函数</h2><p>所有注册到Lua中的函数都具有相同的原型</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*lua_Function)</span><span class="params">(lua_State *L)</span></span>;</span><br></pre></td></tr></table></figure>
-<p>这个函数仅有一个参数，即Lua的状态。它返回一个整数，表示其压入栈中的返回值数量。因此函数无须在压入结果前清空栈。在它返回后，Lua会自动删除栈中结果之下的内容。</p>
-<p>在Lua使用这个函数前，必须注册这个函数。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lua_pushcfunction</span> <span class="params">(lua_State *L, lua_CFunction f)</span></span>;</span><br></pre></td></tr></table></figure>
-<p>将一个 C 函数压入堆栈。 这个函数接收一个 C 函数指针，并将一个类型为 function 的 Lua 值 压入堆栈。当这个栈顶的值被调用时，将触发对应的 C 函数。<br>这种方法需要重新编译Lua的执行程序，才能在Lua程序中使用这个新函数。但用下面的方法会更好，直接将C函数链接到lua。</p>
-<h2 id="Lua调用C函数"><a href="#Lua调用C函数" class="headerlink" title="Lua调用C函数"></a>Lua调用C函数</h2><p>Lua调用C函数时，并不依赖于函数名、包的位置或可见性规则，而只依赖于注册时传入的函数地址。当用C函数扩展Lua时，最好将代码设计为一个C模块。因为现在只注册一个函数，但说之后可能会需要更多的函数。辅助库为这项工作提供了一个函数luaL_register，这个函数接收一些C函数及其名称，并将这些函数注册到一个与模块同名的table中。例如，假设创建一个模块，其中包含了这个luaglue函数。首先，必须定义这个模块函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">luaglue</span><span class="params">(lua_state *L)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后，声明一个数组，其中包含模块中所有函数及名称。这个数组元素的类型为luaL_Reg结构，该结构有两个字段，一个字符串和一个函数指针：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">luaL_Reg</span> <span class="title">mylib</span>[] =</span> &#123;</span><br><span class="line">&#123;<span class="string">&quot;dir&quot;</span>,l_dir&#125;,</span><br><span class="line">&#123;<span class="literal">NULL</span>,<span class="literal">NULL</span>&#125;<span class="comment">//结尾</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>最后，声明一个主函数，其中用到了luaL_register:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">luaopen_mylib</span><span class="params">(lua_State *L)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     luaL_register(L,<span class="string">&quot;mylib&quot;</span>,mylib);</span><br><span class="line">     <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其中luaL_register原型为：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">luaL_register</span> <span class="params">(lua_State *L,<span class="keyword">const</span> <span class="keyword">char</span> *libname,<span class="keyword">const</span> luaL_Reg *l)</span></span>;</span><br></pre></td></tr></table></figure>
-<p>luaL_register根据给定的名称（“mylib”）创建（或复用）一个table，并用数组mylib中的信息填充这个table。在luaL_Register返回时，会将这个table留在栈中。最后，luaopen_mylib函数返回1，表示将这个table返回给Lua。<br>ps：打开一个库，当libname为null时，该函数注册所有在luaL_Reg上的函数，不为null时，该函数会创建一个table，根据libname注册不与libname关联的函数。<br>当写完c模块后，必须将其链接到解释器。如果Lua解释器支持动态链接的话，那么最简便的方法是使用动态链接机制。在这种情况中，必须将c代码编译成动态链接库，并将这个库放入C路径（LUA_CPATH）中。然后，便可以用require从Lua中加载这个模块：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span> <span class="string">&quot;mylib&quot;</span></span><br></pre></td></tr></table></figure>
-<p>这名调用会将动态库mylib链接到Lua，并会寻找luaopen_mylib函数，将其注册为一个Lua函数，然后调用它以打开模块。<br>如果解释器不支持动态链接，那么就必须用新的模块来重新编译Lua。此外，还需要以某种方式来告诉解释器，它应在打开一个新状态的同时打开这个模块。最简单的做法是，将luaopen_mylib加到luaL_openlibs会打开的标准库列表中，这个列表在文件linit.c中。</p>
-<p>从C++程序员的观点来看，Lua像一个“黑盒子”，为一些服务处理命令和调用。Lua通常作为最上层接口直接和程序使用者和游戏玩家打交道，在核心程序处理之前接受并响应输入。</p>
-<h2 id="lua-tinker"><a href="#lua-tinker" class="headerlink" title="lua_tinker"></a>lua_tinker</h2><p>如果嫌麻烦，不想手动写这些代码的话，我推荐lua_tinker。也就只有两个文件，lua_tinker.h，lua_tinker.cpp。<br>环境配置，首先你需要搭建一个可以用lua的开发环境，这里网上有很多，我就不多说了。然后再将lua_tinker的lua_tinker.h和lua_tinker.cpp添加到你的工程中就可以了。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">lua_tinker::def(L, <span class="string">&quot;cpp_func&quot;</span>, cpp_func); <span class="comment">//在L栈中注册C++函数</span></span><br><span class="line">lua_tinker::dofile(L, <span class="string">&quot;sample1.lua&quot;</span>); <span class="comment">//加载lua文件</span></span><br><span class="line"><span class="keyword">int</span> result = lua_tinker::call&lt;<span class="keyword">int</span>&gt;(L, <span class="string">&quot;lua_func&quot;</span>, <span class="number">3</span>, <span class="number">4</span>); <span class="comment">//调用lua中的function lua_func</span></span><br><span class="line"></span><br><span class="line">lua_tinker::class_add(L,<span class="string">&quot;classA&quot;</span>);<span class="comment">//在lua中注册类</span></span><br><span class="line">lua_tinker::class_con(L,lua_tinker::constructor&lt;classA&gt;);<span class="comment">//在lua中注册构造函数</span></span><br><span class="line">lua_tinker::class_mem(L,<span class="string">&quot;memName&quot;</span>,&amp;classA::memName);</span><br></pre></td></tr></table></figure>
-<p>用lua_tinker::call是要注意，参数不支持智能指针</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/lua%E4%B8%8EC-C-%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%95%B4%E5%90%88/" data-id="cklltjboz001qqcnk203x6mlu" data-title="lua与C/C++程序的整合" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lua/" rel="tag">lua</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/23/%E4%BD%BF%E7%94%A8Lua%E5%A4%84%E7%90%86%E6%B8%B8%E6%88%8F%E6%95%B0%E6%8D%AE/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          使用Lua处理游戏数据
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/23/lua%EF%BC%9A%E6%B8%B8%E6%88%8F%E4%B8%AD%E7%9A%84Lua/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">lua：游戏中的Lua</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}

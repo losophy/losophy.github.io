@@ -1,251 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>redis源码：单机数据库的实现 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="前言redis服务器将所有数据库都保存在服务器状态db数组中。dbnum由conf文件database选项决定。 1234567struct redisServer &amp;#123;    char *configfile;             &#x2F;&#x2F; 配置文件的绝对路径    int hz;                       &#x2F;&#x2F; serverCron() 每秒调用的次数    redi">
-<meta property="og:type" content="article">
-<meta property="og:title" content="redis源码：单机数据库的实现">
-<meta property="og:url" content="http://example.com/2021/02/03/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="前言redis服务器将所有数据库都保存在服务器状态db数组中。dbnum由conf文件database选项决定。 1234567struct redisServer &amp;#123;    char *configfile;             &#x2F;&#x2F; 配置文件的绝对路径    int hz;                       &#x2F;&#x2F; serverCron() 每秒调用的次数    redi">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-02-03T08:15:36.000Z">
-<meta property="article:modified_time" content="2021-02-26T04:49:36.260Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="redis">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-redis源码：单机数据库的实现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/03/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" class="article-date">
-  <time class="dt-published" datetime="2021-02-03T08:15:36.000Z" itemprop="datePublished">2021-02-03</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      redis源码：单机数据库的实现
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>redis服务器将所有数据库都保存在服务器状态db数组中。<br>dbnum由conf文件database选项决定。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> &#123;</span></span><br><span class="line">    <span class="keyword">char</span> *configfile;             <span class="comment">// 配置文件的绝对路径</span></span><br><span class="line">    <span class="keyword">int</span> hz;                       <span class="comment">// serverCron() 每秒调用的次数</span></span><br><span class="line">    redisDb *db;    <span class="comment">// 数据库</span></span><br><span class="line"></span><br><span class="line">   ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>分析rdb文件<br>od -c dump.rdb</p>
-<h2 id="redis事件驱动"><a href="#redis事件驱动" class="headerlink" title="redis事件驱动"></a>redis事件驱动</h2><p>redis服务器是一个事件驱动程序，服务器需要处理以下两类事件：<br>文件事件：文件事件就是服务器对套接字操作的抽象。<br>时间事件：时间事件就是服务器对这类定时操作的抽象。</p>
-<p>redis基于reactor模式开发了自己的网络事件处理器。<br>与Memcached不同，Redis并没有直接使用Libevent，而是自己完成了一个非常轻量级的对select、epoll、evport、kqueue这些通用的接口的实现。在不同的系统调用选用适合的接口，linux下默认是epoll。因为Libevent比较重更通用代码量也就很庞大，拥有很多Redis用不上的功能，Redis为了追求“轻巧”并且去除依赖，就选择自己去封装了一套。</p>
-<h2 id="redis协议（aof文件写入也是这个格式）"><a href="#redis协议（aof文件写入也是这个格式）" class="headerlink" title="redis协议（aof文件写入也是这个格式）"></a>redis协议（aof文件写入也是这个格式）</h2>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/03/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" data-id="cklltjbph002yqcnkhq3cfidu" data-title="redis源码：单机数据库的实现" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/04/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%A4%9A%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          redis源码：多机数据库的实现
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/02/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AF%B9%E8%B1%A1/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">redis源码：数据结构与对象</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}

@@ -1,251 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>skynet源码分析：运行与主要线程worker | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="skynet启动流程skynet程序只有skynet-src目录，.&#x2F;skynet .&#x2F;example&#x2F;config启动skynet_main.c读取配置文件，设置环境变量，调用skynet_start.c的skynet_start函数skynet_start函数初始基础服务，调用_start函数启动_timer线程、socket线程、_monitor线程以及配置的多个_worker线程开始工作">
-<meta property="og:type" content="article">
-<meta property="og:title" content="skynet源码分析：运行与主要线程worker">
-<meta property="og:url" content="http://example.com/2021/02/23/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E8%BF%90%E8%A1%8C%E4%B8%8E%E4%B8%BB%E8%A6%81%E7%BA%BF%E7%A8%8Bworker/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="skynet启动流程skynet程序只有skynet-src目录，.&#x2F;skynet .&#x2F;example&#x2F;config启动skynet_main.c读取配置文件，设置环境变量，调用skynet_start.c的skynet_start函数skynet_start函数初始基础服务，调用_start函数启动_timer线程、socket线程、_monitor线程以及配置的多个_worker线程开始工作">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-02-23T14:44:29.000Z">
-<meta property="article:modified_time" content="2021-02-26T04:49:31.033Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="skynet">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-skynet源码分析：运行与主要线程worker" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/23/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E8%BF%90%E8%A1%8C%E4%B8%8E%E4%B8%BB%E8%A6%81%E7%BA%BF%E7%A8%8Bworker/" class="article-date">
-  <time class="dt-published" datetime="2021-02-23T14:44:29.000Z" itemprop="datePublished">2021-02-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      skynet源码分析：运行与主要线程worker
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="skynet启动流程"><a href="#skynet启动流程" class="headerlink" title="skynet启动流程"></a>skynet启动流程</h2><p>skynet程序只有skynet-src目录，./skynet ./example/config启动<br>skynet_main.c读取配置文件，设置环境变量，调用skynet_start.c的skynet_start函数<br>skynet_start函数初始基础服务，调用_start函数启动_timer线程、socket线程、_monitor线程以及配置的多个_worker线程开始工作</p>
-<h2 id="skynet运行机制"><a href="#skynet运行机制" class="headerlink" title="skynet运行机制"></a>skynet运行机制</h2><p>skynet每个服务最重要的是设置一个callback函数，服务向另一个服务发消息都会压入这个服务的消息队列，等待_worker线程从全局队列取出一个服务的消息队列，然后再从这个消息队列取出一个消息使用这个服务的callback处理<br>游戏服务器一般会启动一个socket服务教给gate.so管理，socket服务可以接受外部msg传递到内部服务来处理。</p>
-<h2 id="monitor"><a href="#monitor" class="headerlink" title="monitor"></a>monitor</h2><p>skynet对服务的监控做得比较简陋，从设计原则上来说，这样做也是对的，因为框架层能做的，基本就是上报和打日志，上层的业务是变化万千的，不论怎么写，都可能满足不了上层的业务需求。skynet中对服务的监控实现在skynet_monitor.c和skynet_monitor.h中，当服务可能陷入死循环的时候，就打一条日志。<br>每次消息派发，都会调用skynet_monitor_trigger，一共调两次，第一次参数source和destination是真实的值，也就是不为0。第二次调是在消息派发完成的时候，source和destination都赋0。<br>如果第一次trigger调用以后，消息派发迟迟不完成，monitor线程第一次检查，会将check_version的值赋为version。然后monitor线程第二次检查，这个时候version和check_version就会相等，而且这时候destination也不为0，就会进入释放目标服务和打印报警的流程。</p>
-<h2 id="timer"><a href="#timer" class="headerlink" title="timer"></a>timer</h2><p>skynet的timer是做游戏用得比较频繁的一个功能，分析一下它的源码还是有意义的。而且核心的C源码除了timer和网络以外，已经基本分析得差不多了。其它都是跟lua c api相关，或者是跟lua交互比较多的。timer的源码在skynet-timer.c和skynet-timer.h中。<br>skynet的外部定时器是分为两部分存的，一部分存在叫near的数组里，另一部分存在一个二维数组里，分为四个级别。<br>skynet中有一个timer线程，每2.5毫秒就更新一下timer中的时间。每次更新都会对一个叫time的计数器做加1操作，所以这个计数器其实可以当作时间来看待，然后对near数组中的定时器进行触发。</p>
-<p>1.main函数<br>main函数是skynet进程的入口点，它需要一个配置文件的路径作为参数。main函数先做一些内存分配工作，然后加载配置文件里的内容。再把配置文件里的内容设置到lua环境变量_ENV。然后从_ENV里读取配置到c配置中。最后调用skynet_start。<br>2.skynet_start函数<br>skynet_start函数根据配置确定服务是不是以后台方式启动，然后初始化timer/socket/module/mq这些数据结构，给它们分配内存，填充一些必要的字段。下一步创建和注册日志logger服务，这个logger服务是C层实现的。然后创建注册snax服务，做bootstrap操作。最后调用start函数。<br>3.start函数<br>这个函数会启动timer/socket/monitor/worker线程，timer/socket/monitor线程都只有一个，唯独worker线程是多个，在配置文件中以thread=num来配置的。如果配置文件中没有配，就是8个。第个worker线程都有自己的权重值，权重值越大的，给单个服务的时间片越小。<br>线程都启动完以后，就进入pthread_join，等待线程的终止。所有线程终止以后，skynet就会退出。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E8%BF%90%E8%A1%8C%E4%B8%8E%E4%B8%BB%E8%A6%81%E7%BA%BF%E7%A8%8Bworker/" data-id="cklltjbpr003tqcnkas8j9s4l" data-title="skynet源码分析：运行与主要线程worker" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/23/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9Ahttp/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          skynet源码分析：http
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/23/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%A8%A1%E5%9D%97/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">skynet源码分析：模块</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}

@@ -1,290 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>C++11新特性 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="C+11的标准规范于2011年2月正式落稿，而此前10余年间，C++正式标准一直是C++98&#x2F;03。相比C++98&#x2F;03，C++11有了非常多的变化。包括大量的新特性：主要特征像lambda表达式和移动语义，实用的类型推导关键字auto，更简单的容器遍历方法，和大量使模板更容易使用的改进。C++11将修复大量缺陷和降低代码拖沓，比如lambda表达式的支持将使代码更简洁。像移动语义这种特性会提高语">
-<meta property="og:type" content="article">
-<meta property="og:title" content="C++11新特性">
-<meta property="og:url" content="http://example.com/2021/02/25/C-11%E6%96%B0%E7%89%B9%E6%80%A7/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="C+11的标准规范于2011年2月正式落稿，而此前10余年间，C++正式标准一直是C++98&#x2F;03。相比C++98&#x2F;03，C++11有了非常多的变化。包括大量的新特性：主要特征像lambda表达式和移动语义，实用的类型推导关键字auto，更简单的容器遍历方法，和大量使模板更容易使用的改进。C++11将修复大量缺陷和降低代码拖沓，比如lambda表达式的支持将使代码更简洁。像移动语义这种特性会提高语">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-02-25T04:56:32.000Z">
-<meta property="article:modified_time" content="2021-02-26T04:49:31.028Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="cpp">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-C-11新特性" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/C-11%E6%96%B0%E7%89%B9%E6%80%A7/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T04:56:32.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      C++11新特性
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>C+11的标准规范于2011年2月正式落稿，而此前10余年间，C++正式标准一直是C++98/03。相比C++98/03，C++11有了非常多的变化。<br>包括大量的新特性：主要特征像lambda表达式和移动语义，实用的类型推导关键字auto，更简单的容器遍历方法，和大量使模板更容易使用的改进。<br>C++11将修复大量缺陷和降低代码拖沓，比如lambda表达式的支持将使代码更简洁。像移动语义这种特性会提高语言内核的基础效率，使你可以写出更快的代码。对模板系统的优化可以使你更容易写出泛型的代码。<br>新的标准库同时也会包含新的特性，包括对模板”&gt;&gt;“写法的支持，对多线程的支持，优化智能指针，将给那些还没用类似于boost::shared_ptr的人提供更简单的内存管理方法。</p>
-<h2 id="C-11常用特性的使用经验总结"><a href="#C-11常用特性的使用经验总结" class="headerlink" title="C++11常用特性的使用经验总结"></a>C++11常用特性的使用经验总结</h2><h3 id="nullptr"><a href="#nullptr" class="headerlink" title="nullptr"></a>nullptr</h3><p>nullptr 出现的目的是为了替代 NULL。<br>在某种意义上来说，传统 C++ 会把 NULL、0 视为同一种东西，这取决于编译器如何定义 NULL，有些编译器会将 NULL 定义为 ((void*)0)，有些则会直接将其定义为 0。<br>C++ 不允许直接将 void * 隐式转换到其他类型，但如果 NULL 被定义为 ((void*)0)，那么当编译char *ch = NULL;时，NULL 只好被定义为 0。<br>而这依然会产生问题，将导致了 C++ 中重载特性会发生混乱，例如：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TestWork</span><span class="params">(<span class="keyword">int</span> index)</span></span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TestWork</span><span class="params">(<span class="keyword">int</span> * index)</span></span>&#123;&#125;</span><br></pre></td></tr></table></figure>
-<p>为了解决这个问题，C++11 引入了 nullptr 关键字，专门用来区分空指针、0。<br>当需要使用 NULL 时候，养成直接使用 nullptr的习惯。</p>
-<h3 id="类型推导"><a href="#类型推导" class="headerlink" title="类型推导"></a>类型推导</h3><p>C++11 引入了 auto 和 decltype 这两个关键字实现了类型推导，让编译器来操心变量的类型。<br>auto并没有让C++成为弱类型语言，也没有弱化变量什么，只是使用auto的时候，编译器根据上下文情况，确定auto变量的真正类型。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> index = <span class="number">10</span>;              <span class="comment">//int</span></span><br><span class="line"><span class="keyword">auto</span> str = <span class="string">&quot;abc&quot;</span>;            <span class="comment">//char*</span></span><br><span class="line"><span class="keyword">auto</span> arr = <span class="keyword">new</span> <span class="keyword">auto</span>(<span class="number">10</span>)     <span class="comment">//int *</span></span><br><span class="line"><span class="keyword">auto</span> ret = AddTest(<span class="number">1</span>,<span class="number">2</span>);    <span class="comment">//int</span></span><br></pre></td></tr></table></figure>
-<p><strong>auto不能做什么？</strong><br>auto 不能用于函数传参，因此下面的做法是无法通过编译的（考虑重载的问题，我们应该使用模板）。<br>auto 还不能用于推导数组类型。</p>
-<p><strong>decltype（Declared Type）“声明类型”</strong><br>decltype 关键字是为了解决 auto 关键字只能对变量进行类型推导的缺陷而出现的。它的用法和 sizeof 很相似：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">auto x &#x3D; 1;</span><br><span class="line">auto y &#x3D; 2;</span><br><span class="line">decltype(x+y) z;</span><br></pre></td></tr></table></figure>
-<p>在此过程中，编译器分析表达式并得到它的类型，却不实际计算表达式的值。<br>有时候，我们可能需要计算某个表达式的类型。</p>
-<h2 id="基于范围的-for-循环"><a href="#基于范围的-for-循环" class="headerlink" title="基于范围的 for 循环"></a>基于范围的 for 循环</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> numbers[] = &#123; <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span> &#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span> number : numbers)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; number &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="初始化列表"><a href="#初始化列表" class="headerlink" title="初始化列表"></a>初始化列表</h2><p>C++11 提供了统一的语法来初始化任意的对象</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A a &#123;<span class="number">1</span>, <span class="number">1.1</span>&#125;;    <span class="comment">// 统一的初始化语法</span></span><br><span class="line">B b &#123;<span class="number">2</span>, <span class="number">2.2</span>&#125;;</span><br></pre></td></tr></table></figure>
-<p>C++11 还把初始化列表的概念绑定到了类型上，并将其称之为 std::initializer_list，允许构造函数或其他函数像参数一样使用初始化列表，这就为类对象的初始化与普通数组和 POD 的初始化方法提供了统一的桥梁，例如：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;initializer_list&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Magic</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Magic(<span class="built_in">std</span>::<span class="built_in">initializer_list</span>&lt;<span class="keyword">int</span>&gt; <span class="built_in">list</span>) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Magic magic = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="模板增强"><a href="#模板增强" class="headerlink" title="模板增强"></a>模板增强</h2><p>在传统 C++ 的编译器中，&gt;&gt;一律被当做右移运算符来进行处理。但实际上我们很容易就写出了嵌套模板的代码：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; wow;</span><br></pre></td></tr></table></figure>
-<p>这在传统C++编译器下是不能够被编译的，而 C++11 开始，连续的右尖括号将变得合法，并且能够顺利通过编译。</p>
-<h2 id="Lambda-表达式"><a href="#Lambda-表达式" class="headerlink" title="Lambda 表达式"></a>Lambda 表达式</h2><p>lambda 表达式能够方便地构造匿名函数，假设你的代码里面存在大量的小函数，而这些函数一般仅仅被调用一次。那么最好还是将他们重构成 lambda 表达式.<br>C++11 的 lambda 表达式规范例如以下：<br>| [ capture ] ( params ) mutableexceptionattribute -&gt; ret {body }        | (1)  |<br>| ——–   | —–:  |<br>| [ capture ] ( params ) -&gt; ret { body }    | (2)     |<br>| [ capture ] ( params ) { body }   |   (3) |<br>| [ capture ] { body }   |  (4) |</p>
-<p>当中</p>
-<ul>
-<li>(1) 是完整的 lambda 表达式形式。</li>
-<li>(2) const 类型的 lambda 表达式，该类型的表达式不能改捕获(“capture”)列表中的值。</li>
-<li>(3)省略了返回值类型的 lambda 表达式。可是该 lambda 表达式的返回类型能够依照下列规则推演出来：<br>假设 lambda 代码块中包括了 return 语句，则该 lambda 表达式的返回类型由 return 语句的返回类型确定。<br>假设没有 return 语句。则类似 void f(…) 函数。</li>
-<li>(4)省略了參数列表，类似于无參函数 f()。</li>
-</ul>
-<p>mutable 修饰符说明 lambda 表达式体内的代码能够改动被捕获的变量。而且能够訪问被捕获对象的 non-const 方法。<br>exception 说明 lambda 表达式是否抛出异常(noexcept)。以及抛出何种异常，类似于void f()throw(X, Y)。<br>attribute 用来声明属性。<br>另外，capture 指定了在可见域范围内 lambda 表达式的代码内可见得外部变量的列表。详细解释例如以下：</p>
-<ul>
-<li>[a,&amp;b] a变量以值的方式呗捕获，b以引用的方式被捕获。</li>
-<li>[this] 以值的方式捕获 this 指针。</li>
-<li>[&amp;] 以引用的方式捕获全部的外部自己主动变量。</li>
-<li>[=] 以值的方式捕获全部的外部自己主动变量。</li>
-<li>[] 不捕获外部的不论什么变量。</li>
-</ul>
-<p>此外，params 指定 lambda 表达式的參数。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Test test;</span><br><span class="line">    test.Add(add, <span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    TestAdd testAdd;</span><br><span class="line">    test.Add(<span class="built_in">std</span>::bind(&amp;TestAdd::Add, testAdd, <span class="built_in">std</span>::placeholders::_1, <span class="built_in">std</span>::placeholders::_2), <span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    test.Add([](<span class="keyword">int</span> a, <span class="keyword">int</span> b)-&gt;<span class="keyword">int</span> &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;lamda add fun&quot;</span> &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span> a + b;</span><br><span class="line">    &#125;,<span class="number">1</span>,<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>联想仿函数 </p>
-<h2 id="新增容器"><a href="#新增容器" class="headerlink" title="新增容器"></a>新增容器</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">array</span></span><br><span class="line"><span class="built_in">std</span>::forward_list</span><br></pre></td></tr></table></figure>
-<p>C++11 引入了两组无序容器：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">unordered_map</span>/<span class="built_in">std</span>::<span class="built_in">unordered_multimap</span> 和 <span class="built_in">std</span>::<span class="built_in">unordered_set</span>/<span class="built_in">std</span>::<span class="built_in">unordered_multiset</span>。</span><br></pre></td></tr></table></figure>
-<h2 id="语言级线程支持"><a href="#语言级线程支持" class="headerlink" title="语言级线程支持"></a>语言级线程支持</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::thread </span><br><span class="line"><span class="built_in">std</span>::atomic</span><br><span class="line"><span class="built_in">std</span>::mutex/<span class="built_in">std</span>::unique_lock </span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">future</span>/<span class="built_in">std</span>::packaged_task </span><br><span class="line"><span class="built_in">std</span>::condition_variable</span><br></pre></td></tr></table></figure>
-<h2 id="智能指针内存管理"><a href="#智能指针内存管理" class="headerlink" title="智能指针内存管理"></a>智能指针内存管理</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">shared_ptr</span></span><br><span class="line"><span class="built_in">std</span>::weak_ptr</span><br></pre></td></tr></table></figure>
-<h2 id="右值引用和move语义"><a href="#右值引用和move语义" class="headerlink" title="右值引用和move语义"></a>右值引用和move语义</h2><p>#83 </p>
-<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><p>C++11 提供的正则表达式库操作 std::string 对象，对模式 std::regex (本质是 std::basic_regex)进行初始化，通过 std::regex_match 进行匹配，从而产生 std::smatch （本质是 std::match_results 对象）。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/C-11%E6%96%B0%E7%89%B9%E6%80%A7/" data-id="cklltjbo40001qcnkhus520hn" data-title="C++11新特性" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B61%EF%BC%9A%E5%85%B3%E4%BA%8E%E5%AF%B9%E8%B1%A1/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          c++对象模型研究1：关于对象
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/25/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">垃圾回收</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}

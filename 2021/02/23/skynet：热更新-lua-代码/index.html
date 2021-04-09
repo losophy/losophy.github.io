@@ -1,261 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>skynet：热更新 lua 代码 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="skynet有两种方法热更新lua代码，clearcache和inject，文章分别对这两种方法做说明。 clearcache热更新讲这个前，先说明下skynet代码加载的事情。因为skynet的每个服务都是一个独立的lua虚拟机，对于同一份lua代码，N个服务就要加载lua文件N次，所以，skynet做了优化，代码文件只需要加载一次到内存，其他服务复制这份内存就可以了，省了读取lua文件和解析l">
-<meta property="og:type" content="article">
-<meta property="og:title" content="skynet：热更新 lua 代码">
-<meta property="og:url" content="http://example.com/2021/02/23/skynet%EF%BC%9A%E7%83%AD%E6%9B%B4%E6%96%B0-lua-%E4%BB%A3%E7%A0%81/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="skynet有两种方法热更新lua代码，clearcache和inject，文章分别对这两种方法做说明。 clearcache热更新讲这个前，先说明下skynet代码加载的事情。因为skynet的每个服务都是一个独立的lua虚拟机，对于同一份lua代码，N个服务就要加载lua文件N次，所以，skynet做了优化，代码文件只需要加载一次到内存，其他服务复制这份内存就可以了，省了读取lua文件和解析l">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-02-23T15:33:43.000Z">
-<meta property="article:modified_time" content="2021-02-26T04:49:31.033Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="skynet">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-skynet：热更新-lua-代码" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/23/skynet%EF%BC%9A%E7%83%AD%E6%9B%B4%E6%96%B0-lua-%E4%BB%A3%E7%A0%81/" class="article-date">
-  <time class="dt-published" datetime="2021-02-23T15:33:43.000Z" itemprop="datePublished">2021-02-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      skynet：热更新 lua 代码
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>skynet有两种方法热更新lua代码，clearcache和inject，文章分别对这两种方法做说明。</p>
-<h2 id="clearcache热更新"><a href="#clearcache热更新" class="headerlink" title="clearcache热更新"></a>clearcache热更新</h2><p>讲这个前，先说明下skynet代码加载的事情。因为skynet的每个服务都是一个独立的lua虚拟机，对于同一份lua代码，N个服务就要加载lua文件N次，所以，skynet做了优化，代码文件只需要加载一次到内存，其他服务复制这份内存就可以了，省了读取lua文件和解析lua语法的过程。</p>
-<p>clearcache 使用很简单，启动skynet，连接到其控制台：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">clearcache</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
-<p>但clearcache有个不可忽视的问题，每次clearcache后，不管代码有没有用到，skynet不会清理旧的内存。这会导致了多次clearcache后，skynet内存使用会越来越大<br>这是为什么？因为clearcache后，只有新起的服务会用到新代码，旧的服务还引用着旧代码。而skynet没有做引用GC的复杂逻辑，在旧服务销毁时，没有清理用不到的旧代码。</p>
-<p>或许你会很好奇，clearcache 没清的内存到底是啥？<br>这要从skynet代码共享说起，skynet加载lua代码时，对于一个代码文件使用了一个新的vm加载，然后以文件名作为key将代码索引到全局的vm中。这样，当有服务需要代码了，就从全局vm找到代码，复制一份到服务。而clearcache，就是删除这个全局的vm，然后再重建一个。这么做的好处是，执行clearcache后，不影响已有服务的运行。问题是，全局vm删了，这个vm索引的所有代码没有清理，这样，那些加载代码用的vm没做清理。</p>
-<h2 id="inject热更新"><a href="#inject热更新" class="headerlink" title="inject热更新"></a>inject热更新</h2><p>inject命令相当于注入代码到服务中，原理就是让指定服务执行某个代码文件，通过修改模块及其函数的upvalue，完成对lua模块代码或变量的替换。这个命令我在前面的文章[1]有详细介绍。<br>inject用法很简单，启动skynet，连接到其控制台:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">list</span><br><span class="line">:00000004       snlua cmaster</span><br><span class="line">:00000005       snlua cslave</span><br><span class="line">:00000007       snlua datacenterd</span><br><span class="line">:00000008       snlua service_mgr</span><br><span class="line">:0000000a       snlua protoloader</span><br><span class="line">:0000000b       snlua console</span><br><span class="line">:0000000c       snlua debug_console 8000</span><br><span class="line">:0000000d       snlua simpledb</span><br><span class="line">OK</span><br><span class="line">inject :0000000d example/inject_simpledb.lua</span><br></pre></td></tr></table></figure>
-<p>inject命令的难点是，这个要注入的lua代码该怎么写。<br>下面直接改写skynet自带的example做说明：</p>
-<h1 id="cat-examples-simpledb-lua"><a href="#cat-examples-simpledb-lua" class="headerlink" title="cat examples/simpledb.lua"></a>cat examples/simpledb.lua</h1><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> skynet = <span class="built_in">require</span> <span class="string">&quot;skynet&quot;</span></span><br><span class="line"><span class="built_in">require</span> <span class="string">&quot;skynet.manager&quot;</span> </span><br><span class="line"><span class="keyword">local</span> db = &#123;&#125;</span><br><span class="line"><span class="keyword">local</span> command = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 增加了这里</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span><span class="params">(msg)</span></span></span><br><span class="line">        <span class="built_in">print</span>(msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment">-- 增加了这里</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">command.do_test</span><span class="params">(msg)</span></span></span><br><span class="line">        test(msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">skynet.start(<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">        skynet.dispatch(<span class="string">&quot;lua&quot;</span>, <span class="function"><span class="keyword">function</span><span class="params">(session, address, cmd, ...)</span></span></span><br><span class="line">                <span class="keyword">local</span> f = command[<span class="built_in">string</span>.<span class="built_in">upper</span>(cmd)]</span><br><span class="line">                <span class="keyword">if</span> f <span class="keyword">then</span></span><br><span class="line">                        skynet.ret(skynet.pack(f(...)))</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                        <span class="built_in">error</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;Unknown command %s&quot;</span>, <span class="built_in">tostring</span>(cmd)))</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line">        <span class="comment">-- 增加了这里</span></span><br><span class="line">        skynet.fork(<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">                <span class="keyword">while</span> <span class="literal">true</span> <span class="keyword">do</span></span><br><span class="line">                        skynet.sleep(<span class="number">100</span>)</span><br><span class="line">                        command.do_test(<span class="string">&quot;itest!&quot;</span>)</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line">        skynet.register <span class="string">&quot;SIMPLEDB&quot;</span></span><br><span class="line"><span class="keyword">end</span>)</span><br></pre></td></tr></table></figure>
-<p>假设以上的 command.do_test 就是我们要热更改掉的函数。那用于inject的lua代码如下：</p>
-<h1 id="cat-inject-test-lua"><a href="#cat-inject-test-lua" class="headerlink" title="cat inject_test.lua"></a>cat inject_test.lua</h1><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> _P <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;hotfix fail, no _P define&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;hotfix begin&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 用于获取函数变量</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">get_up</span><span class="params">(f)</span></span></span><br><span class="line">        <span class="keyword">local</span> u = &#123;&#125;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> f <span class="keyword">then</span></span><br><span class="line">                <span class="keyword">return</span> u</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">local</span> i = <span class="number">1</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">true</span> <span class="keyword">do</span></span><br><span class="line">                <span class="keyword">local</span> name, value = <span class="built_in">debug</span>.<span class="built_in">getupvalue</span>(f, i)</span><br><span class="line">                <span class="keyword">if</span> name == <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">                        <span class="keyword">return</span> u</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">                u[name] = value</span><br><span class="line">                i = i + <span class="number">1</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">return</span> u</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 获取原来的函数地址，及函数变量</span></span><br><span class="line"><span class="keyword">local</span> command = _P.lua.command</span><br><span class="line"><span class="keyword">local</span> upvs = get_up(command.do_test)</span><br><span class="line"><span class="keyword">local</span> test = upvs.test</span><br><span class="line"></span><br><span class="line">command.do_test = <span class="function"><span class="keyword">function</span><span class="params">(msg)</span></span></span><br><span class="line">    test(<span class="string">&#x27;New &#x27;</span> .. msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;hotfix end&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>启动控制台，执行inject后，就会看到类似下面的skynet的日志：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ./skynet examples/config</span></span><br><span class="line">[:00000001] LAUNCH logger </span><br><span class="line">[:00000002] LAUNCH snlua bootstrap</span><br><span class="line">[:00000003] LAUNCH snlua launcher</span><br><span class="line">[:00000004] LAUNCH snlua cmaster</span><br><span class="line">[:00000005] LAUNCH snlua cslave</span><br><span class="line">[:00000006] LAUNCH harbor 1 16777221</span><br><span class="line">[:00000007] LAUNCH snlua datacenterd</span><br><span class="line">[:00000008] LAUNCH snlua service_mgr</span><br><span class="line">[:00000009] LAUNCH snlua main</span><br><span class="line">[:0000000a] LAUNCH snlua protoloader</span><br><span class="line">[:0000000b] LAUNCH snlua console</span><br><span class="line">[:0000000c] LAUNCH snlua debug_console 8000</span><br><span class="line">[:0000000d] LAUNCH snlua simpledb</span><br><span class="line">[:0000000e] LAUNCH snlua watchdog</span><br><span class="line">[:0000000f] LAUNCH snlua gate</span><br><span class="line">[:0000000f] Listen on 0.0.0.0:8888</span><br><span class="line">Watchdog listen on      8888</span><br><span class="line">[:00000009] KILL self</span><br><span class="line">[:00000002] KILL self</span><br><span class="line">itest!</span><br><span class="line">itest!</span><br><span class="line">itest!</span><br><span class="line">New itest!</span><br><span class="line">New itest!</span><br></pre></td></tr></table></figure>
-<p>通过前面的分析，我们知道了，clearcache和inject两种方法都可以热更代码。clearcache比较简单，但这种方法对于已有的服务是没有效果的，只有在新的服务才生效。而inject可以热更已有的服务，但不管是inject脚本的编写，还是inject命令的执行，都相对比较繁琐。所以要根据实际的需求，选择适合的方法热更lua代码。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/23/skynet%EF%BC%9A%E7%83%AD%E6%9B%B4%E6%96%B0-lua-%E4%BB%A3%E7%A0%81/" data-id="cklltjbpt003zqcnk6b38bt2j" data-title="skynet：热更新 lua 代码" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/23/skynet%EF%BC%9Acluster/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          skynet：cluster
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/23/skynet%EF%BC%9A%E6%8E%A7%E5%88%B6%E5%8F%B0%E7%AE%A1%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">skynet：控制台管理</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}

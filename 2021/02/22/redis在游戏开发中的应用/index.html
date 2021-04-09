@@ -1,262 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>redis在游戏开发中的应用 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Redis是一个新兴的NoSql数据缓存组件，与memcache类似，但是功能却比memcache多一些。首先，Redis和memcache都是基于内存的，所以读取和写入速度都非常快。但是memcache只支持简单的key-value数据的存储方式，而Redis对key-value ,hash,list,set,SortSet等数据结构有很好的支持。 下面就Redis在游戏的开发应用中做一些简单的">
-<meta property="og:type" content="article">
-<meta property="og:title" content="redis在游戏开发中的应用">
-<meta property="og:url" content="http://example.com/2021/02/22/redis%E5%9C%A8%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="Redis是一个新兴的NoSql数据缓存组件，与memcache类似，但是功能却比memcache多一些。首先，Redis和memcache都是基于内存的，所以读取和写入速度都非常快。但是memcache只支持简单的key-value数据的存储方式，而Redis对key-value ,hash,list,set,SortSet等数据结构有很好的支持。 下面就Redis在游戏的开发应用中做一些简单的">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-02-22T02:55:18.000Z">
-<meta property="article:modified_time" content="2021-02-26T04:49:33.504Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="redis">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-redis在游戏开发中的应用" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/22/redis%E5%9C%A8%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/" class="article-date">
-  <time class="dt-published" datetime="2021-02-22T02:55:18.000Z" itemprop="datePublished">2021-02-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      redis在游戏开发中的应用
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Redis是一个新兴的NoSql数据缓存组件，与memcache类似，但是功能却比memcache多一些。<br>首先，Redis和memcache都是基于内存的，所以读取和写入速度都非常快。但是memcache只支持简单的key-value数据的存储方式，而Redis对key-value ,hash,list,set,SortSet等数据结构有很好的支持。</p>
-<p>下面就Redis在游戏的开发应用中做一些简单的介绍。</p>
-<h2 id="数据的缓存"><a href="#数据的缓存" class="headerlink" title="数据的缓存"></a>数据的缓存</h2><p>在这一点上，redis和memcache是一样的。都是把数据提前放入到内存中。当逻辑处理中需要用到数据时，先从内存中读取，相同的，写的时候也先向内存中写入，然后再操作数据库，以增加数据处理的速度。不同的是，redis带有把数据写入到硬盘的功能，具体的写入策略可以在redis的配置文件中配置。这样当主机突然出现故障时，比如断电，重启机器不会造成数据的丢失。这个在游戏的应用中特别重要。一般在游戏开发中，数据的处理会采用：缓存 + 持久化队列 + 数据库(mysql)的架构。执行的流程是先把数据写入到缓存，然后把需要持久化的数据放入到持久化队列中，启动一个守护线程，从持久化队列中不断的取出数据，并存入或更新到数据库。如果使用memcache这样没有写入到硬盘功能的缓存组件，出现故障时，持久人队列中如果还有没有处理完的数据，那么就会造成数据的丢失，引用玩家的数据出现短暂的回档。当然这些也可以自己开发一些功能去防止，但是增加了开发成本。</p>
-<h2 id="不丢失数据的持久化队列的实现"><a href="#不丢失数据的持久化队列的实现" class="headerlink" title="不丢失数据的持久化队列的实现"></a>不丢失数据的持久化队列的实现</h2><p>上面说过Redis具有把数据写入到硬盘的功能，而且支持多种数据结构。那么就可以利用Redis的list实现持久化队列，而且当机器出现故障时，不会出现队列中数据丢失的情况，重启之后，数据会自动加载到redis的list之中。<br>具体实现方法：<br>    （1）在Redis中构造一个list存储<br>    （2）一个线程使用Redis的lpush方法，向list的左边加入数据<br>    （3）另外一个线程使用Redis的rpop方法，从list取出数据进行处理，并且从list中删除了取出的数据。这样就实现了一个简单的生产者–消费者模式的队列。</p>
-<h2 id="对并发操作的控制（跨房间）"><a href="#对并发操作的控制（跨房间）" class="headerlink" title="对并发操作的控制（跨房间）"></a>对并发操作的控制（跨房间）</h2><p>一般来说，我们操作一个数据的流程是这样的，取出–处理—存储，这样在单线程中操作是没有任务问题的，但是在多线程环境中就不适用了，我们必须考虑数据同步的问题，保证数据操作的原子性。如果在游戏中，对玩家战队的属性进行更新，一般在数据库中都会保存一个TeamInfo表，里面有玩家相应的属性，比如名字，等级，金币，钻石等等。在memcache中保存一个TeamInfo对象，这时玩家获得金币，我们就需要取出玩家所有的属性，然后set金币，完成后再存储整个对象。这个时候就得考虑数据的同步了，如果在操作的时候，另外一个线程B修改了钻石，并完成了存储，而这个时候我把金币修改完成之后，再存储，这时，就出现了数据混乱的结果。考虑数据同步无非也是加锁或乐观同步。不但增加了代码量，还增加了维护的难度。而在Redis中，它支持对hash数据结构的操作。我们可以把玩家的对象按每个字段存储到redis的hash中。</p>
-<p>结构如下图：<br>当我需要更新金币时，比如增加或减少，我可以使用Redis自带的原子操作方法：hincrby(String key,String field,int value)进行操作，value是正为加，是负为减，这样就简化和避免了一些并发操作，而且这个操做还减少了对数据的操作步骤，因为没有取出，再操作的过程了，只有一次写入。而且在游戏中很少一次更新非常多的字段，如果有这样的情况，下面的方法可以解决</p>
-<h2 id="对事务的支持"><a href="#对事务的支持" class="headerlink" title="对事务的支持"></a>对事务的支持</h2><p>redis提供了一个事务操作的机制，MULTI 命令用于开启一个事务，它总是返回 OK 。<br>MULTI 执行之后， 客户端可以继续向服务器发送任意多条命令， 这些命令不会立即被执行， 而是被放到一个队列中， 当 EXEC 命令被调用时， 所有队列中的命令才会被执行。<br>另一方面， 通过调用 DISCARD ， 客户端可以清空事务队列， 并放弃执行事务。<br>以下是一个事务例子， 它原子地增加了 foo 和 bar 两个键的值：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; MULTI</span><br><span class="line">OK</span><br><span class="line">&gt; INCR foo</span><br><span class="line">QUEUED</span><br><span class="line">&gt; INCR bar</span><br><span class="line">QUEUED</span><br><span class="line">&gt; EXEC</span><br><span class="line">1) (integer) 1</span><br><span class="line">2) (integer) 1</span><br></pre></td></tr></table></figure>
-<p>EXEC 命令的回复是一个数组， 数组中的每个元素都是执行事务中的命令所产生的回复。 其中， 回复元素的先后顺序和命令发送的先后顺序一致。当客户端处于事务状态时， 所有传入的命令都会返回一个内容为 QUEUED 的状态回复（status reply）， 这些被入队的命令将在 EXEC命令被调用时执行。从 Redis 2.6.5 开始，服务器会对命令入队失败的情况进行记录，并在客户端调用 EXEC 命令时，拒绝执行并自动放弃这个事务。</p>
-<h2 id="提供外部的CAS行为，实现乐观锁机制"><a href="#提供外部的CAS行为，实现乐观锁机制" class="headerlink" title="提供外部的CAS行为，实现乐观锁机制"></a>提供外部的CAS行为，实现乐观锁机制</h2><p>在游戏开发中，有时候需要我们自己在外部实现乐观锁机制，WATCH 命令可以为 Redis 事务提供 check-and-set （CAS）行为，被 WATCH 的键会被监视，并会发觉这些键是否被改动过了。 如果有至少一个被监视的键在 EXEC 执行之前被修改了， 那么整个事务都会被取消， EXEC 返回空多条批量回复（null multi-bulk reply）来表示事务已经失败。<br>举个例子， 假设我们需要原子性地为某个值进行增 1 操作（假设 INCR 不存在）。<br>首先我们可能会这样做：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">val &#x3D; GET mykey</span><br><span class="line">val &#x3D; val + 1</span><br><span class="line">SET mykey $val</span><br></pre></td></tr></table></figure>
-<p>上面的这个实现在只有一个客户端的时候可以执行得很好。 但是， 当多个客户端同时对同一个键进行这样的操作时， 就会产生竞争条件。<br>举个例子， 如果客户端 A 和 B 都读取了键原来的值， 比如 10 ， 那么两个客户端都会将键的值设为 11 ， 但正确的结果应该是 12 才对。<br>有了 WATCH ， 我们就可以轻松地解决这类问题了：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">WATCH mykey</span><br><span class="line">val &#x3D; GET mykey</span><br><span class="line">val &#x3D; val + 1</span><br><span class="line">MULTI</span><br><span class="line">SET mykey $val</span><br><span class="line">EXEC</span><br></pre></td></tr></table></figure>
-<p>使用上面的代码， 如果在 WATCH 执行之后， EXEC 执行之前， 有其他客户端修改了 mykey 的值， 那么当前客户端的事务就会失败。 程序需要做的， 就是不断重试这个操作， 直到没有发生碰撞为止。这种形式的锁被称作乐观锁， 它是一种非常强大的锁机制。 并且因为大多数情况下， 不同的客户端会访问不同的键， 碰撞的情况一般都很少， 所以通常并不需要进行重试。</p>
-<h2 id="缓存生命周期的控制"><a href="#缓存生命周期的控制" class="headerlink" title="缓存生命周期的控制"></a>缓存生命周期的控制</h2><p>在游戏服务器中，为了节省性能，我们没有必要把所有玩家的信息都缓存到内存中。比如有一些不常登陆的玩家，那么他的信息就没必要一直呆在缓存中了，需要清除。Redis为这个功能提供了一个方法：expire，它可以为key设置以秒为单位的生命周期，比如设置为300s，那么五分钟之后，这条记录就会在内存中删除。这样不仅可以节省内存，而且增加了服务器的性能</p>
-<h2 id="排行榜"><a href="#排行榜" class="headerlink" title="排行榜"></a>排行榜</h2><p>游戏服务器中涉及到很多排行信息，比如玩家等级排名、金钱排名、战斗力排名等。<br>一般情况下仅需要取排名的前N名就可以了，这时可以利用数据库的排序功能，或者自己维护一个元素数量有限的top集合。<br>但是有时候我们需要每一个玩家的排名，玩家的数量太多，不能利用数据库（全表排序压力太大），自己维护也会比较麻烦。<br>使用Redis可以很好的解决这个问题。它提供的有序Set，支持每个键值（比如玩家id）拥有一个分数（score），每次往这个set里添加元素，<br>Redis会对其进行排序，修改某一元素的score后，也会更新排序，在获取数据时，可以指定排序范围。<br>更重要的是，这个排序结果会被保存起来，不用在服务器启动时重新计算。<br>通过它，排行榜的实时刷新、全服排行都不再成为麻烦事。</p>
-<h2 id="邮件"><a href="#邮件" class="headerlink" title="邮件"></a>邮件</h2>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/22/redis%E5%9C%A8%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/" data-id="cklltjbpf002vqcnk4gcdc61u" data-title="redis在游戏开发中的应用" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/22/mysql%EF%BC%9A%E5%A4%87%E4%BB%BD%E3%80%81%E5%A4%8D%E5%88%B6/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          mysql：备份、复制
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/22/redis%EF%BC%9A%E6%A8%A1%E5%BC%8F/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">redis：模式</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}

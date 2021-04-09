@@ -1,279 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>二叉树 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="前言之前写了一些链表和排序的blog，其中有说到多链表，堆，其中提到了一种特殊的数据结构：树。人们发明树结构，用于储存和搜索海量的数据。 树的种类无序树：树中任意节点的子结点之间没有顺序关系，这种树称为无序树,也称为自由树;有序树：树中任意节点的子结点之间有顺序关系，这种树称为有序树；二叉树：每个节点最多含有两个子树的树称为二叉树；完全二叉树：二叉树的所有子树要么没有孩子，要么一定有左孩子。堆是一">
-<meta property="og:type" content="article">
-<meta property="og:title" content="二叉树">
-<meta property="og:url" content="http://example.com/2021/02/21/%E4%BA%8C%E5%8F%89%E6%A0%91/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="前言之前写了一些链表和排序的blog，其中有说到多链表，堆，其中提到了一种特殊的数据结构：树。人们发明树结构，用于储存和搜索海量的数据。 树的种类无序树：树中任意节点的子结点之间没有顺序关系，这种树称为无序树,也称为自由树;有序树：树中任意节点的子结点之间有顺序关系，这种树称为有序树；二叉树：每个节点最多含有两个子树的树称为二叉树；完全二叉树：二叉树的所有子树要么没有孩子，要么一定有左孩子。堆是一">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-02-21T13:43:34.000Z">
-<meta property="article:modified_time" content="2021-02-26T04:49:36.259Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="algorithm">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-二叉树" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/21/%E4%BA%8C%E5%8F%89%E6%A0%91/" class="article-date">
-  <time class="dt-published" datetime="2021-02-21T13:43:34.000Z" itemprop="datePublished">2021-02-21</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      二叉树
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前写了一些链表和排序的blog，其中有说到多链表，堆，其中提到了一种特殊的数据结构：树。<br>人们发明树结构，用于储存和搜索海量的数据。</p>
-<h2 id="树的种类"><a href="#树的种类" class="headerlink" title="树的种类"></a>树的种类</h2><p>无序树：树中任意节点的子结点之间没有顺序关系，这种树称为无序树,也称为自由树;<br>有序树：树中任意节点的子结点之间有顺序关系，这种树称为有序树；<br>二叉树：每个节点最多含有两个子树的树称为二叉树；<br>完全二叉树：二叉树的所有子树要么没有孩子，要么一定有左孩子。堆是一种完全二叉树。<br>红黑树：红黑树是把树中的结点定义为红、黑两种颜色，并通过规则确保从根结点到叶结点的最长路径的长度不超过最短路径的两倍。在c++的STL中，set、multiset、map、multimap等数据结构都是基于红黑树实现的。<br>满二叉树：除最后一层无任何子节点外，每一层上的所有结点都有两个子结点（最后一层上的无子结点的结点为叶子结点）。<br>霍夫曼树：带权路径最短的二叉树称为哈夫曼树或最优二叉树；</p>
-<p>如果二叉树不是平衡的，那么它就退化为一个链表，而搜索时间也退化为一个线性函数。</p>
-<h2 id="树的深度"><a href="#树的深度" class="headerlink" title="树的深度"></a>树的深度</h2><p>定义一棵树的根结点层次为1，其他节点的层次是其父结点层次加1。一棵树中所有结点的层次的最大值称为这棵树的深度。</p>
-<h2 id="树的遍历"><a href="#树的遍历" class="headerlink" title="树的遍历"></a>树的遍历</h2><p>所谓遍历(Traversal)是指沿着某条搜索路线，依次对树中每个结点均做一次且仅做一次访问。访问结点所做的操作依赖于具体的应用问 题。 遍历是二叉树上最重要的运算之一，是二叉树上进行其它运算之基础。</p>
-<h2 id="遍历命名"><a href="#遍历命名" class="headerlink" title="遍历命名"></a>遍历命名</h2><p>根据访问结点操作发生位置命名：<br>① NLR：前序遍历(PreorderTraversal亦称（先序遍历））<br>——访问根结点的操作发生在遍历其左右子树之前。如10、6、4、8、14、12、16。<br>② LNR：中序遍历(InorderTraversal)<br>——访问根结点的操作发生在遍历其左右子树之中（间）。如4、6、8、10、12、14、16。<br>③ LRN：后序遍历(PostorderTraversal)<br>——访问根结点的操作发生在遍历其左右子树之后。如4、8、6、12、16、14、10。</p>
-<h2 id="中序遍历的投影法"><a href="#中序遍历的投影法" class="headerlink" title="中序遍历的投影法"></a>中序遍历的投影法</h2><h2 id="一般二叉树的定义"><a href="#一般二叉树的定义" class="headerlink" title="一般二叉树的定义"></a>一般二叉树的定义</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">BiTNode</span>&#123;</span></span><br><span class="line">    TElemType data;</span><br><span class="line">    BiTNode *lchild,*rchild;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="二叉树的遍历操作"><a href="#二叉树的遍历操作" class="headerlink" title="二叉树的遍历操作"></a>二叉树的遍历操作</h2><p>1．先序遍历（DLR）<br>先序遍历的递归过程为：若二叉树为空，遍历结束。否则，<br>（1） 访问根结点；<br>（2） 先序遍历根结点的左子树；<br>（3） 先序遍历根结点的右子树。</p>
-<p>先序遍历二叉树的递归算法如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PreOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*先序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) <span class="keyword">return</span>; <span class="comment">/*递归调用的结束条件*/</span></span><br><span class="line">      Visite(bt-&gt;data);     <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line">      PreOrder(bt-&gt;lchild); <span class="comment">/*先序递归遍历bt 的左子树*/</span></span><br><span class="line">      PreOrder(bt-&gt;rchild); <span class="comment">/*先序递归遍历bt 的右子树*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>2．中序遍历（LDR）<br>中序遍历的递归过程为：若二叉树为空，遍历结束。否则，<br>（1）中序遍历根结点的左子树；<br>（2）访问根结点；<br>（3）中序遍历根结点的右子树。</p>
-<p>中序遍历二叉树的递归算法如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">InOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*中序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) <span class="keyword">return</span>; <span class="comment">/*递归调用的结束条件*/</span></span><br><span class="line">     InOrder(bt-&gt;lchild); <span class="comment">/*中序递归遍历bt 的左子树*/</span></span><br><span class="line">     Visite(bt-&gt;data);     <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line">     InOrder(bt-&gt;rchild); <span class="comment">/*中序递归遍历bt 的右子树*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>3．后序遍历（LRD）<br>后序遍历的递归过程为：若二叉树为空，遍历结束。否则，<br>（1）后序遍历根结点的左子树；<br>（2）后序遍历根结点的右子树。<br>（3）访问根结点；</p>
-<p>后序遍历二叉树的递归算法如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PostOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*后序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) <span class="keyword">return</span>; <span class="comment">/*递归调用的结束条件*/</span></span><br><span class="line">     PostOrder(bt-&gt;lchild); <span class="comment">/*后序递归遍历bt 的左子树*/</span></span><br><span class="line">     PostOrder(bt-&gt;rchild); <span class="comment">/*后序递归遍历bt 的右子树*/</span></span><br><span class="line">     Visite(bt-&gt;data); <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>从表面上看，从代码中，遍历语句的位置可以看出是什么遍历。</p>
-<p>4．层次遍历（宽度优先遍历）<br>由层次遍历的定义可以推知，在进行层次遍历时，对一层结点访问完后，再按照它们的访问次序对各个结点的左孩子和右孩子顺序访问，这样一层一层进行，先遇到的结点先访问，这与队列的操作原则比较吻合。因此，在进行层次遍历时，可设置一个队列结构，遍历从二叉树的根结点开始，首先将根结点指针入队列，然后从对头取出一个元素，每取一个元素，执行下面两个操作：<br>（1） 访问该元素所指结点；<br>（2） 若该元素所指结点的左、右孩子结点非空，则将该元素所指结点的左孩子指针和右孩子指针顺序入队。<br>此过程不断进行，当队列为空时，二叉树的层次遍历结束。</p>
-<p>在下面的层次遍历算法中，二叉树以二叉链表存放，一维数组Queue[MAXNODE]用以实现队列，变量front 和rear 分别表示当前对首元素和队尾元素在数组中的位置。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">LevelOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*层次遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    BiTree Queue[MAXNODE];</span><br><span class="line">    <span class="keyword">int</span> front,rear;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) </span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    front=<span class="number">-1</span>;</span><br><span class="line">    rear=<span class="number">0</span>;</span><br><span class="line">    <span class="built_in">queue</span>[rear]=bt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(front!=rear)</span><br><span class="line">    &#123;</span><br><span class="line">        front++;</span><br><span class="line">        Visite(<span class="built_in">queue</span>[front]-&gt;data); <span class="comment">/*访问队首结点的数据域*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">queue</span>[front]-&gt;lchild!=<span class="literal">NULL</span>) <span class="comment">/*将队首结点的左孩子结点入队列*/</span></span><br><span class="line">        &#123; </span><br><span class="line">            rear++;</span><br><span class="line">            <span class="built_in">queue</span>[rear]=<span class="built_in">queue</span>[front]-&gt;lchild;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">queue</span>[front]-&gt;rchild!=<span class="literal">NULL</span>) <span class="comment">/*将队首结点的右孩子结点入队列*/</span></span><br><span class="line">        &#123; </span><br><span class="line">            rear++;</span><br><span class="line">            <span class="built_in">queue</span>[rear]=<span class="built_in">queue</span>[front]-&gt;rchild;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="二叉树遍历的非递归实现"><a href="#二叉树遍历的非递归实现" class="headerlink" title="二叉树遍历的非递归实现"></a>二叉树遍历的非递归实现</h2><p>从二叉树各种遍历来说，各种遍历都是从根结点开始的，且在遍历过程中经过结点的路线是一样的，只是访问的时机不同而已。这一路线都是从根结点开始沿左子树深入下去，当深入到最左端，无法再深入<br>下去时，则返回，再逐一进入刚才深入时遇到结点的右子树，再进行如此的深入和返回，直到最后从根结点的右子树返回到根结点为止。先序遍历是在深入时遇到结点就访问，中序遍历是在从左子树返回时遇到结点访问，后序遍历是在从右子树返回时遇到结点访问。</p>
-<p>这种路线可以用栈来实现。其实递归在本质上就是一个栈结构。</p>
-<p>在这一过程中，返回结点的顺序与深入结点的顺序相反，即后深入先返回，正好符合栈结构后进先出的点。因此，可以用栈来帮助实现这一遍历路线。其过程如下。在沿左子树深入时，深入一个结点入栈一个结点，若为先序遍历，则在入栈之前访问之；当沿左分支深入不下去时，则返回，即从堆栈中弹出前面压入的结点，若为中序遍历，则此时访问该结点，然后从该结点的右子树继续深入；若为后序遍历，则将此结点再次入栈，然后从该结点的右子树继续深入，与前面类同，仍为深入一个结点入栈一个结点，深入不下去再返回，直到第二次从栈里弹出该结点，才访问之。</p>
-<ol>
-<li><p>先序遍历的非递归实现<br>在下面算法中，二叉树以二叉链表存放，一维数组 stack[MAXNODE] 用以实现栈，变量top 用来表示当前栈顶的位置。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">NRPreOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*非递归先序遍历二叉树*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    BiTree <span class="built_in">stack</span>[MAXNODE],p;</span><br><span class="line">    <span class="keyword">int</span> top;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) </span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    top=<span class="number">0</span>;</span><br><span class="line">    p=bt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(!(p==<span class="literal">NULL</span>&amp;&amp;top==<span class="number">0</span>))</span><br><span class="line">    &#123; </span><br><span class="line">        <span class="keyword">while</span>(p!=<span class="literal">NULL</span>)</span><br><span class="line">        &#123; </span><br><span class="line">            Visite(p-&gt;data);   <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (top&lt;MAXNODE<span class="number">-1</span>) <span class="comment">/*将当前指针p 压栈*/</span></span><br><span class="line">            &#123; </span><br><span class="line">                <span class="built_in">stack</span>[top]=p;</span><br><span class="line">                top++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">            &#123; </span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;栈溢出&quot;</span>)；</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            p=p-&gt;lchild; <span class="comment">/*指针指向p 的左孩子*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (top&lt;=<span class="number">0</span>) </span><br><span class="line">            <span class="keyword">return</span>; <span class="comment">/*栈空时结束*/</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123; </span><br><span class="line">            top--;</span><br><span class="line">            p=<span class="built_in">stack</span>[top]; <span class="comment">/*从栈中弹出栈顶元素*/</span></span><br><span class="line">            p=p-&gt;rchild; <span class="comment">/*指针指向p 的右孩子结点*/</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>中序遍历的非递归实现<br>中序遍历的非递归算法的实现，只需将先序遍历的非递归算法中的 Visite(p-&gt;data) 移到 p=stack[top] 和 p=p-&gt;rchild 之间即可。</p>
-</li>
-<li><p>后序遍历的非递归实现<br>由前面的讨论可知，后序遍历与先序遍历和中序遍历不同，在后序遍历过程中，结点在第一次出栈后，还需再次入栈，也就是说，结点要入两次栈，出两次栈，而访问结点是在第二次出栈时访问。因此，为了区别同一个结点指针的两次出栈，设置一标志flag，令：<br>flag = 1 -&gt; 第一次出栈，结点不能访问<br>flag = 2 -&gt; 第二次出栈，结点可以访问<br>当结点指针进、出栈时，其标志flag 也同时进、出栈。因此，可将栈中元素的数据类型定义为指针和标志flag 合并的结构体类型。定义如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    BiTree link;</span><br><span class="line">    <span class="keyword">int</span> flag;</span><br><span class="line">&#125; stacktype;</span><br></pre></td></tr></table></figure>
-<p>后序遍历二叉树的非递归算法如下。在算法中，一维数组 stack[MAXNODE] 用于实现栈的结构，指针变量p 指向当前要处理的结点，整型变量top 用来表示当前栈顶的位置，整型变量 sign 为结点 p 的标志量。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">NRPostOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*非递归后序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    stacktype <span class="built_in">stack</span>[MAXNODE];</span><br><span class="line">    BiTree p;</span><br><span class="line">    <span class="keyword">int</span> top,sign;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) </span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    top=<span class="number">-1</span>   <span class="comment">/*栈顶位置初始化*/</span></span><br><span class="line">    p=bt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (!(p==<span class="literal">NULL</span> &amp;&amp; top==<span class="number">-1</span>))</span><br><span class="line">    &#123; </span><br><span class="line">        <span class="keyword">if</span> (p!=<span class="literal">NULL</span>)    <span class="comment">/*结点第一次进栈*/</span></span><br><span class="line">        &#123; </span><br><span class="line">            top++;</span><br><span class="line">            <span class="built_in">stack</span>[top].link=p;</span><br><span class="line">            <span class="built_in">stack</span>[top].flag=<span class="number">1</span>;</span><br><span class="line">            p=p-&gt;lchild;   <span class="comment">/*找该结点的左孩子*/</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> </span><br><span class="line">        &#123; </span><br><span class="line">            p=<span class="built_in">stack</span>[top].link;</span><br><span class="line">            sign=<span class="built_in">stack</span>[top].flag;</span><br><span class="line">            top--;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (sign==<span class="number">1</span>)   <span class="comment">/*结点第二次进栈*/</span></span><br><span class="line">            &#123;</span><br><span class="line">                top++;</span><br><span class="line">                <span class="built_in">stack</span>[top].link=p;</span><br><span class="line">                <span class="built_in">stack</span>[top].flag=<span class="number">2</span>;   <span class="comment">/*标记第二次出栈*/</span></span><br><span class="line">                p=p-&gt;rchild;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">            &#123; </span><br><span class="line">                Visite(p-&gt;data);   <span class="comment">/*访问该结点数据域值*/</span></span><br><span class="line">                p=<span class="literal">NULL</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/21/%E4%BA%8C%E5%8F%89%E6%A0%91/" data-id="cklltjbpx004aqcnk6bio1v9r" data-title="二叉树" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/21/%E7%BA%A2%E9%BB%91%E6%A0%91/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          红黑树
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/19/%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">快速排序</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}

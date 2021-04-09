@@ -1,266 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>STL源码分析：Containers | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="STL容器分两种：序列式容器，关联式容器。上图以内缩方式来表达基层与衍生层的关系。heap内含一个vector，priority-queue内含一个heap、stack和queue都含一个deque，set&#x2F;map&#x2F;multiset&#x2F;multimap都内含一个RB-tree，hash_x都内含一个hastable。 序列式容器所谓序列式容器，其中的元素都可序(ordered)，但未必有序(sort">
-<meta property="og:type" content="article">
-<meta property="og:title" content="STL源码分析：Containers">
-<meta property="og:url" content="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="STL容器分两种：序列式容器，关联式容器。上图以内缩方式来表达基层与衍生层的关系。heap内含一个vector，priority-queue内含一个heap、stack和queue都含一个deque，set&#x2F;map&#x2F;multiset&#x2F;multimap都内含一个RB-tree，hash_x都内含一个hastable。 序列式容器所谓序列式容器，其中的元素都可序(ordered)，但未必有序(sort">
-<meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/109159391-83d9c000-77af-11eb-9e56-9ddb4852a996.png">
-<meta property="article:published_time" content="2021-02-25T12:24:49.000Z">
-<meta property="article:modified_time" content="2021-02-26T04:49:31.026Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="cpp">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/109159391-83d9c000-77af-11eb-9e56-9ddb4852a996.png">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-STL源码分析：Containers" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/" class="article-date">
-  <time class="dt-published" datetime="2021-02-25T12:24:49.000Z" itemprop="datePublished">2021-02-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      STL源码分析：Containers
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>STL容器分两种：序列式容器，关联式容器。<br><img src="https://user-images.githubusercontent.com/11263320/109159391-83d9c000-77af-11eb-9e56-9ddb4852a996.png" alt="20180320143955869"><br>上图以内缩方式来表达基层与衍生层的关系。<br>heap内含一个vector，priority-queue内含一个heap、stack和queue都含一个deque，set/map/multiset/multimap都内含一个RB-tree，hash_x都内含一个hastable。</p>
-<h2 id="序列式容器"><a href="#序列式容器" class="headerlink" title="序列式容器"></a>序列式容器</h2><p>所谓序列式容器，其中的元素都可序(ordered)，但未必有序(sorted)。C++语言本身提供了一个序列式容器array。STL另外再提供 上列呈现的序列式容器。</p>
-<h3 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h3><p>vector的数据安排以及操作方式与array非常相似。两者唯一差别在于空间的运用的灵活性上。array是静态空间，设定要先定义空间。vector是动态空间，它的内部机制会自行扩充空间以容纳新元素。vector人运用对于内存的合理利用与运用的灵活性有很大的帮助。<br>vector的实现技术，关键在于其对大小的控制以及重新配置时的数据移动效率。这里具体要看空间配置的策略。<br>vector的数据结构：线性连续空间。它以两个迭代器start和finish分别指向配置得来的连续空间中目前已被使用的范围，并以迭代器end_of_storage指向整块连续空间（含备用空间）的尾端。为了降低空间配置时的速度成本，vector实际配置的大小可能比客户端需求量更大一些，以备将来可能的扩充。这便是容量（capacity）的观念。<br>vector的迭代器：因为普通指针就可以满足vector的所有必要条件，而vector支持随机存取，所以vector提供的是Random Access Iterators。</p>
-<h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>list的好处是每次插入或删除一个元素，就配置或释放一个元素空间。list对于空间的运用有绝对的精准，一点也不浪费。而且对于任何位置的元素插入或无素移除，list永远是常数时间。<br>list和vector的选择最多视所元素的多寡、元素的构造复杂度、元素存取行为的特性而定。<br>list的数据结构：从list的节点结构看，STL中的list是个双向链表。<br>list的迭代器：所其操作上看，其迭代器是Bidirectional Itertors。</p>
-<h3 id="deque"><a href="#deque" class="headerlink" title="deque"></a>deque</h3><p>vector是单向开口的连续线性空间，deque则是一种双向开口的连续线性空间。<br>deque没有容量观念。不像vector那样“因旧空间不足而重新配置一块更大空间，然后复制元素，再释放旧空间”。<br>deque的数据结构：array无法成长，vector虽可成长，却只能向尾端成长，而且是个假象。deque采用一块“map”作缓冲区，利用这个map成长。<br>deque的迭代器：和vector相似，是Random Access Iterators。</p>
-<h3 id="stack与queue"><a href="#stack与queue" class="headerlink" title="stack与queue"></a>stack与queue</h3><p>这两种都没有迭代器，数据结构是用deque实现的（其实用list也可以）。</p>
-<h3 id="heap"><a href="#heap" class="headerlink" title="heap"></a>heap</h3><p>heap不归属于stl容器组件，它是priority queue的助手。priority queue允许用户以任何次序将任何元素推入容器内，但取出时一定是从优先权最高（也就是数值最高）的元素开始取。binary max heap正是具有这样的特性，适合作为priority queue的底层机制。<br>heap底部容器：以vector表现的完全二叉树。<br>实现算法：最大堆。</p>
-<p>priority_queue<br>priority_queue是一个拥有权值观念的queue。<br>priority_queue没有迭代器。</p>
-<h3 id="slist"><a href="#slist" class="headerlink" title="slist"></a>slist</h3><p>这是个单向链表，所以迭代器变为Forward Iterator。</p>
-<h2 id="关联式容器"><a href="#关联式容器" class="headerlink" title="关联式容器"></a>关联式容器</h2><p>标准的STL关联式容器分为set（集合）和map（映射表）两大类，以及这两大类的衍生体mutiset（多键集合）和multimap（多键映射表）。这些容器的底层机制均以RB-tree（红黑树）完成。RB-tree也是一个独立容器，但并不开放给外界使用。<br>此外，STL还提供了一个关联式容器：hash_table（散列表），以及以此为底层机制而完成的hash_set（散列集合）、hash_map（散列映射表）、hash_multiset（散列多键集合）、hash_multimap（散列多键映射表）。</p>
-<p>所谓关联式容器，观念上类似关联式数据库（key-value）。当元素被插入到关联式容器中时，容器内部结构（可能是RB-tree，也可能是hash-table）便依照其键值大小，以某种特定规则将这个元素放置于适当位置。<br>关联式容器没有所谓头尾（只有最大元素与最小元素）。<br>一般而言，关联式容器的内部结构是一个balanced binary tree，以便获得良好的搜寻效率。</p>
-<h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>set的特性是所有元素都会根据元素的键值自动被排序。set元素的键值就是实值，实值就是健值。set不允许两个元素有相同的键值。</p>
-<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p>map的特性是，所有元素都会根据元素的键值自动被排序。map的所有元素都是pair。</p>
-<h3 id="multiset与multimap"><a href="#multiset与multimap" class="headerlink" title="multiset与multimap"></a>multiset与multimap</h3><p>特性以及用法和各自兄弟(set，map)完全相同，唯一的差别在于它们允许键值重复。</p>
-<h3 id="hashtable"><a href="#hashtable" class="headerlink" title="hashtable"></a>hashtable</h3><p>二叉搜索树表现的构造在一个假设上：输入数据有足够的随机性。而hash_table（散列表）的数据结构的操作表现是以统计为基础，不需仰赖输入元素的随机性。<br>hash_set、hash_map、hash_multiset、hash_multimap<br>都是以hash_table为底层机制。但其实元素不能自动排序。</p>
-<h2 id="Hash与Map的区别"><a href="#Hash与Map的区别" class="headerlink" title="Hash与Map的区别"></a>Hash与Map的区别</h2><p>权衡三个因素: 查找速度, 数据量, 内存使用，可扩展性，有序性。<br>总体来说，hash查找速度会比RB树快，而且查找速度基本和数据量大小无关，属于常数级别;而RB树的查找速度是log(n)级别。并不一定常数就比log(n) 小，hash还有hash函数的耗时，明白了吧，如果你考虑效率，特别是在元素达到一定数量级时，考虑考虑hash。但若你对内存使用特别严格， 希望程序尽可能少消耗内存，那么一定要小心，hash可能会让你陷入尴尬，特别是当你的hash对象特别多时，你就更无法控制了，而且 hash的构造速度较慢。</p>
-<p>红黑树并不适应所有应用树的领域。如果数据基本上是静态的，那么让他们待在他们能够插入，并且不影响平衡的地方会具有更好的性能。如果数据完全是静态的，例如，做一个哈希表，性能可能会更好一些。<br>在实际的系统中，例如，需要使用动态规则的防火墙系统，使用红黑树而不是散列表被实践证明具有更好的伸缩性。Linux内核在管理vm_area_struct时就是采用了红黑树来维护内存块的。<br>红黑树是有序的，Hash是无序的，根据需求来选择。</p>
-<p>拿红黑树实现的Map和Hash实现的HashMap相比：<br>如果只需要判断Map中某个值是否存在之类的操作，当然是Hash实现的要更加高效。<br>如果是需要将两个Map求并集交集差集等大量比较操作，就是红黑树实现的Map更加高效。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/" data-id="cklltjboj000iqcnk7xtjg3zz" data-title="STL源码分析：Containers" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          STL源码分析：Algorithms
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">STL源码分析：Iterators</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}

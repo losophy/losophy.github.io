@@ -1,261 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  
-  
-  <title>红黑树 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="红黑树（Red Black Tree） 是一种自平衡二叉查找树，是在计算机科学中用到的一种数据结构，典型的用途是实现关联数组。红黑树和AVL树类似，都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡，从而获得较高的查找性能。它虽然是复杂的，但它的最坏情况运行时间也是非常良好的，并且在实践中是高效的： 它可以在O(log n)时间内做查找，插入和删除，这里的n 是树中元素的数目。 先看一颗典">
-<meta property="og:type" content="article">
-<meta property="og:title" content="红黑树">
-<meta property="og:url" content="http://example.com/2021/02/21/%E7%BA%A2%E9%BB%91%E6%A0%91/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="红黑树（Red Black Tree） 是一种自平衡二叉查找树，是在计算机科学中用到的一种数据结构，典型的用途是实现关联数组。红黑树和AVL树类似，都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡，从而获得较高的查找性能。它虽然是复杂的，但它的最坏情况运行时间也是非常良好的，并且在实践中是高效的： 它可以在O(log n)时间内做查找，插入和删除，这里的n 是树中元素的数目。 先看一颗典">
-<meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/108627363-1b799e80-7490-11eb-96d6-ce51723b9a49.png">
-<meta property="article:published_time" content="2021-02-21T13:59:54.000Z">
-<meta property="article:modified_time" content="2021-02-26T04:49:36.259Z">
-<meta property="article:author" content="John Doe">
-<meta property="article:tag" content="algorithm">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/108627363-1b799e80-7490-11eb-96d6-ce51723b9a49.png">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
-
-  
-  
-<link rel="stylesheet" href="/css/style.css">
-
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-<meta name="generator" content="Hexo 5.3.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-红黑树" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/02/21/%E7%BA%A2%E9%BB%91%E6%A0%91/" class="article-date">
-  <time class="dt-published" datetime="2021-02-21T13:59:54.000Z" itemprop="datePublished">2021-02-21</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      红黑树
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>红黑树（Red Black Tree） 是一种自平衡二叉查找树，是在计算机科学中用到的一种数据结构，典型的用途是实现关联数组。<br>红黑树和AVL树类似，都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡，从而获得较高的查找性能。<br>它虽然是复杂的，但它的最坏情况运行时间也是非常良好的，并且在实践中是高效的： 它可以在O(log n)时间内做查找，插入和删除，这里的n 是树中元素的数目。</p>
-<p>先看一颗典型的红黑树：<br><img src="https://user-images.githubusercontent.com/11263320/108627363-1b799e80-7490-11eb-96d6-ce51723b9a49.png" alt="1425134-20190312161431312-398656278"></p>
-<p>除了符合二叉查找树基本特性外，红黑树还具有下列性质：<br>1.每一个节点或者着成红色，或者着成黑色。<br>2.根是黑色的。<br>3.如果一个节点是红色的，那么它的子节点必须是黑色的。<br>4.从一个节点到一个NULL指针的每一条路径必须包含相同数目的黑色节点。<br>5.所有NULL结点称为叶子节点，且认为颜色为黑。</p>
-<p>正是因为这些规则限制，才保证了红黑树的自平衡。红黑树从根到叶子的最长路径不会超过最短路径的2倍。<br>当插入或删除节点的时候，红黑树的规则有可能被打破。这时候就需要做出一些调整，来继续维持我们的规则。</p>
-<p>调整有两种方法：变色和旋转。<br>而旋转又分成两种形式：左旋转和右旋转。<br>变色：为了重新符合红黑树的规则，尝试把红色节点变为黑色，或者把黑色节点变为红色。<br>左旋转：逆时针旋转红黑树的两个节点，使得父节点被自己的右孩子取代，而自己成为自己的左孩子。<br>右旋转：顺时针旋转红黑树的两个节点，使得父节点被自己的左孩子取代，而自己成为自己的右孩子。</p>
-<p>经历了如下步骤：<br>变色 -&gt; 左旋转 -&gt; 变色 -&gt; 右旋转 -&gt; 变色</p>
-<p>这里有几个问题：<br>为什么插入的节点着色为”红色”，而不是黑色呢？<br>因为每条路径必须包含相同的黑色节点，所以插入红色意味着我们需要处理的情况越少。<br>当然，如果树是NULL，根据根节点为黑色的原则，我们就必须播放黑色了。</p>
-<p>至于删除，参考插入就好了。</p>
-<p>红黑树结构：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">RBTColor</span>&#123;</span>RED, BLACK&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RBTNode</span>&#123;</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        RBTColor color;    <span class="comment">// 颜色</span></span><br><span class="line">        T key;            <span class="comment">// 关键字(键值)</span></span><br><span class="line">        RBTNode *left;    <span class="comment">// 左孩子</span></span><br><span class="line">        RBTNode *right;    <span class="comment">// 右孩子</span></span><br><span class="line">        RBTNode *parent; <span class="comment">// 父结点</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>左转c++实现：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * 对红黑树的节点(x)进行左旋转</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 左旋示意图(对节点x进行左旋)：</span></span><br><span class="line"><span class="comment"> *      px                              px</span></span><br><span class="line"><span class="comment"> *     /                               /</span></span><br><span class="line"><span class="comment"> *    x                               y                </span></span><br><span class="line"><span class="comment"> *   /  \      --(左旋)--&gt;           / \                #</span></span><br><span class="line"><span class="comment"> *  lx   y                          x  ry     </span></span><br><span class="line"><span class="comment"> *     /   \                       /  \</span></span><br><span class="line"><span class="comment"> *    ly   ry                     lx  ly  </span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="keyword">void</span> RBTree&lt;T&gt;::leftRotate(RBTNode&lt;T&gt;* &amp;root, RBTNode&lt;T&gt;* x)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 设置x的右孩子为y</span></span><br><span class="line">    RBTNode&lt;T&gt; *y = x-&gt;right;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “y的左孩子” 设为 “x的右孩子”；</span></span><br><span class="line">    <span class="comment">// 如果y的左孩子非空，将 “x” 设为 “y的左孩子的父亲”</span></span><br><span class="line">    x-&gt;right = y-&gt;left;</span><br><span class="line">    <span class="keyword">if</span> (y-&gt;left != <span class="literal">NULL</span>)</span><br><span class="line">        y-&gt;left-&gt;parent = x;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “x的父亲” 设为 “y的父亲”</span></span><br><span class="line">    y-&gt;parent = x-&gt;parent;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (x-&gt;parent == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        root = y;            <span class="comment">// 如果 “x的父亲” 是空节点，则将y设为根节点</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (x-&gt;parent-&gt;left == x)</span><br><span class="line">            x-&gt;parent-&gt;left = y;    <span class="comment">// 如果 x是它父节点的左孩子，则将y设为“x的父节点的左孩子”</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            x-&gt;parent-&gt;right = y;    <span class="comment">// 如果 x是它父节点的左孩子，则将y设为“x的父节点的左孩子”</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 将 “x” 设为 “y的左孩子”</span></span><br><span class="line">    y-&gt;left = x;</span><br><span class="line">    <span class="comment">// 将 “x的父节点” 设为 “y”</span></span><br><span class="line">    x-&gt;parent = y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>右转c++实现</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * 对红黑树的节点(y)进行右旋转</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 右旋示意图(对节点y进行左旋)：</span></span><br><span class="line"><span class="comment"> *            py                               py</span></span><br><span class="line"><span class="comment"> *           /                                /</span></span><br><span class="line"><span class="comment"> *          y                                x                  </span></span><br><span class="line"><span class="comment"> *         /  \      --(右旋)--&gt;            /  \                     #</span></span><br><span class="line"><span class="comment"> *        x   ry                           lx   y  </span></span><br><span class="line"><span class="comment"> *       / \                                   / \                   #</span></span><br><span class="line"><span class="comment"> *      lx  rx                                rx  ry</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="keyword">void</span> RBTree&lt;T&gt;::rightRotate(RBTNode&lt;T&gt;* &amp;root, RBTNode&lt;T&gt;* y)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 设置x是当前节点的左孩子。</span></span><br><span class="line">    RBTNode&lt;T&gt; *x = y-&gt;left;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “x的右孩子” 设为 “y的左孩子”；</span></span><br><span class="line">    <span class="comment">// 如果&quot;x的右孩子&quot;不为空的话，将 “y” 设为 “x的右孩子的父亲”</span></span><br><span class="line">    y-&gt;left = x-&gt;right;</span><br><span class="line">    <span class="keyword">if</span> (x-&gt;right != <span class="literal">NULL</span>)</span><br><span class="line">        x-&gt;right-&gt;parent = y;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “y的父亲” 设为 “x的父亲”</span></span><br><span class="line">    x-&gt;parent = y-&gt;parent;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (y-&gt;parent == <span class="literal">NULL</span>) </span><br><span class="line">    &#123;</span><br><span class="line">        root = x;            <span class="comment">// 如果 “y的父亲” 是空节点，则将x设为根节点</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (y == y-&gt;parent-&gt;right)</span><br><span class="line">            y-&gt;parent-&gt;right = x;    <span class="comment">// 如果 y是它父节点的右孩子，则将x设为“y的父节点的右孩子”</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            y-&gt;parent-&gt;left = x;    <span class="comment">// (y是它父节点的左孩子) 将x设为“x的父节点的左孩子”</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “y” 设为 “x的右孩子”</span></span><br><span class="line">    x-&gt;right = y;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将 “y的父节点” 设为 “x”</span></span><br><span class="line">    y-&gt;parent = x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2021/02/21/%E7%BA%A2%E9%BB%91%E6%A0%91/" data-id="cklltjbqe005eqcnk4t4i5d6y" data-title="红黑树" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2021/02/21/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          工厂模式
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2021/02/21/%E4%BA%8C%E5%8F%89%E6%A0%91/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">二叉树</div>
-    </a>
-  
-</nav>
-
-  
-</article>
+{% extends '_layout.swig' %}
+{% import '_macro/post.swig' as post_template %}
+{% import '_macro/sidebar.swig' as sidebar_template %}
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/algorithm/" rel="tag">algorithm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/assembly/" rel="tag">assembly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/" rel="tag">blog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-analytics/" rel="tag">data analytics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kbengine/" rel="tag">kbengine</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/" rel="tag">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/" rel="tag">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/" rel="tag">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skynet/" rel="tag">skynet</a></li></ul>
+{% block page_class %}page-post-detail{% endblock %}
+
+
+{% block content %}
+
+  <div id="posts" class="posts-expand">
+    {{ post_template.render(page) }}
+
+    <div class="post-spread">
+      {% if theme.jiathis %}
+        {% include '_partials/share/jiathis.swig' %}
+      {% elseif theme.baidushare %}
+        {% include '_partials/share/baidushare.swig' %}
+      {% elseif theme.add_this_id %}
+        {% include '_partials/share/add-this.swig' %}
+      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
+        {% include '_partials/share/duoshuo_share.swig' %}
+      {% endif %}
     </div>
   </div>
 
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/algorithm/" style="font-size: 13.75px;">algorithm</a> <a href="/tags/assembly/" style="font-size: 10px;">assembly</a> <a href="/tags/blog/" style="font-size: 12.5px;">blog</a> <a href="/tags/cpp/" style="font-size: 20px;">cpp</a> <a href="/tags/data-analytics/" style="font-size: 10px;">data analytics</a> <a href="/tags/git/" style="font-size: 12.5px;">git</a> <a href="/tags/kbengine/" style="font-size: 10px;">kbengine</a> <a href="/tags/linux/" style="font-size: 18.75px;">linux</a> <a href="/tags/lua/" style="font-size: 17.5px;">lua</a> <a href="/tags/mongodb/" style="font-size: 10px;">mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/python/" style="font-size: 11.25px;">python</a> <a href="/tags/redis/" style="font-size: 16.25px;">redis</a> <a href="/tags/skynet/" style="font-size: 17.5px;">skynet</a>
-    </div>
-  </div>
+{% block sidebar %}
+  {{ sidebar_template.render(true) }}
+{% endblock %}
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">网络游戏服务器开发注意事项</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">删除svn冲突</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">vscode+vps调试c程序</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/lua%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">lua的一些问题</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/28/gdb%E8%B0%83%E8%AF%95/">gdb调试</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
-
-
-
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+{% block script_extra %}
+  {% include '_scripts/pages/post-details.swig' %}
+{% endblock %}
