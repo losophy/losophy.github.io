@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="cpp," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -79,20 +79,17 @@
 
 
 
-<meta name="description" content="定义提供一种方法，使之能够依序巡访某个聚合物（容器）所含的各个元素，而又无需暴露该聚合物的内部表述方式。 智能指针迭代器是一种行为类似指针人对象。而指针的各种行为中最常见也最重要的便是内容提领(*)和成员访问(-&gt;)，迭代器最重要的编程工作就是对这两个操作进行重载工作。 Traits编程技法（STL源代码门钥）Traits就像一台“特性萃取机”，榨取各个迭代器的特性（相应型别）迭代器相应有以">
-<meta property="og:type" content="article">
-<meta property="og:title" content="STL源码分析：Iterators">
-<meta property="og:url" content="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/index.html">
+<meta name="description" content="关于你的描述……">
+<meta property="og:type" content="website">
+<meta property="og:title" content="关于我">
+<meta property="og:url" content="http://example.com/about/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="定义提供一种方法，使之能够依序巡访某个聚合物（容器）所含的各个元素，而又无需暴露该聚合物的内部表述方式。 智能指针迭代器是一种行为类似指针人对象。而指针的各种行为中最常见也最重要的便是内容提领(*)和成员访问(-&gt;)，迭代器最重要的编程工作就是对这两个操作进行重载工作。 Traits编程技法（STL源代码门钥）Traits就像一台“特性萃取机”，榨取各个迭代器的特性（相应型别）迭代器相应有以">
+<meta property="og:description" content="关于你的描述……">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/109153358-c8f9f400-77a7-11eb-9fc2-f553290702c7.png">
-<meta property="article:published_time" content="2021-02-25T12:14:01.000Z">
-<meta property="article:modified_time" content="2021-03-13T13:49:28.258Z">
+<meta property="article:published_time" content="2018-03-11T08:18:54.000Z">
+<meta property="article:modified_time" content="2021-04-10T12:40:11.038Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/109153358-c8f9f400-77a7-11eb-9fc2-f553290702c7.png">
 
 
 
@@ -122,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://example.com/2021/02/25/STL源码分析：Iterators/"/>
+  <link rel="canonical" href="http://example.com/about/"/>
 
 
 
 
 
-  <title>STL源码分析：Iterators | Hexo</title>
+  <title>关于我 | Hexo</title>
   
 
 
@@ -223,152 +220,34 @@
 
   <div id="posts" class="posts-expand">
     
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AIterators/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-
     
+    
+    <div class="post-block page">
       <header class="post-header">
 
-        
-        
-          <h1 class="post-title" itemprop="name headline">STL源码分析：Iterators</h1>
-        
+	<h1 class="post-title" itemprop="name headline">关于我</h1>
 
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-02-25T20:14:01+08:00">
-                2021-02-25
-              </time>
-            
 
-            
 
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+</header>
 
       
       
-
       
-        <h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>提供一种方法，使之能够依序巡访某个聚合物（容器）所含的各个元素，而又无需暴露该聚合物的内部表述方式。</p>
-<h2 id="智能指针"><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h2><p>迭代器是一种行为类似指针人对象。而指针的各种行为中最常见也最重要的便是内容提领(*)和成员访问(-&gt;)，迭代器最重要的编程工作就是对这两个操作进行重载工作。</p>
-<h2 id="Traits编程技法（STL源代码门钥）"><a href="#Traits编程技法（STL源代码门钥）" class="headerlink" title="Traits编程技法（STL源代码门钥）"></a>Traits编程技法（STL源代码门钥）</h2><p>Traits就像一台“特性萃取机”，榨取各个迭代器的特性（相应型别）<br><img src="https://user-images.githubusercontent.com/11263320/109153358-c8f9f400-77a7-11eb-9fc2-f553290702c7.png" alt="20180320140804433"><br>迭代器相应有以上↑这五种型别。如果你希望你所开发的容器能与stl兼容，一定要为你的容器迭代器定义这五种相应型别。<br>value type：迭代器所指对象的型别。<br>difference type：两个迭代器之间的距离。<br>reference type：引用<br>pointer type：指针</p>
-<p>iterator_category：这里就是移动特性与施行操作了。<br>也就是迭代器的五类：<br>Input Iterator<br>Output Iterator<br>Forward Iterator<br>Bidirectional Iterator<br>Random Access Iterator</p>
-<p>为了符合规范，任何迭代器都应该提供五个内嵌相应型别，以利于traits萃取。STL提供了一个iterators class，继承它，就可以保证符合stl所需之规范。</p>
+      <div class="post-body">
+        
+        
+          <p>关于你的描述……</p>
 
+        
+      </div>
+      
+      
       
     </div>
     
     
     
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/cpp/" rel="tag"># cpp</a>
-          
-        </div>
-      
-
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAllocator/" rel="next" title="STL源码分析：Allocator">
-                <i class="fa fa-chevron-left"></i> STL源码分析：Allocator
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/" rel="prev" title="STL源码分析：Containers">
-                STL源码分析：Containers <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-    </div>
   </div>
 
 
@@ -377,10 +256,6 @@
 
 
           
-
-  
-
-
 
         </div>
         
@@ -401,17 +276,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            Table of Contents
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            Overview
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -462,22 +328,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88"><span class="nav-number">2.</span> <span class="nav-text">智能指针</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Traits%E7%BC%96%E7%A8%8B%E6%8A%80%E6%B3%95%EF%BC%88STL%E6%BA%90%E4%BB%A3%E7%A0%81%E9%97%A8%E9%92%A5%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">Traits编程技法（STL源代码门钥）</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
