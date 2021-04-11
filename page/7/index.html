@@ -229,6 +229,132 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/mysql%EF%BC%9A%E5%A4%87%E4%BB%BD%E3%80%81%E5%A4%8D%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/22/mysql%EF%BC%9A%E5%A4%87%E4%BB%BD%E3%80%81%E5%A4%8D%E5%88%B6/" itemprop="url">mysql：备份、复制</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-02-22T11:07:10+08:00">
+                2021-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="备份"><a href="#备份" class="headerlink" title="备份"></a>备份</h2><p>将指定数据库备份到某dump文件（转储文件）中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -uroot -p123 test &gt; test.dump</span><br></pre></td></tr></table></figure>
+<p>从备份文件恢复数据库：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -uroot -p123 test &lt; test.dump</span><br></pre></td></tr></table></figure>
+<h2 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h2><p>mysql支持两种复制方式：基于行的复制和基于语句的复制。基于语句的复制（也称为逻辑复制）。这两种方式都是通过在主库上记录二进制日志、在备库重放日志的方式来实现异步的数据复制。<br>这意味着，在同一时间点备库上的数据可能与主库存在不一致，并且无法保证主备之间的廷迟。一些大的语句可能导致备库产生几称、几分钟甚至几个小时的廷迟。<br>主库和备库使用不同的存储引擎（不推荐）</p>
+<p>基于行的复制不会受这个问题的影响。因为它记录的是数据的更改，而不是SQL语句。如果一条语句改变了一个myisam表和一个innodb表的某些行，然后主库上发生了一次死锁，innodb表的更新会被回滚，而myisam表的更新仍会被记录到日志中并在备库重放。<br>当使用基于语句的复制方式时，如果通过不确定的方式更改数据可能会导致主备不一致。</p>
+<h3 id="根据备份的方法不同可以将备份分为"><a href="#根据备份的方法不同可以将备份分为" class="headerlink" title="根据备份的方法不同可以将备份分为"></a>根据备份的方法不同可以将备份分为</h3><p>热备、冷备、温备。<br>热备是指数据库运行中直接备份，对正在运行的数据库操作没有任何的影响。<br>冷备非常简单，只需要备份mysql数据库的frm文件，共享表空间文件，独立表空间文件，重做日志文件，配置文件。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/redis%E5%9C%A8%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -762,132 +888,6 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BA%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/22/%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BA%89/" itemprop="url">游戏服务器语言之争</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-02-22T02:07:57+08:00">
-                2021-02-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>业界主要的是c/c++ + Python/lua模式做游戏服务器。c/c++做网络通讯数据传输，python/lua做业务逻辑。这样既保持了网络传输的效率(c++)，又提升开发效率(Python/lua)，同时也支持热更新。</p>
-<p>当然，也有其他服务器开发语言，erlang(页游公司用的多),node.js(少量游戏用的,还有一个node.js写的引擎叫pemolo)</p>
-<p>常见 MMORPG 服务器在技术层面的特性需求：<br>网络IO密集。高频率的视野同步消息（一般在 10-60Hz 之间），与玩家数量的关系是 O(n^2) 的复杂度，对于一些侧重国战等玩法的 MMORPG 尤其压力山大。通常都需要配合相关视野管理算法来减少消息发包数量，甚至需要配合架构做广播的负载分流。</p>
-<p>CPU密集。MMORPG 的玩法规则都需要服务器做权威性的计算，简单些的也需要大量怪物的 AI 和寻路计算，以及实时战斗的逻辑和技能运算等等；一些先进的 3D MMORPG 服务器甚至整合了物理引擎，来做碰撞检测和校验。</p>
-<p>实时性。此类游戏侧重实时战斗和交互体验，能容忍的响应延迟通常在 200ms 以内，即使可以通过客户端预演算进行缓和。考虑到网络延迟这个不能通过语言和架构来解决的要素，两次游戏逻辑更新发包的间隔最好控制在几十毫秒这一量级。（所以一些 GC 不太注重实时性的语言，可能会有潜在的负面体验影响）。</p>
-<p>稳定性和容灾。常 Crash 的服务器，轻则影响玩家体验，重则导致公司倒闭。</p>
-<p>开发效率。这个方面除了受语言特性本身影响，还需要考量其它要素，比如生态圈丰富程度（需要的功能可以容易找到稳定好用的库）、周边工具链完善程度、人员补充难易程度（是否是学校培训的主力语言、是否是领域比较主流的语言，或者是否足够简单好培训）、现有遗留人力和技术资源的价值等等。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/redis%E8%AE%BE%E7%BD%AE%E8%BF%87%E6%9C%9F%E6%96%B9%E5%BC%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1264,133 +1264,6 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/%E5%AE%9E%E4%BD%93Entity/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/22/%E5%AE%9E%E4%BD%93Entity/" itemprop="url">实体Entity</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-02-22T01:11:15+08:00">
-                2021-02-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>KBEngine是一款开源的MMOG游戏服务端引擎，使用C++编写，用Python脚本即可简单高效的完成任何游戏逻辑(支持热更新)。</p>
-<p>KBEngine底层架构被设计为多进程分布式动态负载均衡方案，理论上只需要不断扩展硬件就能够不断增加承载上限，单台机器的承载上限取决于游戏逻辑本身的复杂度。</p>
-<h2 id="基于实体entity的开发"><a href="#基于实体entity的开发" class="headerlink" title="基于实体entity的开发"></a>基于实体entity的开发</h2><p>Entity实体被定义为服务端最基本的对象，类似Python的基础对象object。我们的通讯(远程访问)是通过Entity上的方法申明；我们的数据存储(数据库持久化存储)也是通过Entity上的属性进行。我们可以大体的理解为，引擎端的开发是基于Entity实体的。</p>
-<h2 id="实体包含哪几部分"><a href="#实体包含哪几部分" class="headerlink" title="实体包含哪几部分"></a>实体包含哪几部分</h2><p>1、base部分：实体在Baseapp上的对象（或称为实现），这部分叫做base部分。<br>2、cell部分：实体在Cellapp上的对象（或称为实现），这部分叫做cell部分。<br>3、client部分：实体在客户端上的对象（或称为实现），这部分叫做client部分。一般在客户端上进行实现，不在服务端范围内；</p>
-<h2 id="特殊的Entity"><a href="#特殊的Entity" class="headerlink" title="特殊的Entity"></a>特殊的Entity</h2><p>有一个特殊的Entity实体–Proxy，它是Entity的子类，俗称代理类。它是连接客户端和服务端的通讯通道，但一个客户端只能拥有并控制一个Proxy，通过它可以把客户端的控制、交互传递给该实体的base和cell上。它只有在base上有而cell上没有。</p>
-<p>传统MMO架构（就是之前说的天龙、倩女类架构），一个进程维护多个场景，每个场景里多个玩家，额外的中心进程负责帮玩家从一个场景/进程切到另一个场景/进程。bigworld架构，如果剥离开其围绕切进程所做的一些外围设施，核心工作流程基本就能用这一段话描述。</p>
-<h2 id="EntityComponent"><a href="#EntityComponent" class="headerlink" title="EntityComponent"></a>EntityComponent</h2><p>现引擎已支持基于组件的开发，组件是attach到entity上的一个单元，可以在不同类型entity上进行重用，大大加强了引擎开发能力。</p>
-<p>如控制位置的组件Motion，该组件只对entity的位移做控制，如此一来Avatar、Monster等都可以attach该组件，而不用反复编写位移的代码。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/%E6%9F%A5%E7%9C%8Blinux%E7%9A%84%E6%83%85%E5%86%B5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1507,6 +1380,131 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/cmake/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/22/cmake/" itemprop="url">cmake</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-02-22T00:24:22+08:00">
+                2021-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>CMake是一个比make更高级的编译配置工具，它可以根据不同平台、不同的编译器，生成相应的Makefile或者vcproj项目。通过编写CMakeLists.txt，可以控制生成的Makefile，从而控制编译过程。CMake自动生成的Makefile不仅可以通过make命令构建项目生成目标文件，还支持安装（make install）、测试安装的程序是否能正确执行（make test，或者ctest）、生成当前平台的安装包（make package）、生成源码包（make package_source）、产生Dashboard显示数据并上传等高级功能，只要在CMakeLists.txt中简单配置，就可以完成很多复杂的功能，包括写测试用例。如果有嵌套目录，子目录下可以有自己的CMakeLists.txt。</p>
+<h3 id="外部编译"><a href="#外部编译" class="headerlink" title="外部编译"></a>外部编译</h3><p>外部编译，一个最大的好处是，对于原有的工程没<br>有任何影响，所有动作全部发生在编译目录。通过这一点，也足以说服我们全部采用外部编<br>译方式构建工程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">#确定cmake最低版本需求</span><br><span class="line">cmake_minimum_required(VERSION 3.0.0)</span><br><span class="line"></span><br><span class="line">#打印</span><br><span class="line">MESSAGE(STATUS &quot;This is install dir &quot; $&#123;CMAKE_INSTALL_PREFIX&#125;)</span><br><span class="line"></span><br><span class="line">#确定工程名</span><br><span class="line">#(这一行会引入两个变量XXX_BINARY_DIR (二进制文件保存路径)和 #XXX_SOURCE_DIR(源代码保存路径))</span><br><span class="line">project(XXX)</span><br><span class="line"></span><br><span class="line">#添加需要的库</span><br><span class="line">set(CMAKE_PREFIX_PATH $&#123;CMAKE_PREFIX_PATH&#125; &quot;&#x2F;usr&#x2F;local&#x2F;share&#x2F;OpenCV&quot;)</span><br><span class="line">find_package(OpenCV 3.2.0 REQUIRED)</span><br><span class="line"></span><br><span class="line">#添加需要的头文件</span><br><span class="line">include_directories(include)</span><br><span class="line">include_directories($&#123;OpenCV_INCLUDE_DIRS&#125;)</span><br><span class="line">include_directories(&#x2F;usr&#x2F;local&#x2F;cuda-8.0&#x2F;include&#x2F;)</span><br><span class="line"></span><br><span class="line">#确定编译语言</span><br><span class="line">#add_definitions(-std&#x3D;c++11)</span><br><span class="line">set(CMAKE_CXX_STANDARD 11)</span><br><span class="line"></span><br><span class="line">#设定变量</span><br><span class="line">ADD_DEFINITIONS( -DGPU -DCUDNN )</span><br><span class="line"></span><br><span class="line">#添加源代码</span><br><span class="line">aux_source_directory($&#123;CMAKE_CURRENT_LIST_DIR&#125;&#x2F;src src)</span><br><span class="line"></span><br><span class="line">#编译动态库并链接库文件</span><br><span class="line">link_directories($&#123;PROJECT_SOURCE_DIR&#125;)</span><br><span class="line">add_library(plate_recognition SHARED $&#123;SRC&#125;)</span><br><span class="line">target_link_libraries(plate_recognition $&#123;OpenCV_LIBS&#125;)</span><br><span class="line">target_link_libraries(plate_recognition -llianghao  -lpthread -lm -lstdc++)</span><br><span class="line"></span><br><span class="line">#生成可执行文件</span><br><span class="line">link_directories($&#123;PROJECT_SOURCE_DIR&#125;)</span><br><span class="line">add_executable(Test $&#123;SRC&#125;)</span><br><span class="line">target_link_libraries(Test $&#123;OpenCV_LIBS&#125;)</span><br><span class="line">target_link_libraries(Test -llianghao  -lpthread -lm -lstdc++)</span><br><span class="line"></span><br><span class="line">#make install</span><br><span class="line">SET(CMAKE_INSTALL_PREFIX $&#123;CMAKE_SOURCE_DIR&#125;)</span><br><span class="line"></span><br><span class="line">INSTALL(TARGETS myengine</span><br><span class="line">    DESTINATION ..&#x2F;assets&#x2F;bin&#x2F;</span><br><span class="line">   )</span><br></pre></td></tr></table></figure>
+<h3 id="项目删除"><a href="#项目删除" class="headerlink" title="项目删除"></a>项目删除</h3><p>CMake 默认不提供 uninstall 这个 target，想要的话，输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xargs rm &lt; install_manifest.txt</span><br></pre></td></tr></table></figure>
+<p>对于不修改配置的项目足够了，manifest.txt 是CMake 生成的安装文件列表。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -1557,7 +1555,7 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">108</span>
+                  <span class="site-state-item-count">101</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1570,7 +1568,7 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

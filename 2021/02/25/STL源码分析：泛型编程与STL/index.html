@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="定义抽象的concepts，并根据抽象的concepts来撰写算法与数据结构，是泛型编程的本质。 运用STL时的几个最重要的观念：1.所谓使用STL，就是去扩充它。2.STL的算法和容器是独立分离的。3.无须继承。4.抽象化并不意味效率低。 STL所实现的，是依据泛型思维架设起来的一个概念结构。这个以抽象概念为主体而非以实际类为主体的结构，形成了一个严谨的接口标准。在此接口下，任何组件都有最大的独">
+<meta name="description" content="泛型编程定义抽象的concepts，并根据抽象的concepts来撰写算法与数据结构，是泛型编程的本质。 运用STL时的几个最重要的观念 所谓使用STL，就是去扩充它。 STL的算法和容器是独立分离的。 无须继承。 抽象化并不意味效率低。  STL所实现的，是依据泛型思维架设起来的一个概念结构。这个以抽象概念为主体而非以实际类为主体的结构，形成了一个严谨的接口标准。在此接口下，任何组件都有最大的独">
 <meta property="og:type" content="article">
 <meta property="og:title" content="STL源码分析：泛型编程与STL">
 <meta property="og:url" content="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B%E4%B8%8ESTL/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="定义抽象的concepts，并根据抽象的concepts来撰写算法与数据结构，是泛型编程的本质。 运用STL时的几个最重要的观念：1.所谓使用STL，就是去扩充它。2.STL的算法和容器是独立分离的。3.无须继承。4.抽象化并不意味效率低。 STL所实现的，是依据泛型思维架设起来的一个概念结构。这个以抽象概念为主体而非以实际类为主体的结构，形成了一个严谨的接口标准。在此接口下，任何组件都有最大的独">
+<meta property="og:description" content="泛型编程定义抽象的concepts，并根据抽象的concepts来撰写算法与数据结构，是泛型编程的本质。 运用STL时的几个最重要的观念 所谓使用STL，就是去扩充它。 STL的算法和容器是独立分离的。 无须继承。 抽象化并不意味效率低。  STL所实现的，是依据泛型思维架设起来的一个概念结构。这个以抽象概念为主体而非以实际类为主体的结构，形成了一个严谨的接口标准。在此接口下，任何组件都有最大的独">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-02-25T11:50:26.000Z">
-<meta property="article:modified_time" content="2021-03-13T13:49:28.258Z">
+<meta property="article:modified_time" content="2021-04-11T09:35:09.887Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary">
@@ -300,15 +300,19 @@
       
 
       
-        <p>定义抽象的concepts，并根据抽象的concepts来撰写算法与数据结构，是泛型编程的本质。</p>
-<p>运用STL时的几个最重要的观念：<br>1.所谓使用STL，就是去扩充它。<br>2.STL的算法和容器是独立分离的。<br>3.无须继承。<br>4.抽象化并不意味效率低。</p>
+        <h2 id="泛型编程"><a href="#泛型编程" class="headerlink" title="泛型编程"></a>泛型编程</h2><p>定义抽象的concepts，并根据抽象的concepts来撰写算法与数据结构，是泛型编程的本质。</p>
+<h3 id="运用STL时的几个最重要的观念"><a href="#运用STL时的几个最重要的观念" class="headerlink" title="运用STL时的几个最重要的观念"></a>运用STL时的几个最重要的观念</h3><ol>
+<li>所谓使用STL，就是去扩充它。</li>
+<li>STL的算法和容器是独立分离的。</li>
+<li>无须继承。</li>
+<li>抽象化并不意味效率低。</li>
+</ol>
 <p>STL所实现的，是依据泛型思维架设起来的一个概念结构。这个以抽象概念为主体而非以实际类为主体的结构，形成了一个严谨的接口标准。在此接口下，任何组件都有最大的独立性，并以所谓迭代器胶合起来，或以所谓配接器互相配接，或以所谓仿函数动态选择某种策略。</p>
-<p>六大组件交互关系<br>Container通过Allocator取得数据储存空间，Algorithm通过Iterator存取Container内容，Functor可以协助Algorithm完成不同的策略变化，Adapter可以修饰或套接Functor。</p>
+<h3 id="六大组件交互关系"><a href="#六大组件交互关系" class="headerlink" title="六大组件交互关系"></a>六大组件交互关系</h3><p>Container通过Allocator取得数据储存空间，Algorithm通过Iterator存取Container内容，Functor可以协助Algorithm完成不同的策略变化，Adapter可以修饰或套接Functor。</p>
 <h2 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h2><p>Iterator可说是STL最重要的一个创新发明，它使”将算法与其相关数据结构的关系切割分离“一事变得可能。</p>
-<p>何为Concept？<br>如果Concept既非class，也非function或template，那么它是什么？有三种方式可以了解Concepts，这些方式一开始似乎大不相同，但是最后证明都是相通的。这三种方式有助于了解泛型 算法的一些重要观点。</p>
-<p>第一，Concept可以想象是一组型别条件。如果说型别Ｔ是Concept Ｃ的一个model，则Ｔ必 须满足Ｃ的所有条件。描述某个型别所必须具备的性质几乎是最容易具体指明Concept的方式了。<br>第二，Concept可以想成是型别的集合。举例来说，Concept input iterator可涵盖char<em>、int</em>、node* 等型别。如果型别Ｔ是Concept C 的model，意思便是说Ｔ隶属于Ｃ所代表的那个型别集合。由于集合中的所有型别都满足那一系列条件，其实是以不同的角度看待同一件事情。<br>第三，Concept可以想象成是一组合法程序。依次定义，那么像input iterator这样的Concept，其重要性在于find以及其他许多算法都会用到它。这个Concept自身包含iterator及那些算法共有的 性质。这种定义似乎比前两者更加抽象，但是却很重要，因为就某种意义来说，这是三中方法中 最实用的。这也是新的概念的发掘方法。是的，我们并非藉由写下一组需求条件来发掘和描述新 的概念，而是藉由定义特别的算法并研究模板参数如何运行于这些算法身上的过程来完成。我们 研究find，过程中导出了 input iterator。本书其他各种概念同样是肇因与算法。 </p>
-<p>Iterator是指针的概括物，它们是”用来指向其他对象“的一种对象。<br>Iterator对于泛型编程之所以重要，原因是它是算法与数据结构之间的接口。</p>
-<p>1、Input Iterator ：只允许作为输入，也就是只读（Read Only）<br>2、Output Iterator ：只允许作为输出，也就是只写（Write Only）<br>3、Forward Iterator ：允许读写，但只能做前向移动<br>4、Bidirectional Iterator ：允许读写，可以做双向移动<br>5、Random Access Iterator ：允许读写，可以任意移动，可作（P+N和P-N）、（P[n]）、（P1-P2）、（P1 &lt; P2）</p>
+<p>何为Concept？<br>如果Concept既非class，也非function或template，那么它是什么？有三种方式可以了解Concepts，这些方式一开始似乎大不相同，但是最后证明都是相通的。这三种方式有助于了解泛型算法的一些重要观点。</p>
+<p>第一，Concept可以想象是一组型别条件。如果说型别Ｔ是Concept Ｃ的一个model，则Ｔ必 须满足Ｃ的所有条件。描述某个型别所必须具备的性质几乎是最容易具体指明Concept的方式了。<br>第二，Concept可以想成是型别的集合。举例来说，Concept input iterator可涵盖char<em>、int</em>、node* 等型别。如果型别Ｔ是Concept C 的model，意思便是说Ｔ隶属于Ｃ所代表的那个型别集合。由于集合中的所有型别都满足那一系列条件，其实是以不同的角度看待同一件事情。<br>第三，Concept可以想象成是一组合法程序。依次定义，那么像input iterator这样的Concept，其重要性在于find以及其他许多算法都会用到它。这个Concept自身包含iterator及那些算法共有的性质。这种定义似乎比前两者更加抽象，但是却很重要，因为就某种意义来说，这是三中方法中最实用的。这也是新的概念的发掘方法。是的，我们并非藉由写下一组需求条件来发掘和描述新 的概念，而是藉由定义特别的算法并研究模板参数如何运行于这些算法身上的过程来完成。我们研究find，过程中导出了 input iterator。本书其他各种概念同样是肇因与算法。 </p>
+<p>Iterator是指针的概括物，它们是”用来指向其他对象“的一种对象。<br>Iterator对于泛型编程之所以重要，原因是它是算法与数据结构之间的接口。<br>1、Input Iterator ：只允许作为输入，也就是只读（Read Only）<br>2、Output Iterator ：只允许作为输出，也就是只写（Write Only）<br>3、Forward Iterator ：允许读写，但只能做前向移动<br>4、Bidirectional Iterator ：允许读写，可以做双向移动<br>5、Random Access Iterator ：允许读写，可以任意移动，可作（P+N和P-N）、（P[n]）、（P1-P2）、（P1 &lt; P2）</p>
 <h2 id="Function-objects"><a href="#Function-objects" class="headerlink" title="Function objects"></a>Function objects</h2><p>Function objects是非常一般化的概念，它们可以将任何种类的行为参数化。几乎任何算法都能以“将其行为的某一部分抽象化为function object”的方式来加以一般化。</p>
 <h2 id="Containers"><a href="#Containers" class="headerlink" title="Containers"></a>Containers</h2><p>STL预定义的所有container classes都是一种Forward Container，其中大多数甚至是Bidirectional Container。有一些像block之类的container classes，则属于Random Access Container。</p>
 <h2 id="Allocators"><a href="#Allocators" class="headerlink" title="Allocators"></a>Allocators</h2><p>很多containers以动态方式分配内存（但非全部如此，例如block就不是）。配置器，它代表一种特定内存模型，并提供一种抽象概念，以便将对内存的申请最终转变为对内存的直接调用。<br>STL提供了很多泛型容器，如vector，list和map。程序员在使用这些容器时只需关心何时往容器内塞对象，而不用关心如何管理内存，需要用多少内存，这些STL容器极大地方便了C++程序的编写。</p>
@@ -433,7 +437,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">108</span>
+                  <span class="site-state-item-count">101</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -446,7 +450,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -479,7 +483,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Iterator"><span class="nav-number">1.</span> <span class="nav-text">Iterator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Function-objects"><span class="nav-number">2.</span> <span class="nav-text">Function objects</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Containers"><span class="nav-number">3.</span> <span class="nav-text">Containers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Allocators"><span class="nav-number">4.</span> <span class="nav-text">Allocators</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Algorithms"><span class="nav-number">5.</span> <span class="nav-text">Algorithms</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Adapters"><span class="nav-number">6.</span> <span class="nav-text">Adapters</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">泛型编程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E7%94%A8STL%E6%97%B6%E7%9A%84%E5%87%A0%E4%B8%AA%E6%9C%80%E9%87%8D%E8%A6%81%E7%9A%84%E8%A7%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">运用STL时的几个最重要的观念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD%E5%A4%A7%E7%BB%84%E4%BB%B6%E4%BA%A4%E4%BA%92%E5%85%B3%E7%B3%BB"><span class="nav-number">1.2.</span> <span class="nav-text">六大组件交互关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iterator"><span class="nav-number">2.</span> <span class="nav-text">Iterator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Function-objects"><span class="nav-number">3.</span> <span class="nav-text">Function objects</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Containers"><span class="nav-number">4.</span> <span class="nav-text">Containers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Allocators"><span class="nav-number">5.</span> <span class="nav-text">Allocators</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Algorithms"><span class="nav-number">6.</span> <span class="nav-text">Algorithms</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Adapters"><span class="nav-number">7.</span> <span class="nav-text">Adapters</span></a></li></ol></div>
             
 
           </div>

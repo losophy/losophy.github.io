@@ -79,16 +79,16 @@
 
 
 
-<meta name="description" content="lua中可以通过修改元表元方法来实现面向对象。而table中的self相当于this。 lua中的table就是一种对象。首先，table与对象一样可以拥有状态。其次，table也与对象一样拥有一个独立于其值的标识（一个self）。最后，table与对象一样具有独立于创建者和创建地的生命周期。 123function Account:withdraw(v)    self.balance &#x3D; se">
+<meta name="description" content="lua中的table就是一种对象。lua中可以通过修改元表元方法来实现面向对象。 selftable中的self相当于this。首先，table与对象一样可以拥有状态。其次，table也与对象一样拥有一个独立于其值的标识（一个self）。最后，table与对象一样具有独立于创建者和创建地的生命周期。 123function Account:withdraw(v)    self.balance &#x3D;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="lua面向对象">
 <meta property="og:url" content="http://example.com/2021/02/23/lua%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="lua中可以通过修改元表元方法来实现面向对象。而table中的self相当于this。 lua中的table就是一种对象。首先，table与对象一样可以拥有状态。其次，table也与对象一样拥有一个独立于其值的标识（一个self）。最后，table与对象一样具有独立于创建者和创建地的生命周期。 123function Account:withdraw(v)    self.balance &#x3D; se">
+<meta property="og:description" content="lua中的table就是一种对象。lua中可以通过修改元表元方法来实现面向对象。 selftable中的self相当于this。首先，table与对象一样可以拥有状态。其次，table也与对象一样拥有一个独立于其值的标识（一个self）。最后，table与对象一样具有独立于创建者和创建地的生命周期。 123function Account:withdraw(v)    self.balance &#x3D;">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/108814689-36622500-75ee-11eb-88a6-31a5d5bec388.png">
 <meta property="article:published_time" content="2021-02-23T07:44:34.000Z">
-<meta property="article:modified_time" content="2021-03-13T13:49:30.147Z">
+<meta property="article:modified_time" content="2021-04-11T09:35:12.122Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="lua">
 <meta name="twitter:card" content="summary">
@@ -302,8 +302,8 @@
       
 
       
-        <p>lua中可以通过修改元表元方法来实现面向对象。<br>而table中的self相当于this。</p>
-<p>lua中的table就是一种对象。<br>首先，table与对象一样可以拥有状态。<br>其次，table也与对象一样拥有一个独立于其值的标识（一个self）。<br>最后，table与对象一样具有独立于创建者和创建地的生命周期。</p>
+        <p>lua中的table就是一种对象。<br>lua中可以通过修改<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/107">元表元方法</a>来实现面向对象。</p>
+<h2 id="self"><a href="#self" class="headerlink" title="self"></a>self</h2><p>table中的self相当于this。<br>首先，table与对象一样可以拥有状态。<br>其次，table也与对象一样拥有一个独立于其值的标识（一个self）。<br>最后，table与对象一样具有独立于创建者和创建地的生命周期。</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Account:withdraw</span><span class="params">(v)</span></span></span><br><span class="line">    <span class="built_in">self</span>.balance = <span class="built_in">self</span>.balance - v</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
 <p>lua只需使用冒号，则能隐藏self参数。</p>
 <h2 id="类"><a href="#类" class="headerlink" title="类"></a>类</h2><p>一个类就像是一个创建对象的模具。我们可以利用__index元方法构造继承。<br>当访问一个table中不存在的字段时，得到的结果为nil。这是对的，但并非完全正确。实际上，这些访问会促使解释器去查找一个叫__index的元方法。如果没有这个元方法，那么访问结果如前述的为nil。否则，就由这个元方法来提供最终结果。<br>在lua中，将__index元方法用于继承很普遍，__index还可以是一个table。</p>
@@ -315,9 +315,7 @@
 <p>mySpriteClass 实例创建</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> mySprite = MySpriteClass.new(xxx.png)</span><br></pre></td></tr></table></figure>
 <p><img src="https://user-images.githubusercontent.com/11263320/108814689-36622500-75ee-11eb-88a6-31a5d5bec388.png" alt="1425134-20190408154553314-1254158238"><br>classname.new()生成的instance包含一个class属性。class指向了类原型，并具有super,ctor,__cname和__ctype  4个属性<br>继承C++的类，new方法使用__create函数来创建实例<br>继承lua类，new方法使用{ }来创建实例。<br>继承Lua的类，new方法使用{ }来创建实例。</p>
-<h2 id="一些概念"><a href="#一些概念" class="headerlink" title="一些概念"></a>一些概念</h2><p>UserData(用户自定义类型)<br>意义：使用C语言编写的用于扩展Lua的新类型，方便使用脚本编写或者提高效率<br>userdata：提供了一块原始的内存区域，用于存储任何东西，在Lua中userdata没有任何预定义操作<br>生成:void *lua_newuserdata(L,size) 根据指定大小分配一块内存，并将userdata压入栈中，最后返回这个内存块的地址</p>
-<h2 id="元表和元方法"><a href="#元表和元方法" class="headerlink" title="元表和元方法"></a>元表和元方法</h2><p>在Lua中有一个元表，也就是上面说的metatable，我们可以通过元表来修改一个值得行为，使其在面对一个非预定义的操作时执行一个指定的操作。比如，现在有两个table类型的变量a和b，我们可以通过metatable定义如何计算表达式a+b<br>我们是使用getmetatable来获取一个table或userdata类型变量的元表，当创建新的table变量时，使用getmetatable去获得元表，将返回nil；同理，我们也可以使用setmetatable去设置一个table或userdata类型变量的元表<br>在table中，我可以重新定义的元方法有以下几个</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">__add</span>(a, b) <span class="comment">--加法</span></span><br><span class="line"><span class="built_in">__sub</span>(a, b) <span class="comment">--减法</span></span><br><span class="line"><span class="built_in">__mul</span>(a, b) <span class="comment">--乘法</span></span><br><span class="line"><span class="built_in">__div</span>(a, b) <span class="comment">--除法</span></span><br><span class="line"><span class="built_in">__mod</span>(a, b) <span class="comment">--取模</span></span><br><span class="line"><span class="built_in">__pow</span>(a, b) <span class="comment">--乘幂</span></span><br><span class="line"><span class="built_in">__unm</span>(a) <span class="comment">--相反数</span></span><br><span class="line"><span class="built_in">__concat</span>(a, b) <span class="comment">--连接</span></span><br><span class="line"><span class="built_in">__len</span>(a) <span class="comment">--长度</span></span><br><span class="line"><span class="built_in">__eq</span>(a, b) <span class="comment">--相等</span></span><br><span class="line"><span class="built_in">__lt</span>(a, b) <span class="comment">--小于</span></span><br><span class="line"><span class="built_in">__le</span>(a, b) <span class="comment">--小于等于</span></span><br><span class="line"><span class="built_in">__index</span>(a, b) <span class="comment">--索引查询</span></span><br><span class="line"><span class="built_in">__newindex</span>(a, b, c) <span class="comment">--索引更新（PS：不懂的话，后面会有讲）</span></span><br><span class="line"><span class="built_in">__call</span>(a, ...) <span class="comment">--执行方法调用</span></span><br><span class="line"><span class="built_in">__tostring</span>(a) <span class="comment">--字符串输出</span></span><br><span class="line"><span class="built_in">__metatable</span> <span class="comment">--保护元表</span></span><br></pre></td></tr></table></figure>
+
       
     </div>
     
@@ -347,8 +345,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2021/02/23/lua%E6%BA%90%E7%A0%81%E7%BB%93%E6%9E%84/" rel="next" title="lua源码结构">
-                <i class="fa fa-chevron-left"></i> lua源码结构
+              <a href="/2021/02/23/%E6%8A%8Alua%E6%96%87%E6%9C%AC%E6%96%87%E4%BB%B6%E2%80%9C%E7%BC%96%E8%AF%91%E2%80%9D%E6%88%90%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%9A%84%E6%96%87%E6%9C%AC/" rel="next" title="把lua文本文件“编译”成二进制的文本">
+                <i class="fa fa-chevron-left"></i> 把lua文本文件“编译”成二进制的文本
               </a>
             
           </div>
@@ -357,8 +355,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2021/02/23/lua%EF%BC%9A%E5%87%BD%E6%95%B0%E4%B8%8EClosure/" rel="prev" title="lua：函数与Closure">
-                lua：函数与Closure <i class="fa fa-chevron-right"></i>
+              <a href="/2021/02/23/lua%E5%87%BD%E6%95%B0%E4%B8%8E%E9%97%AD%E5%8C%85/" rel="prev" title="lua函数与闭包">
+                lua函数与闭包 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -436,7 +434,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">108</span>
+                  <span class="site-state-item-count">101</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -449,7 +447,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -482,7 +480,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB"><span class="nav-number">1.</span> <span class="nav-text">类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">一些概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%83%E8%A1%A8%E5%92%8C%E5%85%83%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">元表和元方法</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#self"><span class="nav-number">1.</span> <span class="nav-text">self</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB"><span class="nav-number">2.</span> <span class="nav-text">类</span></a></li></ol></div>
             
 
           </div>

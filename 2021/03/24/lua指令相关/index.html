@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="lua," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="指令的生成指令的生成，不管生成的是哪一种格式的指令，其最终的入口函数都是luaK_code函数 下面分析指令是如何生成的。前面提到过，词法、语法阶段的分析中，最后结果就是输出一个Proto结构体，因此这个结构体才是关键。首先，需要看分析阶段要用到的数据结构FuncState。 这个结构体用于在语法分析时保存解析函数之后相关的信息，根据其中的prev指针成员来串联起来。 1234567891011&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lua指令相关">
+<meta property="og:url" content="http://example.com/2021/03/24/lua%E6%8C%87%E4%BB%A4%E7%9B%B8%E5%85%B3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="指令的生成指令的生成，不管生成的是哪一种格式的指令，其最终的入口函数都是luaK_code函数 下面分析指令是如何生成的。前面提到过，词法、语法阶段的分析中，最后结果就是输出一个Proto结构体，因此这个结构体才是关键。首先，需要看分析阶段要用到的数据结构FuncState。 这个结构体用于在语法分析时保存解析函数之后相关的信息，根据其中的prev指针成员来串联起来。 1234567891011&#x2F;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/112278942-50128d00-8cbe-11eb-9451-5b321afab2e5.JPG">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/112280977-86510c00-8cc0-11eb-8039-eb3ff697b84d.JPG">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/112282047-b0ef9480-8cc1-11eb-8731-e7222d4bc6fc.JPG">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/112283272-efd21a00-8cc2-11eb-9e70-81d04f58279c.JPG">
+<meta property="article:published_time" content="2021-03-24T08:12:50.000Z">
+<meta property="article:modified_time" content="2021-04-11T09:35:09.871Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="lua">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/112278942-50128d00-8cbe-11eb-9451-5b321afab2e5.JPG">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2021/03/24/lua指令相关/"/>
+
+
+
+
+
+  <title>lua指令相关 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/24/lua%E6%8C%87%E4%BB%A4%E7%9B%B8%E5%85%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">lua指令相关</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-03-24T16:12:50+08:00">
+                2021-03-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="指令的生成"><a href="#指令的生成" class="headerlink" title="指令的生成"></a>指令的生成</h2><p>指令的生成，不管生成的是哪一种格式的指令，其最终的入口函数都是luaK_code函数</p>
+<p>下面分析指令是如何生成的。<br>前面提到过，词法、语法阶段的分析中，最后结果就是输出一个Proto结构体，因此这个结构体才是关键。<br>首先，需要看分析阶段要用到的数据结构FuncState。 这个结构体用于在语法分析时保存解析函数之后相关的信息，根据其中的prev指针成员来串联起来。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* state needed to generate code for a given function */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">FuncState</span> &#123;</span></span><br><span class="line">  Proto *f;  <span class="comment">/* current function header */</span></span><br><span class="line">  Table *h;  <span class="comment">/* table to find (and reuse) elements in `k&#x27; */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">FuncState</span> *<span class="title">prev</span>;</span>  <span class="comment">/* enclosing function */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">LexState</span> *<span class="title">ls</span>;</span>  <span class="comment">/* lexical state */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">lua_State</span> *<span class="title">L</span>;</span>  <span class="comment">/* copy of the Lua state */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">BlockCnt</span> *<span class="title">bl</span>;</span>  <span class="comment">/* chain of current blocks */</span></span><br><span class="line">  <span class="keyword">int</span> pc;  <span class="comment">/* next position to code (equivalent to `ncode&#x27;) */</span></span><br><span class="line">  ...</span><br><span class="line">&#125; FuncState;</span><br></pre></td></tr></table></figure>
+<p>比如，下面的代码中：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 最外层 FuncState fs1</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">a</span><span class="params">()</span></span> <span class="comment">--函数a的 FuncState fsa</span></span><br><span class="line">    <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">b</span><span class="params">()</span></span> <span class="comment">--函数b的 FuncState fsb</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>其实涉及3个FuncState指针， 一层一层嵌套包围，其中也fs1是fsa的父指针， fsa又是fsb的父指针<br><img src="https://user-images.githubusercontent.com/11263320/112278942-50128d00-8cbe-11eb-9451-5b321afab2e5.JPG" alt="捕获"></p>
+<p>而在FuncState结构体中，有一个成员Proto *f，它用来保存这个FuncState解析指令之后生成的指令，其中除了自己的，还包括内部嵌套的子函数。各个层次的Proto数据是逐层包含的，因此最外层的全局 FuncState结构体中的<br>Proto数组一定有这个全局结构中所有Proto 的信息，也就是解析完毕之后的指令信息。</p>
+<p>有了前面的分析，就很好理解luaY_parser这个函数了，它是分析阶段的唯一入口函数，这个函数的返回值就是Proto指针，而FuneState等数据结构仅是用于分析过程中的临时数据结构，它们最终都是为了解析代码生成指令到 Proto结构体服务的。</p>
+<h2 id="指令格式"><a href="#指令格式" class="headerlink" title="指令格式"></a>指令格式</h2><p><img src="https://user-images.githubusercontent.com/11263320/112280977-86510c00-8cc0-11eb-8039-eb3ff697b84d.JPG" alt="捕获"><br>首先看到的是，Lua的指令是 32位的，这里由低位到高位进行解释 。 首先解析最低6位的OpCode，称为操作数，紧跟着就是A , B, C参数。<br>不同操作数的指令格式不同，含义也不同。由于操作数是6位的，所以Lua最多支持2^6-1=63个指令。Lua代码中，将每个操作数及其对应的指令格式都在Iopcodes.h中的opcode枚举类型中定义。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** grep &quot;ORDER OP&quot; if you change these enums</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line"><span class="comment">/*----------------------------------------------------------------------</span></span><br><span class="line"><span class="comment">name		args	description</span></span><br><span class="line"><span class="comment">------------------------------------------------------------------------*/</span></span><br><span class="line">OP_MOVE,<span class="comment">/*	A B	R(A) := R(B)					*/</span></span><br><span class="line">OP_LOADK,<span class="comment">/*	A Bx	R(A) := Kst(Bx)					*/</span></span><br><span class="line">OP_LOADBOOL,<span class="comment">/*	A B C	R(A) := (Bool)B; if (C) pc++			*/</span></span><br><span class="line">OP_LOADNIL,<span class="comment">/*	A B	R(A) := ... := R(B) := nil			*/</span></span><br><span class="line">OP_GETUPVAL,<span class="comment">/*	A B	R(A) := UpValue[B]				*/</span></span><br><span class="line">...</span><br><span class="line">&#125; OpCode;</span><br></pre></td></tr></table></figure>
+<p>在这些格式中，有不同的取值方式。有不同格式参数的含义。<br><img src="https://user-images.githubusercontent.com/11263320/112282047-b0ef9480-8cc1-11eb-8731-e7222d4bc6fc.JPG" alt="捕获"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** size and position of opcode arguments.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_C		9</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_B		9</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_Bx		(SIZE_C + SIZE_B)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_A		8</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_OP		6</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> POS_OP		0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> POS_A		(POS_OP + SIZE_OP)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> POS_C		(POS_A + SIZE_A)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> POS_B		(POS_C + SIZE_C)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> POS_Bx		POS_C</span></span><br></pre></td></tr></table></figure>
+<p>有了这些，指令的参数获取、设置相关的宏就很好理解了，其核心就是根据前面格式中定义的大小对相关参数进行读、写操作：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GET_OPCODE(i)	(cast(OpCode, ((i)&gt;&gt;POS_OP) &amp; MASK1(SIZE_OP,0)))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SET_OPCODE(i,o)	((i) = (((i)&amp;MASK0(SIZE_OP,POS_OP)) | \</span></span><br><span class="line">		((cast(Instruction, o)&lt;&lt;POS_OP)&amp;MASK1(SIZE_OP,POS_OP))))</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GETARG_A(i)	(cast(int, ((i)&gt;&gt;POS_A) &amp; MASK1(SIZE_A,0)))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SETARG_A(i,u)	((i) = (((i)&amp;MASK0(SIZE_A,POS_A)) | \</span></span><br><span class="line">		((cast(Instruction, u)&lt;&lt;POS_A)&amp;MASK1(SIZE_A,POS_A))))</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GETARG_B(i)	(cast(int, ((i)&gt;&gt;POS_B) &amp; MASK1(SIZE_B,0)))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SETARG_B(i,b)	((i) = (((i)&amp;MASK0(SIZE_B,POS_B)) | \</span></span><br><span class="line">		((cast(Instruction, b)&lt;&lt;POS_B)&amp;MASK1(SIZE_B,POS_B))))</span><br></pre></td></tr></table></figure>
+<p>可是仅有注释里面写明的每个OpCode的格式还不够，因为这起不到程序上的约束和说明作用，于是使用数组来定义所有OpCode的一些说明信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> opmode(t,a,b,c,m) (((t)&lt;&lt;7) | ((a)&lt;&lt;6) | ((b)&lt;&lt;4) | ((c)&lt;&lt;2) | (m))</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> lu_byte luaP_opmodes[NUM_OPCODES] = &#123;</span><br><span class="line"><span class="comment">/*       T  A    B       C     mode		   opcode	*/</span></span><br><span class="line">  opmode(<span class="number">0</span>, <span class="number">1</span>, OpArgR, OpArgN, iABC) 		<span class="comment">/* OP_MOVE */</span></span><br><span class="line"> ,opmode(<span class="number">0</span>, <span class="number">1</span>, OpArgK, OpArgN, iABx)		<span class="comment">/* OP_LOADK */</span></span><br><span class="line"> ,opmode(<span class="number">0</span>, <span class="number">1</span>, OpArgU, OpArgU, iABC)		<span class="comment">/* OP_LOADBOOL */</span></span><br><span class="line"> ,opmode(<span class="number">0</span>, <span class="number">1</span>, OpArgR, OpArgN, iABC)		<span class="comment">/* OP_LOADNIL */</span></span><br><span class="line"> ,opmode(<span class="number">0</span>, <span class="number">1</span>, OpArgU, OpArgN, iABC)		<span class="comment">/* OP_GETUPVAL */</span></span><br></pre></td></tr></table></figure>
+<p>这里用一个宏opmode封装了每个OpCode的具体格式</p>
+<blockquote>
+<p>T： 表示这是不是一条逻辑测试相关的指令，这种指令可能会将pc指针自增1。<br>A： 表示这个指令会不会赋值给R(A)。<br>B/C:  B、E参数的格式。<br>mode：这个OpCode的格式。</p>
+</blockquote>
+<p>B、C参数的含义<br><img src="https://user-images.githubusercontent.com/11263320/112283272-efd21a00-8cc2-11eb-9e70-81d04f58279c.JPG" alt="捕获"><br>OpArgN表示这个参数没有使用，但是这里的意思并不是真的没有使用，只是没有作为R()或者以RK()宏的参数使用 。</p>
+<p>Lua共有3种指令格式： iABC、 iABx和iAsBx<br>Lua代码中提供了根据指令中的值得到相应数据的几个宏：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RA(i)	(base+GETARG_A(i))</span></span><br><span class="line"><span class="comment">/* to be used after possible stack reallocation */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgR, base+GETARG_B(i))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgR, base+GETARG_C(i))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RKB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgK, \</span></span><br><span class="line">	ISK(GETARG_B(i)) ? k+INDEXK(GETARG_B(i)) : base+GETARG_B(i))</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RKC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgK, \</span></span><br><span class="line">	ISK(GETARG_C(i)) ? k+INDEXK(GETARG_C(i)) : base+GETARG_C(i))</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> KBx(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgK, k+GETARG_Bx(i))</span></span><br></pre></td></tr></table></figure>
+<p>RA、RB、RC不必多做解释，前面讲解Lua指令执行时已经说过，其含义就是以参数为偏移量在函数棋中取数据。<br>RKB, RKC的意思有两层，第一层是这个指令格式只可能作用在OpCode的B、C参数上，不会作用在参数A上；第二层意思是这个数据除了从函数枝中获取之外，还有可能从常量数组（也就是K数组）中获取，关键在于宏ISK的判断</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE B</span></span><br></pre></td></tr></table></figure>
+<p>结合起来看，这个宏的含义就很简单了：判断这个数据的第八位是不是1，如果是，则认为应该从K数组中获取数据，否则就是从函数战寄存器中获取数据。<br>宏KBx也是自解释的，它不会从函数战中取数据了，直接从K数组（即常量数组）中获取数据。<br>这可以看到，从寄存器中取指令也就是在前面以 R开头的宏中，实际代码中会使用一个base再加上对应的地址，如</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RA(i)	(base+GETARG_A(i))</span></span><br></pre></td></tr></table></figure>
+<p>取其他参数的宏，如RB和RC等，也和这里的宏RA一样，都是基于base来获取的。 不难相象，base值保存的是函数椅基址</p>
+<h2 id="指令的执行"><a href="#指令的执行" class="headerlink" title="指令的执行"></a>指令的执行</h2><p>指令执行的入口函数是luaV_execute<br>这里的问题在于，第一步“准备执行环境”具体都做了些什么。不妨回忆一下，前面提到过虚拟机主要扮演的是CPU和内存的角色，CPU用来执行指令， 内存负责数据的存取读写。因此，虚拟机在执行指令之前的准备工作也差不多： 将内部的pc指针指向待执行的代码位置，准备好栈指针。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">luaV_execute</span> <span class="params">(lua_State *L, <span class="keyword">int</span> nexeccalls)</span> </span>&#123;</span><br><span class="line">  LClosure *cl;</span><br><span class="line">  StkId base;</span><br><span class="line">  TValue *k;</span><br><span class="line">  <span class="keyword">const</span> Instruction *pc;</span><br><span class="line"> reentry:  <span class="comment">/* entry point */</span></span><br><span class="line">  lua_assert(isLua(L-&gt;ci));</span><br><span class="line">  pc = L-&gt;savedpc;</span><br><span class="line">  cl = &amp;clvalue(L-&gt;ci-&gt;func)-&gt;l;</span><br><span class="line">  base = L-&gt;base;</span><br><span class="line">  k = cl-&gt;p-&gt;k;</span><br><span class="line">  <span class="comment">/* main loop of interpreter */</span></span><br><span class="line">  <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+<p>从代码里可以看到，在循环执行指令之前，主要做了几个变量的赋值</p>
+<ul>
+<li>pc：用于保存当前指令的执行位置。</li>
+<li>cl：当前所在的函数环境（前面提到过，一个即使没有任何函数的Lua文件也对应一个函数环境）。</li>
+<li>base：当前函数环境的战base地址。</li>
+<li>k：当前函数环境的常量数组。<br>总结来说，上面这几个变量就是这两方面的内容：指令和栈。<br>先来看指令，pc从当前Lua虚拟机的savedpc得来，这在前面的luaD_precall中可以看到：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">L-&gt;savedpc = p-&gt;code;  <span class="comment">/* starting point */</span></span><br></pre></td></tr></table></figure>
+可以看到，savedpc在调用之前首先赋值为Proto的code成员，而这个成员就是前面提到的解析完指令之后指令存储的位置。因此，每一次执行Lua虚拟机指令之前，pc都会指向当前函数环境的指令。</li>
+</ul>
+<p>栈地址的设置同样也在前面的luaD_precall函数中提到过了，它是函数械的基地址。 由此回到上一节最后提出来的疑问，下面这些宏中 ：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RA(i)	(base+GETARG_A(i))</span></span><br><span class="line"><span class="comment">/* to be used after possible stack reallocation */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgR, base+GETARG_B(i))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgR, base+GETARG_C(i))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RKB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgK, \</span></span><br><span class="line">	ISK(GETARG_B(i)) ? k+INDEXK(GETARG_B(i)) : base+GETARG_B(i))</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RKC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgK, \</span></span><br><span class="line">	ISK(GETARG_C(i)) ? k+INDEXK(GETARG_C(i)) : base+GETARG_C(i))</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> KBx(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgK, k+GETARG_Bx(i))</span></span><br></pre></td></tr></table></figure>
+<p>其中 base参数就是当前函数环境的 base地址。 以 base地址为基础位置，以指令参数作为偏移量，拿到的数据肯定就是当前函数棋中的数据<br>所以，以 R开头的宏都是根据具体的参数（ A 、 B 、 C ）到当前函数战中获取数据的手段 </p>
+<p>到了这里，我们看到了虚拟机执行的全貌，下面简单小结一下 :</p>
+<ul>
+<li>分析阶段最后的结果就是 Proto结构体 。 在这个结构体中， code成员用于存储指令， f数组用于保存里面嵌套的函数的 Proto结构体。</li>
+<li>每个环境（再次强调，即使没有任何函数的代码也有对应的环境）都有自己对应的栈，base指向这个栈的基地址， top指向这个栈的栈顶地址 。 取函数校内的数据，都是以base基地址为基础地址的操作 。</li>
+<li>在虚拟机开始执行指令之前，需要把对应的指令和械地址切换到所要执行的函数的对应数据上</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/lua/" rel="tag"># lua</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/03/22/lua%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="next" title="lua字符串">
+                <i class="fa fa-chevron-left"></i> lua字符串
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/04/09/%E6%9B%BF%E6%8D%A2%E5%8D%9A%E5%AE%A2%E4%B8%BB%E9%A2%98/" rel="prev" title="替换博客主题">
+                替换博客主题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4%E7%9A%84%E7%94%9F%E6%88%90"><span class="nav-number">1.</span> <span class="nav-text">指令的生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">指令格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4%E7%9A%84%E6%89%A7%E8%A1%8C"><span class="nav-number">3.</span> <span class="nav-text">指令的执行</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="lua," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Lua版本的年表 Lua的发行版编号为x.y.z，其中x.y是版本，而z是发行版。同一版本的不同发行版对应于错误修复。同一版本的不同发行版具有相同的参考手册，相同的虚拟机.不同的版本实际上是不同的。API可能略有不同。虚拟机在新版本中也很有可能会有所不同。  Lua 11.1 这是Lua的第一个公开版本，已经具有强大的数据描述结构，简单的语法和字节码虚拟机。Lua中的所有语句都在全局环境中执行。这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lua考古">
+<meta property="og:url" content="http://example.com/2021/03/02/lua%E8%80%83%E5%8F%A4/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Lua版本的年表 Lua的发行版编号为x.y.z，其中x.y是版本，而z是发行版。同一版本的不同发行版对应于错误修复。同一版本的不同发行版具有相同的参考手册，相同的虚拟机.不同的版本实际上是不同的。API可能略有不同。虚拟机在新版本中也很有可能会有所不同。  Lua 11.1 这是Lua的第一个公开版本，已经具有强大的数据描述结构，简单的语法和字节码虚拟机。Lua中的所有语句都在全局环境中执行。这">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/111862027-7c13d280-898d-11eb-9cab-ab361a8372b6.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/111866533-1d5c5200-89a9-11eb-8a0b-66d34a0748b5.png">
+<meta property="article:published_time" content="2021-03-02T15:27:56.000Z">
+<meta property="article:modified_time" content="2021-04-11T09:35:09.871Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="lua">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/111862027-7c13d280-898d-11eb-9cab-ab361a8372b6.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2021/03/02/lua考古/"/>
+
+
+
+
+
+  <title>lua考古 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/02/lua%E8%80%83%E5%8F%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">lua考古</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-03-02T23:27:56+08:00">
+                2021-03-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Lua版本的年表"><a href="#Lua版本的年表" class="headerlink" title="Lua版本的年表"></a>Lua版本的年表</h2><p><img src="https://user-images.githubusercontent.com/11263320/111862027-7c13d280-898d-11eb-9cab-ab361a8372b6.png" alt="timeline"></p>
+<p>Lua的<a target="_blank" rel="noopener" href="https://www.lua.org/versions.html">发行版</a>编号为x.y.z，其中x.y是版本，而z是发行版。<br>同一版本的不同发行版对应于错误修复。同一版本的不同发行版具有相同的参考手册，相同的虚拟机.<br><a target="_blank" rel="noopener" href="https://www.lua.org/doc/hopl.pdf">不同的版本</a>实际上是不同的。API可能略有不同。虚拟机在新版本中也很有可能会有所不同。</p>
+<p><img src="https://user-images.githubusercontent.com/11263320/111866533-1d5c5200-89a9-11eb-8a0b-66d34a0748b5.png" alt="table1"></p>
+<h2 id="Lua-1"><a href="#Lua-1" class="headerlink" title="Lua 1"></a>Lua 1</h2><p>1.1 这是Lua的第一个公开版本，已经具有强大的数据描述结构，简单的语法和字节码虚拟机。<br>Lua中的所有语句都在全局环境中执行。<br>这个版本已经具有垃圾回收功能（标记-清除垃圾回收算法）。</p>
+<h2 id="Lua-2"><a href="#Lua-2" class="headerlink" title="Lua 2"></a>Lua 2</h2><p>2.1 ：通过fallbacks扩展语义以及对面向对象编程的支持。<br>2.2 ：长字符串，调试接口，更好的堆栈回溯，扩展的函数定义语法，函数的垃圾回收以及对管道的支持。<br>2.4 ：实现外部编译器luac，带有钩子的扩展调试接口以及“ getglobal”后备功能。<br>2.5 ：实现模式匹配和vararg函数。</p>
+<h2 id="Lua-3"><a href="#Lua-3" class="headerlink" title="Lua 3"></a>Lua 3</h2><p>3.0 ：tag methods替代fallbacks，可以作为后备功能的有力替代。引入auxlib（一个用于帮助编写Lua库的库），并支持条件编译。<br>3.1 ：实现匿名函数和通过“ upvalues”关闭函数。支持多种全局环境。代码重组和清理，大大减少了module 之间的依赖性。采用double精度表示数字整型。<br>3.2 ：实现调试库和表的新功能。</p>
+<h2 id="Lua-4"><a href="#Lua-4" class="headerlink" title="Lua 4"></a>Lua 4</h2><p>4.0 ：实现多重状态，为那些需要多份Lua state的应用而设计的新API。设计了一个for循环，它有两种方式：一个数字式的循环以及一个表遍历的循环。对C API重新设计了，不再有任何内置函数，所有标准库都是基于C API实现，没有通过特别的后门去访问Lua内部结构。</p>
+<h2 id="Lua-5"><a href="#Lua-5" class="headerlink" title="Lua 5"></a>Lua 5</h2><p>5.0 ：实现协程，完善词法作用域（而不是upvalues）和元表（而不是tags and tag methods）。引入了布尔值，完善尾调用和弱表。对packages的更好支持，用于加载Lua块的新API，新的错误处理协议，更好的错误消息等等。vm改为基于寄存器。<br>5.1 ：实现新的module系统，实现增量垃圾回收系统，新的varargs机制，新的长字符串和注释语法，mod和length运算符，所有类型的元表，通过luaconf.h配置方案和一个完全可重入的解析器。<br>5.2 ：实现可调用的pcall和元方法，用于全局变量的词法方案，暂时表，位运算新库，轻量级C函数，紧急垃圾回收器，goto语句和表的终结器。<br>5.3 ：实现整数，按位运算符，基本的utf-8库以及对64位和32位平台的支持。<br>5.4 ：实现新的增量垃圾回收，const，将要关闭的变量。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/lua/" rel="tag"># lua</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/03/01/lua%E4%BD%BF%E7%94%A8%E4%BC%98%E5%8C%96/" rel="next" title="lua使用优化">
+                <i class="fa fa-chevron-left"></i> lua使用优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/" rel="prev" title="vscode+vps调试c程序">
+                vscode+vps调试c程序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lua%E7%89%88%E6%9C%AC%E7%9A%84%E5%B9%B4%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">Lua版本的年表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lua-1"><span class="nav-number">2.</span> <span class="nav-text">Lua 1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lua-2"><span class="nav-number">3.</span> <span class="nav-text">Lua 2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lua-3"><span class="nav-number">4.</span> <span class="nav-text">Lua 3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lua-4"><span class="nav-number">5.</span> <span class="nav-text">Lua 4</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lua-5"><span class="nav-number">6.</span> <span class="nav-text">Lua 5</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

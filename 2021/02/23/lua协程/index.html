@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="lua," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="协同程序与线程差不多，也就是一条执行序列，拥有自己独立的栈、局部变量和指令指针，同时又与其他协同程序共享全局变量和其他大部分东西。一个具有多个协同程序的程序在任意时刻只能运行一个协同程序。 lua将所有关于协同程序的函数放置在一个名为“coroutine”的table中。 一个协同程序可以处于4种不同的状态：挂起、运行、死亡和正常。程序初创建：挂起程序运行：运行程序结束：死亡程序被其实程序唤醒：正">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lua协程">
+<meta property="og:url" content="http://example.com/2021/02/23/lua%E5%8D%8F%E7%A8%8B/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="协同程序与线程差不多，也就是一条执行序列，拥有自己独立的栈、局部变量和指令指针，同时又与其他协同程序共享全局变量和其他大部分东西。一个具有多个协同程序的程序在任意时刻只能运行一个协同程序。 lua将所有关于协同程序的函数放置在一个名为“coroutine”的table中。 一个协同程序可以处于4种不同的状态：挂起、运行、死亡和正常。程序初创建：挂起程序运行：运行程序结束：死亡程序被其实程序唤醒：正">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/113825795-fdec6400-97b3-11eb-8f8f-40a19ca2088f.JPG">
+<meta property="article:published_time" content="2021-02-23T08:09:56.000Z">
+<meta property="article:modified_time" content="2021-04-11T09:35:12.122Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="lua">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/113825795-fdec6400-97b3-11eb-8f8f-40a19ca2088f.JPG">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://example.com/2021/02/23/lua协程/"/>
+
+
+
+
+
+  <title>lua协程 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/lua%E5%8D%8F%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">lua协程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-02-23T16:09:56+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>协同程序与线程差不多，也就是一条执行序列，拥有自己独立的栈、局部变量和指令指针，同时又与其他协同程序共享全局变量和其他大部分东西。<br>一个具有多个协同程序的程序在任意时刻只能运行一个协同程序。</p>
+<p>lua将所有关于协同程序的函数放置在一个名为“coroutine”的table中。</p>
+<p>一个协同程序可以处于4种不同的状态：挂起、运行、死亡和正常。<br>程序初创建：挂起<br>程序运行：运行<br>程序结束：死亡<br>程序被其实程序唤醒：正常</p>
+<p>co_create 传一个函数参数，用来创建协程。返回一个“thread”对象</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">co = <span class="built_in">coroutine</span>.<span class="built_in">create</span>(<span class="function"><span class="keyword">function</span> <span class="params">(a,b)</span></span></span><br><span class="line">        <span class="built_in">coroutine</span>.<span class="built_in">yield</span>(a+b,a-b)</span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">coroutine</span>.<span class="built_in">resume</span>(co,<span class="number">20</span>,<span class="number">10</span>))</span><br></pre></td></tr></table></figure>
+<p>与协同程序之间的对称性区别相比，协同程序与generator（Python所提供的）之间的区别很大。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>协程实现的两个关键点在于：</p>
+<ul>
+<li>协程状态的保存</li>
+<li>不同协程之间的数据通信机制 </li>
+</ul>
+<p>在Lua1-t码中，使用的是lua State结构体来表示协程，这与Lua虚拟机用的是同一个数据结构 。 这一点可以从创建协程的函数lua newthread中看出来，唯一有区别的是， Lua协程的类型是LUA TTHREAD 。 换言之，在Lua源码的处理中， Lua协程与Lua虚拟机的表现形式并没有太大差异，也许这样做是为了实现方便。 前面提到过，一个协程有自己私有的环境，不会因为协程的切换而发生改变 。</p>
+<p>接下来，我们来看看如何在不同协程之间通信，或者说Lua协程间数据的交换。 前面提到过resume和 yield 函数的参数就是用来做协程数据交换的，现在来看看里面的实现 。 奥秘就在函数lua_xmove 中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LUA_API <span class="keyword">void</span> <span class="title">lua_xmove</span> <span class="params">(lua_State *from, lua_State *to, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">if</span> (from == to) <span class="keyword">return</span>;</span><br><span class="line">  lua_lock(to);</span><br><span class="line">  api_checknelems(from, n);</span><br><span class="line">  api_check(from, G(from) == G(to));</span><br><span class="line">  api_check(from, to-&gt;ci-&gt;top - to-&gt;top &gt;= n);</span><br><span class="line">  from-&gt;top -= n;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">    setobj2s(to, to-&gt;top++, from-&gt;top + i);</span><br><span class="line">  &#125;</span><br><span class="line">  lua_unlock(to);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码做的事情就是，从from协程中移动n个数据到 to协程中 。 当然在移动之前，数据要在from协程的战顶上准备好。<br>创建协程在函数luaB cocreate中进行．</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">luaB_cocreate</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  lua_State *NL = lua_newthread(L);</span><br><span class="line">  luaL_argcheck(L, lua_isfunction(L, <span class="number">1</span>) &amp;&amp; !lua_iscfunction(L, <span class="number">1</span>), <span class="number">1</span>,</span><br><span class="line">    <span class="string">&quot;Lua function expected&quot;</span>);</span><br><span class="line">  lua_pushvalue(L, <span class="number">1</span>);  <span class="comment">/* move function to top */</span></span><br><span class="line">  lua_xmove(L, NL, <span class="number">1</span>);  <span class="comment">/* move function from L to NL */</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>明白了前面的内容，理解创建协程的过程就不难了，这里主要做了以下几件事情。</p>
+<ul>
+<li>调用lua newthread创建lua State结构体。</li>
+<li>检查当前楼顶的元素是不是一个函数对象，因为需要一个函数作为协程开始运行时的主函数。 这个主函数必须是Lua函数， C函数将会报错。</li>
+<li>将协程主函数压人当前 lua State 的楼中，然后调用 lua xmove 将该函数从当前的lua State移动到新创建的协程的 lua State战中 。</li>
+</ul>
+<p>了解了Lua协程实现相关的数据结构，接下来看看最核心的两个操作resume和yield是如何实现的 。<br>resume操作在函数 luaB_coresume 中实现：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">luaB_coresume</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  lua_State *co = lua_tothread(L, <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">int</span> r;</span><br><span class="line">  luaL_argcheck(L, co, <span class="number">1</span>, <span class="string">&quot;coroutine expected&quot;</span>);</span><br><span class="line">  r = auxresume(L, co, lua_gettop(L) - <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    lua_pushboolean(L, <span class="number">0</span>);</span><br><span class="line">    lua_insert(L, <span class="number">-2</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span>;  <span class="comment">/* return false + error message */</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    lua_pushboolean(L, <span class="number">1</span>);</span><br><span class="line">    lua_insert(L, -(r + <span class="number">1</span>));</span><br><span class="line">    <span class="keyword">return</span> r + <span class="number">1</span>;  <span class="comment">/* return true + `resume&#x27; returns */</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，这里主要做几件事情：</p>
+<ul>
+<li>检查当前枝顶元素是不是协程指针。</li>
+<li>调用辅助函数auxresume进行实际的resume操作。</li>
+<li>根据auxresume的返回值来做不同的处理。 当返回值小于0时，说明 resume操作出错，并且此时出错信息在樵顶，因此压入false以及出错消息；否则， auxresume的返回值表示执行resume操作时返回的参数数量，这种情况下压人true以及这些返回参数。<br>auxresume 函数的实现如下：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">auxresume</span> <span class="params">(lua_State *L, lua_State *co, <span class="keyword">int</span> narg)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> status;</span><br><span class="line">  <span class="keyword">if</span> (!lua_checkstack(co, narg))</span><br><span class="line">    luaL_error(L, <span class="string">&quot;too many arguments to resume&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (lua_status(co) == <span class="number">0</span> &amp;&amp; lua_gettop(co) == <span class="number">0</span>) &#123;</span><br><span class="line">    lua_pushliteral(L, <span class="string">&quot;cannot resume dead coroutine&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* error flag */</span></span><br><span class="line">  &#125;</span><br><span class="line">  lua_xmove(L, co, narg);</span><br><span class="line">  status = lua_resume(co, narg);</span><br><span class="line">  <span class="keyword">if</span> (status == <span class="number">0</span> || status == LUA_YIELD) &#123;</span><br><span class="line">    <span class="keyword">int</span> nres = lua_gettop(co);</span><br><span class="line">    <span class="keyword">if</span> (!lua_checkstack(L, nres))</span><br><span class="line">      luaL_error(L, <span class="string">&quot;too many results to resume&quot;</span>);</span><br><span class="line">    lua_xmove(co, L, nres);  <span class="comment">/* move yielded values */</span></span><br><span class="line">    <span class="keyword">return</span> nres;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    lua_xmove(co, L, <span class="number">1</span>);  <span class="comment">/* move error message */</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* error flag */</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+它主要做如下操作 。</li>
+<li>检查数据的合法性 。</li>
+<li>将参数通过lua xmove函数传递到待启动的协程中，调用 lua resume函数执行协程代码 。</li>
+<li>当 lua_resume函数返回时，说明该协程已经执行完毕，通过lua_xmove函数将yield传入的参数传递回启动该协程的协程。<br>auxresume函数会调用 lua resume 函数，在 lua resume 函数中进行一些检查，比如当前的状态是否合理，调用层次是否过多，最终使用 luaD_rawrunprotected 函数来保护调用 resume 函数 。resume 函数的代码如下所示：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">resume</span> <span class="params">(lua_State *L, <span class="keyword">void</span> *ud)</span> </span>&#123;</span><br><span class="line">  StkId firstArg = cast(StkId, ud);</span><br><span class="line">  CallInfo *ci = L-&gt;ci;</span><br><span class="line">  <span class="keyword">if</span> (L-&gt;status == <span class="number">0</span>) &#123;  <span class="comment">/* start coroutine? */</span></span><br><span class="line">    lua_assert(ci == L-&gt;base_ci &amp;&amp; firstArg &gt; L-&gt;base);</span><br><span class="line">    <span class="keyword">if</span> (luaD_precall(L, firstArg - <span class="number">1</span>, LUA_MULTRET) != PCRLUA)</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;  <span class="comment">/* resuming from previous yield */</span></span><br><span class="line">    lua_assert(L-&gt;status == LUA_YIELD);</span><br><span class="line">    L-&gt;status = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!f_isLua(ci)) &#123;  <span class="comment">/* `common&#x27; yield? */</span></span><br><span class="line">      <span class="comment">/* finish interrupted execution of `OP_CALL&#x27; */</span></span><br><span class="line">      lua_assert(GET_OPCODE(*((ci<span class="number">-1</span>)-&gt;savedpc - <span class="number">1</span>)) == OP_CALL ||</span><br><span class="line">                 GET_OPCODE(*((ci<span class="number">-1</span>)-&gt;savedpc - <span class="number">1</span>)) == OP_TAILCALL);</span><br><span class="line">      <span class="keyword">if</span> (luaD_poscall(L, firstArg))  <span class="comment">/* complete it... */</span></span><br><span class="line">        L-&gt;top = L-&gt;ci-&gt;top;  <span class="comment">/* and correct top if not multiple results */</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>  <span class="comment">/* yielded inside a hook: just continue its execution */</span></span><br><span class="line">      L-&gt;base = L-&gt;ci-&gt;base;</span><br><span class="line">  &#125;</span><br><span class="line">  luaV_execute(L, cast_int(L-&gt;ci - L-&gt;base_ci));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这个函数做了以下的事情</li>
+<li>如果当前协程的状态是0 ，那么说明它是第一次执行 resume操作，此时调用 luaD_precall做函数调用前的准备工作。 如果luaD_precall函数的返回值不是PCRLUA ，说明是在C函数中进行resume操作的，此时并不需要后面的 luaV execute函数，就直接返回了 。</li>
+<li>否则就从之前的 YIELD状态中继续执行，首先将协程的状态置为0 ，其次判断此时口的类型，如果不是Lua函数，说明之前是被中断的函数调用，此时调用luaD_poscall函数继续完成未完的函数操作；否则只需要调整 base指针指向之前的ci的base指针即可 。</li>
+<li>以上的几种情况最终都会调用 luaV_execute 函数来进入 Lua虚拟机中执行 。 这里可以看到，由于使用了同样的结构lua State来表示Lua虚拟机和Lua协程，在表达Lua虚拟机的执行和协程的执行上，两者都是统一使用 luaV execute函数，方便了实现。</li>
+</ul>
+<p>yield操作在函数lua_yield 中进行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LUA_API <span class="keyword">int</span> <span class="title">lua_yield</span> <span class="params">(lua_State *L, <span class="keyword">int</span> nresults)</span> </span>&#123;</span><br><span class="line">  luai_userstateyield(L, nresults);</span><br><span class="line">  lua_lock(L);</span><br><span class="line">  <span class="keyword">if</span> (L-&gt;nCcalls &gt; <span class="number">0</span>)</span><br><span class="line">    luaG_runerror(L, <span class="string">&quot;attempt to yield across metamethod/C-call boundary&quot;</span>);</span><br><span class="line">  L-&gt;base = L-&gt;top - nresults;  <span class="comment">/* protect stack slots below */</span></span><br><span class="line">  L-&gt;status = LUA_YIELD;</span><br><span class="line">  lua_unlock(L);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数做的事情相比起来就简单多了，就是将协程执行状态至为YIELD ，这样可以终止luaV_execute函数的循环。<br><img src="https://user-images.githubusercontent.com/11263320/113825795-fdec6400-97b3-11eb-8f8f-40a19ca2088f.JPG" alt="捕获"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/lua/" rel="tag"># lua</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/02/23/lua%E5%87%BD%E6%95%B0%E4%B8%8E%E9%97%AD%E5%8C%85/" rel="next" title="lua函数与闭包">
+                <i class="fa fa-chevron-left"></i> lua函数与闭包
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/02/23/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%9C%8D%E5%8A%A1/" rel="prev" title="skynet源码分析：服务">
+                skynet源码分析：服务 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.</span> <span class="nav-text">实现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
