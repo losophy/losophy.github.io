@@ -220,7 +220,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/24/skynet%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -239,7 +239,283 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2021/02/24/skynet%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB/" itemprop="url">skynet：数据共享</a></h1>
+                <a class="post-title-link" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/" itemprop="url">c++对象模型研究2：构造函数</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-25T15:50:00+08:00">
+                2021-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>关键词explicit之所以被导入这个语言，就是为了提供给程序员一种方法，使他们能够制止“单一参数的构造函数”被当做一个转换运算符。</p>
+<h2 id="默认构造函数的构建操作"><a href="#默认构造函数的构建操作" class="headerlink" title="默认构造函数的构建操作"></a>默认构造函数的构建操作</h2><p>以下四种情况类会被生成“有用的”默认构造函数<br>a.一个带有默认构造函数的成员对象类<br>  合成的默认构造函数是以inline的方式完成的，如果函数太复杂则会做成非inline的static实体</p>
+<p>b.带有默认构造函数的基类<br>  和上述情况相似，子类没有构造函数，编译器会默认合成一个调用基类默认（无参）构造函数的子类默认构造函数</p>
+<p>c.带有一个虚函数的class<br>  以下两种情况需要合成出默认构造函数<br>1）类声明（或继承）一个虚函数<br>2）类派生自一个继承串链，其中有一个或多个虚基类</p>
+<p>d.带有一个虚基类的类（菱形继承）</p>
+<p>关于默认构造函数的合成两点是需要注意的：<br>1）不是任何没有定义构造函数的类都会被合成出一个默认构造函数<br>2）编译器合成出来的默认构造函数不会对类内每一个成员数据都设定默认值</p>
+<h2 id="拷贝构造函数的构建操作"><a href="#拷贝构造函数的构建操作" class="headerlink" title="拷贝构造函数的构建操作"></a>拷贝构造函数的构建操作</h2><p>有三种情况，会以一个对象的内容作为另一个类对象的初值<br>1.对一个对象做明确的初始化操作<br>2.当对象被当作参数交给某个函数时<br>3.当函数传回一个类对象时</p>
+<p>一个类对象可以从两种方式复制得到，一种是拷贝构造，另一种是拷贝赋值操作（=）。</p>
+<p>关于复制<br>其实复制涉及到C++内部模型的两个概念，即Default Memberwise Initialization 和bitwise copy semantics。<br>Default Memberwise Initialization： 这是C 模型的内部一种实现方案,其原理就是对于同一类的两个对象直接的赋值进行的暗箱操作。说白了，就是将一个对象的内存空间中的数据，原封不动的拷贝出另一份来填满另一个对象的内存。<br>如果该类内含其他类的对象作为自己的成员变量的话，那赋值操作并不会对该对象变量进行赋值，而是递归的对其内部数据成员赋值（原理还是有关对象内存布局）。如果类中有个指针成员变量，而其指向堆中的一片区域，然而在赋值过程中，根据memberwise的概念，只是将指针的值进行了赋值，这样一来，这两个对象中的指针变量自然都是指向同一片内存区域了，即所谓的浅拷贝。所以这时就需要程序员自己来实现拷贝构造函数来完成那片堆内存的拷贝赋值操作，即所谓的深拷贝。</p>
+<p>不要bitwise copy semantic<br>什么时候一个类不展现出bitwise copy semantic呢？<br>1）当类内含有一个成员类对象，而这个成员类对象内有一个拷贝构造函数时（不论是class设计者明确声明，或者被编译器合成 ）。<br>2）当类继承自 一个基类，而基类有拷贝构造函数时（不论是类设计者明确声明，或者被编译器合成 ）。<br>3）当一个类声明了一个或多个virtual 函数时。<br>4）当类派生自一个继承串链，其中一个或者多个virtual基类。<br>在前两种情况中，编译器必须将成员或基类的“ 构造函数的调用操作” 安插到被合成的构造函数中。（就像构造函数中的操作那样）。<br>第三种情况，如果编译器对于每一个新产生的类对象的虚表不能成功而正确地设好其初值，将导致可怕的后果。因此，当编译器导入一个虚表到类之中时，该类就不再展现bitwise copy semantic了。如果没有 bitwise copy semantics的作用的话，很容易想到，编译器会用到默认复制来对两个对象的vptr进行复制，因为两个类对象的vp都指向同一个vptr，所以会导致可怕的后果。</p>
+<p>这里我都被bitwise 和Memberwise 搞昏了。反正就是以上四种情况，复制不是单纯的直接复制。编译器会开辟新内存。</p>
+<h2 id="构造函数使用"><a href="#构造函数使用" class="headerlink" title="构造函数使用"></a>构造函数使用</h2><p>在使用者层面做优化<br>一般来说是这么写的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">X <span class="title">bar</span><span class="params">(<span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	X xx;</span><br><span class="line">	xx.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	<span class="keyword">return</span> xx；</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//编译器内部的伪码：</span></span><br><span class="line"><span class="keyword">void</span> bar(X&amp; _result, <span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span><br><span class="line">&#123;</span><br><span class="line">	X xx;</span><br><span class="line">	xx.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	_result.X::XX(xx);<span class="comment">//copy constructor</span></span><br><span class="line">	<span class="keyword">return</span>;  <span class="comment">//什么也不返回</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果这么写</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">X <span class="title">bar</span><span class="params">(<span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> X(p1,p2);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//编译器内部的伪码：</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">(X&amp; _result, <span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	_result.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	<span class="keyword">return</span>;<span class="comment">//什么也不返回</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>相比较而言，少了个copy constructor。换句话说，少用局部变量，能直接计算返回的，就直接计算返回，这样可以少产生一个拷贝构造函数。</p>
+<p>在编译器层面做优化<br>在使用者层面做优化的例子，原先是使用者注意少用局部变量，能直接计算返回的，就直接计算返回，这样可以少产生一个拷贝构造函数。现在这件事情编译器代你做了，换句话说，即使我们仍用了xx做局部变量，保存计算结果，return xx，编译器也会自动把xx用_result替换掉，替你精简掉一个copy constructor。<br>然后呢，lippman把这种行为叫做“NRV优化”， NRV优化的本质是优化掉拷贝构造函数，当然去掉它的前提是作为使用者的我们用了xx做局部变量、return xx；如果我们没有这么做，而是直接return X(p1,p2) 那么这种行为也就不会发生了。</p>
+<p>要不要构造函数？<br>其实就是bitwise和Memberwise的问题了。如果类对象的成员数据以数值来储存。bitwise copy既不会导致memory leak，也不会产生address aliasing，因此它既快速又安全。如果类需要大量的memberwise初始化操作，例如以传值的方式传回对象，那么就需要explicit了。<br>当然，你也可以手动memcpy，但使用前提是：在class不含任何编译器产生的内部members。例如virtual相关内容。</p>
+<h2 id="成员们的初始化队列"><a href="#成员们的初始化队列" class="headerlink" title="成员们的初始化队列"></a>成员们的初始化队列</h2><p>当你写下一个构造函数的时候，你有机会设定类成员的初值。要不是经由成员初始化列表，就是在构造函数本身之内。除了四种情况，你的任何选择其实都差不多。</p>
+<p>必须使用初始化列表的情况<br>1）当初始化一个引用成员时<br>2）当初始化一个常量成员时<br>3）当调用一个基类的构造函数，而它拥有一组参数时<br>4）当调用一个类成员的构造函数，而它拥有一组参数时</p>
+<p>第一第二是因为：const对象或引用只能初始化但是不能赋值。构造函数的函数体内只能做赋值而不是初始化，因此初始化const对象或引用的唯一机会是构造函数函数体之前的初始化列表中。<br>第三第四是因为：主要是性能问题，如果类存在继承关系，派生类必须在其初始化列表中调用基类的构造函数。对于内置类型，如int, float等，使用初始化类表和在构造函数体内初始化差别不是很大，但是对于类类型来说，最好使用初始化列表，使用初始化列表少了一次调用默认构造函数的过程，这对于数据密集型的类来说，是非常高效的。</p>
+<p>所以一个好的原则是，能使用初始化列表的时候尽量使用初始化列表。<br>还有，对于初始化列表有些地方需要注意：list中的生成次序是由类中成员的声明次序决定的，而不是initialization list的排列次序决定的。</p>
+<p>全局对象的内存保证会在程序激活的时候被清为0。局部对象配置于程序的堆栈中，动态对象配置于自由空间中，都不一定会被清为0，它们的内容将是内存上次被使用后的遗迹。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B61%EF%BC%9A%E5%85%B3%E4%BA%8E%E5%AF%B9%E8%B1%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B61%EF%BC%9A%E5%85%B3%E4%BA%8E%E5%AF%B9%E8%B1%A1/" itemprop="url">c++对象模型研究1：关于对象</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-25T15:16:50+08:00">
+                2021-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="对象模型"><a href="#对象模型" class="headerlink" title="对象模型"></a>对象模型</h2><p>和c不同，c是将数据和处理数据的函数分开的（数据流过程决定函数编写，过程式的）；而c++把数据和处理数据的方法关联在了一起（对象发起动作，操纵数据）。那么像class一样将数据和方法包含在一起，甚至再用上模板是否会增加布局成本呢？</p>
+<p>C++对象模式<br>在C++中，有两种类成员数据：static和非static，以及三种类成员函数：static、非static和virtual。</p>
+<p>在C++对象模型中，非static成员数据被配置于每一个类对象之内，static成员数据则被放在所有类对象之外。static和非static成员函数也被放在所有的类对象之外。</p>
+<p>C++在布局以及存取时间上主要的额外负担是由virtual引起，包括<br>1.虚函数机制（执行时绑定）<br>2.虚基类。还有一些多重继承下的额外负担。</p>
+<p>virtual函数则以两个步骤支持之：<br>1.每一个类产生出一堆指向virtual函数的指针，放在表格之中。这个表格被称为virtual表。<br>2.第一个类对象被添加了一个指针，指向相关的virtual表。这个指针的设定和重置都由每一个类的构造函数，析构函数和拷贝赋值运算符自动完成。另外，虚函数表地址的前面设置了一个指向type_info的指针，RTTI（Run Time Type Identification）运行时类型识别是有编译器在编译器生成的特殊类型信息，包括对象继承关系，对象本身的描述，RTTI是为多态而生成的信息，所以只有具有虚函数的对象在会生成。</p>
+<p>和c相比，c++的布局成本主要来自于virtual，virtual使得class object需要先找虚表，再由虚表找所在地，增加了耗费。而像nonstatic data menber，跟c中struct完全一样，所以这些并不会增加c++的布局成本（相对于c而言）。</p>
+<p>对于C++中的单继承<br>C++实际模型是：对于一般继承是扩充已有存在的虚函数表；对于虚继承添加一个虚函数表指针。</p>
+<p>对于C++中的多继承<br>1）每一个基类都有自己的虚函数表，基类各有虚表<br>2）子类的虚函数被放到第一个基类的虚函数表中，子类与第一个父类共用一张虚表<br>3）内存布局中，基类的排列顺序就是基类的声明顺序<br>4）重写：每一个基类的虚表中的fun都被重写成子类的fun，这样做就是为了解决不同的基类类型的指针指向同一个子类实例，而能够调用到实际的函数。</p>
+<p>对于C++中的多继承中的虚继承<br>虚继承的子类，有单独的虚函数表，另外也单独保存一份父类的虚函数表。</p>
+<h2 id="如何访问成员"><a href="#如何访问成员" class="headerlink" title="如何访问成员"></a>如何访问成员</h2><p>数据成员如何访问（直接取址）？<br>跟实际对象模型相关联，根据对象起始地址+偏移量取得。</p>
+<p>函数成员如何访问（间接取址）？<br>跟实际对象模型相关联，普通函数（nonstatic、static）根据编译、链接的结果直接获取函数地址；如果是虚函数根据对象模型，取出对于虚函数地址，然后在虚函数表中查找函数地址。</p>
+<p>多态如何实现?<br>多态（Polymorphisn）在C++中是通过虚函数实现的。如果类中有虚函数，编译器就会自动生成一个虚函数表，对象中包含一个指向虚函数表的指针。能够实现多态的关键在于：虚函数是允许被派生类重写的，在虚函数表中，派生类函数对覆盖（override）基类函数。除此之外，还必须通过指针或引用调用方法才行，将派生类对象赋给基类对象。</p>
+<p>为什么析构函数设为虚函数是必要的？<br>带有多态性质的基类应该声明一个虚析构函数。如果一个类带有任何虚函数，它就应该拥有一个虚析构函数。 </p>
+<p>如果析构函数不定义为虚函数，那么派生类就不会重写基类的析构函数，在有多态行为的时候，派生类的析构函数不会被调用到（有内存泄漏的风险！）。<br>一个类的设计目的不是作为基类使用，或不是为了具备多态性，就不该声明虚析构函数。</p>
+<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p>本质上一个引用通常是以一个指针来实现，而且是const指针。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/24/skynet%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/24/skynet%E6%95%B0%E6%8D%AE%E5%85%B1%E4%BA%AB/" itemprop="url">skynet数据共享</a></h1>
         
 
         <div class="post-meta">
@@ -294,7 +570,7 @@
             <p>当你把业务拆分到多个服务中去后，数据如何共享，可能是最易面临的问题。</p>
 <p>最简单粗暴的方法是通过消息传递数据。如果 A 服务需要 B 服务中的数据，可以由 B 服务发送一个消息，将数据打包携带过去。如果是一份数据，很多地方都需要获得它，那么用一个服务装下这组数据，提供一组查询接口即可。DataCenter 模块对此做了简单的封装。</p>
 <p>如果你仅仅需要一组只读的结构信息分享给很多服务（比如一些配置数据），你可以把数据写到一个 lua 文件中，让不同的服务加载它。Cluster 的配置文件就是这样做的。注意：默认 skynet 使用自带的修改版 lua ，会缓存 lua 源文件。当一个 lua 文件通过 loadfile 加载后，磁盘上的修改不会影响下一次加载。所以你需要直接用 io.open 打开文件，再用 load 加载内存中的 string 。</p>
-<p>另一个更好的方法是使用 sharedata 模块。<br>当大量的服务可能需要共享一大块并不太需要更新的结构化数据，每个服务却只使用其中一小部分。你可以设想成，这些数据在开发时就放在一个数据仓库中，各个服务按需要检索出需要的部分。<br>整个工程需要的数据仓库可能规模庞大，每个服务却只需要使用其中一小部分数据，如果每个服务都把所有数据加载进内存，服务数量很多时，就因为重复加载了大量不会触碰的数据而浪费了大量内存。在开发期，却很难把数据切分成更小的粒度，因为很难时刻根据需求的变化重新切分。<br>如果使用 DataCenter 这种中心式管理方案，却无法避免每次在检索数据时都要进行一次 RPC 调用，性能或许无法承受。<br>sharedata 模块正是为了解决这种需求而设计出来的。sharedata 只支持在同一节点内（同一进程下）共享数据，如果需要跨节点，需要自行同步处理。</p>
+<h2 id="sharedata"><a href="#sharedata" class="headerlink" title="sharedata"></a>sharedata</h2><p>另一个更好的方法是使用 sharedata 模块。<br>当大量的服务可能需要共享一大块并不太需要更新的结构化数据，每个服务却只使用其中一小部分。你可以设想成，这些数据在开发时就放在一个数据仓库中，各个服务按需要检索出需要的部分。<br>整个工程需要的数据仓库可能规模庞大，每个服务却只需要使用其中一小部分数据，如果每个服务都把所有数据加载进内存，服务数量很多时，就因为重复加载了大量不会触碰的数据而浪费了大量内存。在开发期，却很难把数据切分成更小的粒度，因为很难时刻根据需求的变化重新切分。<br>如果使用 DataCenter 这种中心式管理方案，却无法避免每次在检索数据时都要进行一次 RPC 调用，性能或许无法承受。<br>sharedata 模块正是为了解决这种需求而设计出来的。sharedata 只支持在同一节点内（同一进程下）共享数据，如果需要跨节点，需要自行同步处理。</p>
 <p>datasheet：<br>它能做的是：把一个复杂的有一定限制的 lua 表，转换为一块 C 内存，由多个 lua 服务共享读取。</p>
 
           
@@ -594,7 +870,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/24/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E5%BC%80%E5%A7%8B/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/24/skynet%E5%90%AF%E5%8A%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -613,7 +889,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2021/02/24/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E5%BC%80%E5%A7%8B/" itemprop="url">skynet源码分析：开始</a></h1>
+                <a class="post-title-link" href="/2021/02/24/skynet%E5%90%AF%E5%8A%A8/" itemprop="url">skynet启动</a></h1>
         
 
         <div class="post-meta">
@@ -1267,266 +1543,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E8%BF%90%E8%A1%8C%E4%B8%8E%E4%B8%BB%E8%A6%81%E7%BA%BF%E7%A8%8Bworker/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/23/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E8%BF%90%E8%A1%8C%E4%B8%8E%E4%B8%BB%E8%A6%81%E7%BA%BF%E7%A8%8Bworker/" itemprop="url">skynet源码分析：运行与主要线程worker</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T22:44:29+08:00">
-                2021-02-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="skynet启动流程"><a href="#skynet启动流程" class="headerlink" title="skynet启动流程"></a>skynet启动流程</h2><p>skynet程序只有skynet-src目录，./skynet ./example/config启动<br>skynet_main.c读取配置文件，设置环境变量，调用skynet_start.c的skynet_start函数<br>skynet_start函数初始基础服务，调用_start函数启动_timer线程、socket线程、_monitor线程以及配置的多个_worker线程开始工作</p>
-<h2 id="skynet运行机制"><a href="#skynet运行机制" class="headerlink" title="skynet运行机制"></a>skynet运行机制</h2><p>skynet每个服务最重要的是设置一个callback函数，服务向另一个服务发消息都会压入这个服务的消息队列，等待_worker线程从全局队列取出一个服务的消息队列，然后再从这个消息队列取出一个消息使用这个服务的callback处理<br>游戏服务器一般会启动一个socket服务教给gate.so管理，socket服务可以接受外部msg传递到内部服务来处理。</p>
-<h2 id="monitor"><a href="#monitor" class="headerlink" title="monitor"></a>monitor</h2><p>skynet对服务的监控做得比较简陋，从设计原则上来说，这样做也是对的，因为框架层能做的，基本就是上报和打日志，上层的业务是变化万千的，不论怎么写，都可能满足不了上层的业务需求。skynet中对服务的监控实现在skynet_monitor.c和skynet_monitor.h中，当服务可能陷入死循环的时候，就打一条日志。<br>每次消息派发，都会调用skynet_monitor_trigger，一共调两次，第一次参数source和destination是真实的值，也就是不为0。第二次调是在消息派发完成的时候，source和destination都赋0。<br>如果第一次trigger调用以后，消息派发迟迟不完成，monitor线程第一次检查，会将check_version的值赋为version。然后monitor线程第二次检查，这个时候version和check_version就会相等，而且这时候destination也不为0，就会进入释放目标服务和打印报警的流程。</p>
-<h2 id="timer"><a href="#timer" class="headerlink" title="timer"></a>timer</h2><p>skynet的timer是做游戏用得比较频繁的一个功能，分析一下它的源码还是有意义的。而且核心的C源码除了timer和网络以外，已经基本分析得差不多了。其它都是跟lua c api相关，或者是跟lua交互比较多的。timer的源码在skynet-timer.c和skynet-timer.h中。<br>skynet的外部定时器是分为两部分存的，一部分存在叫near的数组里，另一部分存在一个二维数组里，分为四个级别。<br>skynet中有一个timer线程，每2.5毫秒就更新一下timer中的时间。每次更新都会对一个叫time的计数器做加1操作，所以这个计数器其实可以当作时间来看待，然后对near数组中的定时器进行触发。</p>
-<p>1.main函数<br>main函数是skynet进程的入口点，它需要一个配置文件的路径作为参数。main函数先做一些内存分配工作，然后加载配置文件里的内容。再把配置文件里的内容设置到lua环境变量_ENV。然后从_ENV里读取配置到c配置中。最后调用skynet_start。<br>2.skynet_start函数<br>skynet_start函数根据配置确定服务是不是以后台方式启动，然后初始化timer/socket/module/mq这些数据结构，给它们分配内存，填充一些必要的字段。下一步创建和注册日志logger服务，这个logger服务是C层实现的。然后创建注册snax服务，做bootstrap操作。最后调用start函数。<br>3.start函数<br>这个函数会启动timer/socket/monitor/worker线程，timer/socket/monitor线程都只有一个，唯独worker线程是多个，在配置文件中以thread=num来配置的。如果配置文件中没有配，就是8个。第个worker线程都有自己的权重值，权重值越大的，给单个服务的时间片越小。<br>线程都启动完以后，就进入pthread_join，等待线程的终止。所有线程终止以后，skynet就会退出。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%A8%A1%E5%9D%97/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/23/skynet%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E6%A8%A1%E5%9D%97/" itemprop="url">skynet源码分析：模块</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T22:37:22+08:00">
-                2021-02-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>之前已经说过skynet的是做什么的，现在开始从模块上研究skynet的源码。</p>
-<h2 id="skynet各层表现"><a href="#skynet各层表现" class="headerlink" title="skynet各层表现"></a>skynet各层表现</h2><p><img src="https://user-images.githubusercontent.com/11263320/108858906-a5a83b00-7627-11eb-9ce1-223d08f02aa8.png" alt="20180315154138758"><br>从上大概就清楚skynet的“内部”<br>而skynet源码目录结构如下：<br>3rd：第三方代码，有lua和jemalloc等。<br>lualib：使用lua写的库<br>lualib-src：使用C写并封装给lua使用的库<br>service：使用lua写的skynet的服务模块<br>service-src：使用C写的skynet的服务模块<br>skynet-src：skynet核心代码</p>
-<h2 id="skynet重要模块"><a href="#skynet重要模块" class="headerlink" title="skynet重要模块"></a>skynet重要模块</h2><p>gate.so：为整个skynet提供socket功能（解决外部连接数据读取的问题）<br>snlua.so：启动多个lua服务，skynet自带的模块中有一个重要的模块是snlua.so模块，通过snlua.so和指定lua脚本文件可以启动多个lua编写的服务，不用每个服务都是用c来编写，而且大部分逻辑都是在 lua 脚本下开发，只有需要考虑性能的模块才用 C 语言开发成库，直接提供给 lua 调用。<br>logger.so：日志模块，一个简单的日志系统,可以用来记录服务的相关信息。<br>harbar.so：（集群模块）节点服务,每个Skynet运行都是一个节点</p>
-<h2 id="skynet重要服务"><a href="#skynet重要服务" class="headerlink" title="skynet重要服务"></a>skynet重要服务</h2><p>launcher.lua：在lua中启动服务<br>skynet.lua：lua常用功能封装<br>skynet.so：lua调用skynet功能</p>
-<h2 id="skynet重要文件"><a href="#skynet重要文件" class="headerlink" title="skynet重要文件"></a>skynet重要文件</h2><p>skynet_server.c：管理服务<br>skynet_handle.c：管理服务唯一的handle<br>skynet_module.c：启动c编写的so模块<br>skynet_monitor.c：监视服务死循环<br>skynet_mq.c：消息队列<br>skynet_timer.c：定时器<br>skynet_socket.c：Socket<br>skynet_master.c：不同skynet节点服务名字中心服务<br>skynet_harbor.c：不同skynet节点通讯</p>
-<p>skynet底层代码位于skynet/skynet-src下,模块加载相关在skynet-module.c skynet-module.h这两个文件里。这里的模块在linux下指的是so，在windows下指的是dll，在skynet中指的是config中配置的cpath下的文件。</p>
-<p>每个模块需要实现四个最基本的函数，create/init/release/signal。create做内存分配。init做初始化，它可能会做一些其它的事情，比如打开网络，打开文件，函数回调挂载等等。relase做资源回收，包括内存资源，文件资源，网络资源等等，signal是发信号，比如kill信号，告诉模块该停了。</p>
-<h2 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h2><p>网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。skynet的网络库是自己实现的。<br>实际上云风只实现了epoll和kqueue，windows上的变种请自行搜索吧。</p>
-<p>epoll和kqueue的实现分别在skynet_epoll.h和epoll_kqueue.h当中。epoll的函数其实就是epoll_create/epoll_ctl/epoll_del/epoll_wait这几个，要注意的是skynet中的epoll_create的参数是1024。所以连接数上不去的话很可能就是这里限制了。<br>skynet在skynet_poll.h中根据平台的不同包含了不同的头文件，屏蔽了平台相关性。然后在socket_server.c中实现了网络服务的逻辑。<br>然后skynet在skynet_socket.c中对socket_server.c中的逻辑再次做了一个封装，还添加了socket客户端相关的函数，就是connect/send/close之类的函数。<br>为了方便lua层使用socket，在lua-socket.c中再将对skynet_socket.c进行了一次封装。这个封装就是c语言层和lua语言层的相互转换。目前只支持tcp和udp，基于tcp上的http/websocket之类统统是不支持的。</p>
-<p>为什么操作一个网络要费这么大的劲呢，绕来绕去非常的不直观。因为skynet是基于消息的，而且每个服务都有一个monitor,每个消息处理的时候要尽可能的短，这样才不会阻塞服务里其它的请求。而connect这种明显是阻塞的，当然也可以写成非阻塞的，但是非阻塞的话，你需要不断地挂起，因为非阻塞实际上是基于select技术来实现的。而不断地挂起，这个就很麻烦，写起来很痛苦而且很容易出错。因此云风把这些都放到网络线程中来做，这样就不会影响工作线程。但是这样做也有它的缺点，那就是网络线程可能会被阻塞，网络线程被阻塞就会导致服务无响应。或者导致大量的数据包积累，引起波峰。</p>
-<h2 id="skynet的配置加载"><a href="#skynet的配置加载" class="headerlink" title="skynet的配置加载"></a>skynet的配置加载</h2><p>skynet的配置文件是以lua格式来写的。使用过skynet的都清楚skynet的启动命令是skynet config_file_name。配置文件名是作为命令行参数传给skynet进程的。<br>skynet进程启动以后，会读取config文件，然后解析这个lua文件。然后把相关的配置信息设置到lua的环境变量里。<br>C层读取配置的话是要从lua环境变量里去取的。</p>
-<p>skynet一共有4种线程，monitor线程用于检测节点内的消息是否堵住，timer线程运行定时器，socket线程进行网络数据的收发，worker线程则负责对消息队列进行调度（worker线程的数量，可以通过配置表指定）。消息调度规则是，每条worker线程，每次从全局消息队列中pop出一个次级消息队列，并从次级消息队列中pop出一条消息，并找到该次级消息队列的所属服务，将消息传给该服务的callback函数，执行指定业务，当逻辑执行完毕时，再将次级消息队列push回全局消息队列中。因为每个服务只有一个次级消息队列，每当一条worker线程，从全局消息队列中pop出一个次级消息队列时，其他线程是拿不到同一个服务，并调用callback函数，因此不用担心一个服务同时在多条线程内消费不同的消息，一个服务执行，不存在并发，线程是安全的<br>socket线程、timer线程甚至是worker线程，都有可能会往指定服务的次级消息队列中push消息，push函数内有加一个自旋锁，避免同时多条线程同时向一个次级消息队列push消息的惨局。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/5/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/3/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/5/">&gt;</a>
   </nav>
 
 
@@ -1572,7 +1593,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-count">99</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

@@ -220,264 +220,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/15/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1ipc%E3%80%81%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/15/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1ipc%E3%80%81%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/" itemprop="url">进程间通信ipc、线程间通信</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-15T13:38:18+08:00">
-                2021-02-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>进程间通信(IPC,Inter-Process Communication)指至少两个进程或线程间传送数据或信号的一些技术或方法。<br>进程是计算机系统分配资源的最小单位(严格说来是线程)。每个进程都有自己的一部分独立的系统资源，彼此是隔离的。为了能使不同的进程互相访问资源并进行协调工作，才有了进程间通信。（但是采用了某种形式的内核开销，降低了性能）</p>
-<h2 id="常用的进程间通信"><a href="#常用的进程间通信" class="headerlink" title="常用的进程间通信"></a>常用的进程间通信</h2><h3 id="管道（包括无名管道和命名管道）"><a href="#管道（包括无名管道和命名管道）" class="headerlink" title="管道（包括无名管道和命名管道）"></a>管道（包括无名管道和命名管道）</h3><p>管道是一种通信机制，通常用于进程间的通信（也可通过socket进行网络通信），它表现出来的形式将前面每一个进程的输出（stdout）直接作为下一个进程的输入（stdin）。<br>无名管道，是 UNIX 系统IPC最古老的形式。基于管道文件操作。<br>管道通信特点是：速度慢，容量有限，只有父子进程能通讯（FIFO：任何进程间都能通讯，但速度慢）</p>
-<h3 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h3><p>是消息的链接表，存放在内核中。特点是容量受到系统限制，且要注意第一次读的时候，要考虑上一次没有读完数据的问题</p>
-<h3 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h3><p>与已经介绍过的 IPC 结构不同，它是一个计数器。信号量用于实现进程间的互斥与同步，而不是用于存储进程间通信数据。<br>特点是不能传递复杂消息，只能用来同步。</p>
-<h3 id="共享内存"><a href="#共享内存" class="headerlink" title="共享内存"></a>共享内存</h3><p>指两个或多个进程共享一个给定的存储区。是最快的一种 IPC，因为进程是直接对内存进行存取。信号量+共享内存通常结合在一起使用，信号量用来同步对共享内存的访问。<br>特点是能够很容易控制容量，速度快，但要保持同步，比如一个进程在写的时候，另一个进程要注意读写的问题，相当于线程中的线程安全，当然，共享内存区同样可以用作线程间通讯，不过没这个必要，线程间本来就已经共享了同一进程内的一块内存。</p>
-<h3 id="socket"><a href="#socket" class="headerlink" title="socket"></a>socket</h3><p>socket一般指套接字。所谓套接字(Socket)，就是对网络中不同主机上的应用进程之间进行双向通信的端点的抽象。<br>特点是I/O复用提供一种能力，这种能力使得当一个I/O条件满足时，进程能够及时得到这个信息。适合（远程过程调用、集群）。</p>
-<h2 id="几种线程间的通信机制"><a href="#几种线程间的通信机制" class="headerlink" title="几种线程间的通信机制"></a>几种线程间的通信机制</h2><h3 id="锁机制"><a href="#锁机制" class="headerlink" title="锁机制"></a>锁机制</h3><ul>
-<li>互斥锁：提供了以排它方式阻止数据结构被并发修改的方法。</li>
-<li>读写锁：允许多个线程同时读共享数据，而对写操作互斥。</li>
-<li>条件变量：可以以原子的方式阻塞进程，直到某个特定条件为真为止。对条件测试是在互斥锁的保护下进行的。条件变量始终与互斥锁一起使用。</li>
-</ul>
-<h3 id="信号量机制"><a href="#信号量机制" class="headerlink" title="信号量机制"></a>信号量机制</h3><p>包括无名线程信号量与有名线程信号量</p>
-<h3 id="信号机制"><a href="#信号机制" class="headerlink" title="信号机制"></a>信号机制</h3><p>类似于进程间的信号处理。</p>
-<p>线程间通信的主要目的是用于线程同步，所以线程没有象进程通信中用于数据交换的通信机制。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/14/linux%E4%BF%A1%E5%8F%B7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/14/linux%E4%BF%A1%E5%8F%B7/" itemprop="url">linux信号</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-14T21:55:27+08:00">
-                2021-02-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="一个简单的例子"><a href="#一个简单的例子" class="headerlink" title="一个简单的例子"></a>一个简单的例子</h2><p>ctrl+c</p>
-<h2 id="信号本质"><a href="#信号本质" class="headerlink" title="信号本质"></a>信号本质</h2><p>软中断信号（signal，又简称为信号）用来通知进程发生了异步事件。在软件层次上是对中断机制的一种模拟，在原理上，一个进程收到一个信号与处理器收到一个中断请求可以说是一样的。信号是进程间通信机制中唯一的异步通信机制，一个进程不必通过任何操作来等待信号的到达，事实上，进程也不知道信号到底什么时候到达。进程之间可以互相通过系统调用kill发送软中断信号。内核也可以因为内部事件而给进程发送信号，通知进程发生了某个事件。信号机制除了基本通知功能外，还可以传递附加信息。<br>和单片机上编写的中断相似。</p>
-<h2 id="信号的种类"><a href="#信号的种类" class="headerlink" title="信号的种类"></a>信号的种类</h2><p>可以从两个不同的分类角度对信号进行分类：<br>可靠性方面：可靠信号与不可靠信号；<br>与时间的关系上：实时信号与非实时信号。</p>
-<h2 id="信号处理流程"><a href="#信号处理流程" class="headerlink" title="信号处理流程"></a>信号处理流程</h2><p>对于一个完整的信号生命周期(从信号发送到相应的处理函数执行完毕)来说，可以分为三个阶段：<br>信号诞生<br>信号在进程中注册<br>信号的执行和注销</p>
-<h2 id="信号的发送"><a href="#信号的发送" class="headerlink" title="信号的发送"></a>信号的发送</h2><p>发送信号的主要函数有：kill()、raise()、 sigqueue()、alarm()、setitimer()以及abort()。</p>
-<h2 id="系统如何将一个信号通知到进程？"><a href="#系统如何将一个信号通知到进程？" class="headerlink" title="系统如何将一个信号通知到进程？"></a>系统如何将一个信号通知到进程？</h2><p>内核给进程发送信号，是在进程所在的进程表项的信号域设置对应的信号的位。<br>进程检查信号的时机是：进程即将从内核态返回用户态时。如果进程睡眠了，要看睡眠能不能被中断，如果能被中断则唤醒。<br>进程有一个链表的数据结果，维护一个未决信号的链表。<br>信号在进程中注册，其实就是把该信号加入到这个未决信号链表当中。<br>可靠信号不管链表中是否已经有这个信号了，还是会加进去。不可靠信号，如果链表中已经有这个信号了，就会忽略。<br>进程处理信号的时机就是从内核态即将返回用户态度的时候。<br>执行用户自定义的信号处理函数的方法很巧妙。把该函数的地址放在用户栈栈顶，进程从内核返回到用户态的时候，先弹出信号处理函数地址，于是就去执行信号处理函数了，然后再弹出，才是返回进入内核时的状态。<br>被屏蔽的信号，取消屏蔽后还会被检查。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/14/string%EF%BC%9A%E9%AB%98%E7%BA%A7%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A0%BC%E5%BC%8F%E5%8C%96/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1519,11 +1261,268 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/04/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%A4%9A%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/04/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%A4%9A%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" itemprop="url">redis源码：多机数据库的实现</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-04T09:13:45+08:00">
+                2021-02-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h2><p>2.8版本之前是主发送rdb文件给从实现复制的。效率较低。重连后同步，耗时。<br>新版本分完整同步和部分同步。完整同步和旧版一样，而部分同步则处理断线后重复制情况。</p>
+<p>分部同步由三部分组成：<br>offset偏移量<br>复制积压缓冲区<br>服务器运行id</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> &#123;</span></span><br><span class="line">    <span class="keyword">char</span> runid[REDIS_RUN_ID_SIZE+<span class="number">1</span>];  <span class="comment">// 本服务器的 RUN ID</span></span><br><span class="line">    <span class="keyword">long</span> <span class="keyword">long</span> master_repl_offset;   <span class="comment">// 全局复制偏移量（一个累计值）</span></span><br><span class="line">    </span><br><span class="line">    ...  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Sentinel<br>Sentinel是特殊状态下的redis服务器，本质不用数据库。Sentinel有它自己的命令</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisCommand</span> <span class="title">sentinelcmds</span>[] =</span> &#123;</span><br><span class="line">    &#123;<span class="string">&quot;ping&quot;</span>,pingCommand,<span class="number">1</span>,<span class="string">&quot;&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;sentinel&quot;</span>,sentinelCommand,<span class="number">-2</span>,<span class="string">&quot;&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;subscribe&quot;</span>,subscribeCommand,<span class="number">-2</span>,<span class="string">&quot;&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;unsubscribe&quot;</span>,unsubscribeCommand,<span class="number">-1</span>,<span class="string">&quot;&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;psubscribe&quot;</span>,psubscribeCommand,<span class="number">-2</span>,<span class="string">&quot;&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;punsubscribe&quot;</span>,punsubscribeCommand,<span class="number">-1</span>,<span class="string">&quot;&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;publish&quot;</span>,sentinelPublishCommand,<span class="number">3</span>,<span class="string">&quot;&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;info&quot;</span>,sentinelInfoCommand,<span class="number">-1</span>,<span class="string">&quot;&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;shutdown&quot;</span>,shutdownCommand,<span class="number">-1</span>,<span class="string">&quot;&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>sentinel中的master字典记录所以被监视的主服务器相关信息<br>字典的键是主服务器的信息<br>字典的值是主服务器对应的这个结构</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">sentinelRedisInstance</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> flags;      <span class="comment">// 标识值，记录了实例的类型，以及该实例的当前状态</span></span><br><span class="line">    <span class="keyword">char</span> *name;     </span><br><span class="line">    <span class="keyword">char</span> *runid;      <span class="comment">// 实例的运行 ID</span></span><br><span class="line"></span><br><span class="line">....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当一个主服务器被判断为客观下线时，监视这个下线主服务器的各个Sentinel会进行协商，选举出一个领头Sentinel，并由领头Sentinel对下线主服务器执行故障转移操作。</p>
+<ul>
+<li>每个发现主服务器进入客观下线的Sentinel都会要求其他Sentinel将自己设置为局部领头Sentinel。</li>
+<li>Sentinel设置局部领头Sentinel的规则是先到先得：最先向目标Sentinel发送设置的，会成为其局部领头Sentinel。</li>
+<li>如果有某个Sentinel被半数以上的Sentinel设置成了局部领头Sentinel，那么这个Sentinel成为领头Sentinel。<h2 id="选出新的主服务器"><a href="#选出新的主服务器" class="headerlink" title="选出新的主服务器"></a>选出新的主服务器</h2>使用如下条件筛选备选node：<br>1、slave节点状态处于S_DOWN,O_DOWN,DISCONNECTED的除外<br>2、最近一次ping应答时间不超过5倍ping的间隔（假如ping的间隔为1秒，则最近一次应答延迟不应超过5秒，redis sentinel默认为1秒）<br>3、info_refresh应答不超过3倍info_refresh的间隔（原理同2,redis sentinel默认为10秒）<br>4、slave节点与master节点失去联系的时间不能超过（ (now - master-&gt;s_down_since_time) + (master-&gt;down_after_period * 10)）。总体意思是说，slave节点与master同步太不及时的（比如新启动的节点），不应该参与被选举。<br>5、Slave priority不等于0（这个是在配置文件中指定，默认配置为100）。</li>
+</ul>
+<p>从备选node中，按照如下顺序选择新的master<br>1、较低的slave_priority（这个是在配置文件中指定，默认配置为100）<br>2、较大的replication offset（每个slave在与master同步后offset自动增加）<br>3、较小的runid（每个redis实例，都会有一个runid,通常是一个40位的随机字符串,在redis启动时设置，重复概率非常小）<br>4、如果以上条件都不足以区别出唯一的节点，则会看哪个slave节点处理之前master发送的command多，就选谁。</p>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/03/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/03/redis%E6%BA%90%E7%A0%81%EF%BC%9A%E5%8D%95%E6%9C%BA%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%9E%E7%8E%B0/" itemprop="url">redis源码：单机数据库的实现</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-03T16:15:36+08:00">
+                2021-02-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>redis服务器将所有数据库都保存在服务器状态db数组中。<br>dbnum由conf文件database选项决定。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> &#123;</span></span><br><span class="line">    <span class="keyword">char</span> *configfile;             <span class="comment">// 配置文件的绝对路径</span></span><br><span class="line">    <span class="keyword">int</span> hz;                       <span class="comment">// serverCron() 每秒调用的次数</span></span><br><span class="line">    redisDb *db;    <span class="comment">// 数据库</span></span><br><span class="line"></span><br><span class="line">   ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>分析rdb文件<br>od -c dump.rdb</p>
+<h2 id="redis事件驱动"><a href="#redis事件驱动" class="headerlink" title="redis事件驱动"></a>redis事件驱动</h2><p>redis服务器是一个事件驱动程序，服务器需要处理以下两类事件：<br>文件事件：文件事件就是服务器对套接字操作的抽象。<br>时间事件：时间事件就是服务器对这类定时操作的抽象。</p>
+<p>redis基于reactor模式开发了自己的网络事件处理器。<br>与Memcached不同，Redis并没有直接使用Libevent，而是自己完成了一个非常轻量级的对select、epoll、evport、kqueue这些通用的接口的实现。在不同的系统调用选用适合的接口，linux下默认是epoll。因为Libevent比较重更通用代码量也就很庞大，拥有很多Redis用不上的功能，Redis为了追求“轻巧”并且去除依赖，就选择自己去封装了一套。</p>
+<h2 id="redis协议（aof文件写入也是这个格式）"><a href="#redis协议（aof文件写入也是这个格式）" class="headerlink" title="redis协议（aof文件写入也是这个格式）"></a>redis协议（aof文件写入也是这个格式）</h2>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/8/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/10/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/8/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/10/">&gt;</a>
   </nav>
 
 
@@ -1569,7 +1568,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-count">99</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

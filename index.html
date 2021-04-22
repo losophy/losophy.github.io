@@ -220,6 +220,253 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/22/NexT%E4%B8%BB%E9%A2%98%E4%BC%98%E5%8C%96%E4%B8%8E%E9%97%AE%E9%A2%98%E6%94%B9%E8%BF%9B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/04/22/NexT%E4%B8%BB%E9%A2%98%E4%BC%98%E5%8C%96%E4%B8%8E%E9%97%AE%E9%A2%98%E6%94%B9%E8%BF%9B/" itemprop="url">NexT主题优化与问题改进</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-22T09:06:51+08:00">
+                2021-04-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="主题分页的翻页箭头显示"><a href="#主题分页的翻页箭头显示" class="headerlink" title="主题分页的翻页箭头显示"></a>主题分页的翻页箭头显示<i class="fa fa-angle-right"></i></h2><p>修改代码的位置: themes\next\layout_partials\pagination.swig<br>修改为:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="keyword">if</span> page.prev or page.next %&#125;</span><br><span class="line">  &lt;nav <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;pagination&quot;</span>&gt;</span><br><span class="line">    &#123;&#123;</span><br><span class="line">      paginator(&#123;</span><br><span class="line">        prev_text: <span class="string">&#x27;&lt;&#x27;</span>,</span><br><span class="line">        next_text: <span class="string">&#x27;&gt;&#x27;</span>,</span><br><span class="line">        mid_size: <span class="number">1</span></span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;&#125;</span><br><span class="line">  &lt;/nav&gt;</span><br><span class="line">&#123;% endif %&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="隐藏网页底部powered-By-Hexo-强力驱动"><a href="#隐藏网页底部powered-By-Hexo-强力驱动" class="headerlink" title="隐藏网页底部powered By Hexo / 强力驱动"></a>隐藏网页底部powered By Hexo / 强力驱动</h2><p>打开themes/next/layout/_partials/footer.swig,使用””隐藏之间的代码即可，或者直接删除。位置如图：<br><img src="https://user-images.githubusercontent.com/11263320/115642209-1b413680-a34d-11eb-846e-e1d0bfa4ba4c.JPG" alt="捕获"></p>
+<h2 id="侧边栏显示当前浏览进度"><a href="#侧边栏显示当前浏览进度" class="headerlink" title="侧边栏显示当前浏览进度"></a>侧边栏显示当前浏览进度</h2><p><img src="https://user-images.githubusercontent.com/11263320/115645384-da4c2080-a352-11eb-8614-7c0ac37bab8c.JPG" alt="捕获"><br>打开 themes/next/_config.yml ,搜索关键字 scrollpercent ,把 false 改为 true<br>如果想把 top 按钮放在侧边栏,打开 themes/next/_config.yml ,搜索关键字 b2t ,把 false 改为 true</p>
+<h2 id="右上角添加github入口"><a href="#右上角添加github入口" class="headerlink" title="右上角添加github入口"></a>右上角添加github入口</h2><p><img src="https://user-images.githubusercontent.com/11263320/115648404-f2726e80-a357-11eb-8778-d89058048806.JPG" alt="捕获"><br>1.首先到GitHub Corners或者GitHub Ribbons选择自己喜欢的图标，然后copy相应的代码<br>2.然后将刚才复制的代码粘贴到themes/next/layout/_layout.swig文件中</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;headband&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>下面一行<br>3.把代码中的href后面的值替换成你要跳转的地址，比如你的GitHub主页</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/09/skynet%E8%80%83%E5%8F%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/04/09/skynet%E8%80%83%E5%8F%A4/" itemprop="url">skynet考古</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-09T22:02:05+08:00">
+                2021-04-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="skynet版本的年表"><a href="#skynet版本的年表" class="headerlink" title="skynet版本的年表"></a>skynet版本的年表</h2><p><img src="https://user-images.githubusercontent.com/11263320/114987859-397be200-9ec8-11eb-9d47-d0cb15c4a4b2.JPG" alt="捕获"></p>
+<h2 id="skynet-1"><a href="#skynet-1" class="headerlink" title="skynet 1"></a>skynet 1</h2><p>1.0 : 第一版released<br>1.1 : 增加socket.disconnected()<br>1.2 : 改进cluster支持，mongodb driver，redis driver，socket并发写，socket channel，service gate，udp支持，skynet.wait/wakeup。加入skynet.ignoreret，skynet.trace，skynet.context，socket.netstat，socketchannel.overload。升级Lua到5.3.5，升级jemalloc到5.1.0。<br>1.3 : 改进mysql driver，cluster，lua shared proto，socket.write。增加lua sharetable，https支持，websocket支持。升级jemalloc到5.2.1。<br>1.4 : 升级Lua到5.4.2。改进mysql driver，websocket，ssl，sproto。增加skynet.select，增加PKCS7加密算法，调试终端加入jmem，加入skynet_socket_pause，对日志增加时间戳。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/09/%E6%9B%BF%E6%8D%A2%E5%8D%9A%E5%AE%A2%E4%B8%BB%E9%A2%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -291,21 +538,21 @@
       
         
           
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前在<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/6">Hexo+GitHub Pages博客搭建</a>搭建了博客，这里将替换hexo的主题。这个<a target="_blank" rel="noopener" href="https://hexo.io/themes/">网站</a>有很多主题可以供我们去选择。我们这次安装主题也是上面这些主题中其中一个，它就是 NexT。</p>
-<h1 id="安装NexT主题"><a href="#安装NexT主题" class="headerlink" title="安装NexT主题"></a>安装NexT主题</h1><p>将主题克隆到themes目录下</p>
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前在<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/6">Hexo+GitHub Pages博客搭建</a>搭建了博客，这里将替换hexo的主题。这个<a target="_blank" rel="noopener" href="https://hexo.io/themes/">网站</a>有很多主题可以供我们去选择。我们这次安装主题也是上面这些主题中其中一个，它就是 NexT。</p>
+<h2 id="安装NexT主题"><a href="#安装NexT主题" class="headerlink" title="安装NexT主题"></a>安装NexT主题</h2><p>将主题克隆到themes目录下</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> &lt;博客存放的目录&gt;</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/iissnan/hexo-theme-next themes/next</span></span><br></pre></td></tr></table></figure>
 <p><img src="https://user-images.githubusercontent.com/11263320/114160164-36797280-9959-11eb-95be-9fe07290a533.JPG" alt="gff"></p>
-<h1 id="使用NexT主题"><a href="#使用NexT主题" class="headerlink" title="使用NexT主题"></a>使用NexT主题</h1><p>打开_config.yml文件，该文件为站点配置文件，存放位置如下图所示：<br><img src="https://user-images.githubusercontent.com/11263320/114160272-54df6e00-9959-11eb-907e-16f6e9a907f5.JPG" alt="fgsdfgs"><br>将主题修改为next<br><img src="https://user-images.githubusercontent.com/11263320/114160330-632d8a00-9959-11eb-80dd-fd3020941291.JPG" alt="hgdfshdg"></p>
-<h1 id="部署到服务器"><a href="#部署到服务器" class="headerlink" title="部署到服务器"></a>部署到服务器</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br><span class="line">hexo s</span><br></pre></td></tr></table></figure>
+<h2 id="使用NexT主题"><a href="#使用NexT主题" class="headerlink" title="使用NexT主题"></a>使用NexT主题</h2><p>打开_config.yml文件，该文件为站点配置文件，存放位置如下图所示：<br><img src="https://user-images.githubusercontent.com/11263320/114160272-54df6e00-9959-11eb-907e-16f6e9a907f5.JPG" alt="fgsdfgs"><br>将主题修改为next<br><img src="https://user-images.githubusercontent.com/11263320/114160330-632d8a00-9959-11eb-80dd-fd3020941291.JPG" alt="hgdfshdg"></p>
+<h2 id="部署到服务器"><a href="#部署到服务器" class="headerlink" title="部署到服务器"></a>部署到服务器</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br><span class="line">hexo s</span><br></pre></td></tr></table></figure>
 <p><img src="https://user-images.githubusercontent.com/11263320/114160707-ccad9880-9959-11eb-98b5-9baa2c65bb07.JPG" alt="捕获"><br>这里可能会出现</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">“ &#123;% extends ‘_layout.swig‘ %&#125; &#123;% import ‘_macro&#x2F;post.swig‘ as post_template %&#125;“</span><br></pre></td></tr></table></figure>
 <p>原因是hexo在5.0之后把swig给删除了需要自己手动安装</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i hexo-renderer-swig</span><br></pre></td></tr></table></figure>
-<h1 id="选择-Scheme"><a href="#选择-Scheme" class="headerlink" title="选择 Scheme"></a>选择 Scheme</h1><p>Scheme 是 NexT 提供的一种特性，借助于 Scheme，NexT 为你提供多种不同的外观。同时，几乎所有的配置都可以在 Scheme 之间共用。<br>编辑主题配置文件(themes\next_config.yml)，确定喜爱的scheme</p>
+<h2 id="选择-Scheme"><a href="#选择-Scheme" class="headerlink" title="选择 Scheme"></a>选择 Scheme</h2><p>Scheme 是 NexT 提供的一种特性，借助于 Scheme，NexT 为你提供多种不同的外观。同时，几乎所有的配置都可以在 Scheme 之间共用。<br>编辑主题配置文件(themes\next_config.yml)，确定喜爱的scheme</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#scheme: Muse</span><br><span class="line">#scheme: Mist</span><br><span class="line">scheme: Pisces</span><br></pre></td></tr></table></figure>
-<h1 id="设置菜单"><a href="#设置菜单" class="headerlink" title="设置菜单"></a>设置菜单</h1><h3 id="设定菜单内容"><a href="#设定菜单内容" class="headerlink" title="设定菜单内容"></a>设定菜单内容</h3><p>编辑主题配置文件(themes\next_config.yml)，设定菜单内容，对应的字段是 menu。 菜单内容的设置格式是：item name: link。其中 item name 是一个名称，这个名称并不直接显示在页面上，她将用于匹配图标以及翻译</p>
+<h2 id="设置菜单"><a href="#设置菜单" class="headerlink" title="设置菜单"></a>设置菜单</h2><h3 id="设定菜单内容"><a href="#设定菜单内容" class="headerlink" title="设定菜单内容"></a>设定菜单内容</h3><p>编辑主题配置文件(themes\next_config.yml)，设定菜单内容，对应的字段是 menu。 菜单内容的设置格式是：item name: link。其中 item name 是一个名称，这个名称并不直接显示在页面上，她将用于匹配图标以及翻译</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">menu:</span><br><span class="line">  home: &#x2F;|| home</span><br><span class="line">  about: &#x2F;about&#x2F;|| user</span><br><span class="line">  #tags: &#x2F;tags&#x2F;|| tags</span><br><span class="line">  #categories: &#x2F;categories&#x2F;|| th</span><br><span class="line">  #archives: &#x2F;archives&#x2F;|| archive</span><br><span class="line">  #schedule: &#x2F;schedule&#x2F;|| calendar</span><br><span class="line">  #sitemap: &#x2F;sitemap.xml|| sitemap</span><br><span class="line">  #commonweal: &#x2F;404&#x2F;|| heartbeat</span><br></pre></td></tr></table></figure>
-<h2 id="处理菜单的点击跳转"><a href="#处理菜单的点击跳转" class="headerlink" title="处理菜单的点击跳转"></a>处理菜单的点击跳转</h2><p>按照上面的方式设置的菜单之后，点击标签，或者关于我都会出现错误页面，那这是怎么回事呢？<br>在默认情况，source 目录只有 _posts 一个文件夹的，并没有生成对应的 tags,about 等文件夹，所以就会出现错误 页面。<br>生成下菜单文件夹的可以了</p>
+<h3 id="处理菜单的点击跳转"><a href="#处理菜单的点击跳转" class="headerlink" title="处理菜单的点击跳转"></a>处理菜单的点击跳转</h3><p>按照上面的方式设置的菜单之后，点击标签，或者关于我都会出现错误页面，那这是怎么回事呢？<br>在默认情况，source 目录只有 _posts 一个文件夹的，并没有生成对应的 tags,about 等文件夹，所以就会出现错误 页面。<br>生成下菜单文件夹的可以了</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo new page tags</span><br></pre></td></tr></table></figure>
 <p>将 source/tags/index.md 的内容修改为如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">date: 2021-11-10 12:36:26</span><br><span class="line">type: &quot;tags&quot;</span><br><span class="line">comments: false</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
@@ -1509,261 +1756,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" itemprop="url">网络游戏服务器开发注意事项</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-09T15:46:18+08:00">
-                2021-03-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="逻辑问题"><a href="#逻辑问题" class="headerlink" title="逻辑问题"></a>逻辑问题</h2><p>==判断限制太死了，少用点<br>使用while true时，可能造成死循环，应该添加保险措施，必现因为逻辑问题导致的死循环</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> weaponType ~= sword <span class="keyword">do</span></span><br><span class="line">    check = check + <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> <span class="number">1000</span> &lt; check <span class="keyword">then</span></span><br><span class="line">          <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>递归调用也有可能会出现堆栈溢出，也需要加上保险措施</p>
-<p>local不能热更，用local时，要考虑会不会有热更的情况<br>因为不同语言的版本会共用一套代码，不同时区发时间会有问题，同步会有问题，改用发时间戳<br>禁止广泛采用param arg等表示某一类参数，统一加上对应的模块或功能特性声明，比如：CreateRole(roleParam)</p>
-<h2 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h2><p>协议字段要小，省宽带<br>协议接口目录统一，方便热更新</p>
-<h2 id="检查验收"><a href="#检查验收" class="headerlink" title="检查验收"></a>检查验收</h2><p>查看传入参数判空，长命名，默认值，参数检测，snsaerro中断会发生的问题<br>用户登录时，不要有中断发生<br>用户登录时，所有下推合成一个包发送</p>
-<p>所有的物品接口是遵循这个规律的（物品先扣再发）：<br>1.检测<br>2.扣钱、资源<br>3.发物品,修改数据</p>
-<h2 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h2><h3 id="mongodb"><a href="#mongodb" class="headerlink" title="mongodb"></a>mongodb</h3><p>odm不要设计成第一层就用map，后续加字段会很困难</p>
-<h3 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h3><p>数据库用cache，定时存入<br>因为mysql写入的数据都是冷数据（只增，部分读），所以处理比较简单<br>（核查记录，邮件）这些业务交给网页部门，服务器拿网页接口</p>
-<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p>配置文件转换时，不要出现值为2.0这种错误</p>
-<h3 id="编写validate-lua"><a href="#编写validate-lua" class="headerlink" title="编写validate.lua"></a>编写validate.lua</h3><p>每新增配置表，策划有可能会配置错误的项目都需要添加检测。确保跑validate时，不会因配置错误，而出现程序出错。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/" itemprop="url">删除svn冲突</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-08T15:18:57+08:00">
-                2021-03-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>一般遇到svn冲突时，我们都下意识clean下。其实，有更加好的方法。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">G:\project\.svn<span class="operator">&gt;</span>sqlite3.exe wc.db</span><br><span class="line">SQLite version <span class="number">3.7</span><span class="number">.15</span><span class="number">.2</span> <span class="number">2013</span><span class="number">-01</span><span class="number">-09</span> <span class="number">11</span>:<span class="number">53</span>:<span class="number">05</span></span><br><span class="line">Enter &quot;.help&quot; <span class="keyword">for</span> instructions</span><br><span class="line">Enter <span class="keyword">SQL</span> statements terminated <span class="keyword">with</span> a &quot;;&quot;</span><br><span class="line">sqlite<span class="operator">&gt;</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> work_queue;</span><br><span class="line"><span class="number">5046</span><span class="operator">|</span>(file<span class="operator">-</span>install Resources<span class="operator">/</span>pc<span class="operator">/</span>base<span class="operator">/</span>effects<span class="operator">/</span><span class="number">500000001.</span>unity3d <span class="number">1</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span>)</span><br><span class="line">sqlite<span class="operator">&gt;</span> <span class="keyword">delete</span> <span class="keyword">from</span> work_queue;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/">&gt;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/2/">&gt;</a>
   </nav>
 
 
@@ -1809,7 +1806,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-count">99</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

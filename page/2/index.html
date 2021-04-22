@@ -220,6 +220,258 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/03/09/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" itemprop="url">网络游戏服务器开发注意事项</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-09T15:46:18+08:00">
+                2021-03-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="逻辑问题"><a href="#逻辑问题" class="headerlink" title="逻辑问题"></a>逻辑问题</h2><p>==判断限制太死了，少用点<br>使用while true时，可能造成死循环，应该添加保险措施，必现因为逻辑问题导致的死循环</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> weaponType ~= sword <span class="keyword">do</span></span><br><span class="line">    check = check + <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> <span class="number">1000</span> &lt; check <span class="keyword">then</span></span><br><span class="line">          <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>递归调用也有可能会出现堆栈溢出，也需要加上保险措施</p>
+<p>local不能热更，用local时，要考虑会不会有热更的情况<br>因为不同语言的版本会共用一套代码，不同时区发时间会有问题，同步会有问题，改用发时间戳<br>禁止广泛采用param arg等表示某一类参数，统一加上对应的模块或功能特性声明，比如：CreateRole(roleParam)</p>
+<h2 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h2><p>协议字段要小，省宽带<br>协议接口目录统一，方便热更新</p>
+<h2 id="检查验收"><a href="#检查验收" class="headerlink" title="检查验收"></a>检查验收</h2><p>查看传入参数判空，长命名，默认值，参数检测，snsaerro中断会发生的问题<br>用户登录时，不要有中断发生<br>用户登录时，所有下推合成一个包发送</p>
+<p>所有的物品接口是遵循这个规律的（物品先扣再发）：<br>1.检测<br>2.扣钱、资源<br>3.发物品,修改数据</p>
+<h2 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h2><h3 id="mongodb"><a href="#mongodb" class="headerlink" title="mongodb"></a>mongodb</h3><p>odm不要设计成第一层就用map，后续加字段会很困难</p>
+<h3 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h3><p>数据库用cache，定时存入<br>因为mysql写入的数据都是冷数据（只增，部分读），所以处理比较简单<br>（核查记录，邮件）这些业务交给网页部门，服务器拿网页接口</p>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p>配置文件转换时，不要出现值为2.0这种错误</p>
+<h3 id="编写validate-lua"><a href="#编写validate-lua" class="headerlink" title="编写validate.lua"></a>编写validate.lua</h3><p>每新增配置表，策划有可能会配置错误的项目都需要添加检测。确保跑validate时，不会因配置错误，而出现程序出错。</p>
+<h2 id="时间戳"><a href="#时间戳" class="headerlink" title="时间戳"></a>时间戳</h2><p>传时间戳，不要传时间字符，跨时间，会影响不同语言版本的逻辑</p>
+<h2 id="计量"><a href="#计量" class="headerlink" title="计量"></a>计量</h2><p>尽是用‱，少用%</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/03/08/%E5%88%A0%E9%99%A4svn%E5%86%B2%E7%AA%81/" itemprop="url">删除svn冲突</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-08T15:18:57+08:00">
+                2021-03-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>一般遇到svn冲突时，我们都下意识clean下。其实，有更加好的方法。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">G:\project\.svn<span class="operator">&gt;</span>sqlite3.exe wc.db</span><br><span class="line">SQLite version <span class="number">3.7</span><span class="number">.15</span><span class="number">.2</span> <span class="number">2013</span><span class="number">-01</span><span class="number">-09</span> <span class="number">11</span>:<span class="number">53</span>:<span class="number">05</span></span><br><span class="line">Enter &quot;.help&quot; <span class="keyword">for</span> instructions</span><br><span class="line">Enter <span class="keyword">SQL</span> statements terminated <span class="keyword">with</span> a &quot;;&quot;</span><br><span class="line">sqlite<span class="operator">&gt;</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> work_queue;</span><br><span class="line"><span class="number">5046</span><span class="operator">|</span>(file<span class="operator">-</span>install Resources<span class="operator">/</span>pc<span class="operator">/</span>base<span class="operator">/</span>effects<span class="operator">/</span><span class="number">500000001.</span>unity3d <span class="number">1</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span>)</span><br><span class="line">sqlite<span class="operator">&gt;</span> <span class="keyword">delete</span> <span class="keyword">from</span> work_queue;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/03/vscode-vps%E8%B0%83%E8%AF%95c%E7%A8%8B%E5%BA%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -558,6 +810,8 @@
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> a = &#123;&#125;</span><br><span class="line"><span class="keyword">for</span> i=l,<span class="number">3</span> <span class="keyword">do</span></span><br><span class="line">    a[i] = <span class="literal">true</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
 <p>最开始，Lua创建了一个空表a。在第一次迭代中，a[1]为 true触发了一次重新散列操作，Lua将数组部分的长度设置为2^0 ，即 1，散列表部分仍为空。在第二次迭代中，a[2]为true再次触发了重新散列操作，将数组部分长度设为 2^1，即2。最后一次迭代又触发了一次重新散列操作，将数组部分长度设为2^2 ，即4。<br>只有三个元素的表会执行三次重新散列操作，然而有 100万个元素的表仅仅只会执行20次重新散列操作而已，因为2”20 = 1048576 &gt; 1000000。 但是，如果创建了非常多的长度很小的表（比如坐标点： point = {x=0, y=0｝），这可能会造成巨大的影响。所以，当需要创建非常多的小表时，应预先填充好表的大小，减少解释器被动地进行重新散列操作的过程。<br>如果你有很多很小的表需要创建，就可以预先填充以避免重新散列操作。比如：｛true, true,true}，Lua知道这个表有3个元素，所以直接创建了3个元素的数组。 类似地，｛ X=l, y=2, z＝3，}，Lua会在其散列表部分中创建长度为3的数组。<br>所以，上述代码使用了预填充技术为：</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> a = &#123;<span class="number">1</span>，<span class="number">2</span>，<span class="number">3</span>&#125;</span><br><span class="line"><span class="keyword">for</span> i=l,<span class="number">3</span> <span class="keyword">do</span></span><br><span class="line">    a[i] = <span class="literal">true</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="限制require到别的模块"><a href="#限制require到别的模块" class="headerlink" title="限制require到别的模块"></a>限制require到别的模块</h2><p>手工编写服务表，防止Require到别的服务的lua模块<br>REQUIRE_CHECK_LIST = {<br>    [“A”] = true,<br>    [“B”] = true,<br>}</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> realrequire = <span class="built_in">require</span></span><br><span class="line"><span class="keyword">local</span> <span class="built_in">loaded</span> = <span class="built_in">package</span>.<span class="built_in">loaded</span></span><br><span class="line"><span class="built_in">require</span> = <span class="function"><span class="keyword">function</span> <span class="params">( moduleName )</span></span></span><br><span class="line">	<span class="keyword">local</span> loadedModule = <span class="built_in">loaded</span>[moduleName]</span><br><span class="line">	<span class="keyword">if</span> loadedModule ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">		<span class="keyword">return</span> loadedModule</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="keyword">local</span> header = moduleName:<span class="built_in">match</span>(<span class="string">&quot;([^%.]*)%..*&quot;</span>)</span><br><span class="line">		<span class="keyword">if</span>  REQUIRE_CHECK_LIST[header] <span class="keyword">then</span></span><br><span class="line">			<span class="built_in">print</span>(try to <span class="built_in">require</span> others service)</span><br><span class="line">		<span class="keyword">end</span></span><br><span class="line">		<span class="keyword">return</span> realrequire(moduleName)</span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
           
         
       
@@ -931,7 +1185,7 @@
             <p><img src="https://user-images.githubusercontent.com/11263320/109392605-069d7f00-7958-11eb-9e01-51d10239f93a.jpg" alt="makefile知识点"><br><img src="https://user-images.githubusercontent.com/11263320/109392606-07361580-7958-11eb-9c6b-04b1574b57d4.jpg" alt="makefile进阶"></p>
 <h2 id="使用autotools来进行Makefile的自动生成"><a href="#使用autotools来进行Makefile的自动生成" class="headerlink" title="使用autotools来进行Makefile的自动生成"></a>使用autotools来进行Makefile的自动生成</h2><ul>
 <li>运行 autoscan , 自动创建两个文件： autoscan.log configure.scan<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost main]# autoscan</span><br><span class="line">[root@localhost main]# ls</span><br><span class="line">autoscan.log configure.scan main.c</span><br></pre></td></tr></table></figure></li>
-<li>修改configure.scan的文件名为configure.in<br>修改configure.in:<br>  1.修改AC_INIT里面的参数: AC_INIT(main,1.0, <a href="mailto:&#x70;&#103;&#x70;&#x78;&#99;&#64;&#49;&#54;&#51;&#x2e;&#99;&#111;&#109;">&#x70;&#103;&#x70;&#x78;&#99;&#64;&#49;&#54;&#51;&#x2e;&#99;&#111;&#109;</a>)<br>  2.添加宏AM_INIT_AUTOMAKE, 它是automake所必备的宏，也同前面一样，PACKAGE是所要产生软件套件的名称，VERSION是版本编号。<br>  3.在AC_OUTPUT后添加输出文件Makefile</li>
+<li>修改configure.scan的文件名为configure.in<br>修改configure.in:<br>  1.修改AC_INIT里面的参数: AC_INIT(main,1.0, <a href="mailto:&#x70;&#x67;&#x70;&#x78;&#x63;&#64;&#49;&#x36;&#51;&#x2e;&#x63;&#x6f;&#x6d;">&#x70;&#x67;&#x70;&#x78;&#x63;&#64;&#49;&#x36;&#51;&#x2e;&#x63;&#x6f;&#x6d;</a>)<br>  2.添加宏AM_INIT_AUTOMAKE, 它是automake所必备的宏，也同前面一样，PACKAGE是所要产生软件套件的名称，VERSION是版本编号。<br>  3.在AC_OUTPUT后添加输出文件Makefile</li>
 </ul>
 <p>修改后的结果:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#                                               -*- Autoconf -*-</span><br><span class="line"># Process this file with autoconf to produce a configure script.</span><br><span class="line"></span><br><span class="line">AC_PREREQ(2.61)</span><br><span class="line">AC_INIT(main, 1.0, pgpxc@163.com)</span><br><span class="line">AC_CONFIG_SRCDIR([main.c])</span><br><span class="line">AC_CONFIG_HEADER([config.h])</span><br><span class="line">AM_INIT_AUTOMAKE(main,1.0)</span><br><span class="line"></span><br><span class="line"># Checks for programs.</span><br><span class="line">AC_PROG_CC</span><br><span class="line"></span><br><span class="line"># Checks for libraries.</span><br><span class="line"></span><br><span class="line"># Checks for header files.</span><br><span class="line"></span><br><span class="line"># Checks for typedefs, structures, and compiler characteristics.</span><br><span class="line"></span><br><span class="line"># Checks for library functions.</span><br><span class="line"></span><br><span class="line">AC_OUTPUT([Makefile])</span><br></pre></td></tr></table></figure>
@@ -1223,262 +1477,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/" itemprop="url">STL源码分析：Functors</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-25T21:49:07+08:00">
-                2021-02-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>仿函数其实上就是一个“行为类似函数”的对象。仿函数可以让STL算法有更灵活的演出。<br>c++11中已经引入lamda表达式，相当于将这部分内容加入了语法。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>为实现仿函数，其类别定义中必须自定义（或说改写、重载）function call运算子（operator()）。拥有这样的运算子后，我们就可以在仿函数的对象后而加上一对小括号，以此调用仿函数所定义 的operator()。</p>
-<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><p>STL仿函数的分类，若以操作数的个数划分，可分为一元和二元仿函数，若以功能划分，可以为算术运算、关系运算、逻辑运算三在类。</p>
-<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><p>在我们写代码时有时会发现有些功能实现的代码，会不断的在不同的成员函数中用到，但是又不好将这些代码独立出来成为一个类的一个成员函数。但是又很想复用这些代码。写一个公共的函数，可以，这是一个解决方法，不过函数用到的一些变量，就可能成为公共的全局变量，再说为了复用这么一片代码，就要单立出一个函数，也不是很好维护。这时就可以用仿函数了，写一个简单类，除了那些维护一个类的成员函数外，就只是实现一个operator()，在类实例化时，就将要用的，非参数的元素传入类中。这样就免去了对一些公共变量的全局化的维护了。又可以使那些代码独立出来，以便下次复用。而且这些仿函数，还可以用关联，聚合，依赖的类之间的关系，与用到他们的类组合在一起，这样有利于资源的管理（这点可能是它相对于函数最显著的优点了）。</p>
-<p>有时仿函数的使用是为了函数拥有类的性质，以达到安全传递函数指针，依据函数生成对象，甚至是让函数之间有继承关系，对函数进行运算和操作的效果。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/" itemprop="url">STL源码分析：Algorithms</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-25T21:41:37+08:00">
-                2021-02-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>广义而言，我们所写的每个程序都是一个算法，其中的每个函数也都是一个算法，毕竟它们都用来解决或大或小的逻辑问题或数学问题。<br>STL算法包括排序、查找、排列组合算法，以及用于数据移动、复制、删除、比较、组合、运算等等。</p>
-<h2 id="质变与非质变"><a href="#质变与非质变" class="headerlink" title="质变与非质变"></a>质变与非质变</h2><p>如果以运算过程中会更改区间内的元素内容区分算法，可以分为质变算法与非质变算法。</p>
-<ul>
-<li>质变算法包括：拷贝、互换、替换、填写、删除、排列组合、分割、随机重排、排序等等。</li>
-<li>非质变算法包括：查找、匹配、计数、巡访、比较、寻找极值等等。</li>
-</ul>
-<h2 id="算法泛化"><a href="#算法泛化" class="headerlink" title="算法泛化"></a>算法泛化</h2><p>所有泛型算法的前两个参数都是一对迭代器，通常称为first和last，用以标示算法的操作区间。STL习惯采用前闭后开区间，写成[first,last)，表示区间涵盖first至last（不含last）之间的所有元素。当first==last时，上述所表现的便是一个空区间。</p>
-<p>只要把操作对象的型别加以抽象化，把操作对象的标示法和区间目标的移动行为抽象化，整个算法也就在一个抽象层面上工作了。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">Iterator</span>,<span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="function">Iterator <span class="title">find</span><span class="params">(Iterator begin, Iterator end, <span class="keyword">const</span> T&amp; value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(begin != end &amp;&amp; *begin != value)</span><br><span class="line">        ++begin;</span><br><span class="line">    <span class="keyword">return</span> begin;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/">&lt;</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/3/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/">&lt;</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/3/">&gt;</a>
   </nav>
 
 
@@ -1524,7 +1527,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-count">99</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

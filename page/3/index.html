@@ -220,6 +220,257 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AFunctors/" itemprop="url">STL源码分析：Functors</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-25T21:49:07+08:00">
+                2021-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>仿函数其实上就是一个“行为类似函数”的对象。仿函数可以让STL算法有更灵活的演出。<br>c++11中已经引入lamda表达式，相当于将这部分内容加入了语法。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>为实现仿函数，其类别定义中必须自定义（或说改写、重载）function call运算子（operator()）。拥有这样的运算子后，我们就可以在仿函数的对象后而加上一对小括号，以此调用仿函数所定义 的operator()。</p>
+<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><p>STL仿函数的分类，若以操作数的个数划分，可分为一元和二元仿函数，若以功能划分，可以为算术运算、关系运算、逻辑运算三在类。</p>
+<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><p>在我们写代码时有时会发现有些功能实现的代码，会不断的在不同的成员函数中用到，但是又不好将这些代码独立出来成为一个类的一个成员函数。但是又很想复用这些代码。写一个公共的函数，可以，这是一个解决方法，不过函数用到的一些变量，就可能成为公共的全局变量，再说为了复用这么一片代码，就要单立出一个函数，也不是很好维护。这时就可以用仿函数了，写一个简单类，除了那些维护一个类的成员函数外，就只是实现一个operator()，在类实例化时，就将要用的，非参数的元素传入类中。这样就免去了对一些公共变量的全局化的维护了。又可以使那些代码独立出来，以便下次复用。而且这些仿函数，还可以用关联，聚合，依赖的类之间的关系，与用到他们的类组合在一起，这样有利于资源的管理（这点可能是它相对于函数最显著的优点了）。</p>
+<p>有时仿函数的使用是为了函数拥有类的性质，以达到安全传递函数指针，依据函数生成对象，甚至是让函数之间有继承关系，对函数进行运算和操作的效果。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AAlgorithms/" itemprop="url">STL源码分析：Algorithms</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-25T21:41:37+08:00">
+                2021-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>广义而言，我们所写的每个程序都是一个算法，其中的每个函数也都是一个算法，毕竟它们都用来解决或大或小的逻辑问题或数学问题。<br>STL算法包括排序、查找、排列组合算法，以及用于数据移动、复制、删除、比较、组合、运算等等。</p>
+<h2 id="质变与非质变"><a href="#质变与非质变" class="headerlink" title="质变与非质变"></a>质变与非质变</h2><p>如果以运算过程中会更改区间内的元素内容区分算法，可以分为质变算法与非质变算法。</p>
+<ul>
+<li>质变算法包括：拷贝、互换、替换、填写、删除、排列组合、分割、随机重排、排序等等。</li>
+<li>非质变算法包括：查找、匹配、计数、巡访、比较、寻找极值等等。</li>
+</ul>
+<h2 id="算法泛化"><a href="#算法泛化" class="headerlink" title="算法泛化"></a>算法泛化</h2><p>所有泛型算法的前两个参数都是一对迭代器，通常称为first和last，用以标示算法的操作区间。STL习惯采用前闭后开区间，写成[first,last)，表示区间涵盖first至last（不含last）之间的所有元素。当first==last时，上述所表现的便是一个空区间。</p>
+<p>只要把操作对象的型别加以抽象化，把操作对象的标示法和区间目标的移动行为抽象化，整个算法也就在一个抽象层面上工作了。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">Iterator</span>,<span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="function">Iterator <span class="title">find</span><span class="params">(Iterator begin, Iterator end, <span class="keyword">const</span> T&amp; value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(begin != end &amp;&amp; *begin != value)</span><br><span class="line">        ++begin;</span><br><span class="line">    <span class="keyword">return</span> begin;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/STL%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9AContainers/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1285,287 +1536,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B62%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0/" itemprop="url">c++对象模型研究2：构造函数</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-25T15:50:00+08:00">
-                2021-02-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>关键词explicit之所以被导入这个语言，就是为了提供给程序员一种方法，使他们能够制止“单一参数的构造函数”被当做一个转换运算符。</p>
-<h2 id="默认构造函数的构建操作"><a href="#默认构造函数的构建操作" class="headerlink" title="默认构造函数的构建操作"></a>默认构造函数的构建操作</h2><p>以下四种情况类会被生成“有用的”默认构造函数<br>a.一个带有默认构造函数的成员对象类<br>  合成的默认构造函数是以inline的方式完成的，如果函数太复杂则会做成非inline的static实体</p>
-<p>b.带有默认构造函数的基类<br>  和上述情况相似，子类没有构造函数，编译器会默认合成一个调用基类默认（无参）构造函数的子类默认构造函数</p>
-<p>c.带有一个虚函数的class<br>  以下两种情况需要合成出默认构造函数<br>1）类声明（或继承）一个虚函数<br>2）类派生自一个继承串链，其中有一个或多个虚基类</p>
-<p>d.带有一个虚基类的类（菱形继承）</p>
-<p>关于默认构造函数的合成两点是需要注意的：<br>1）不是任何没有定义构造函数的类都会被合成出一个默认构造函数<br>2）编译器合成出来的默认构造函数不会对类内每一个成员数据都设定默认值</p>
-<h2 id="拷贝构造函数的构建操作"><a href="#拷贝构造函数的构建操作" class="headerlink" title="拷贝构造函数的构建操作"></a>拷贝构造函数的构建操作</h2><p>有三种情况，会以一个对象的内容作为另一个类对象的初值<br>1.对一个对象做明确的初始化操作<br>2.当对象被当作参数交给某个函数时<br>3.当函数传回一个类对象时</p>
-<p>一个类对象可以从两种方式复制得到，一种是拷贝构造，另一种是拷贝赋值操作（=）。</p>
-<p>关于复制<br>其实复制涉及到C++内部模型的两个概念，即Default Memberwise Initialization 和bitwise copy semantics。<br>Default Memberwise Initialization： 这是C 模型的内部一种实现方案,其原理就是对于同一类的两个对象直接的赋值进行的暗箱操作。说白了，就是将一个对象的内存空间中的数据，原封不动的拷贝出另一份来填满另一个对象的内存。<br>如果该类内含其他类的对象作为自己的成员变量的话，那赋值操作并不会对该对象变量进行赋值，而是递归的对其内部数据成员赋值（原理还是有关对象内存布局）。如果类中有个指针成员变量，而其指向堆中的一片区域，然而在赋值过程中，根据memberwise的概念，只是将指针的值进行了赋值，这样一来，这两个对象中的指针变量自然都是指向同一片内存区域了，即所谓的浅拷贝。所以这时就需要程序员自己来实现拷贝构造函数来完成那片堆内存的拷贝赋值操作，即所谓的深拷贝。</p>
-<p>不要bitwise copy semantic<br>什么时候一个类不展现出bitwise copy semantic呢？<br>1）当类内含有一个成员类对象，而这个成员类对象内有一个拷贝构造函数时（不论是class设计者明确声明，或者被编译器合成 ）。<br>2）当类继承自 一个基类，而基类有拷贝构造函数时（不论是类设计者明确声明，或者被编译器合成 ）。<br>3）当一个类声明了一个或多个virtual 函数时。<br>4）当类派生自一个继承串链，其中一个或者多个virtual基类。<br>在前两种情况中，编译器必须将成员或基类的“ 构造函数的调用操作” 安插到被合成的构造函数中。（就像构造函数中的操作那样）。<br>第三种情况，如果编译器对于每一个新产生的类对象的虚表不能成功而正确地设好其初值，将导致可怕的后果。因此，当编译器导入一个虚表到类之中时，该类就不再展现bitwise copy semantic了。如果没有 bitwise copy semantics的作用的话，很容易想到，编译器会用到默认复制来对两个对象的vptr进行复制，因为两个类对象的vp都指向同一个vptr，所以会导致可怕的后果。</p>
-<p>这里我都被bitwise 和Memberwise 搞昏了。反正就是以上四种情况，复制不是单纯的直接复制。编译器会开辟新内存。</p>
-<h2 id="构造函数使用"><a href="#构造函数使用" class="headerlink" title="构造函数使用"></a>构造函数使用</h2><p>在使用者层面做优化<br>一般来说是这么写的：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">X <span class="title">bar</span><span class="params">(<span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	X xx;</span><br><span class="line">	xx.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	<span class="keyword">return</span> xx；</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//编译器内部的伪码：</span></span><br><span class="line"><span class="keyword">void</span> bar(X&amp; _result, <span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span><br><span class="line">&#123;</span><br><span class="line">	X xx;</span><br><span class="line">	xx.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	_result.X::XX(xx);<span class="comment">//copy constructor</span></span><br><span class="line">	<span class="keyword">return</span>;  <span class="comment">//什么也不返回</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>如果这么写</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">X <span class="title">bar</span><span class="params">(<span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> X(p1,p2);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//编译器内部的伪码：</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">(X&amp; _result, <span class="keyword">const</span> X&amp; p1, <span class="keyword">const</span> X&amp; p2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	_result.X::X(p1,p2);<span class="comment">//default constructor? OR member fuction?</span></span><br><span class="line">	<span class="keyword">return</span>;<span class="comment">//什么也不返回</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>相比较而言，少了个copy constructor。换句话说，少用局部变量，能直接计算返回的，就直接计算返回，这样可以少产生一个拷贝构造函数。</p>
-<p>在编译器层面做优化<br>在使用者层面做优化的例子，原先是使用者注意少用局部变量，能直接计算返回的，就直接计算返回，这样可以少产生一个拷贝构造函数。现在这件事情编译器代你做了，换句话说，即使我们仍用了xx做局部变量，保存计算结果，return xx，编译器也会自动把xx用_result替换掉，替你精简掉一个copy constructor。<br>然后呢，lippman把这种行为叫做“NRV优化”， NRV优化的本质是优化掉拷贝构造函数，当然去掉它的前提是作为使用者的我们用了xx做局部变量、return xx；如果我们没有这么做，而是直接return X(p1,p2) 那么这种行为也就不会发生了。</p>
-<p>要不要构造函数？<br>其实就是bitwise和Memberwise的问题了。如果类对象的成员数据以数值来储存。bitwise copy既不会导致memory leak，也不会产生address aliasing，因此它既快速又安全。如果类需要大量的memberwise初始化操作，例如以传值的方式传回对象，那么就需要explicit了。<br>当然，你也可以手动memcpy，但使用前提是：在class不含任何编译器产生的内部members。例如virtual相关内容。</p>
-<h2 id="成员们的初始化队列"><a href="#成员们的初始化队列" class="headerlink" title="成员们的初始化队列"></a>成员们的初始化队列</h2><p>当你写下一个构造函数的时候，你有机会设定类成员的初值。要不是经由成员初始化列表，就是在构造函数本身之内。除了四种情况，你的任何选择其实都差不多。</p>
-<p>必须使用初始化列表的情况<br>1）当初始化一个引用成员时<br>2）当初始化一个常量成员时<br>3）当调用一个基类的构造函数，而它拥有一组参数时<br>4）当调用一个类成员的构造函数，而它拥有一组参数时</p>
-<p>第一第二是因为：const对象或引用只能初始化但是不能赋值。构造函数的函数体内只能做赋值而不是初始化，因此初始化const对象或引用的唯一机会是构造函数函数体之前的初始化列表中。<br>第三第四是因为：主要是性能问题，如果类存在继承关系，派生类必须在其初始化列表中调用基类的构造函数。对于内置类型，如int, float等，使用初始化类表和在构造函数体内初始化差别不是很大，但是对于类类型来说，最好使用初始化列表，使用初始化列表少了一次调用默认构造函数的过程，这对于数据密集型的类来说，是非常高效的。</p>
-<p>所以一个好的原则是，能使用初始化列表的时候尽量使用初始化列表。<br>还有，对于初始化列表有些地方需要注意：list中的生成次序是由类中成员的声明次序决定的，而不是initialization list的排列次序决定的。</p>
-<p>全局对象的内存保证会在程序激活的时候被清为0。局部对象配置于程序的堆栈中，动态对象配置于自由空间中，都不一定会被清为0，它们的内容将是内存上次被使用后的遗迹。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B61%EF%BC%9A%E5%85%B3%E4%BA%8E%E5%AF%B9%E8%B1%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B61%EF%BC%9A%E5%85%B3%E4%BA%8E%E5%AF%B9%E8%B1%A1/" itemprop="url">c++对象模型研究1：关于对象</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-25T15:16:50+08:00">
-                2021-02-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="对象模型"><a href="#对象模型" class="headerlink" title="对象模型"></a>对象模型</h2><p>和c不同，c是将数据和处理数据的函数分开的（数据流过程决定函数编写，过程式的）；而c++把数据和处理数据的方法关联在了一起（对象发起动作，操纵数据）。那么像class一样将数据和方法包含在一起，甚至再用上模板是否会增加布局成本呢？</p>
-<p>C++对象模式<br>在C++中，有两种类成员数据：static和非static，以及三种类成员函数：static、非static和virtual。</p>
-<p>在C++对象模型中，非static成员数据被配置于每一个类对象之内，static成员数据则被放在所有类对象之外。static和非static成员函数也被放在所有的类对象之外。</p>
-<p>C++在布局以及存取时间上主要的额外负担是由virtual引起，包括<br>1.虚函数机制（执行时绑定）<br>2.虚基类。还有一些多重继承下的额外负担。</p>
-<p>virtual函数则以两个步骤支持之：<br>1.每一个类产生出一堆指向virtual函数的指针，放在表格之中。这个表格被称为virtual表。<br>2.第一个类对象被添加了一个指针，指向相关的virtual表。这个指针的设定和重置都由每一个类的构造函数，析构函数和拷贝赋值运算符自动完成。另外，虚函数表地址的前面设置了一个指向type_info的指针，RTTI（Run Time Type Identification）运行时类型识别是有编译器在编译器生成的特殊类型信息，包括对象继承关系，对象本身的描述，RTTI是为多态而生成的信息，所以只有具有虚函数的对象在会生成。</p>
-<p>和c相比，c++的布局成本主要来自于virtual，virtual使得class object需要先找虚表，再由虚表找所在地，增加了耗费。而像nonstatic data menber，跟c中struct完全一样，所以这些并不会增加c++的布局成本（相对于c而言）。</p>
-<p>对于C++中的单继承<br>C++实际模型是：对于一般继承是扩充已有存在的虚函数表；对于虚继承添加一个虚函数表指针。</p>
-<p>对于C++中的多继承<br>1）每一个基类都有自己的虚函数表，基类各有虚表<br>2）子类的虚函数被放到第一个基类的虚函数表中，子类与第一个父类共用一张虚表<br>3）内存布局中，基类的排列顺序就是基类的声明顺序<br>4）重写：每一个基类的虚表中的fun都被重写成子类的fun，这样做就是为了解决不同的基类类型的指针指向同一个子类实例，而能够调用到实际的函数。</p>
-<p>对于C++中的多继承中的虚继承<br>虚继承的子类，有单独的虚函数表，另外也单独保存一份父类的虚函数表。</p>
-<h2 id="如何访问成员"><a href="#如何访问成员" class="headerlink" title="如何访问成员"></a>如何访问成员</h2><p>数据成员如何访问（直接取址）？<br>跟实际对象模型相关联，根据对象起始地址+偏移量取得。</p>
-<p>函数成员如何访问（间接取址）？<br>跟实际对象模型相关联，普通函数（nonstatic、static）根据编译、链接的结果直接获取函数地址；如果是虚函数根据对象模型，取出对于虚函数地址，然后在虚函数表中查找函数地址。</p>
-<p>多态如何实现?<br>多态（Polymorphisn）在C++中是通过虚函数实现的。如果类中有虚函数，编译器就会自动生成一个虚函数表，对象中包含一个指向虚函数表的指针。能够实现多态的关键在于：虚函数是允许被派生类重写的，在虚函数表中，派生类函数对覆盖（override）基类函数。除此之外，还必须通过指针或引用调用方法才行，将派生类对象赋给基类对象。</p>
-<p>为什么析构函数设为虚函数是必要的？<br>带有多态性质的基类应该声明一个虚析构函数。如果一个类带有任何虚函数，它就应该拥有一个虚析构函数。 </p>
-<p>如果析构函数不定义为虚函数，那么派生类就不会重写基类的析构函数，在有多态行为的时候，派生类的析构函数不会被调用到（有内存泄漏的风险！）。<br>一个类的设计目的不是作为基类使用，或不是为了具备多态性，就不该声明虚析构函数。</p>
-<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p>本质上一个引用通常是以一个指针来实现，而且是const指针。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/">&lt;</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/4/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/2/">&lt;</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/4/">&gt;</a>
   </nav>
 
 
@@ -1611,7 +1586,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">101</span>
+                  <span class="site-state-item-count">99</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
