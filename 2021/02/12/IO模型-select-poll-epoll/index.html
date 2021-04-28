@@ -79,16 +79,16 @@
 
 
 
-<meta name="description" content="鬼子进村处理大量的连接的读写，select 是够低效的。因为 kernel 每次都要对 select 传入的一组 socket 号做轮询，这叫鬼子进村策略。一遍遍的询问“鬼子进村了吗？”，“鬼子进村了吗？”… 大量的 cpu 时间都耗了进去。（更过分的是在 windows 上，还有个万恶的 64 限制。）使用 kqueue 这些，变成了派一些个人去站岗，鬼子来了就可以拿到通知，效率自然高了许多。">
+<meta name="description" content="鬼子进村处理大量的连接的读写，select 是够低效的。因为 kernel 每次都要对 select 传入的一组 socket 号做轮询，这叫鬼子进村策略。一遍遍的询问“鬼子进村了吗？”，“鬼子进村了吗？”… 大量的 cpu 时间都耗了进去。使用 kqueue 这些，变成了派一些个人去站岗，鬼子来了就可以拿到通知，效率自然高了许多。 缓存I&#x2F;O缓存I&#x2F;O又称为标准I&#x2F;O，大多数文件系统的默认I&#x2F;O">
 <meta property="og:type" content="article">
 <meta property="og:title" content="IO模型:select,poll,epoll">
 <meta property="og:url" content="http://example.com/2021/02/12/IO%E6%A8%A1%E5%9E%8B-select-poll-epoll/index.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="鬼子进村处理大量的连接的读写，select 是够低效的。因为 kernel 每次都要对 select 传入的一组 socket 号做轮询，这叫鬼子进村策略。一遍遍的询问“鬼子进村了吗？”，“鬼子进村了吗？”… 大量的 cpu 时间都耗了进去。（更过分的是在 windows 上，还有个万恶的 64 限制。）使用 kqueue 这些，变成了派一些个人去站岗，鬼子来了就可以拿到通知，效率自然高了许多。">
+<meta property="og:description" content="鬼子进村处理大量的连接的读写，select 是够低效的。因为 kernel 每次都要对 select 传入的一组 socket 号做轮询，这叫鬼子进村策略。一遍遍的询问“鬼子进村了吗？”，“鬼子进村了吗？”… 大量的 cpu 时间都耗了进去。使用 kqueue 这些，变成了派一些个人去站岗，鬼子来了就可以拿到通知，效率自然高了许多。 缓存I&#x2F;O缓存I&#x2F;O又称为标准I&#x2F;O，大多数文件系统的默认I&#x2F;O">
 <meta property="og:locale">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/107748824-9d611d80-6d54-11eb-8873-f5c79ac617b8.png">
 <meta property="article:published_time" content="2021-02-12T08:45:47.000Z">
-<meta property="article:modified_time" content="2021-04-27T09:44:26.395Z">
+<meta property="article:modified_time" content="2021-04-28T01:56:23.293Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
@@ -327,7 +327,7 @@
       
 
       
-        <h2 id="鬼子进村"><a href="#鬼子进村" class="headerlink" title="鬼子进村"></a>鬼子进村</h2><p>处理大量的连接的读写，select 是够低效的。因为 kernel 每次都要对 select 传入的一组 socket 号做轮询，这叫鬼子进村策略。一遍遍的询问“鬼子进村了吗？”，“鬼子进村了吗？”… 大量的 cpu 时间都耗了进去。（更过分的是在 windows 上，还有个万恶的 64 限制。）使用 kqueue 这些，变成了派一些个人去站岗，鬼子来了就可以拿到通知，效率自然高了许多。</p>
+        <h2 id="鬼子进村"><a href="#鬼子进村" class="headerlink" title="鬼子进村"></a>鬼子进村</h2><p>处理大量的连接的读写，select 是够低效的。因为 kernel 每次都要对 select 传入的一组 socket 号做轮询，这叫鬼子进村策略。一遍遍的询问“鬼子进村了吗？”，“鬼子进村了吗？”… 大量的 cpu 时间都耗了进去。使用 kqueue 这些，变成了派一些个人去站岗，鬼子来了就可以拿到通知，效率自然高了许多。</p>
 <h2 id="缓存I-O"><a href="#缓存I-O" class="headerlink" title="缓存I/O"></a>缓存I/O</h2><p>缓存I/O又称为标准I/O，大多数文件系统的默认I/O操作都是缓存I/O。在Linux的缓存I/O机制中，操作系统会将I/O的数据缓存在文件系统的页缓存中，即数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。</p>
 <h2 id="五种IO模型"><a href="#五种IO模型" class="headerlink" title="五种IO模型"></a>五种IO模型</h2><h3 id="阻塞式I-O模型"><a href="#阻塞式I-O模型" class="headerlink" title="阻塞式I/O模型"></a>阻塞式I/O模型</h3><p>默认情况下，所有套接字都是阻塞的。recvfrom等待数据准备好，从内核向进程复制数据。</p>
 <h3 id="非阻塞式I-O"><a href="#非阻塞式I-O" class="headerlink" title="非阻塞式I/O"></a>非阻塞式I/O</h3><p>进程把一个套接字设置成非阻塞是在通知内核，当所请求的I/O操作非得把本进程投入睡眠才能完成时，不要把进程投入睡眠，而是返回一个错误，recvfrom总是立即返回。</p>
@@ -473,7 +473,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">100</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

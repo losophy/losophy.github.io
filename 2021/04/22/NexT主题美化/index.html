@@ -92,7 +92,7 @@
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/114270259-f0e2a580-9a3d-11eb-9317-bbab438285a2.JPG">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/115741541-6fd2c900-a3c2-11eb-9982-8ec9693aadbd.JPG">
 <meta property="article:published_time" content="2021-04-22T03:47:09.000Z">
-<meta property="article:modified_time" content="2021-04-28T01:38:43.805Z">
+<meta property="article:modified_time" content="2021-04-28T01:56:17.460Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="blog">
 <meta name="twitter:card" content="summary">
@@ -352,7 +352,10 @@
 <p>修改主题的根目录配置文件(themes\next_config.yml)，把enable的false改为true</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">local_search:</span><br><span class="line">  enable: true</span><br><span class="line">  # if auto, trigger search by changing input</span><br><span class="line">  # if manual, trigger search by pressing enter key or search button</span><br><span class="line">  trigger: auto</span><br><span class="line">  # show top n results per article, show all results by setting to -1</span><br><span class="line">  top_n_per_article: 1</span><br></pre></td></tr></table></figure>
 <p>重新生成下页面，就可以看到搜索框了<br><img src="https://user-images.githubusercontent.com/11263320/115741541-6fd2c900-a3c2-11eb-9982-8ec9693aadbd.JPG" alt="捕获"></p>
-
+<h2 id="修改文章底部带-号的标签"><a href="#修改文章底部带-号的标签" class="headerlink" title="修改文章底部带#号的标签"></a>修改文章底部带#号的标签</h2><p>将 # 换成标签图标。<br>[NexT 7.1.0 Released]修改方法为：<br>打开模板/themes/next/layout/_macro/post.swig，搜索 rel=”tag”，进行如下修改：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;div class&#x3D;&quot;post-tags&quot;&gt;</span><br><span class="line">          &#123;% for tag in post.tags %&#125;</span><br><span class="line">            &lt;a href&#x3D;&quot;&#123;&#123; url_for(tag.path) &#125;&#125;&quot; rel&#x3D;&quot;tag&quot;&gt;&lt;i class&#x3D;&quot;fa fa-tag&quot;&gt;&lt;&#x2F;i&gt; &#123;&#123; tag.name &#125;&#125;&lt;&#x2F;a&gt;</span><br><span class="line">          &#123;% endfor %&#125;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="文章目录默认展开"><a href="#文章目录默认展开" class="headerlink" title="文章目录默认展开"></a>文章目录默认展开</h2><p>文章目录样式文件custom.styl文件位于themes/next/source/css/_custom，打开后添加内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;文章目录默认展开</span><br><span class="line">.post-toc .nav .nav-child &#123; display: block; &#125;</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -467,7 +470,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">100</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -513,7 +516,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%90%E8%97%8F%E7%BD%91%E9%A1%B5%E5%BA%95%E9%83%A8powered-By-Hexo-%E5%BC%BA%E5%8A%9B%E9%A9%B1%E5%8A%A8"><span class="nav-number">1.</span> <span class="nav-text">隐藏网页底部powered By Hexo &#x2F; 强力驱动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%A7%E8%BE%B9%E6%A0%8F%E6%98%BE%E7%A4%BA%E5%BD%93%E5%89%8D%E6%B5%8F%E8%A7%88%E8%BF%9B%E5%BA%A6"><span class="nav-number">2.</span> <span class="nav-text">侧边栏显示当前浏览进度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%B7%BB%E5%8A%A0github%E5%85%A5%E5%8F%A3"><span class="nav-number">3.</span> <span class="nav-text">右上角添加github入口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E6%8B%A9-Scheme"><span class="nav-number">4.</span> <span class="nav-text">选择 Scheme</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E8%8F%9C%E5%8D%95"><span class="nav-number">5.</span> <span class="nav-text">设置菜单</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%AE%9A%E8%8F%9C%E5%8D%95%E5%86%85%E5%AE%B9"><span class="nav-number">5.1.</span> <span class="nav-text">设定菜单内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E8%8F%9C%E5%8D%95%E7%9A%84%E7%82%B9%E5%87%BB%E8%B7%B3%E8%BD%AC"><span class="nav-number">5.2.</span> <span class="nav-text">处理菜单的点击跳转</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%90%9C%E7%B4%A2%E5%8A%9F%E8%83%BD"><span class="nav-number">6.</span> <span class="nav-text">添加搜索功能</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%90%E8%97%8F%E7%BD%91%E9%A1%B5%E5%BA%95%E9%83%A8powered-By-Hexo-%E5%BC%BA%E5%8A%9B%E9%A9%B1%E5%8A%A8"><span class="nav-number">1.</span> <span class="nav-text">隐藏网页底部powered By Hexo &#x2F; 强力驱动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%A7%E8%BE%B9%E6%A0%8F%E6%98%BE%E7%A4%BA%E5%BD%93%E5%89%8D%E6%B5%8F%E8%A7%88%E8%BF%9B%E5%BA%A6"><span class="nav-number">2.</span> <span class="nav-text">侧边栏显示当前浏览进度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%B3%E4%B8%8A%E8%A7%92%E6%B7%BB%E5%8A%A0github%E5%85%A5%E5%8F%A3"><span class="nav-number">3.</span> <span class="nav-text">右上角添加github入口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E6%8B%A9-Scheme"><span class="nav-number">4.</span> <span class="nav-text">选择 Scheme</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E8%8F%9C%E5%8D%95"><span class="nav-number">5.</span> <span class="nav-text">设置菜单</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%AE%9A%E8%8F%9C%E5%8D%95%E5%86%85%E5%AE%B9"><span class="nav-number">5.1.</span> <span class="nav-text">设定菜单内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E8%8F%9C%E5%8D%95%E7%9A%84%E7%82%B9%E5%87%BB%E8%B7%B3%E8%BD%AC"><span class="nav-number">5.2.</span> <span class="nav-text">处理菜单的点击跳转</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%90%9C%E7%B4%A2%E5%8A%9F%E8%83%BD"><span class="nav-number">6.</span> <span class="nav-text">添加搜索功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E6%96%87%E7%AB%A0%E5%BA%95%E9%83%A8%E5%B8%A6-%E5%8F%B7%E7%9A%84%E6%A0%87%E7%AD%BE"><span class="nav-number">7.</span> <span class="nav-text">修改文章底部带#号的标签</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E7%AB%A0%E7%9B%AE%E5%BD%95%E9%BB%98%E8%AE%A4%E5%B1%95%E5%BC%80"><span class="nav-number">8.</span> <span class="nav-text">文章目录默认展开</span></a></li></ol></div>
             
 
           </div>

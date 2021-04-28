@@ -87,7 +87,7 @@
 <meta property="og:description" content="黑盒子Lua的虚拟机核心部分，没有任何的系统调用，是一个纯粹的黑盒子，正确的使用Lua，不会对系统造成任何干扰。这其中最关键的一点是，Lua让用户自行定义内存管理器，在创建Lua虚拟机时传入，这保证了Lua的整个运行状态是用户可控的。 基于寄存器的虚拟机lua从5.0开始，就把虚拟机改为基于寄存器的。基于栈的虚拟机执行操作，要事先pop出数据，再将数据push入栈，字节码条数较多，但指令中不需要关">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-03-20T12:14:29.000Z">
-<meta property="article:modified_time" content="2021-04-27T09:44:20.858Z">
+<meta property="article:modified_time" content="2021-04-28T01:56:17.460Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="lua">
 <meta name="twitter:card" content="summary">
@@ -374,6 +374,7 @@
 </ul>
 <h2 id="Lua虚拟机相关的数据结构与栈"><a href="#Lua虚拟机相关的数据结构与栈" class="headerlink" title="Lua虚拟机相关的数据结构与栈"></a>Lua虚拟机相关的数据结构与栈</h2><p>请看<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/60">lua_state</a>里的Lua虚拟机相关的数据结构与栈</p>
 <h2 id="指令相关"><a href="#指令相关" class="headerlink" title="指令相关"></a>指令相关</h2><p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/116">lua指令相关</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>《Lua设计与实现》</p>
 
       
     </div>
@@ -493,7 +494,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">100</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -539,7 +540,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%BB%91%E7%9B%92%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">黑盒子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%AF%84%E5%AD%98%E5%99%A8%E7%9A%84%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="nav-number">2.</span> <span class="nav-text">基于寄存器的虚拟机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lua%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">lua虚拟机工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BF%BB%E8%AF%91%E4%BB%A3%E7%A0%81%E4%BB%A5%E5%8F%8A%E7%BC%96%E8%AF%91%E4%B8%BA%E5%AD%97%E8%8A%82%E7%A0%81"><span class="nav-number">3.1.</span> <span class="nav-text">翻译代码以及编译为字节码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lua%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%9B%B8%E5%85%B3"><span class="nav-number">3.2.</span> <span class="nav-text">lua虚拟机相关</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lua%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%9B%B8%E5%85%B3%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E6%A0%88"><span class="nav-number">4.</span> <span class="nav-text">Lua虚拟机相关的数据结构与栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4%E7%9B%B8%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text">指令相关</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%BB%91%E7%9B%92%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">黑盒子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%AF%84%E5%AD%98%E5%99%A8%E7%9A%84%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="nav-number">2.</span> <span class="nav-text">基于寄存器的虚拟机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lua%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">lua虚拟机工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BF%BB%E8%AF%91%E4%BB%A3%E7%A0%81%E4%BB%A5%E5%8F%8A%E7%BC%96%E8%AF%91%E4%B8%BA%E5%AD%97%E8%8A%82%E7%A0%81"><span class="nav-number">3.1.</span> <span class="nav-text">翻译代码以及编译为字节码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lua%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%9B%B8%E5%85%B3"><span class="nav-number">3.2.</span> <span class="nav-text">lua虚拟机相关</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lua%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%9B%B8%E5%85%B3%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E6%A0%88"><span class="nav-number">4.</span> <span class="nav-text">Lua虚拟机相关的数据结构与栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4%E7%9B%B8%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text">指令相关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>

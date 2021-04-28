@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="使用os提供的api如epoll，kqueue编写并发应用程序    epoll.cc，演示了epoll的通常用法，使用epoll的LT模式   epoll-et.cc，演示了epoll的ET模式，与LT模式非常像，区别主要体现在不需要手动开关EPOLLOUT事件  LT 和 ET本质的区别是： LT模式状态时，主线程正在epoll_wait等待事件时，请求到了，epoll_wait返回后没有去处">
+<meta name="description" content="使用os提供的api如epoll编写并发应用程序   epoll.cc，演示了epoll的通常用法，使用epoll的LT模式   epoll-et.cc，演示了epoll的ET模式，与LT模式非常像，区别主要体现在不需要手动开关EPOLLOUT事件  LT 和 ET本质的区别是LT模式状态时，主线程正在epoll_wait等待事件时，请求到了，epoll_wait返回后没有去处理请求(recv)，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LT 和 ET">
 <meta property="og:url" content="http://example.com/2021/01/25/LT-%E5%92%8C-ET/index.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="使用os提供的api如epoll，kqueue编写并发应用程序    epoll.cc，演示了epoll的通常用法，使用epoll的LT模式   epoll-et.cc，演示了epoll的ET模式，与LT模式非常像，区别主要体现在不需要手动开关EPOLLOUT事件  LT 和 ET本质的区别是： LT模式状态时，主线程正在epoll_wait等待事件时，请求到了，epoll_wait返回后没有去处">
+<meta property="og:description" content="使用os提供的api如epoll编写并发应用程序   epoll.cc，演示了epoll的通常用法，使用epoll的LT模式   epoll-et.cc，演示了epoll的ET模式，与LT模式非常像，区别主要体现在不需要手动开关EPOLLOUT事件  LT 和 ET本质的区别是LT模式状态时，主线程正在epoll_wait等待事件时，请求到了，epoll_wait返回后没有去处理请求(recv)，">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-01-25T06:31:11.000Z">
-<meta property="article:modified_time" content="2021-04-27T09:44:27.636Z">
+<meta property="article:modified_time" content="2021-04-28T01:56:24.599Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
@@ -325,13 +325,11 @@
       
 
       
-        <p>使用os提供的api如epoll，<a target="_blank" rel="noopener" href="https://github.com/losophy/notes/blob/master/content/epoll/kqueue.cc">kqueue</a>编写并发应用程序</p>
-<ul>
-<li>  <a target="_blank" rel="noopener" href="https://github.com/losophy/notes/blob/master/content/epoll/epoll.cc">epoll.cc</a>，演示了epoll的通常用法，使用epoll的LT模式</li>
-<li>  <a target="_blank" rel="noopener" href="https://github.com/losophy/notes/blob/master/content/epoll/epoll-et.cc">epoll-et.cc</a>，演示了epoll的ET模式，与LT模式非常像，区别主要体现在不需要手动开关EPOLLOUT事件</li>
+        <h2 id="使用os提供的api如epoll编写并发应用程序"><a href="#使用os提供的api如epoll编写并发应用程序" class="headerlink" title="使用os提供的api如epoll编写并发应用程序"></a>使用os提供的api如epoll编写并发应用程序</h2><ul>
+<li>  <a target="_blank" rel="noopener" href="https://github.com/yedf/handy/blob/master/raw-examples/epoll.cc">epoll.cc</a>，演示了epoll的通常用法，使用epoll的LT模式</li>
+<li>  <a target="_blank" rel="noopener" href="https://github.com/yedf/handy/blob/master/raw-examples/epoll-et.cc">epoll-et.cc</a>，演示了epoll的ET模式，与LT模式非常像，区别主要体现在不需要手动开关EPOLLOUT事件</li>
 </ul>
-<p>LT 和 ET本质的区别是：</p>
-<p>LT模式状态时，主线程正在epoll_wait等待事件时，请求到了，epoll_wait返回后没有去处理请求(recv)，那么下次epoll_wait时此请求还是会返回（立刻返回了）；而ET模式状态下，这次没处理，下次epoll_wait时将不返回（所以我们应该每次一定要处理），可见很大程度降低了epoll的触发次数（记住这句话先）。</p>
+<h2 id="LT-和-ET本质的区别是"><a href="#LT-和-ET本质的区别是" class="headerlink" title="LT 和 ET本质的区别是"></a>LT 和 ET本质的区别是</h2><p>LT模式状态时，主线程正在epoll_wait等待事件时，请求到了，epoll_wait返回后没有去处理请求(recv)，那么下次epoll_wait时此请求还是会返回（立刻返回了）；而ET模式状态下，这次没处理，下次epoll_wait时将不返回（所以我们应该每次一定要处理），可见很大程度降低了epoll的触发次数（记住这句话先）。</p>
 
       
     </div>
@@ -426,8 +424,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -442,7 +449,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">100</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -478,6 +485,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8os%E6%8F%90%E4%BE%9B%E7%9A%84api%E5%A6%82epoll%E7%BC%96%E5%86%99%E5%B9%B6%E5%8F%91%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F"><span class="nav-number">1.</span> <span class="nav-text">使用os提供的api如epoll编写并发应用程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LT-%E5%92%8C-ET%E6%9C%AC%E8%B4%A8%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF"><span class="nav-number">2.</span> <span class="nav-text">LT 和 ET本质的区别是</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

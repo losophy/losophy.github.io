@@ -742,7 +742,8 @@
 <p>luaL_newstate用c运行库的内存分配函数。<br>lua_newstate可自定义内存分配函数。</p>
 <p>头文件lua.h定义了lua提供的基础函数，包括创建lua环境、调用lua函数（如lua_pcall）、读写lua环境中全局变量，以及注册供lua调用的新函数等。Lua.h中定义所有内容都有一个lua_前缀。<br>头文件lauxlib.h定义了辅助库（auxiliary library,auxlib）提供的函数。它的所有定义都以luaL_开头（如luaL_loadbuffer）。辅助库是一个使用lua.h中API编写出的一个较高的抽象层。Lua的所有标准库编写都用到了辅助库。</p>
 <p>注意：Lua脚本的编译执行是相互独立的，在不同的线程上执行。通过luaL_newstate()函数可以申请一个虚拟机，返回指针类型lua_State。今后其他所有Lua Api函数的调用都需要此指针作为第一参数，用来指定某个虚拟机。所以lua_State代表一个lua虚拟机对像，luaL_newstate()分配一个虚拟机。lua类库管理着所有的虚拟机。销毁指定虚拟机的所有对像（如果有垃圾回收相关的无方法则会调用该方法）并收回所有由该虚拟机动态分配产生的内存，在有些平台下我们不需要调用此函数，因为当主程序退出时，资源会被自然的释放掉，但是但一个长时间运行的程序，比如后台运行的web服务器，需要立即回收虚拟机资源以避免内存过高占用。</p>
-<h2 id="Lua虚拟机相关的数据结构与栈"><a href="#Lua虚拟机相关的数据结构与栈" class="headerlink" title="Lua虚拟机相关的数据结构与栈"></a>Lua虚拟机相关的数据结构与栈</h2><p>解释器要做的就是模拟计算机的执行，这主要分为以下两大块。<br>CPU：用于指令的执行。<br>内存：用于数据的存储。<br>指令执行的部分在<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/113">lua虚拟机</a>（lua虚拟机工作流程）大体介绍过，即解释器分析Lua文件之后生成 Proto结构体，最后到luaV_execute函数中依次取出指令来执行。<br>而“内存”部分，在Lua解释器中就存放在Lua战中。 Lua中也是把栈的某一个位置称为寄存器（非真CPU中的寄存器）。<br>每个Lua虚拟机对应一个lua_State结构体，它使用TValue数组来模拟栈，其中包括几个与找相关的成员<br>stack ：栈数组的起始位置。<br>base ： 当前函数栈的基地址 。<br>top ： 当前栈的下一个可用位置 。<br>这些成员的初始化操作在stack_init函数中完成</p>
+<h2 id="Lua虚拟机相关的数据结构与栈"><a href="#Lua虚拟机相关的数据结构与栈" class="headerlink" title="Lua虚拟机相关的数据结构与栈"></a>Lua虚拟机相关的数据结构与栈</h2><p>下列代码分析，均源自lua5.1。</p>
+<p>解释器要做的就是模拟计算机的执行，这主要分为以下两大块。<br>CPU：用于指令的执行。<br>内存：用于数据的存储。<br>指令执行的部分在<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/113">lua虚拟机</a>（lua虚拟机工作流程）大体介绍过，即解释器分析Lua文件之后生成 Proto结构体，最后到luaV_execute函数中依次取出指令来执行。<br>而“内存”部分，在Lua解释器中就存放在Lua战中。 Lua中也是把栈的某一个位置称为寄存器（非真CPU中的寄存器）。<br>每个Lua虚拟机对应一个lua_State结构体，它使用TValue数组来模拟栈，其中包括几个与找相关的成员<br>stack ：栈数组的起始位置。<br>base ： 当前函数栈的基地址 。<br>top ： 当前栈的下一个可用位置 。<br>这些成员的初始化操作在stack_init函数中完成</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">stack_init</span> <span class="params">(lua_State *L1, lua_State *L)</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* initialize CallInfo array */</span></span><br><span class="line">  L1-&gt;base_ci = luaM_newvector(L, BASIC_CI_SIZE, CallInfo);</span><br><span class="line">  L1-&gt;ci = L1-&gt;base_ci;</span><br><span class="line">  L1-&gt;size_ci = BASIC_CI_SIZE;</span><br><span class="line">  L1-&gt;end_ci = L1-&gt;base_ci + L1-&gt;size_ci - <span class="number">1</span>;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>再看看lua_State</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** `per thread&#x27; state</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">lua_State</span> &#123;</span></span><br><span class="line">  CommonHeader;</span><br><span class="line">  lu_byte status;</span><br><span class="line">  StkId top;  <span class="comment">/* first free slot in the stack */</span></span><br><span class="line">  StkId base;  <span class="comment">/* base of current function */</span></span><br><span class="line">  global_State *l_G;</span><br><span class="line">  CallInfo *ci;  <span class="comment">/* call info for current function */</span></span><br><span class="line">  ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
@@ -965,6 +966,7 @@
 <p>一般热更新都是函数的实现，所以需要对全局变量做一些保护 。 比如，当前某全局变量为 100 ，表示某个操作已经进行了 100次，它不能因为热更新重置为0 ，所以要对这些不能改变的全局变量做一个保护，最简单的方式就是这样 ：</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a = a <span class="keyword">or</span> o</span><br></pre></td></tr></table></figure>
 <p>这个原理很简单，只有当前a这个变量没有初始值的时候才会赋值为0 ，而后面不管这个Lua文件被加载多少次， a者~J之会因为重新加载了Lua代码而发生改变 。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《lua设计与实现》</p>
 
           
         
@@ -1649,7 +1651,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/7/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/5/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/7/">&gt;</a>
   </nav>
 
 
@@ -1695,7 +1697,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">100</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

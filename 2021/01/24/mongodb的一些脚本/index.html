@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="start 123sudo mongod --dbpath&#x3D;&#x2F;data&#x2F;db     #serve rupsudo mongo                        #client up   脚本select * from playerdb.getCollection(‘Player’).find({})  select checkIn from player">
+<meta name="description" content="start12sudo mongod --dbpath&#x3D;&#x2F;data&#x2F;db     #serve rupsudo mongo                        #client up 脚本select * from player1db.getCollection(&#39;Player&#39;).find(&amp;#123;&amp;#125;)  select checkIn from player">
 <meta property="og:type" content="article">
 <meta property="og:title" content="mongodb的一些脚本">
 <meta property="og:url" content="http://example.com/2021/01/24/mongodb%E7%9A%84%E4%B8%80%E4%BA%9B%E8%84%9A%E6%9C%AC/index.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="start 123sudo mongod --dbpath&#x3D;&#x2F;data&#x2F;db     #serve rupsudo mongo                        #client up   脚本select * from playerdb.getCollection(‘Player’).find({})  select checkIn from player">
+<meta property="og:description" content="start12sudo mongod --dbpath&#x3D;&#x2F;data&#x2F;db     #serve rupsudo mongo                        #client up 脚本select * from player1db.getCollection(&#39;Player&#39;).find(&amp;#123;&amp;#125;)  select checkIn from player">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-01-24T14:34:47.000Z">
-<meta property="article:modified_time" content="2021-04-27T09:44:27.636Z">
+<meta property="article:modified_time" content="2021-04-28T01:56:24.599Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="mongodb">
 <meta name="twitter:card" content="summary">
@@ -325,16 +325,12 @@
       
 
       
-        <p><b><details><summary>start</summary></b></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mongod --dbpath&#x3D;&#x2F;data&#x2F;db     #serve rup</span><br><span class="line"></span><br><span class="line">sudo mongo                        #client up</span><br></pre></td></tr></table></figure>
-</details>
-
-<h2 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h2><h3 id="select-from-player"><a href="#select-from-player" class="headerlink" title="select * from player"></a>select * from player</h3><p>db.getCollection(‘Player’).find({}) </p>
-<h3 id="select-checkIn-from-player"><a href="#select-checkIn-from-player" class="headerlink" title="select checkIn from player"></a>select checkIn from player</h3><p>db.getCollection(‘Player’).find({“checkIn”:{“$exists”:true}}) </p>
-<h3 id="select-boss-1001-night-from-player"><a href="#select-boss-1001-night-from-player" class="headerlink" title="select boss.1001.night from player"></a>select boss.1001.night from player</h3><p>db.getCollection(‘Player’).find({“boss.1001.night”:{“$exists”:true}}) </p>
-<h3 id="update-player-set-checkIn-“”"><a href="#update-player-set-checkIn-“”" class="headerlink" title="update player set checkIn = “”"></a>update player set checkIn = “”</h3><p>db.getCollection(‘Player’).update({},{$unset:{“checkIn”:””}},false,true) </p>
-<h3 id="update-player-set-boss-1001-night-“”"><a href="#update-player-set-boss-1001-night-“”" class="headerlink" title="update player set boss.1001.night = “”"></a>update player set boss.1001.night = “”</h3><p>db.getCollection(‘Player’).update({},{$unset:{“boss.1001.night”:””}},false,true)</p>
-
+        <h2 id="start"><a href="#start" class="headerlink" title="start"></a>start</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo mongod --dbpath=/data/db     #serve rup</span><br><span class="line">sudo mongo                        #client up</span><br></pre></td></tr></table></figure>
+<h2 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h2><h3 id="select-from-player"><a href="#select-from-player" class="headerlink" title="select * from player"></a>select * from player</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.getCollection(&#39;Player&#39;).find(&#123;&#125;) </span><br></pre></td></tr></table></figure>
+<h3 id="select-checkIn-from-player"><a href="#select-checkIn-from-player" class="headerlink" title="select checkIn from player"></a>select checkIn from player</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.getCollection(&#39;Player&#39;).find(&#123;&quot;checkIn&quot;:&#123;&quot;$exists&quot;:true&#125;&#125;) </span><br></pre></td></tr></table></figure>
+<h3 id="select-boss-1001-night-from-player"><a href="#select-boss-1001-night-from-player" class="headerlink" title="select boss.1001.night from player"></a>select boss.1001.night from player</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.getCollection(&#39;Player&#39;).find(&#123;&quot;boss.1001.night&quot;:&#123;&quot;$exists&quot;:true&#125;&#125;) </span><br></pre></td></tr></table></figure>
+<h3 id="update-player-set-checkIn-“”"><a href="#update-player-set-checkIn-“”" class="headerlink" title="update player set checkIn = “”"></a>update player set checkIn = “”</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.getCollection(&#39;Player&#39;).update(&#123;&#125;,&#123;$unset:&#123;&quot;checkIn&quot;:&quot;&quot;&#125;&#125;,false,true) </span><br></pre></td></tr></table></figure>
+<h3 id="update-player-set-boss-1001-night-“”"><a href="#update-player-set-boss-1001-night-“”" class="headerlink" title="update player set boss.1001.night = “”"></a>update player set boss.1001.night = “”</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.getCollection(&#39;Player&#39;).update(&#123;&#125;,&#123;$unset:&#123;&quot;boss.1001.night&quot;:&quot;&quot;&#125;&#125;,false,true)</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -453,7 +449,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">100</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -499,7 +495,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%9A%E6%9C%AC"><span class="nav-number">1.</span> <span class="nav-text">脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#select-from-player"><span class="nav-number">1.1.</span> <span class="nav-text">select * from player</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select-checkIn-from-player"><span class="nav-number">1.2.</span> <span class="nav-text">select checkIn from player</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select-boss-1001-night-from-player"><span class="nav-number">1.3.</span> <span class="nav-text">select boss.1001.night from player</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#update-player-set-checkIn-%E2%80%9C%E2%80%9D"><span class="nav-number">1.4.</span> <span class="nav-text">update player set checkIn &#x3D; “”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#update-player-set-boss-1001-night-%E2%80%9C%E2%80%9D"><span class="nav-number">1.5.</span> <span class="nav-text">update player set boss.1001.night &#x3D; “”</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#start"><span class="nav-number">1.</span> <span class="nav-text">start</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%9A%E6%9C%AC"><span class="nav-number">2.</span> <span class="nav-text">脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#select-from-player"><span class="nav-number">2.1.</span> <span class="nav-text">select * from player</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select-checkIn-from-player"><span class="nav-number">2.2.</span> <span class="nav-text">select checkIn from player</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select-boss-1001-night-from-player"><span class="nav-number">2.3.</span> <span class="nav-text">select boss.1001.night from player</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#update-player-set-checkIn-%E2%80%9C%E2%80%9D"><span class="nav-number">2.4.</span> <span class="nav-text">update player set checkIn &#x3D; “”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#update-player-set-boss-1001-night-%E2%80%9C%E2%80%9D"><span class="nav-number">2.5.</span> <span class="nav-text">update player set boss.1001.night &#x3D; “”</span></a></li></ol></li></ol></div>
             
 
           </div>

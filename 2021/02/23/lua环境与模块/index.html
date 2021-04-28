@@ -88,7 +88,7 @@
 <meta property="og:locale">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/113692378-126f2480-9700-11eb-99a2-8a8d4bbea09a.JPG">
 <meta property="article:published_time" content="2021-02-23T02:32:51.000Z">
-<meta property="article:modified_time" content="2021-04-27T09:44:23.748Z">
+<meta property="article:modified_time" content="2021-04-28T01:56:20.781Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="lua">
 <meta name="twitter:card" content="summary">
@@ -423,6 +423,7 @@
 <p>一般热更新都是函数的实现，所以需要对全局变量做一些保护 。 比如，当前某全局变量为 100 ，表示某个操作已经进行了 100次，它不能因为热更新重置为0 ，所以要对这些不能改变的全局变量做一个保护，最简单的方式就是这样 ：</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a = a <span class="keyword">or</span> o</span><br></pre></td></tr></table></figure>
 <p>这个原理很简单，只有当前a这个变量没有初始值的时候才会赋值为0 ，而后面不管这个Lua文件被加载多少次， a者~J之会因为重新加载了Lua代码而发生改变 。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《lua设计与实现》</p>
 
       
     </div>
@@ -542,7 +543,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">100</span>
+                  <span class="site-state-item-count">108</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -588,7 +589,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#loadfile%E3%80%81dofile%E3%80%81require"><span class="nav-number">1.</span> <span class="nav-text">loadfile、dofile、require</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E7%9B%B8%E5%85%B3%E7%9A%84%E5%8F%98%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">环境相关的变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97"><span class="nav-number">3.</span> <span class="nav-text">模块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E7%9A%84%E5%8A%A0%E8%BD%BD"><span class="nav-number">3.1.</span> <span class="nav-text">模块的加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E7%9A%84%E7%BC%96%E5%86%99"><span class="nav-number">3.2.</span> <span class="nav-text">模块的编写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E7%9A%84%E7%83%AD%E6%9B%B4%E6%96%B0%E5%8E%9F%E7%90%86"><span class="nav-number">3.3.</span> <span class="nav-text">模块的热更新原理</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#loadfile%E3%80%81dofile%E3%80%81require"><span class="nav-number">1.</span> <span class="nav-text">loadfile、dofile、require</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E7%9B%B8%E5%85%B3%E7%9A%84%E5%8F%98%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">环境相关的变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97"><span class="nav-number">3.</span> <span class="nav-text">模块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E7%9A%84%E5%8A%A0%E8%BD%BD"><span class="nav-number">3.1.</span> <span class="nav-text">模块的加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E7%9A%84%E7%BC%96%E5%86%99"><span class="nav-number">3.2.</span> <span class="nav-text">模块的编写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E7%9A%84%E7%83%AD%E6%9B%B4%E6%96%B0%E5%8E%9F%E7%90%86"><span class="nav-number">3.3.</span> <span class="nav-text">模块的热更新原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
