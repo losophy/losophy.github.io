@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="linux," />
 
 
 
@@ -79,18 +79,19 @@
 
 
 
-<meta name="description" content="使用autotools来进行Makefile的自动生成 运行 autoscan , 自动创建两个文件： autoscan.log configure.scan123[root@localhost main]# autoscan[root@localhost main]# lsautoscan.log configure.scan main.c 修改configure.scan的文件名为confi">
+<meta name="description" content="前言make是一条计算机指令，是在安装有GNU Make的计算机上的可执行指令。该指令是读入一个名为makefile的文件，然后执行这个文件中指定的指令。 基本用法 使用autotools来进行Makefile的自动生成 运行 autoscan , 自动创建两个文件： autoscan.log configure.scan123[root@localhost main]# autoscan[roo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="make">
 <meta property="og:url" content="http://example.com/2021/02/28/make/index.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="使用autotools来进行Makefile的自动生成 运行 autoscan , 自动创建两个文件： autoscan.log configure.scan123[root@localhost main]# autoscan[root@localhost main]# lsautoscan.log configure.scan main.c 修改configure.scan的文件名为confi">
+<meta property="og:description" content="前言make是一条计算机指令，是在安装有GNU Make的计算机上的可执行指令。该指令是读入一个名为makefile的文件，然后执行这个文件中指定的指令。 基本用法 使用autotools来进行Makefile的自动生成 运行 autoscan , 自动创建两个文件： autoscan.log configure.scan123[root@localhost main]# autoscan[roo">
 <meta property="og:locale">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/109392605-069d7f00-7958-11eb-9e01-51d10239f93a.jpg">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/109392606-07361580-7958-11eb-9c6b-04b1574b57d4.jpg">
 <meta property="article:published_time" content="2021-02-27T16:01:10.000Z">
-<meta property="article:modified_time" content="2021-04-28T03:38:13.415Z">
+<meta property="article:modified_time" content="2021-04-28T05:58:47.504Z">
 <meta property="article:author" content="losophy">
+<meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/109392605-069d7f00-7958-11eb-9e01-51d10239f93a.jpg">
 
@@ -327,10 +328,11 @@
       
 
       
-        <p><img src="https://user-images.githubusercontent.com/11263320/109392605-069d7f00-7958-11eb-9e01-51d10239f93a.jpg" alt="makefile知识点"><br><img src="https://user-images.githubusercontent.com/11263320/109392606-07361580-7958-11eb-9c6b-04b1574b57d4.jpg" alt="makefile进阶"></p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>make是一条计算机指令，是在安装有GNU Make的计算机上的可执行指令。该指令是读入一个名为makefile的文件，然后执行这个文件中指定的指令。</p>
+<h2 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h2><p><img src="https://user-images.githubusercontent.com/11263320/109392605-069d7f00-7958-11eb-9e01-51d10239f93a.jpg" alt="makefile知识点"><br><img src="https://user-images.githubusercontent.com/11263320/109392606-07361580-7958-11eb-9c6b-04b1574b57d4.jpg" alt="makefile进阶"></p>
 <h2 id="使用autotools来进行Makefile的自动生成"><a href="#使用autotools来进行Makefile的自动生成" class="headerlink" title="使用autotools来进行Makefile的自动生成"></a>使用autotools来进行Makefile的自动生成</h2><ul>
 <li>运行 autoscan , 自动创建两个文件： autoscan.log configure.scan<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost main]# autoscan</span><br><span class="line">[root@localhost main]# ls</span><br><span class="line">autoscan.log configure.scan main.c</span><br></pre></td></tr></table></figure></li>
-<li>修改configure.scan的文件名为configure.in<br>修改configure.in:<br>  1.修改AC_INIT里面的参数: AC_INIT(main,1.0, <a href="mailto:&#x70;&#103;&#x70;&#120;&#99;&#64;&#x31;&#54;&#x33;&#x2e;&#x63;&#111;&#109;">&#x70;&#103;&#x70;&#120;&#99;&#64;&#x31;&#54;&#x33;&#x2e;&#x63;&#111;&#109;</a>)<br>  2.添加宏AM_INIT_AUTOMAKE, 它是automake所必备的宏，也同前面一样，PACKAGE是所要产生软件套件的名称，VERSION是版本编号。<br>  3.在AC_OUTPUT后添加输出文件Makefile</li>
+<li>修改configure.scan的文件名为configure.in<br>修改configure.in:<br>  1.修改AC_INIT里面的参数: AC_INIT(main,1.0, <a href="mailto:&#x70;&#x67;&#x70;&#x78;&#x63;&#x40;&#49;&#54;&#51;&#46;&#x63;&#111;&#x6d;">&#x70;&#x67;&#x70;&#x78;&#x63;&#x40;&#49;&#54;&#51;&#46;&#x63;&#111;&#x6d;</a>)<br>  2.添加宏AM_INIT_AUTOMAKE, 它是automake所必备的宏，也同前面一样，PACKAGE是所要产生软件套件的名称，VERSION是版本编号。<br>  3.在AC_OUTPUT后添加输出文件Makefile</li>
 </ul>
 <p>修改后的结果:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#                                               -*- Autoconf -*-</span><br><span class="line"># Process this file with autoconf to produce a configure script.</span><br><span class="line"></span><br><span class="line">AC_PREREQ(2.61)</span><br><span class="line">AC_INIT(main, 1.0, pgpxc@163.com)</span><br><span class="line">AC_CONFIG_SRCDIR([main.c])</span><br><span class="line">AC_CONFIG_HEADER([config.h])</span><br><span class="line">AM_INIT_AUTOMAKE(main,1.0)</span><br><span class="line"></span><br><span class="line"># Checks for programs.</span><br><span class="line">AC_PROG_CC</span><br><span class="line"></span><br><span class="line"># Checks for libraries.</span><br><span class="line"></span><br><span class="line"># Checks for header files.</span><br><span class="line"></span><br><span class="line"># Checks for typedefs, structures, and compiler characteristics.</span><br><span class="line"></span><br><span class="line"># Checks for library functions.</span><br><span class="line"></span><br><span class="line">AC_OUTPUT([Makefile])</span><br></pre></td></tr></table></figure>
@@ -356,6 +358,12 @@
     
 
     <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
+          
+        </div>
       
 
       
@@ -468,7 +476,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -501,7 +509,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8autotools%E6%9D%A5%E8%BF%9B%E8%A1%8CMakefile%E7%9A%84%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90"><span class="nav-number">1.</span> <span class="nav-text">使用autotools来进行Makefile的自动生成</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">基本用法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8autotools%E6%9D%A5%E8%BF%9B%E8%A1%8CMakefile%E7%9A%84%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90"><span class="nav-number">3.</span> <span class="nav-text">使用autotools来进行Makefile的自动生成</span></a></li></ol></div>
             
 
           </div>
