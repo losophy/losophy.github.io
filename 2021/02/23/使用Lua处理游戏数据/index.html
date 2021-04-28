@@ -301,6 +301,16 @@
 
           
             
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2021/02/23/%E4%BD%BF%E7%94%A8Lua%E5%A4%84%E7%90%86%E6%B8%B8%E6%88%8F%E6%95%B0%E6%8D%AE/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count gitment-comments-count" data-xid="/2021/02/23/%E4%BD%BF%E7%94%A8Lua%E5%A4%84%E7%90%86%E6%B8%B8%E6%88%8F%E6%95%B0%E6%8D%AE/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -408,6 +418,13 @@
 
 
           
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitment-container"></div>
+      
+    </div>
 
   
 
@@ -691,6 +708,43 @@
 
 
 
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+    
+        
+        <link rel="stylesheet" href="https://aimingoo.github.io/gitmint/style/default.css">
+        <script src="https://aimingoo.github.io/gitmint/dist/gitmint.browser.js"></script>
+    
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitment(){
+        var gitment = new Gitmint({
+            id: window.location.pathname, 
+            owner: 'losophy',
+            repo: 'losophy.github.io',
+            
+            lang: "" || navigator.language || navigator.systemLanguage || navigator.userLanguage,
+            
+            oauth: {
+            
+            
+                client_secret: 'c579b4dc2634e8a819d74d5df923d48fbc0c1f35',
+            
+                client_id: 'dd57418647542f5caaca'
+            }});
+        gitment.render('gitment-container');
+      }
+
+      
+      renderGitment();
+      
+      </script>
+    
 
 
 
