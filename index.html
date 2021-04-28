@@ -772,172 +772,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/24/lua%E6%8C%87%E4%BB%A4%E7%9B%B8%E5%85%B3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/03/24/lua%E6%8C%87%E4%BB%A4%E7%9B%B8%E5%85%B3/" itemprop="url">lua指令相关</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-24T16:12:50+08:00">
-                2021-03-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="指令的生成"><a href="#指令的生成" class="headerlink" title="指令的生成"></a>指令的生成</h2><p>指令的生成，不管生成的是哪一种格式的指令，其最终的入口函数都是luaK_code函数</p>
-<p>下面分析指令是如何生成的。<br>前面提到过，词法、语法阶段的分析中，最后结果就是输出一个Proto结构体，因此这个结构体才是关键。<br>首先，需要看分析阶段要用到的数据结构FuncState。 这个结构体用于在语法分析时保存解析函数之后相关的信息，根据其中的prev指针成员来串联起来。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* state needed to generate code for a given function */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">FuncState</span> &#123;</span></span><br><span class="line">  Proto *f;  <span class="comment">/* current function header */</span></span><br><span class="line">  Table *h;  <span class="comment">/* table to find (and reuse) elements in `k&#x27; */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">FuncState</span> *<span class="title">prev</span>;</span>  <span class="comment">/* enclosing function */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">LexState</span> *<span class="title">ls</span>;</span>  <span class="comment">/* lexical state */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">lua_State</span> *<span class="title">L</span>;</span>  <span class="comment">/* copy of the Lua state */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">BlockCnt</span> *<span class="title">bl</span>;</span>  <span class="comment">/* chain of current blocks */</span></span><br><span class="line">  <span class="keyword">int</span> pc;  <span class="comment">/* next position to code (equivalent to `ncode&#x27;) */</span></span><br><span class="line">  ...</span><br><span class="line">&#125; FuncState;</span><br></pre></td></tr></table></figure>
-<p>比如，下面的代码中：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 最外层 FuncState fs1</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">a</span><span class="params">()</span></span> <span class="comment">--函数a的 FuncState fsa</span></span><br><span class="line">    <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">b</span><span class="params">()</span></span> <span class="comment">--函数b的 FuncState fsb</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>其实涉及3个FuncState指针， 一层一层嵌套包围，其中也fs1是fsa的父指针， fsa又是fsb的父指针<br><img src="https://user-images.githubusercontent.com/11263320/112278942-50128d00-8cbe-11eb-9451-5b321afab2e5.JPG" alt="捕获"></p>
-<p>而在FuncState结构体中，有一个成员Proto *f，它用来保存这个FuncState解析指令之后生成的指令，其中除了自己的，还包括内部嵌套的子函数。各个层次的Proto数据是逐层包含的，因此最外层的全局 FuncState结构体中的<br>Proto数组一定有这个全局结构中所有Proto 的信息，也就是解析完毕之后的指令信息。</p>
-<p>有了前面的分析，就很好理解luaY_parser这个函数了，它是分析阶段的唯一入口函数，这个函数的返回值就是Proto指针，而FuneState等数据结构仅是用于分析过程中的临时数据结构，它们最终都是为了解析代码生成指令到 Proto结构体服务的。</p>
-<h2 id="指令格式"><a href="#指令格式" class="headerlink" title="指令格式"></a>指令格式</h2><p><img src="https://user-images.githubusercontent.com/11263320/112280977-86510c00-8cc0-11eb-8039-eb3ff697b84d.JPG" alt="捕获"><br>首先看到的是，Lua的指令是 32位的，这里由低位到高位进行解释 。 首先解析最低6位的OpCode，称为操作数，紧跟着就是A , B, C参数。<br>不同操作数的指令格式不同，含义也不同。由于操作数是6位的，所以Lua最多支持2^6-1=63个指令。Lua代码中，将每个操作数及其对应的指令格式都在Iopcodes.h中的opcode枚举类型中定义。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** grep &quot;ORDER OP&quot; if you change these enums</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line"><span class="comment">/*----------------------------------------------------------------------</span></span><br><span class="line"><span class="comment">name		args	description</span></span><br><span class="line"><span class="comment">------------------------------------------------------------------------*/</span></span><br><span class="line">OP_MOVE,<span class="comment">/*	A B	R(A) := R(B)					*/</span></span><br><span class="line">OP_LOADK,<span class="comment">/*	A Bx	R(A) := Kst(Bx)					*/</span></span><br><span class="line">OP_LOADBOOL,<span class="comment">/*	A B C	R(A) := (Bool)B; if (C) pc++			*/</span></span><br><span class="line">OP_LOADNIL,<span class="comment">/*	A B	R(A) := ... := R(B) := nil			*/</span></span><br><span class="line">OP_GETUPVAL,<span class="comment">/*	A B	R(A) := UpValue[B]				*/</span></span><br><span class="line">...</span><br><span class="line">&#125; OpCode;</span><br></pre></td></tr></table></figure>
-<p>在这些格式中，有不同的取值方式。有不同格式参数的含义。<br><img src="https://user-images.githubusercontent.com/11263320/112282047-b0ef9480-8cc1-11eb-8731-e7222d4bc6fc.JPG" alt="捕获"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** size and position of opcode arguments.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_C		9</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_B		9</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_Bx		(SIZE_C + SIZE_B)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_A		8</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_OP		6</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> POS_OP		0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> POS_A		(POS_OP + SIZE_OP)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> POS_C		(POS_A + SIZE_A)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> POS_B		(POS_C + SIZE_C)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> POS_Bx		POS_C</span></span><br></pre></td></tr></table></figure>
-<p>有了这些，指令的参数获取、设置相关的宏就很好理解了，其核心就是根据前面格式中定义的大小对相关参数进行读、写操作：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GET_OPCODE(i)	(cast(OpCode, ((i)&gt;&gt;POS_OP) &amp; MASK1(SIZE_OP,0)))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SET_OPCODE(i,o)	((i) = (((i)&amp;MASK0(SIZE_OP,POS_OP)) | \</span></span><br><span class="line">		((cast(Instruction, o)&lt;&lt;POS_OP)&amp;MASK1(SIZE_OP,POS_OP))))</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GETARG_A(i)	(cast(int, ((i)&gt;&gt;POS_A) &amp; MASK1(SIZE_A,0)))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SETARG_A(i,u)	((i) = (((i)&amp;MASK0(SIZE_A,POS_A)) | \</span></span><br><span class="line">		((cast(Instruction, u)&lt;&lt;POS_A)&amp;MASK1(SIZE_A,POS_A))))</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GETARG_B(i)	(cast(int, ((i)&gt;&gt;POS_B) &amp; MASK1(SIZE_B,0)))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SETARG_B(i,b)	((i) = (((i)&amp;MASK0(SIZE_B,POS_B)) | \</span></span><br><span class="line">		((cast(Instruction, b)&lt;&lt;POS_B)&amp;MASK1(SIZE_B,POS_B))))</span><br></pre></td></tr></table></figure>
-<p>可是仅有注释里面写明的每个OpCode的格式还不够，因为这起不到程序上的约束和说明作用，于是使用数组来定义所有OpCode的一些说明信息</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> opmode(t,a,b,c,m) (((t)&lt;&lt;7) | ((a)&lt;&lt;6) | ((b)&lt;&lt;4) | ((c)&lt;&lt;2) | (m))</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> lu_byte luaP_opmodes[NUM_OPCODES] = &#123;</span><br><span class="line"><span class="comment">/*       T  A    B       C     mode		   opcode	*/</span></span><br><span class="line">  opmode(<span class="number">0</span>, <span class="number">1</span>, OpArgR, OpArgN, iABC) 		<span class="comment">/* OP_MOVE */</span></span><br><span class="line"> ,opmode(<span class="number">0</span>, <span class="number">1</span>, OpArgK, OpArgN, iABx)		<span class="comment">/* OP_LOADK */</span></span><br><span class="line"> ,opmode(<span class="number">0</span>, <span class="number">1</span>, OpArgU, OpArgU, iABC)		<span class="comment">/* OP_LOADBOOL */</span></span><br><span class="line"> ,opmode(<span class="number">0</span>, <span class="number">1</span>, OpArgR, OpArgN, iABC)		<span class="comment">/* OP_LOADNIL */</span></span><br><span class="line"> ,opmode(<span class="number">0</span>, <span class="number">1</span>, OpArgU, OpArgN, iABC)		<span class="comment">/* OP_GETUPVAL */</span></span><br></pre></td></tr></table></figure>
-<p>这里用一个宏opmode封装了每个OpCode的具体格式</p>
-<blockquote>
-<p>T： 表示这是不是一条逻辑测试相关的指令，这种指令可能会将pc指针自增1。<br>A： 表示这个指令会不会赋值给R(A)。<br>B/C:  B、E参数的格式。<br>mode：这个OpCode的格式。</p>
-</blockquote>
-<p>B、C参数的含义<br><img src="https://user-images.githubusercontent.com/11263320/112283272-efd21a00-8cc2-11eb-9e70-81d04f58279c.JPG" alt="捕获"><br>OpArgN表示这个参数没有使用，但是这里的意思并不是真的没有使用，只是没有作为R()或者以RK()宏的参数使用 。</p>
-<p>Lua共有3种指令格式： iABC、 iABx和iAsBx<br>Lua代码中提供了根据指令中的值得到相应数据的几个宏：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RA(i)	(base+GETARG_A(i))</span></span><br><span class="line"><span class="comment">/* to be used after possible stack reallocation */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgR, base+GETARG_B(i))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgR, base+GETARG_C(i))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RKB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgK, \</span></span><br><span class="line">	ISK(GETARG_B(i)) ? k+INDEXK(GETARG_B(i)) : base+GETARG_B(i))</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RKC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgK, \</span></span><br><span class="line">	ISK(GETARG_C(i)) ? k+INDEXK(GETARG_C(i)) : base+GETARG_C(i))</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> KBx(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgK, k+GETARG_Bx(i))</span></span><br></pre></td></tr></table></figure>
-<p>RA、RB、RC不必多做解释，前面讲解Lua指令执行时已经说过，其含义就是以参数为偏移量在函数棋中取数据。<br>RKB, RKC的意思有两层，第一层是这个指令格式只可能作用在OpCode的B、C参数上，不会作用在参数A上；第二层意思是这个数据除了从函数枝中获取之外，还有可能从常量数组（也就是K数组）中获取，关键在于宏ISK的判断</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE B</span></span><br></pre></td></tr></table></figure>
-<p>结合起来看，这个宏的含义就很简单了：判断这个数据的第八位是不是1，如果是，则认为应该从K数组中获取数据，否则就是从函数战寄存器中获取数据。<br>宏KBx也是自解释的，它不会从函数战中取数据了，直接从K数组（即常量数组）中获取数据。<br>这可以看到，从寄存器中取指令也就是在前面以 R开头的宏中，实际代码中会使用一个base再加上对应的地址，如</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RA(i)	(base+GETARG_A(i))</span></span><br></pre></td></tr></table></figure>
-<p>取其他参数的宏，如RB和RC等，也和这里的宏RA一样，都是基于base来获取的。 不难相象，base值保存的是函数椅基址</p>
-<h2 id="指令的执行"><a href="#指令的执行" class="headerlink" title="指令的执行"></a>指令的执行</h2><p>指令执行的入口函数是luaV_execute<br>这里的问题在于，第一步“准备执行环境”具体都做了些什么。不妨回忆一下，前面提到过虚拟机主要扮演的是CPU和内存的角色，CPU用来执行指令， 内存负责数据的存取读写。因此，虚拟机在执行指令之前的准备工作也差不多： 将内部的pc指针指向待执行的代码位置，准备好栈指针。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">luaV_execute</span> <span class="params">(lua_State *L, <span class="keyword">int</span> nexeccalls)</span> </span>&#123;</span><br><span class="line">  LClosure *cl;</span><br><span class="line">  StkId base;</span><br><span class="line">  TValue *k;</span><br><span class="line">  <span class="keyword">const</span> Instruction *pc;</span><br><span class="line"> reentry:  <span class="comment">/* entry point */</span></span><br><span class="line">  lua_assert(isLua(L-&gt;ci));</span><br><span class="line">  pc = L-&gt;savedpc;</span><br><span class="line">  cl = &amp;clvalue(L-&gt;ci-&gt;func)-&gt;l;</span><br><span class="line">  base = L-&gt;base;</span><br><span class="line">  k = cl-&gt;p-&gt;k;</span><br><span class="line">  <span class="comment">/* main loop of interpreter */</span></span><br><span class="line">  <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
-<p>从代码里可以看到，在循环执行指令之前，主要做了几个变量的赋值</p>
-<ul>
-<li>pc：用于保存当前指令的执行位置。</li>
-<li>cl：当前所在的函数环境（前面提到过，一个即使没有任何函数的Lua文件也对应一个函数环境）。</li>
-<li>base：当前函数环境的战base地址。</li>
-<li>k：当前函数环境的常量数组。<br>总结来说，上面这几个变量就是这两方面的内容：指令和栈。<br>先来看指令，pc从当前Lua虚拟机的savedpc得来，这在前面的luaD_precall中可以看到：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">L-&gt;savedpc = p-&gt;code;  <span class="comment">/* starting point */</span></span><br></pre></td></tr></table></figure>
-可以看到，savedpc在调用之前首先赋值为Proto的code成员，而这个成员就是前面提到的解析完指令之后指令存储的位置。因此，每一次执行Lua虚拟机指令之前，pc都会指向当前函数环境的指令。</li>
-</ul>
-<p>栈地址的设置同样也在前面的luaD_precall函数中提到过了，它是函数械的基地址。 由此回到上一节最后提出来的疑问，下面这些宏中 ：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RA(i)	(base+GETARG_A(i))</span></span><br><span class="line"><span class="comment">/* to be used after possible stack reallocation */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgR, base+GETARG_B(i))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgR, base+GETARG_C(i))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RKB(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgK, \</span></span><br><span class="line">	ISK(GETARG_B(i)) ? k+INDEXK(GETARG_B(i)) : base+GETARG_B(i))</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RKC(i)	check_exp(getCMode(GET_OPCODE(i)) == OpArgK, \</span></span><br><span class="line">	ISK(GETARG_C(i)) ? k+INDEXK(GETARG_C(i)) : base+GETARG_C(i))</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> KBx(i)	check_exp(getBMode(GET_OPCODE(i)) == OpArgK, k+GETARG_Bx(i))</span></span><br></pre></td></tr></table></figure>
-<p>其中 base参数就是当前函数环境的 base地址。 以 base地址为基础位置，以指令参数作为偏移量，拿到的数据肯定就是当前函数棋中的数据<br>所以，以 R开头的宏都是根据具体的参数（ A 、 B 、 C ）到当前函数战中获取数据的手段 </p>
-<p>到了这里，我们看到了虚拟机执行的全貌，下面简单小结一下 :</p>
-<ul>
-<li>分析阶段最后的结果就是 Proto结构体 。 在这个结构体中， code成员用于存储指令， f数组用于保存里面嵌套的函数的 Proto结构体。</li>
-<li>每个环境（再次强调，即使没有任何函数的代码也有对应的环境）都有自己对应的栈，base指向这个栈的基地址， top指向这个栈的栈顶地址 。 取函数校内的数据，都是以base基地址为基础地址的操作 。</li>
-<li>在虚拟机开始执行指令之前，需要把对应的指令和械地址切换到所要执行的函数的对应数据上</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/22/lua%E5%AD%97%E7%AC%A6%E4%B8%B2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1803,11 +1637,139 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/19/lua%E5%85%83%E8%A1%A8%E5%92%8C%E5%85%83%E6%96%B9%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/03/19/lua%E5%85%83%E8%A1%A8%E5%92%8C%E5%85%83%E6%96%B9%E6%B3%95/" itemprop="url">lua元表和元方法</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-19T22:43:30+08:00">
+                2021-03-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="元表的由来"><a href="#元表的由来" class="headerlink" title="元表的由来"></a>元表的由来</h2><p>Lua2.1灵活语义问世，极大的增加了Lua的表达能力，从此，灵活语义就变成了Lua的标志。</p>
+<p>灵活语义的一个目标是允许table作为对象和类的基础。为了实现这个目标，需要实现table的继承。另一个目标是将userdata变成应用数据的天然代理，可以作为函数参数而不只是一个句柄。userdata希望能够索引，就好像他们只是一个table，可供调用他们身上的方法。所以fallback机制的实现，让Lua把未定义行为交给程序员处理，而不是直接在语言本身实现这些特性。</p>
+<p>Lua2.1提供了fallback机制，支持以下行为：table索引，算术操作符，字符串拼接，顺序比较，函数调用。当这些操作应用到“错误”的类型上，对应的fallback就会被调用到，允许程序员决定Lua如何处理。table索引fallback允许userdata和其它值类型表现的跟表一样。定义当Key不在table时的fallback，从而实现多种形式的继承（通过委托）。为了完善面向对象编程，添加了两个语法糖：function a:foo(…)就好比function a.foo(self,…)一样，以及a:foo(…)作为a.foo(a, …)的语法糖。</p>
+<p>Lua2.1里引入的fallback机制，可以很好的支持灵活扩展的语义，但这个机制是全局的：每个事件只有一个钩子。这让共享或重用代码变的很艰难，因为同一事件的fallback在模块里只能定义一次，不能共存。Lua 3.0解决了fallback冲突问题。fallback替换为tag方法：钩子是以(event, tag)的形式挂在字典里的。Tags是在Lua2.1引入的整数标签，可以附在userdata上。最初的动机是希望同类的C对象，在Lua里都有相同的tag(不过，Lua没有强迫要对Tag提供解释)。Lua3.0里对所有值类型提供了tag支持，以支持对应的tag方法。</p>
+<p>标记方法机制工作的很好，一直存续到Lua 5.0为止。在Lua 5.0实现了元表和元方法来取代标记和标记方法。元表只是普通的Lua table，所以可以用Lua直接操作，不需要特殊函数。就像标记一样，元表可以用来表示userdata和table的用户定义类型：所有“同类”对象应该共享同一个元表。不像标记，元表和他们的内容会在所有引用消失后自动被回收掉。（相反，标记和标记方法会等到程序结束才会被回收。）元表的引入同时简化了实现：标记方法需要在Lua核心代码里添加特殊的私有表示方法，元表主要就是标准的table机制。<br>下面的代码展示了Lua 5.0里，继承是如何实现的。index元方法取代了index标记，元表里则是用__index域来表示。代码通过将b的元表里的__index域指向a，实现了b继承a。（一般情况下，index元方法都是函数，但允许它设为table，以直接支持简单的委托继承。）</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a=Window&#123;x=<span class="number">100</span>, y=<span class="number">200</span>, color=<span class="string">&quot;red&quot;</span>&#125;</span><br><span class="line">b=Window&#123;x=<span class="number">300</span>, y=<span class="number">400</span>&#125;</span><br><span class="line"><span class="built_in">setmetatable</span>(b, &#123;<span class="built_in">__index</span> = a&#125;)</span><br><span class="line"><span class="built_in">print</span>(b.color) —&gt;red</span><br></pre></td></tr></table></figure>
+<h2 id="元方法"><a href="#元方法" class="headerlink" title="元方法"></a>元方法</h2><p>在Lua中有一个元表，也就是上面说的metatable，我们可以通过元表来修改一个值得行为，使其在面对一个非预定义的操作时执行一个指定的操作。比如，现在有两个table类型的变量a和b，我们可以通过metatable定义如何计算表达式a+b<br>我们是使用getmetatable来获取一个table或userdata类型变量的元表，当创建新的table变量时，使用getmetatable去获得元表，将返回nil；同理，我们也可以使用setmetatable去设置一个table或userdata类型变量的元表<br>在table中，我可以重新定义的元方法有以下几个</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">__add</span>(a, b) <span class="comment">--加法</span></span><br><span class="line"><span class="built_in">__sub</span>(a, b) <span class="comment">--减法</span></span><br><span class="line"><span class="built_in">__mul</span>(a, b) <span class="comment">--乘法</span></span><br><span class="line"><span class="built_in">__div</span>(a, b) <span class="comment">--除法</span></span><br><span class="line"><span class="built_in">__mod</span>(a, b) <span class="comment">--取模</span></span><br><span class="line"><span class="built_in">__pow</span>(a, b) <span class="comment">--乘幂</span></span><br><span class="line"><span class="built_in">__unm</span>(a) <span class="comment">--相反数</span></span><br><span class="line"><span class="built_in">__concat</span>(a, b) <span class="comment">--连接</span></span><br><span class="line"><span class="built_in">__len</span>(a) <span class="comment">--长度</span></span><br><span class="line"><span class="built_in">__eq</span>(a, b) <span class="comment">--相等</span></span><br><span class="line"><span class="built_in">__lt</span>(a, b) <span class="comment">--小于</span></span><br><span class="line"><span class="built_in">__le</span>(a, b) <span class="comment">--小于等于</span></span><br><span class="line"><span class="built_in">__index</span>(a, b) <span class="comment">--索引查询</span></span><br><span class="line"><span class="built_in">__newindex</span>(a, b, c) <span class="comment">--索引更新（PS：不懂的话，后面会有讲）</span></span><br><span class="line"><span class="built_in">__call</span>(a, ...) <span class="comment">--执行方法调用</span></span><br><span class="line"><span class="built_in">__tostring</span>(a) <span class="comment">--字符串输出</span></span><br><span class="line"><span class="built_in">__metatable</span> <span class="comment">--保护元表</span></span><br></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>《The evolution of Lua》</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/">&gt;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/2/">&gt;</a>
   </nav>
 
 
@@ -1853,7 +1815,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">108</span>
+                  <span class="site-state-item-count">99</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
