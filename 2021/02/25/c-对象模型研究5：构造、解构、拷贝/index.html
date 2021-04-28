@@ -301,16 +301,6 @@
 
           
             
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B65%EF%BC%9A%E6%9E%84%E9%80%A0%E3%80%81%E8%A7%A3%E6%9E%84%E3%80%81%E6%8B%B7%E8%B4%9D/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count gitment-comments-count" data-xid="/2021/02/25/c-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E7%A0%94%E7%A9%B65%EF%BC%9A%E6%9E%84%E9%80%A0%E3%80%81%E8%A7%A3%E6%9E%84%E3%80%81%E6%8B%B7%E8%B4%9D/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
           
 
           
@@ -424,9 +414,7 @@
 
   
     <div class="comments" id="comments">
-      
-        <div id="gitment-container"></div>
-      
+      <div id="gitalk-container"></div>
     </div>
 
   
@@ -713,44 +701,35 @@
 
 
 
+
+
+
+
+
+
 <!-- LOCAL: You can save these files to your site and update links -->
-    
-        
-        <link rel="stylesheet" href="https://aimingoo.github.io/gitmint/style/default.css">
-        <script src="https://aimingoo.github.io/gitmint/dist/gitmint.browser.js"></script>
-    
+  
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
 <!-- END LOCAL -->
-
-    
-
+ 
     
       <script type="text/javascript">
-      function renderGitment(){
-        var gitment = new Gitmint({
-            id: window.location.pathname, 
+      function renderGitalk(){
+        var gitalk = new Gitalk({
             owner: 'losophy',
             repo: 'losophy.github.io',
+            clientID: '73fa7274012ade8d5abc',
+            clientSecret: 'a6d6e71a8115109e833f636d3d9371d04f5777b9',
+            admin: '',
             
-            lang: "" || navigator.language || navigator.systemLanguage || navigator.userLanguage,
-            
-            oauth: {
-            
-            
-                client_secret: 'a6d6e71a8115109e833f636d3d9371d04f5777b9',
-            
-                client_id: '73fa7274012ade8d5abc'
-            }});
-        gitment.render('gitment-container');
+            });
+        gitalk.render('gitalk-container');
       }
-
-      
-      renderGitment();
-      
+      renderGitalk();
       </script>
     
-
-
-
+ 
 
 
 
