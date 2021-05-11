@@ -254,6 +254,1034 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/redis%E6%A8%A1%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/22/redis%E6%A8%A1%E5%BC%8F/" itemprop="url">redis模式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T10:38:58+08:00">
+                2021-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="单节点模式"><a href="#单节点模式" class="headerlink" title="单节点模式"></a>单节点模式</h2><p>执行命令：redis-server.exe redis6379.conf<br>该命令指定了配置文件，不指定的情况下默认读取的配置文件是redis.conf配置文件</p>
+<h2 id="主从模式（数据备份）"><a href="#主从模式（数据备份）" class="headerlink" title="主从模式（数据备份）"></a>主从模式（数据备份）</h2><ul>
+<li>主节点和从节点使用完全相同的服务器实现， 它们的功能（functionally）也完全一样， 但从节点通常仅用于替换失效的主节点。</li>
+<li>不过， 如果不需要保证“先写入，后读取”操作的一致性（read-after-write consistency）， 那么可以使用从节点来执行只读查询。</li>
+</ul>
+<p>配置一主二从模式，拷贝两份redis6379.conf，分别命名redis6380.conf、redis6381.conf<br>修改redis6380.conf配置文件的如下几个参数，参数前面不要出现空格：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bind 127.0.0.1</span><br><span class="line">port 6380</span><br><span class="line">slaveof 127.0.0.1 6379  &#x2F;&#x2F; 设置该slave的master服务器为6379</span><br></pre></td></tr></table></figure>
+<p>同理修改redis6381.conf<br>分别启动master、slave1、slave2，命令如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">    redis-server.exe redis6379.conf</span><br><span class="line">    redis-server.exe redis6380.conf</span><br><span class="line">    redis-server.exe redis6381.conf</span><br><span class="line">&#96;&#96;</span><br><span class="line"> 所有节点启动后，可以在master界面看到挂载两个slave节点的日志信息</span><br><span class="line"></span><br><span class="line">## 哨兵模式</span><br><span class="line">哨兵模式是主从模式的升级版，他会在后台有一个监控，监控当前的主机，巡逻主机下面的从机，如果某一时刻主机挂掉了，那么他会通过一种投票的机制从从机之中选举一台作为新的主机，并且，其余的从机将会连接到这个新的主机上面。</span><br><span class="line"></span><br><span class="line">配置一主二从三sentinel模式</span><br><span class="line">redis的配置文件同主从模式下的文件配置</span><br><span class="line">创建三份sentinel.conf文件，分别命名为sentinel26379.conf、sentinel26380.conf、sentinel26381.conf</span><br><span class="line"></span><br><span class="line">文件中的配置参数如下(另外两个配置文件同样配置)：</span><br></pre></td></tr></table></figure>
+<p>port 26379 // 当前Sentinel服务运行的端口<br>sentinel monitor mymaster 127.0.0.1 6379 2   // 去监视一个名为mymaster的主redis实例，这个主实例的IP地址为本机地址127.0.0.1，端口号为6379，而将这个主实例判断为失效至少需要2个 Sentinel进程的同意，只要同意Sentinel的数量不达标，自动failover就不会执行<br>sentinel down-after-milliseconds mymaster 5000  // 指定了Sentinel认为Redis实例已经失效所需的毫秒数。当 实例超过该时间没有返回PING，或者直接返回错误，那么Sentinel将这个实例标记为主观下线。只有一个 Sentinel进程将实例标记为主观下线并不一定会引起实例的自动故障迁移：只有在足够数量的Sentinel都将一个实例标记为主观下线之后，实例才会被标记为客观下线，这时自动故障迁移才会执行<br>sentinel parallel-syncs mymaster 1  // 指定了在执行故障转移时，最多可以有多少个从Redis实例在同步新的主实例，在从Redis实例较多的情况下这个数字越小，同步的时间越长，完成故障转移所需的时间就越长<br>sentinel failover-timeout mymaster 15000 // 如果在该时间（ms）内未能完成failover操作，则认为该failover失败</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">分别启动redis服务器同主从模式下一样</span><br><span class="line">分别启动sentinel服务器，命令如下：</span><br></pre></td></tr></table></figure>
+<pre><code>redis-server.exe sentinel26379.conf --sentinel  
+redis-server.exe sentinel26380.conf --sentinel  
+redis-server.exe sentinel26381.conf --sentinel</code></pre>
+<p>```</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/%E4%B8%80%E4%BA%9Bsql%E8%AF%AD%E5%8F%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/22/%E4%B8%80%E4%BA%9Bsql%E8%AF%AD%E5%8F%A5/" itemprop="url">一些sql语句</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T02:17:51+08:00">
+                2021-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="GROUP分组"><a href="#GROUP分组" class="headerlink" title="GROUP分组"></a>GROUP分组</h2><p>GROUP BY 聚合函数在聚合行的时候顺序？</p>
+<p>GROUP BY 聚合函数在聚合行的时候顺序是不确定的，多次运行的结果都有可能会不同。<br>必须要用子查询或者程序逻辑来获取特定的行的结果。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> T.<span class="operator">*</span> <span class="keyword">FROM</span> (<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> `test` <span class="keyword">order</span> <span class="keyword">by</span> b <span class="keyword">desc</span> limit <span class="number">999999</span>) T <span class="keyword">group</span> <span class="keyword">by</span> T.a</span><br></pre></td></tr></table></figure>
+<h2 id="循环语句"><a href="#循环语句" class="headerlink" title="循环语句"></a>循环语句</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">declare</span> <span class="variable">@i</span> <span class="type">int</span></span><br><span class="line"><span class="keyword">set</span> <span class="variable">@i</span><span class="operator">=</span><span class="number">1</span></span><br><span class="line">while <span class="variable">@i</span><span class="operator">&lt;</span><span class="number">30</span></span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test (userid) <span class="keyword">values</span>(<span class="variable">@i</span>)</span><br><span class="line"><span class="keyword">set</span> <span class="variable">@i</span><span class="operator">=</span><span class="variable">@i</span><span class="operator">+</span><span class="number">1</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="用-临时表-While循环-的方法-对Customers表中的CompanyName列进行遍历"><a href="#用-临时表-While循环-的方法-对Customers表中的CompanyName列进行遍历" class="headerlink" title="用 临时表 + While循环 的方法, 对Customers表中的CompanyName列进行遍历"></a>用 临时表 + While循环 的方法, 对Customers表中的CompanyName列进行遍历</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> #temp</span><br><span class="line">(</span><br><span class="line">  id <span class="type">int</span> <span class="keyword">identity</span>(<span class="number">1</span>,<span class="number">1</span>),</span><br><span class="line">  customer nvarchar(<span class="number">50</span>)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">declare</span> <span class="variable">@customer</span> nvarchar(<span class="number">50</span>)</span><br><span class="line"><span class="keyword">declare</span> <span class="variable">@n</span>        <span class="type">int</span></span><br><span class="line"><span class="keyword">declare</span> <span class="variable">@rows</span>     <span class="type">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@n</span><span class="operator">=</span><span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> #temp(customer) <span class="keyword">select</span> <span class="keyword">distinct</span> companyname <span class="keyword">from</span> customers</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@rows</span> <span class="operator">=</span> @<span class="variable">@rowcount</span></span><br><span class="line"></span><br><span class="line">while <span class="variable">@n</span> <span class="operator">&lt;=</span> <span class="variable">@rows</span></span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@customer</span> <span class="operator">=</span> companyname</span><br><span class="line"><span class="keyword">from</span> customers</span><br><span class="line">     <span class="keyword">where</span> companyname<span class="operator">=</span>(<span class="keyword">select</span> customer <span class="keyword">from</span> #temp <span class="keyword">where</span> id <span class="operator">=</span> <span class="variable">@n</span>)</span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> companyname <span class="keyword">desc</span></span><br><span class="line"></span><br><span class="line">print(<span class="variable">@customer</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="variable">@n</span> <span class="operator">=</span> <span class="variable">@n</span> <span class="operator">+</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="备份和恢复mysql数据库"><a href="#备份和恢复mysql数据库" class="headerlink" title="备份和恢复mysql数据库"></a>备份和恢复mysql数据库</h2><p>备份：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u root -p密码 数据库名&gt;data.bak</span><br></pre></td></tr></table></figure>
+<p>恢复</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p密码 数据库名&lt;data.bak</span><br></pre></td></tr></table></figure>
+<h2 id="查看mysql-的端口号"><a href="#查看mysql-的端口号" class="headerlink" title="查看mysql 的端口号"></a>查看mysql 的端口号</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;port&#x27;</span>;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/redis%E6%8C%81%E4%B9%85%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/22/redis%E6%8C%81%E4%B9%85%E5%8C%96/" itemprop="url">redis持久化</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T02:15:27+08:00">
+                2021-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Redis由于支持非常丰富的内存数据结构类型，如何把这些复杂的内存组织方式持久化到磁盘上是一个难题，所以Redis的持久化方式与传统数据库的方式有比较多的差别，Redis主要支持下面两种持久化方式，分别是：<br>定时快照方式(RDB)<br>基于语句追加文件的方式(AOF)</p>
+<p>Redis 还可以同时使用 AOF 持久化和 RDB 持久化。 在这种情况下， 当 Redis 重启时， 它会优先使用 AOF 文件来还原数据集， 因为 AOF 文件保存的数据集通常比 RDB 文件所保存的数据集更完整。</p>
+<h2 id="定时快照方式-snapshot，RDB-快照"><a href="#定时快照方式-snapshot，RDB-快照" class="headerlink" title="定时快照方式(snapshot，RDB 快照)"></a>定时快照方式(snapshot，RDB 快照)</h2><p>该持久化方式实际是在Redis内部一个定时器事件，每隔固定时间去检查当前数据发生的改变次数与时间是否满足配置的持久化触发的条件，如果满足则 通过操作系统fork调用来创建出一个子进程，这个子进程默认会与父进程共享相同的地址空间，这时就可以通过子进程来遍历整个内存来进行存储操作，而主进 程则仍然可以提供服务，当有写入时由操作系统按照内存页(page)为单位来进行copy-on-write保证父子进程之间不会互相影响。</p>
+<p>该持久化的主要缺点是定时快照只是代表一段时间内的内存映像，所以系统重启会丢失上次快照与重启之间所有的数据。<br>在默认情况下，Redis 将数据库快照保存在名字为 dump.rdb 的二进制文件中。<br>可以在.conf文件中修改</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#   save &quot;&quot;</span><br><span class="line">save 60 1000</span><br><span class="line"></span><br><span class="line"># The filename where to dump the DB</span><br><span class="line">dbfilename &quot;dump.rdb&quot;</span><br></pre></td></tr></table></figure>
+<p>你也可以通过调用 SAVE 或者 BGSAVE ， 手动让 Redis 进行数据集保存操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SAVE</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; BGSAVE</span><br><span class="line">Background saving started</span><br></pre></td></tr></table></figure>
+<h3 id="Redis恢复数据"><a href="#Redis恢复数据" class="headerlink" title="Redis恢复数据"></a>Redis恢复数据</h3><p>只要覆盖一下dump.rdb，再重启下redis就可以了。</p>
+<h2 id="基于语句追加方式-AOF"><a href="#基于语句追加方式-AOF" class="headerlink" title="基于语句追加方式(AOF)"></a>基于语句追加方式(AOF)</h2><p>aof方式实际类似mysql的基于语句的binlog方式，即每条会使Redis内存数据发生改变的命令都会追加到一个log文件中，也就是说这个log文件就是Redis的持久化数据。</p>
+<p>aof的方式的主要缺点是追加log文件可能导致体积过大，当系统重启恢复数据时如果是aof的方式则加载数据会非常慢，几十G的数据可能需要几小 时才能加载完，当然这个耗时并不是因为磁盘文件读取速度慢，而是由于读取的所有命令都要在内存中执行一遍。另外由于每条命令都要写log,所以使用aof 的方式，Redis的读写性能也会有所下降。</p>
+<p>AOF 重写和 RDB 创建快照一样，都巧妙地利用了写时复制机制。 打开只需要写入conf文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
+<h2 id="RDB-和-AOF，应该用哪一个"><a href="#RDB-和-AOF，应该用哪一个" class="headerlink" title="RDB 和 AOF，应该用哪一个"></a>RDB 和 AOF，应该用哪一个</h2><p>一般来说， 如果想达到足以媲美 PostgreSQL 的数据安全性， 你应该同时使用两种持久化功能。</p>
+<p>如果你非常关心你的数据， 但仍然可以承受数分钟以内的数据丢失， 那么你可以只使用 RDB 持久化。</p>
+<p>有很多用户都只使用 AOF 持久化， 但我们并不推荐这种方式： 因为定时生成 RDB 快照（snapshot）非常便于进行数据库备份， 并且 RDB 恢复数据集的速度也要比 AOF 恢复的速度要快， 除此之外， 使用 RDB 还可以避免之前提到的 AOF 程序的 bug 。</p>
+<h2 id="实验阶段"><a href="#实验阶段" class="headerlink" title="实验阶段"></a>实验阶段</h2><h3 id="虚拟内存方式"><a href="#虚拟内存方式" class="headerlink" title="虚拟内存方式"></a>虚拟内存方式</h3><p>虚拟内存方式是Redis来进行用户空间的数据换入换出的一个策略，此种方式在实现的效果上比较差，主要问题是代码复杂，重启慢，复制慢等等，目前已经被作者放弃。</p>
+<h3 id="diskstore方式："><a href="#diskstore方式：" class="headerlink" title="diskstore方式："></a>diskstore方式：</h3><p>diskstore方式是作者放弃了虚拟内存方式后选择的一种新的实现方式，也就是传统的B-tree的方式，目前仍在实验阶段，后续是否可用我们可以拭目以待。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/redis%E8%AE%BE%E7%BD%AE%E8%BF%87%E6%9C%9F%E6%96%B9%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/22/redis%E8%AE%BE%E7%BD%AE%E8%BF%87%E6%9C%9F%E6%96%B9%E5%BC%8F/" itemprop="url">redis设置过期方式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T01:59:57+08:00">
+                2021-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="redis-conf中的默认的过期策略是"><a href="#redis-conf中的默认的过期策略是" class="headerlink" title="redis.conf中的默认的过期策略是"></a>redis.conf中的默认的过期策略是</h2><p>volatile-lru</p>
+<h2 id="maxmemory-policy-六种方式"><a href="#maxmemory-policy-六种方式" class="headerlink" title="maxmemory-policy 六种方式"></a>maxmemory-policy 六种方式</h2><ul>
+<li>volatile-lru<br>只对设置了过期时间的key进行LRU（默认值） </li>
+<li>allkeys-lru<br>删除lru算法的key   </li>
+<li>volatile-random<br>随机删除即将过期key   </li>
+<li>allkeys-random<br>随机删除   </li>
+<li>volatile-ttl<br>删除即将过期的   </li>
+<li>noeviction<br>永不过期，返回错误</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/mysql%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/22/mysql%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url">mysql数据结构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T01:46:05+08:00">
+                2021-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>从InnoDB存储引擎的逻辑存储结构看，所有数据都被逻辑地存放在一个空间中，称之为表空间（tablespace）。表空间又由段（segment）、区（extent）、页（page）组成。页在一些文档中有时也称为块（block）。</p>
+<p>InnoDB存储引擎的逻辑存储结构<br><img src="https://user-images.githubusercontent.com/11263320/108633531-a61dc600-74af-11eb-97f9-4f2ba133705e.jpg" alt="1425134-20190316171629020-1958519047"></p>
+<p>表空间<br>表空间可以看做是InnoDB存储引擎逻辑结构的最高层，所有的数据都存放在表空间中。</p>
+<p>段<br>因为InnoDB存储引擎表是索引组织的，因此数据即索引，索引即数据。数据段即为B+树的叶子节点（Leaf node segment），索引段即为B+树的非索引节点（Non-leaf node segment）。</p>
+<p>区<br>区是由连续页组成的空间。</p>
+<p>页<br>页是InnoDB磁盘管理的最小单位。</p>
+<p>行<br>InnoDB存储引擎是面向列的，也就说数据是按行进行存放的。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/redis%E4%BD%BF%E7%94%A8lua%E8%84%9A%E6%9C%AC%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/22/redis%E4%BD%BF%E7%94%A8lua%E8%84%9A%E6%9C%AC%E6%93%8D%E4%BD%9C/" itemprop="url">redis使用lua脚本操作</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T01:32:08+08:00">
+                2021-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>redis支持lua脚本，通过在服务器中嵌入lua环境，redis客户端可以使用lua脚本，直接在服务器端原子地执行多个redis命令。</p>
+<h2 id="Redis服务器创建并修改Lua环境的整个过程由以下步骤组成"><a href="#Redis服务器创建并修改Lua环境的整个过程由以下步骤组成" class="headerlink" title="Redis服务器创建并修改Lua环境的整个过程由以下步骤组成"></a>Redis服务器创建并修改Lua环境的整个过程由以下步骤组成</h2><p>①创建一个基础的Lua环境，之后的所有修改都是针对这个环境进行的<br>②载入多个函数库到Lua环境里面，让Lua脚本可以使用这些函数库来进行数据操作<br>③创建全局表格redis，这个表格包含了对Redis进行操作的函数，比如用于在Lua脚本中 执行Redis命令的redis.call函数<br>④使用Redis自制的随机函数来替换Lua原有的带有副作用的随机函数，从而避免在脚本 中引入副作用<br>⑤创建排序辅助函数，Lua环境使用这个辅佐函数来对一部分Redis命令的结果进行排 序，从而消除这些命令的不确定性<br>⑥创建redis.pcall函数的错误报告辅助函数，这个函数可以提供更详细的出错信息<br>⑦对Lua环境中的全局环境进行保护，防止用户在执行Lua脚本的过程中，将额外的全 局变量添加到Lua环境中<br>⑧将完成修改的Lua环境保存到服务器状态的lua属性中，等待执行服务器传来的Lua脚本</p>
+<p>EVAL、EVALSHA</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/%E6%9F%A5%E7%9C%8Blinux%E7%9A%84%E6%83%85%E5%86%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/22/%E6%9F%A5%E7%9C%8Blinux%E7%9A%84%E6%83%85%E5%86%B5/" itemprop="url">查看linux的情况</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T00:51:04+08:00">
+                2021-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="查看进程内存占用情况"><a href="#查看进程内存占用情况" class="headerlink" title="查看进程内存占用情况"></a>查看进程内存占用情况</h2><p>以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户的进程内存使用情况的话可以使用如下的命令：</p>
+<p>(1)top<br>top命令是Linux下常用的性能分析工具，能够实时显示系统中各个进程的资源占用状况，类似于Windows的任务管理器<br>可以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户的进程内存使用情况的话可以使用如下的命令：<br>$ top -u oracle</p>
+<h3 id="与ps的不同"><a href="#与ps的不同" class="headerlink" title="与ps的不同"></a>与ps的不同</h3><p>ps看到的是命令执行瞬间的进程信息,而top可以持续的监视<br>ps只是查看进程,而top还可以监视系统性能,如平均负载,cpu和内存的消耗</p>
+<h2 id="打印某个程序的线程栈"><a href="#打印某个程序的线程栈" class="headerlink" title="打印某个程序的线程栈"></a>打印某个程序的线程栈</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pstack $pid</span><br></pre></td></tr></table></figure>
+<h2 id="查看存储空间"><a href="#查看存储空间" class="headerlink" title="查看存储空间"></a>查看存储空间</h2><p>先看看根目录下面<br>du -sh /* </p>
+<p>下面这条命令就是显示所有隐藏文件和非隐藏文件的大小并根据占用空间排序的语句<br>du -sh .[!.]* * | sort -hr  </p>
+<p>看磁盘使用情况<br>df -h</p>
+<h2 id="查看系统信息"><a href="#查看系统信息" class="headerlink" title="查看系统信息"></a>查看系统信息</h2><p>lsb_release -a</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">No LSB modules are available.</span><br><span class="line">Distributor ID: Ubuntu</span><br><span class="line">Description:    Ubuntu 16.04.5 LTS</span><br><span class="line">Release:        16.04</span><br><span class="line">Codename:       xenial</span><br></pre></td></tr></table></figure>
+<p>uname -a</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux coding.ide 3.10.107-1-tlinux2_kvm_guest-0046.cd.nosign #1 SMP Wed Jan 31 15:25:12 CST 2018 x86_64 x86_64 x86_64 GNU&#x2F;Linux</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/cmake/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/22/cmake/" itemprop="url">cmake</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T00:24:22+08:00">
+                2021-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>CMake是一个比make更高级的编译配置工具，它可以根据不同平台、不同的编译器，生成相应的Makefile或者vcproj项目。通过编写CMakeLists.txt，可以控制生成的Makefile，从而控制编译过程。CMake自动生成的Makefile不仅可以通过make命令构建项目生成目标文件，还支持安装（make install）、测试安装的程序是否能正确执行（make test，或者ctest）、生成当前平台的安装包（make package）、生成源码包（make package_source）、产生Dashboard显示数据并上传等高级功能，只要在CMakeLists.txt中简单配置，就可以完成很多复杂的功能，包括写测试用例。如果有嵌套目录，子目录下可以有自己的CMakeLists.txt。</p>
+<h3 id="外部编译"><a href="#外部编译" class="headerlink" title="外部编译"></a>外部编译</h3><p>外部编译，一个最大的好处是，对于原有的工程没<br>有任何影响，所有动作全部发生在编译目录。通过这一点，也足以说服我们全部采用外部编<br>译方式构建工程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">#确定cmake最低版本需求</span><br><span class="line">cmake_minimum_required(VERSION 3.0.0)</span><br><span class="line"></span><br><span class="line">#打印</span><br><span class="line">MESSAGE(STATUS &quot;This is install dir &quot; $&#123;CMAKE_INSTALL_PREFIX&#125;)</span><br><span class="line"></span><br><span class="line">#确定工程名</span><br><span class="line">#(这一行会引入两个变量XXX_BINARY_DIR (二进制文件保存路径)和 #XXX_SOURCE_DIR(源代码保存路径))</span><br><span class="line">project(XXX)</span><br><span class="line"></span><br><span class="line">#添加需要的库</span><br><span class="line">set(CMAKE_PREFIX_PATH $&#123;CMAKE_PREFIX_PATH&#125; &quot;&#x2F;usr&#x2F;local&#x2F;share&#x2F;OpenCV&quot;)</span><br><span class="line">find_package(OpenCV 3.2.0 REQUIRED)</span><br><span class="line"></span><br><span class="line">#添加需要的头文件</span><br><span class="line">include_directories(include)</span><br><span class="line">include_directories($&#123;OpenCV_INCLUDE_DIRS&#125;)</span><br><span class="line">include_directories(&#x2F;usr&#x2F;local&#x2F;cuda-8.0&#x2F;include&#x2F;)</span><br><span class="line"></span><br><span class="line">#确定编译语言</span><br><span class="line">#add_definitions(-std&#x3D;c++11)</span><br><span class="line">set(CMAKE_CXX_STANDARD 11)</span><br><span class="line"></span><br><span class="line">#设定变量</span><br><span class="line">ADD_DEFINITIONS( -DGPU -DCUDNN )</span><br><span class="line"></span><br><span class="line">#添加源代码</span><br><span class="line">aux_source_directory($&#123;CMAKE_CURRENT_LIST_DIR&#125;&#x2F;src src)</span><br><span class="line"></span><br><span class="line">#编译动态库并链接库文件</span><br><span class="line">link_directories($&#123;PROJECT_SOURCE_DIR&#125;)</span><br><span class="line">add_library(plate_recognition SHARED $&#123;SRC&#125;)</span><br><span class="line">target_link_libraries(plate_recognition $&#123;OpenCV_LIBS&#125;)</span><br><span class="line">target_link_libraries(plate_recognition -llianghao  -lpthread -lm -lstdc++)</span><br><span class="line"></span><br><span class="line">#生成可执行文件</span><br><span class="line">link_directories($&#123;PROJECT_SOURCE_DIR&#125;)</span><br><span class="line">add_executable(Test $&#123;SRC&#125;)</span><br><span class="line">target_link_libraries(Test $&#123;OpenCV_LIBS&#125;)</span><br><span class="line">target_link_libraries(Test -llianghao  -lpthread -lm -lstdc++)</span><br><span class="line"></span><br><span class="line">#make install</span><br><span class="line">SET(CMAKE_INSTALL_PREFIX $&#123;CMAKE_SOURCE_DIR&#125;)</span><br><span class="line"></span><br><span class="line">INSTALL(TARGETS myengine</span><br><span class="line">    DESTINATION ..&#x2F;assets&#x2F;bin&#x2F;</span><br><span class="line">   )</span><br></pre></td></tr></table></figure>
+<h3 id="项目删除"><a href="#项目删除" class="headerlink" title="项目删除"></a>项目删除</h3><p>CMake 默认不提供 uninstall 这个 target，想要的话，输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xargs rm &lt; install_manifest.txt</span><br></pre></td></tr></table></figure>
+<p>对于不修改配置的项目足够了，manifest.txt 是CMake 生成的安装文件列表。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/%E7%BA%BF%E7%A8%8B%EF%BC%8C%E8%BF%9B%E7%A8%8B%EF%BC%8C%E9%94%81%EF%BC%8C%E5%8D%8F%E7%A8%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -510,1075 +1538,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/21/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/21/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" itemprop="url">工厂模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-21T23:00:52+08:00">
-                2021-02-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>现在的网游更新很快，要延长网络游戏生命周期的方法是，更新，不断地更新，不断的将新内容呈现于玩家面前。这要求游戏程序的设计要有弹性，代码的重用至关重要。</p>
-<p>今天就说说游戏中的工厂模式。<br>说到工厂模式，有简单工厂模式，工厂方法模式，抽象工厂模式。</p>
-<p>（一）简单工厂模式<br>ps：面向对象的编程，并不是类越多越好，类的划分是为了封装，但分类的基础是抽象，具有相同属性和功能的对象的抽象集合才是类。<br>主要用于创建对象。新添加类时，不会影响以前的系统代码。核心思想是用一个工厂来根据输入的条件产生不同的类，然后根据不同类的virtual函数得到不同的结果。</p>
-<p>（工厂类与基类为关联关系）</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//基类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">COperation</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> m_nFirst;</span><br><span class="line">    <span class="keyword">int</span> m_nSecond;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">double</span> <span class="title">GetResult</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">double</span> dResult=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> dResult;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//加法</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AddOperation</span> :</span> <span class="keyword">public</span> COperation</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">double</span> <span class="title">GetResult</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> m_nFirst+m_nSecond;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//减法</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SubOperation</span> :</span> <span class="keyword">public</span> COperation</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">double</span> <span class="title">GetResult</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> m_nFirst-m_nSecond;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//工厂类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CCalculatorFactory</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">static</span> COperation* <span class="title">Create</span><span class="params">(<span class="keyword">char</span> cOperator)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">COperation* <span class="title">CCalculatorFactory::Create</span><span class="params">(<span class="keyword">char</span> cOperator)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    COperation *oper;</span><br><span class="line">    <span class="comment">//在C#中可以用反射来取消判断时用的switch，在C++中用什么呢？RTTI？？</span></span><br><span class="line">    <span class="keyword">switch</span> (cOperator)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&#x27;+&#x27;</span>:</span><br><span class="line">        oper=<span class="keyword">new</span> AddOperation();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&#x27;-&#x27;</span>:</span><br><span class="line">        oper=<span class="keyword">new</span> SubOperation();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        oper=<span class="keyword">new</span> AddOperation();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> oper;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>客户端</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a,b;</span><br><span class="line">    <span class="built_in">cin</span>&gt;&gt;a&gt;&gt;b;</span><br><span class="line">    COperation * op=CCalculatorFactory::Create(<span class="string">&#x27;-&#x27;</span>);</span><br><span class="line">    op-&gt;m_nFirst=a;</span><br><span class="line">    op-&gt;m_nSecond=b;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;op-&gt;GetResult()&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>优：适用于不同情况创建不同的类时。<br>劣：客户端必须要知道基类和工厂类，耦合性差。</p>
-<p>（二）工厂方法模式<br>简单工厂模式的最大优点在于工厂类中包含了必要的逻辑判断，根据客户端的选择条件动态实例化相关的类，对于客户端来说，去除了与具体产品的依赖。但简单工厂模式中不遵守开放－封闭原则。代码耦合性差。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="comment">//实例基类，相当于Product(为了方便，没用抽象)</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LeiFeng</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Sweep</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;雷锋扫地&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//学雷锋的大学生，相当于ConcreteProduct</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span>:</span> <span class="keyword">public</span> LeiFeng</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Sweep</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;大学生扫地&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//学雷锋的志愿者，相当于ConcreteProduct</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Volenter</span>:</span> <span class="keyword">public</span> LeiFeng</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span> :</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Sweep</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;志愿者&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//工场基类Creator</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LeiFengFactory</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> LeiFeng* <span class="title">CreateLeiFeng</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> LeiFeng();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//工场具体类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StudentFactory</span> :</span> <span class="keyword">public</span> LeiFengFactory</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span> :</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> LeiFeng* <span class="title">CreateLeiFeng</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Student();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VolenterFactory</span> :</span> <span class="keyword">public</span> LeiFengFactory</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> LeiFeng* <span class="title">CreateLeiFeng</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Volenter();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>客户端</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    LeiFengFactory *sf=<span class="keyword">new</span> LeiFengFactory();</span><br><span class="line">    LeiFeng *s=sf-&gt;CreateLeiFeng();</span><br><span class="line">    s-&gt;Sweep();</span><br><span class="line">    <span class="keyword">delete</span> s;</span><br><span class="line">    <span class="keyword">delete</span> sf;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>优：修正了简单工厂模式中不遵守开放－封闭原则。工厂方法模式把选择判断移到了客户端去实现，如果想添加新功能就不用修改原来的类，直接修改客户端即可。</p>
-<p>（三）抽象工厂模式<br>提供一个创建一系列相关或相互依赖的接口，而无需指定它们的具体类。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//用户抽象接口</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IUser</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span> :</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetUser</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertUser</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//部门抽象接口</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IDepartment</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetDepartment</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertDepartment</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//ACCESS用户</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CAccessUser</span> :</span> <span class="keyword">public</span> IUser</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Access GetUser&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Access InsertUser&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//ACCESS部门</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CAccessDepartment</span> :</span> <span class="keyword">public</span> IDepartment</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Access GetDepartment&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Access InsertDepartment&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//SQL用户</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CSqlUser</span> :</span> <span class="keyword">public</span> IUser</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Sql User&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;Sql User&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//SQL部门类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CSqlDepartment</span>:</span> <span class="keyword">public</span> IDepartment</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">GetDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;sql getDepartment&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">InsertDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">&quot;sql insertdepartment&quot;</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//抽象工厂</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IFactory</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IUser* <span class="title">CreateUser</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDepartment* <span class="title">CreateDepartment</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//ACCESS工厂</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AccessFactory</span> :</span> <span class="keyword">public</span> IFactory</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IUser* <span class="title">CreateUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span>  CAccessUser();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDepartment* <span class="title">CreateDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CAccessDepartment();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//SQL工厂</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SqlFactory</span> :</span> <span class="keyword">public</span> IFactory</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IUser* <span class="title">CreateUser</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span>  CSqlUser();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDepartment* <span class="title">CreateDepartment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CSqlDepartment();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>客户端：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    IFactory* factory= <span class="keyword">new</span> SqlFactory();</span><br><span class="line">    IUser* user=factory-&gt;CreateUser();</span><br><span class="line">    IDepartment* depart = factory-&gt;CreateDepartment();</span><br><span class="line">    user-&gt;GetUser();</span><br><span class="line">    depart-&gt;GetDepartment();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/21/%E4%BA%8C%E5%8F%89%E6%A0%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/21/%E4%BA%8C%E5%8F%89%E6%A0%91/" itemprop="url">二叉树</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-21T21:43:34+08:00">
-                2021-02-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前写了一些链表和排序的blog，其中有说到多链表，堆，其中提到了一种特殊的数据结构：树。<br>人们发明树结构，用于储存和搜索海量的数据。</p>
-<h2 id="树的种类"><a href="#树的种类" class="headerlink" title="树的种类"></a>树的种类</h2><p>无序树：树中任意节点的子结点之间没有顺序关系，这种树称为无序树,也称为自由树;<br>有序树：树中任意节点的子结点之间有顺序关系，这种树称为有序树；<br>二叉树：每个节点最多含有两个子树的树称为二叉树；<br>完全二叉树：二叉树的所有子树要么没有孩子，要么一定有左孩子。堆是一种完全二叉树。<br>红黑树：红黑树是把树中的结点定义为红、黑两种颜色，并通过规则确保从根结点到叶结点的最长路径的长度不超过最短路径的两倍。在c++的STL中，set、multiset、map、multimap等数据结构都是基于红黑树实现的。<br>满二叉树：除最后一层无任何子节点外，每一层上的所有结点都有两个子结点（最后一层上的无子结点的结点为叶子结点）。<br>霍夫曼树：带权路径最短的二叉树称为哈夫曼树或最优二叉树；</p>
-<p>如果二叉树不是平衡的，那么它就退化为一个链表，而搜索时间也退化为一个线性函数。</p>
-<h2 id="树的深度"><a href="#树的深度" class="headerlink" title="树的深度"></a>树的深度</h2><p>定义一棵树的根结点层次为1，其他节点的层次是其父结点层次加1。一棵树中所有结点的层次的最大值称为这棵树的深度。</p>
-<h2 id="树的遍历"><a href="#树的遍历" class="headerlink" title="树的遍历"></a>树的遍历</h2><p>所谓遍历(Traversal)是指沿着某条搜索路线，依次对树中每个结点均做一次且仅做一次访问。访问结点所做的操作依赖于具体的应用问 题。 遍历是二叉树上最重要的运算之一，是二叉树上进行其它运算之基础。</p>
-<h2 id="遍历命名"><a href="#遍历命名" class="headerlink" title="遍历命名"></a>遍历命名</h2><p>根据访问结点操作发生位置命名：<br>① NLR：前序遍历(PreorderTraversal亦称（先序遍历））<br>——访问根结点的操作发生在遍历其左右子树之前。如10、6、4、8、14、12、16。<br>② LNR：中序遍历(InorderTraversal)<br>——访问根结点的操作发生在遍历其左右子树之中（间）。如4、6、8、10、12、14、16。<br>③ LRN：后序遍历(PostorderTraversal)<br>——访问根结点的操作发生在遍历其左右子树之后。如4、8、6、12、16、14、10。</p>
-<h2 id="中序遍历的投影法"><a href="#中序遍历的投影法" class="headerlink" title="中序遍历的投影法"></a>中序遍历的投影法</h2><p><img src="https://user-images.githubusercontent.com/11263320/115009313-c03bb980-9ede-11eb-9df9-6ee7e3546184.JPG" alt="捕获"></p>
-<h2 id="一般二叉树的定义"><a href="#一般二叉树的定义" class="headerlink" title="一般二叉树的定义"></a>一般二叉树的定义</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">BiTNode</span>&#123;</span></span><br><span class="line">    TElemType data;</span><br><span class="line">    BiTNode *lchild,*rchild;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="二叉树的遍历操作"><a href="#二叉树的遍历操作" class="headerlink" title="二叉树的遍历操作"></a>二叉树的遍历操作</h2><p>1．先序遍历（DLR）<br>先序遍历的递归过程为：若二叉树为空，遍历结束。否则，<br>（1） 访问根结点；<br>（2） 先序遍历根结点的左子树；<br>（3） 先序遍历根结点的右子树。</p>
-<p>先序遍历二叉树的递归算法如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PreOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*先序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) <span class="keyword">return</span>; <span class="comment">/*递归调用的结束条件*/</span></span><br><span class="line">      Visite(bt-&gt;data);     <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line">      PreOrder(bt-&gt;lchild); <span class="comment">/*先序递归遍历bt 的左子树*/</span></span><br><span class="line">      PreOrder(bt-&gt;rchild); <span class="comment">/*先序递归遍历bt 的右子树*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>2．中序遍历（LDR）<br>中序遍历的递归过程为：若二叉树为空，遍历结束。否则，<br>（1）中序遍历根结点的左子树；<br>（2）访问根结点；<br>（3）中序遍历根结点的右子树。</p>
-<p>中序遍历二叉树的递归算法如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">InOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*中序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) <span class="keyword">return</span>; <span class="comment">/*递归调用的结束条件*/</span></span><br><span class="line">     InOrder(bt-&gt;lchild); <span class="comment">/*中序递归遍历bt 的左子树*/</span></span><br><span class="line">     Visite(bt-&gt;data);     <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line">     InOrder(bt-&gt;rchild); <span class="comment">/*中序递归遍历bt 的右子树*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>3．后序遍历（LRD）<br>后序遍历的递归过程为：若二叉树为空，遍历结束。否则，<br>（1）后序遍历根结点的左子树；<br>（2）后序遍历根结点的右子树。<br>（3）访问根结点；</p>
-<p>后序遍历二叉树的递归算法如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PostOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*后序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) <span class="keyword">return</span>; <span class="comment">/*递归调用的结束条件*/</span></span><br><span class="line">     PostOrder(bt-&gt;lchild); <span class="comment">/*后序递归遍历bt 的左子树*/</span></span><br><span class="line">     PostOrder(bt-&gt;rchild); <span class="comment">/*后序递归遍历bt 的右子树*/</span></span><br><span class="line">     Visite(bt-&gt;data); <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>从表面上看，从代码中，遍历语句的位置可以看出是什么遍历。</p>
-<p>4．层次遍历（宽度优先遍历）<br>由层次遍历的定义可以推知，在进行层次遍历时，对一层结点访问完后，再按照它们的访问次序对各个结点的左孩子和右孩子顺序访问，这样一层一层进行，先遇到的结点先访问，这与队列的操作原则比较吻合。因此，在进行层次遍历时，可设置一个队列结构，遍历从二叉树的根结点开始，首先将根结点指针入队列，然后从对头取出一个元素，每取一个元素，执行下面两个操作：<br>（1） 访问该元素所指结点；<br>（2） 若该元素所指结点的左、右孩子结点非空，则将该元素所指结点的左孩子指针和右孩子指针顺序入队。<br>此过程不断进行，当队列为空时，二叉树的层次遍历结束。</p>
-<p>在下面的层次遍历算法中，二叉树以二叉链表存放，一维数组Queue[MAXNODE]用以实现队列，变量front 和rear 分别表示当前对首元素和队尾元素在数组中的位置。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">LevelOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*层次遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    BiTree Queue[MAXNODE];</span><br><span class="line">    <span class="keyword">int</span> front,rear;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) </span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    front=<span class="number">-1</span>;</span><br><span class="line">    rear=<span class="number">0</span>;</span><br><span class="line">    <span class="built_in">queue</span>[rear]=bt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(front!=rear)</span><br><span class="line">    &#123;</span><br><span class="line">        front++;</span><br><span class="line">        Visite(<span class="built_in">queue</span>[front]-&gt;data); <span class="comment">/*访问队首结点的数据域*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">queue</span>[front]-&gt;lchild!=<span class="literal">NULL</span>) <span class="comment">/*将队首结点的左孩子结点入队列*/</span></span><br><span class="line">        &#123; </span><br><span class="line">            rear++;</span><br><span class="line">            <span class="built_in">queue</span>[rear]=<span class="built_in">queue</span>[front]-&gt;lchild;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">queue</span>[front]-&gt;rchild!=<span class="literal">NULL</span>) <span class="comment">/*将队首结点的右孩子结点入队列*/</span></span><br><span class="line">        &#123; </span><br><span class="line">            rear++;</span><br><span class="line">            <span class="built_in">queue</span>[rear]=<span class="built_in">queue</span>[front]-&gt;rchild;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="二叉树遍历的非递归实现"><a href="#二叉树遍历的非递归实现" class="headerlink" title="二叉树遍历的非递归实现"></a>二叉树遍历的非递归实现</h2><p>从二叉树各种遍历来说，各种遍历都是从根结点开始的，且在遍历过程中经过结点的路线是一样的，只是访问的时机不同而已。这一路线都是从根结点开始沿左子树深入下去，当深入到最左端，无法再深入<br>下去时，则返回，再逐一进入刚才深入时遇到结点的右子树，再进行如此的深入和返回，直到最后从根结点的右子树返回到根结点为止。先序遍历是在深入时遇到结点就访问，中序遍历是在从左子树返回时遇到结点访问，后序遍历是在从右子树返回时遇到结点访问。</p>
-<p>这种路线可以用栈来实现。其实递归在本质上就是一个栈结构。</p>
-<p>在这一过程中，返回结点的顺序与深入结点的顺序相反，即后深入先返回，正好符合栈结构后进先出的点。因此，可以用栈来帮助实现这一遍历路线。其过程如下。在沿左子树深入时，深入一个结点入栈一个结点，若为先序遍历，则在入栈之前访问之；当沿左分支深入不下去时，则返回，即从堆栈中弹出前面压入的结点，若为中序遍历，则此时访问该结点，然后从该结点的右子树继续深入；若为后序遍历，则将此结点再次入栈，然后从该结点的右子树继续深入，与前面类同，仍为深入一个结点入栈一个结点，深入不下去再返回，直到第二次从栈里弹出该结点，才访问之。</p>
-<ol>
-<li><p>先序遍历的非递归实现<br>在下面算法中，二叉树以二叉链表存放，一维数组 stack[MAXNODE] 用以实现栈，变量top 用来表示当前栈顶的位置。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">NRPreOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*非递归先序遍历二叉树*/</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    BiTree <span class="built_in">stack</span>[MAXNODE],p;</span><br><span class="line">    <span class="keyword">int</span> top;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) </span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    top=<span class="number">0</span>;</span><br><span class="line">    p=bt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(!(p==<span class="literal">NULL</span>&amp;&amp;top==<span class="number">0</span>))</span><br><span class="line">    &#123; </span><br><span class="line">        <span class="keyword">while</span>(p!=<span class="literal">NULL</span>)</span><br><span class="line">        &#123; </span><br><span class="line">            Visite(p-&gt;data);   <span class="comment">/*访问结点的数据域*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (top&lt;MAXNODE<span class="number">-1</span>) <span class="comment">/*将当前指针p 压栈*/</span></span><br><span class="line">            &#123; </span><br><span class="line">                <span class="built_in">stack</span>[top]=p;</span><br><span class="line">                top++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">            &#123; </span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;栈溢出&quot;</span>)；</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            p=p-&gt;lchild; <span class="comment">/*指针指向p 的左孩子*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (top&lt;=<span class="number">0</span>) </span><br><span class="line">            <span class="keyword">return</span>; <span class="comment">/*栈空时结束*/</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123; </span><br><span class="line">            top--;</span><br><span class="line">            p=<span class="built_in">stack</span>[top]; <span class="comment">/*从栈中弹出栈顶元素*/</span></span><br><span class="line">            p=p-&gt;rchild; <span class="comment">/*指针指向p 的右孩子结点*/</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>中序遍历的非递归实现<br>中序遍历的非递归算法的实现，只需将先序遍历的非递归算法中的 Visite(p-&gt;data) 移到 p=stack[top] 和 p=p-&gt;rchild 之间即可。</p>
-</li>
-<li><p>后序遍历的非递归实现<br>由前面的讨论可知，后序遍历与先序遍历和中序遍历不同，在后序遍历过程中，结点在第一次出栈后，还需再次入栈，也就是说，结点要入两次栈，出两次栈，而访问结点是在第二次出栈时访问。因此，为了区别同一个结点指针的两次出栈，设置一标志flag，令：<br>flag = 1 -&gt; 第一次出栈，结点不能访问<br>flag = 2 -&gt; 第二次出栈，结点可以访问<br>当结点指针进、出栈时，其标志flag 也同时进、出栈。因此，可将栈中元素的数据类型定义为指针和标志flag 合并的结构体类型。定义如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    BiTree link;</span><br><span class="line">    <span class="keyword">int</span> flag;</span><br><span class="line">&#125; stacktype;</span><br></pre></td></tr></table></figure>
-<p>后序遍历二叉树的非递归算法如下。在算法中，一维数组 stack[MAXNODE] 用于实现栈的结构，指针变量p 指向当前要处理的结点，整型变量top 用来表示当前栈顶的位置，整型变量 sign 为结点 p 的标志量。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">NRPostOrder</span><span class="params">(BiTree bt)</span> <span class="comment">/*非递归后序遍历二叉树bt*/</span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    stacktype <span class="built_in">stack</span>[MAXNODE];</span><br><span class="line">    BiTree p;</span><br><span class="line">    <span class="keyword">int</span> top,sign;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bt==<span class="literal">NULL</span>) </span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    top=<span class="number">-1</span>   <span class="comment">/*栈顶位置初始化*/</span></span><br><span class="line">    p=bt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (!(p==<span class="literal">NULL</span> &amp;&amp; top==<span class="number">-1</span>))</span><br><span class="line">    &#123; </span><br><span class="line">        <span class="keyword">if</span> (p!=<span class="literal">NULL</span>)    <span class="comment">/*结点第一次进栈*/</span></span><br><span class="line">        &#123; </span><br><span class="line">            top++;</span><br><span class="line">            <span class="built_in">stack</span>[top].link=p;</span><br><span class="line">            <span class="built_in">stack</span>[top].flag=<span class="number">1</span>;</span><br><span class="line">            p=p-&gt;lchild;   <span class="comment">/*找该结点的左孩子*/</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> </span><br><span class="line">        &#123; </span><br><span class="line">            p=<span class="built_in">stack</span>[top].link;</span><br><span class="line">            sign=<span class="built_in">stack</span>[top].flag;</span><br><span class="line">            top--;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (sign==<span class="number">1</span>)   <span class="comment">/*结点第二次进栈*/</span></span><br><span class="line">            &#123;</span><br><span class="line">                top++;</span><br><span class="line">                <span class="built_in">stack</span>[top].link=p;</span><br><span class="line">                <span class="built_in">stack</span>[top].flag=<span class="number">2</span>;   <span class="comment">/*标记第二次出栈*/</span></span><br><span class="line">                p=p-&gt;rchild;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">            &#123; </span><br><span class="line">                Visite(p-&gt;data);   <span class="comment">/*访问该结点数据域值*/</span></span><br><span class="line">                p=<span class="literal">NULL</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/19/%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/19/%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/" itemprop="url">快速排序</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-19T21:46:17+08:00">
-                2021-02-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>快速排序是对冒泡排序的一种改进。它的基本思想是：通过一次排序将要排序的数据分割成独立的两部分，其中一部分的所有数据都比另外一不部分的所有数据都要小，然后再按次方法对这两部分数据分别进行快速排序，整个排序过程可以递归或者非递归进行，以此达到整个数据变成有序序列。</p>
-<p>像合并排序一样，快速排序也是基于分治模式的。下面是对一个典型子数组A[p..r]排序的分治过程的三个步骤：</p>
-<ul>
-<li>分解<br>数组A[p..r]]被划分成两个（可能空）子数组A[p..q-1]和A[q+1..r]，使得A[p..q-1]中的每个元素都小于等于A(q)，而且，小于等于A[q+1..r]中的元素。下标q也在这个划分过程中进行计算。</li>
-<li>解决<br>通过递归调用快速排序，对子数组A[p..q-1]和A[q+1..r]排序。</li>
-<li>合并<br>因为两个子数组是就地排序的，将它们的合并不需要操作：整个数组A[p..r]已排序</li>
-</ul>
-<h2 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">QUICKSORT(A,p,r)</span><br><span class="line">if p&lt;r</span><br><span class="line">   then q&#x3D;PARTITION(A,p,r)</span><br><span class="line">        QUICKSORT(A,p,q-1)</span><br><span class="line">        QUICKSORT(A,q+1,r)</span><br></pre></td></tr></table></figure>
-<h2 id="数组划分"><a href="#数组划分" class="headerlink" title="数组划分"></a>数组划分</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PARTITION(A,p,r)</span><br><span class="line">x&#x3D;A[r]</span><br><span class="line">i&#x3D;p-1</span><br><span class="line">for j&#x3D;p to r-1</span><br><span class="line">    do if A[j]&lt;&#x3D;x</span><br><span class="line">          then i&#x3D;i+1</span><br><span class="line">               exchange A[i]&lt;-&gt;A[j]</span><br><span class="line">exchange A[i+1]&lt;-&gt;A[r]</span><br><span class="line">return i+1</span><br></pre></td></tr></table></figure>
-<h2 id="选取枢纽元问题"><a href="#选取枢纽元问题" class="headerlink" title="选取枢纽元问题"></a>选取枢纽元问题</h2><p>1、糟糕的方法<br>     通常的做法是选择数组中第一个元素作为枢纽元，如果输入是随机的，那么这是可以接受的。但是，如果输入序列是预排序的或者是反序的，那么依据这样的枢纽元进行划分则会出现相当糟糕的情况，因为可能所有的元素不是被划入S1，就是都被划入S2中。 </p>
-<p>2、较好的方法<br>    一个比较好的做法是随机选取枢纽元，一般来说，这种策略是比较妥当的。 </p>
-<p>3、三数取取中值方法<br>    例如，输入序列为  8, 1, 4, 9, 6, 3, 5, 2, 7, 0 ，它的左边元素为8，右边元素为0，中间位置|<em>left+right）/2</em>|上的元素为6，于是枢纽元为6.显然，使用三数中值分割法消除了预排序输入的坏情形，并且减少了快速排序大约5%（此为前人实验所得数据，无法具体证明）的运行时间。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/16/%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/16/%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/" itemprop="url">日志分析工具</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-16T12:51:12+08:00">
-                2021-02-16
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>grep查找, sed 编辑, awk 根据内容分析并处理.</p>
-<ul>
-<li>grep(关键字: 截取)<br>文本搜集工具, 结合正则表达式非常强大</li>
-<li>awk(关键字:分析&amp;处理)<br>一行一行的分析处理</li>
-<li>sed(关键字: 编辑)<br>以行为单位的文本编辑工具 sed可以直接修改档案<br>sed 是一种新型的，非交互式的编辑器。它能执行与编辑器 vi 和 ex 相同的编辑任务。sed 编辑器没有提供交互式使用方式，使用者只能在命令行输入编辑命令、指定文件名，然后在屏幕上查看输出。 sed 编辑器没有破坏性，它不会修改文件，除非使用 shell 重定向来保存输出结果。默认情况下，所有的输出行都被打印到屏幕上。</li>
-<li>sort命令<br>sort将文件/文本的每一行作为一个单位，相互比较，比较原则是从首字符向后，依次按ASCII码值进行比较，最后将他们按升序输出。’</li>
-</ul>
-<h2 id="根据日志查看一个服务的qps"><a href="#根据日志查看一个服务的qps" class="headerlink" title="根据日志查看一个服务的qps"></a>根据日志查看一个服务的qps</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -f XXX.log</span><br></pre></td></tr></table></figure>
-<p>命令：tail -f XXX.log | grep recommend.components.KeywordService | cut -d’ ‘ -f2 | cut -d’:’ -f3 | uniq -c<br>说明：取增量 | 一个请求取一行 | 把时间截取出来 | 把秒数截取出来 | 去重取计数</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/15/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/15/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93/" itemprop="url">代码整洁之道</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-15T23:24:39+08:00">
-                2021-02-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="使用数组代替switch分支语句降低圈复杂度"><a href="#使用数组代替switch分支语句降低圈复杂度" class="headerlink" title="使用数组代替switch分支语句降低圈复杂度"></a>使用数组代替switch分支语句降低圈复杂度</h2><p>在服务器开发时，很多时间会采用数组代替switch分支语句，用来降低圈复杂度。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">registerCallbackFunc</span> <span class="params">(code, func)</span></span></span><br><span class="line">    <span class="keyword">if</span> code== <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">if</span> func == <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    callbackFuncMgr[code] = func</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<h3 id="圈复杂度"><a href="#圈复杂度" class="headerlink" title="圈复杂度"></a>圈复杂度</h3><p>在软件测试的概念里，圈复杂度用来衡量一个模块判定结构的复杂程度，数量上表现为线性无关的路径条数，即合理的预防错误所需测试的最少路径条数。圈复杂度大说明程序代码可能质量低且难于测试和维护，根据经验，程序的可能错误和高的圈复杂度有着很大关系。如果一段源码中不包含控制流语句（条件或决策点），那么这段代码的圈复杂度为1，因为这段代码中只会有一条路径；如果一段代码中仅包含一个if语句，且if语句仅有一个条件，那么这段代码的圈复杂度为2；包含两个嵌套的if语句，或是一个if语句有两个条件的代码块的圈复杂度为3。</p>
-<h2 id="缩写习惯"><a href="#缩写习惯" class="headerlink" title="缩写习惯"></a>缩写习惯</h2><p>尽量不用缩写，可读性排第一位，但可以用一些约定俗成的常见缩写。</p>
-<h2 id="判断"><a href="#判断" class="headerlink" title="判断"></a>判断</h2><p>作判断时尽量用&lt;判断</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="number">1000</span> &lt; check  <span class="keyword">then</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>这样做可以对照时间线，习惯一目了然<br><img src="https://user-images.githubusercontent.com/11263320/110576898-8d462d80-819c-11eb-993f-b7734c2ff5c3.JPG" alt="捕获"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/15/epoll%E5%AE%9E%E7%8E%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/15/epoll%E5%AE%9E%E7%8E%B0/" itemprop="url">epoll实现</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-15T17:05:08+08:00">
-                2021-02-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在linux 没有实现epoll事件驱动机制之前，我们一般选择用select或者poll等IO多路复用的方法来实现并发服务程序。在大数据、高并发、集群等一些名词唱得火热之年代，select和poll的用武之地越来越有限，风头已经被epoll占尽。</p>
-<h2 id="epoll实现"><a href="#epoll实现" class="headerlink" title="epoll实现"></a>epoll实现</h2><p>epoll通过在Linux内核中申请一个简易的文件系统(文件系统一般用什么数据结构实现？B+树)。<br>把原先的select/poll调用分成了3个部分：<br>1）调用epoll_create()建立一个epoll对象(在epoll文件系统中为这个句柄对象分配资源)<br>2）调用epoll_ctl向epoll对象中添加这100万个连接的套接字<br>3）调用epoll_wait收集发生的事件的连接</p>
-<p>如此一来，要实现上面说是的场景，只需要在进程启动时建立一个epoll对象，然后在需要的时候向这个epoll对象中添加或者删除连接。同时，epoll_wait的效率也非常高，因为调用epoll_wait时，并没有一股脑的向操作系统复制这100万个连接的句柄数据，内核也不需要去遍历全部的连接。</p>
-<p>下面来看看Linux内核具体的epoll机制实现思路。<br>当某一进程调用epoll_create方法时，Linux内核会创建一个eventpoll结构体，这个结构体中有两个成员与epoll的使用方式密切相关。eventpoll结构体如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span>&#123;</span></span><br><span class="line">    ....</span><br><span class="line">    <span class="comment">/*红黑树的根节点，这颗树中存储着所有添加到epoll中的需要监控的事件*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rb_root</span>  <span class="title">rbr</span>;</span></span><br><span class="line">    <span class="comment">/*双链表中则存放着将要通过epoll_wait返回给用户的满足条件的事件*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">rdlist</span>;</span></span><br><span class="line">    ....</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>每一个epoll对象都有一个独立的eventpoll结构体，用于存放通过epoll_ctl方法向epoll对象中添加进来的事件。这些事件都会挂载在红黑树中，如此，重复添加的事件就可以通过红黑树而高效的识别出来(红黑树的插入时间效率是lgn，其中n为树的高度)。</p>
-<p>而所有添加到epoll中的事件都会与设备(网卡)驱动程序建立回调关系，也就是说，当相应的事件发生时会调用这个回调方法。这个回调方法在内核中叫ep_poll_callback,它会将发生的事件添加到rdlist双链表中。</p>
-<p>在epoll中，对于每一个事件，都会建立一个epitem结构体，如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epitem</span>&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span>  <span class="title">rbn</span>;</span><span class="comment">//红黑树节点</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">rdllink</span>;</span><span class="comment">//双向链表节点</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">epoll_filefd</span>  <span class="title">ffd</span>;</span>  <span class="comment">//事件句柄信息</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span> *<span class="title">ep</span>;</span>    <span class="comment">//指向其所属的eventpoll对象</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">event</span>;</span> <span class="comment">//期待发生的事件类型</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>当调用epoll_wait检查是否有事件发生时，只需要检查eventpoll对象中的rdlist双链表中是否有epitem元素即可。如果rdlist不为空，则把发生的事件复制到用户态，同时将事件数量返回给用户。</p>
-<p>从上面的讲解可知：通过红黑树和双链表数据结构，并结合回调机制，造就了epoll的高效。<br>OK，讲解完了Epoll的机理，我们便能很容易掌握epoll的用法了。<br>一句话描述就是：三步曲。<br>第一步：epoll_create()系统调用。此调用返回一个句柄，之后所有的使用都依靠这个句柄来标识。<br>第二步：epoll_ctl()系统调用。通过此调用向epoll对象中添加、删除、修改感兴趣的事件，返回0标识成功，返回-1表示失败。<br>第三部：epoll_wait()系统调用。通过此调用收集收集在epoll监控中已经发生的事件。</p>
-<h2 id="具体流程"><a href="#具体流程" class="headerlink" title="具体流程"></a>具体流程</h2><p>使用起来很清晰，首先要调用epoll_create建立一个epoll对象。参数size是内核保证能够正确处理的最大句柄数，多于这个最大数时内核可不保证效果。<br>epoll_ctl可以操作上面建立的epoll，例如，将刚建立的socket加入到epoll中让其监控，或者把 epoll正在监控的某个socket句柄移出epoll，不再监控它等等。<br>epoll_wait在调用时，在给定的timeout时间内，当在监控的所有句柄中有事件发生时，就返回用户态的进程。</p>
-<p>epoll在被内核初始化时（操作系统启动），同时会开辟出epoll自己的内核高速cache区，用于安置每一个我们想监控的socket，这些socket会以红黑树的形式保存在内核cache里，以支持快速的查找、插入、删除。这个内核高速cache区，就是建立连续的物理内存页，然后在之上建立slab层，简单的说，就是物理上分配好你想要的size的内存对象，每次使用时都是使用空闲的已分配好的对象。</p>
-<p>几乎所有的epoll程序都使用下面的框架：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>( ; ; )</span><br><span class="line">    &#123;</span><br><span class="line">        nfds = epoll_wait(epfd,events,<span class="number">20</span>,<span class="number">500</span>);</span><br><span class="line">        <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;nfds;++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(events[i].data.fd==listenfd) <span class="comment">//有新的连接</span></span><br><span class="line">            &#123;</span><br><span class="line">                connfd = accept(listenfd,(sockaddr *)&amp;clientaddr, &amp;clilen); <span class="comment">//accept这个连接</span></span><br><span class="line">                ev.data.fd=connfd;</span><br><span class="line">                ev.events=EPOLLIN|EPOLLET;</span><br><span class="line">                epoll_ctl(epfd,EPOLL_CTL_ADD,connfd,&amp;ev); <span class="comment">//将新的fd添加到epoll的监听队列中</span></span><br><span class="line">            &#125;</span><br><span class="line"> </span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>( events[i].events&amp;EPOLLIN ) <span class="comment">//接收到数据，读socket</span></span><br><span class="line">            &#123;</span><br><span class="line">                n = read(sockfd, line, MAXLINE)) &lt; <span class="number">0</span>    <span class="comment">//读</span></span><br><span class="line">                ev.data.ptr = md;     <span class="comment">//md为自定义类型，添加数据</span></span><br><span class="line">                ev.events=EPOLLOUT|EPOLLET;</span><br><span class="line">                epoll_ctl(epfd,EPOLL_CTL_MOD,sockfd,&amp;ev);<span class="comment">//修改标识符，等待下一个循环时发送数据，异步处理的精髓</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(events[i].events&amp;EPOLLOUT) <span class="comment">//有数据待发送，写socket</span></span><br><span class="line">            &#123;</span><br><span class="line">                struct myepoll_data* md = (myepoll_data*)events[i].data.ptr;    <span class="comment">//取数据</span></span><br><span class="line">                sockfd = md-&gt;fd;</span><br><span class="line">                send( sockfd, md-&gt;ptr, <span class="built_in">strlen</span>((<span class="keyword">char</span>*)md-&gt;ptr), <span class="number">0</span> );        <span class="comment">//发送数据</span></span><br><span class="line">                ev.data.fd=sockfd;</span><br><span class="line">                ev.events=EPOLLIN|EPOLLET;</span><br><span class="line">                epoll_ctl(epfd,EPOLL_CTL_MOD,sockfd,&amp;ev); <span class="comment">//修改标识符，等待下一个循环时接收数据</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//其他的处理</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/15/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1ipc%E3%80%81%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/15/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1ipc%E3%80%81%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/" itemprop="url">进程间通信ipc、线程间通信</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-15T13:38:18+08:00">
-                2021-02-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>进程间通信(IPC,Inter-Process Communication)指至少两个进程或线程间传送数据或信号的一些技术或方法。<br>进程是计算机系统分配资源的最小单位(严格说来是线程)。每个进程都有自己的一部分独立的系统资源，彼此是隔离的。为了能使不同的进程互相访问资源并进行协调工作，才有了进程间通信。（但是采用了某种形式的内核开销，降低了性能）</p>
-<h2 id="常用的进程间通信"><a href="#常用的进程间通信" class="headerlink" title="常用的进程间通信"></a>常用的进程间通信</h2><h3 id="管道（包括无名管道和命名管道）"><a href="#管道（包括无名管道和命名管道）" class="headerlink" title="管道（包括无名管道和命名管道）"></a>管道（包括无名管道和命名管道）</h3><p>管道是一种通信机制，通常用于进程间的通信（也可通过socket进行网络通信），它表现出来的形式将前面每一个进程的输出（stdout）直接作为下一个进程的输入（stdin）。<br>无名管道，是 UNIX 系统IPC最古老的形式。基于管道文件操作。<br>管道通信特点是：速度慢，容量有限，只有父子进程能通讯（FIFO：任何进程间都能通讯，但速度慢）</p>
-<h3 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h3><p>是消息的链接表，存放在内核中。特点是容量受到系统限制，且要注意第一次读的时候，要考虑上一次没有读完数据的问题</p>
-<h3 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h3><p>与已经介绍过的 IPC 结构不同，它是一个计数器。信号量用于实现进程间的互斥与同步，而不是用于存储进程间通信数据。<br>特点是不能传递复杂消息，只能用来同步。</p>
-<h3 id="共享内存"><a href="#共享内存" class="headerlink" title="共享内存"></a>共享内存</h3><p>指两个或多个进程共享一个给定的存储区。是最快的一种 IPC，因为进程是直接对内存进行存取。信号量+共享内存通常结合在一起使用，信号量用来同步对共享内存的访问。<br>特点是能够很容易控制容量，速度快，但要保持同步，比如一个进程在写的时候，另一个进程要注意读写的问题，相当于线程中的线程安全，当然，共享内存区同样可以用作线程间通讯，不过没这个必要，线程间本来就已经共享了同一进程内的一块内存。</p>
-<h3 id="socket"><a href="#socket" class="headerlink" title="socket"></a>socket</h3><p>socket一般指套接字。所谓套接字(Socket)，就是对网络中不同主机上的应用进程之间进行双向通信的端点的抽象。<br>特点是I/O复用提供一种能力，这种能力使得当一个I/O条件满足时，进程能够及时得到这个信息。适合（远程过程调用、集群）。</p>
-<h2 id="几种线程间的通信机制"><a href="#几种线程间的通信机制" class="headerlink" title="几种线程间的通信机制"></a>几种线程间的通信机制</h2><h3 id="锁机制"><a href="#锁机制" class="headerlink" title="锁机制"></a>锁机制</h3><ul>
-<li>互斥锁：提供了以排它方式阻止数据结构被并发修改的方法。</li>
-<li>读写锁：允许多个线程同时读共享数据，而对写操作互斥。</li>
-<li>条件变量：可以以原子的方式阻塞进程，直到某个特定条件为真为止。对条件测试是在互斥锁的保护下进行的。条件变量始终与互斥锁一起使用。</li>
-</ul>
-<h3 id="信号量机制"><a href="#信号量机制" class="headerlink" title="信号量机制"></a>信号量机制</h3><p>包括无名线程信号量与有名线程信号量</p>
-<h3 id="信号机制"><a href="#信号机制" class="headerlink" title="信号机制"></a>信号机制</h3><p>类似于进程间的信号处理。</p>
-<p>线程间通信的主要目的是用于线程同步，所以线程没有象进程通信中用于数据交换的通信机制。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/14/linux%E4%BF%A1%E5%8F%B7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/14/linux%E4%BF%A1%E5%8F%B7/" itemprop="url">linux信号</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-14T21:55:27+08:00">
-                2021-02-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="一个简单的例子"><a href="#一个简单的例子" class="headerlink" title="一个简单的例子"></a>一个简单的例子</h2><p>ctrl+c</p>
-<h2 id="信号本质"><a href="#信号本质" class="headerlink" title="信号本质"></a>信号本质</h2><p>软中断信号（signal，又简称为信号）用来通知进程发生了异步事件。在软件层次上是对中断机制的一种模拟，在原理上，一个进程收到一个信号与处理器收到一个中断请求可以说是一样的。信号是进程间通信机制中唯一的异步通信机制，一个进程不必通过任何操作来等待信号的到达，事实上，进程也不知道信号到底什么时候到达。进程之间可以互相通过系统调用kill发送软中断信号。内核也可以因为内部事件而给进程发送信号，通知进程发生了某个事件。信号机制除了基本通知功能外，还可以传递附加信息。<br>和单片机上编写的中断相似。</p>
-<h2 id="信号的种类"><a href="#信号的种类" class="headerlink" title="信号的种类"></a>信号的种类</h2><p>可以从两个不同的分类角度对信号进行分类：<br>可靠性方面：可靠信号与不可靠信号；<br>与时间的关系上：实时信号与非实时信号。</p>
-<h2 id="信号处理流程"><a href="#信号处理流程" class="headerlink" title="信号处理流程"></a>信号处理流程</h2><p>对于一个完整的信号生命周期(从信号发送到相应的处理函数执行完毕)来说，可以分为三个阶段：<br>信号诞生<br>信号在进程中注册<br>信号的执行和注销</p>
-<h2 id="信号的发送"><a href="#信号的发送" class="headerlink" title="信号的发送"></a>信号的发送</h2><p>发送信号的主要函数有：kill()、raise()、 sigqueue()、alarm()、setitimer()以及abort()。</p>
-<h2 id="系统如何将一个信号通知到进程？"><a href="#系统如何将一个信号通知到进程？" class="headerlink" title="系统如何将一个信号通知到进程？"></a>系统如何将一个信号通知到进程？</h2><p>内核给进程发送信号，是在进程所在的进程表项的信号域设置对应的信号的位。<br>进程检查信号的时机是：进程即将从内核态返回用户态时。如果进程睡眠了，要看睡眠能不能被中断，如果能被中断则唤醒。<br>进程有一个链表的数据结果，维护一个未决信号的链表。<br>信号在进程中注册，其实就是把该信号加入到这个未决信号链表当中。<br>可靠信号不管链表中是否已经有这个信号了，还是会加进去。不可靠信号，如果链表中已经有这个信号了，就会忽略。<br>进程处理信号的时机就是从内核态即将返回用户态度的时候。<br>执行用户自定义的信号处理函数的方法很巧妙。把该函数的地址放在用户栈栈顶，进程从内核返回到用户态的时候，先弹出信号处理函数地址，于是就去执行信号处理函数了，然后再弹出，才是返回进入内核时的状态。<br>被屏蔽的信号，取消屏蔽后还会被检查。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/7/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/9/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/7/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/9/">&gt;</a>
   </nav>
 
 
@@ -1624,7 +1588,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">99</span>
+                  <span class="site-state-item-count">106</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1637,7 +1601,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

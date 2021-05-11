@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="linux," />
+  <meta name="keywords" content="linux kernel," />
 
 
 
@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="前言在linux 没有实现epoll事件驱动机制之前，我们一般选择用select或者poll等IO多路复用的方法来实现并发服务程序。在大数据、高并发、集群等一些名词唱得火热之年代，select和poll的用武之地越来越有限，风头已经被epoll占尽。 epoll实现epoll通过在Linux内核中申请一个简易的文件系统(文件系统一般用什么数据结构实现？B+树)。把原先的select&#x2F;poll调用分">
+<meta name="description" content="前言在linux 没有实现epoll事件驱动机制之前，我们一般选择用select或者poll等IO多路复用的方法来实现并发服务程序。在大数据、高并发、集群等一些名词唱得火热之年代，select和poll的用武之地越来越有限，风头已经被epoll占尽。 epoll实现epoll通过在Linux内核中申请一个简易的文件系统。把原先的select&#x2F;poll调用分成了3个部分：1）调用epoll_crea">
 <meta property="og:type" content="article">
 <meta property="og:title" content="epoll实现">
 <meta property="og:url" content="http://example.com/2021/02/15/epoll%E5%AE%9E%E7%8E%B0/index.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="前言在linux 没有实现epoll事件驱动机制之前，我们一般选择用select或者poll等IO多路复用的方法来实现并发服务程序。在大数据、高并发、集群等一些名词唱得火热之年代，select和poll的用武之地越来越有限，风头已经被epoll占尽。 epoll实现epoll通过在Linux内核中申请一个简易的文件系统(文件系统一般用什么数据结构实现？B+树)。把原先的select&#x2F;poll调用分">
+<meta property="og:description" content="前言在linux 没有实现epoll事件驱动机制之前，我们一般选择用select或者poll等IO多路复用的方法来实现并发服务程序。在大数据、高并发、集群等一些名词唱得火热之年代，select和poll的用武之地越来越有限，风头已经被epoll占尽。 epoll实现epoll通过在Linux内核中申请一个简易的文件系统。把原先的select&#x2F;poll调用分成了3个部分：1）调用epoll_crea">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-02-15T09:05:08.000Z">
-<meta property="article:modified_time" content="2021-04-28T03:38:19.102Z">
+<meta property="article:modified_time" content="2021-05-11T07:05:02.288Z">
 <meta property="article:author" content="losophy">
-<meta property="article:tag" content="linux">
+<meta property="article:tag" content="linux kernel">
 <meta name="twitter:card" content="summary">
 
 
@@ -326,7 +326,7 @@
 
       
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在linux 没有实现epoll事件驱动机制之前，我们一般选择用select或者poll等IO多路复用的方法来实现并发服务程序。在大数据、高并发、集群等一些名词唱得火热之年代，select和poll的用武之地越来越有限，风头已经被epoll占尽。</p>
-<h2 id="epoll实现"><a href="#epoll实现" class="headerlink" title="epoll实现"></a>epoll实现</h2><p>epoll通过在Linux内核中申请一个简易的文件系统(文件系统一般用什么数据结构实现？B+树)。<br>把原先的select/poll调用分成了3个部分：<br>1）调用epoll_create()建立一个epoll对象(在epoll文件系统中为这个句柄对象分配资源)<br>2）调用epoll_ctl向epoll对象中添加这100万个连接的套接字<br>3）调用epoll_wait收集发生的事件的连接</p>
+<h2 id="epoll实现"><a href="#epoll实现" class="headerlink" title="epoll实现"></a>epoll实现</h2><p>epoll通过在Linux内核中申请一个简易的文件系统。<br>把原先的select/poll调用分成了3个部分：<br>1）调用<strong>epoll_create</strong>建立一个epoll对象(在epoll文件系统中为这个句柄对象分配资源)<br>2）调用<strong>epoll_ctl</strong>向epoll对象中添加这100万个连接的套接字<br>3）调用<strong>epoll_wait</strong>收集发生的事件的连接</p>
 <p>如此一来，要实现上面说是的场景，只需要在进程启动时建立一个epoll对象，然后在需要的时候向这个epoll对象中添加或者删除连接。同时，epoll_wait的效率也非常高，因为调用epoll_wait时，并没有一股脑的向操作系统复制这100万个连接的句柄数据，内核也不需要去遍历全部的连接。</p>
 <p>下面来看看Linux内核具体的epoll机制实现思路。<br>当某一进程调用epoll_create方法时，Linux内核会创建一个eventpoll结构体，这个结构体中有两个成员与epoll的使用方式密切相关。eventpoll结构体如下所示：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">eventpoll</span>&#123;</span></span><br><span class="line">    ....</span><br><span class="line">    <span class="comment">/*红黑树的根节点，这颗树中存储着所有添加到epoll中的需要监控的事件*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rb_root</span>  <span class="title">rbr</span>;</span></span><br><span class="line">    <span class="comment">/*双链表中则存放着将要通过epoll_wait返回给用户的满足条件的事件*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">rdlist</span>;</span></span><br><span class="line">    ....</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
@@ -340,6 +340,12 @@
 <p>epoll在被内核初始化时（操作系统启动），同时会开辟出epoll自己的内核高速cache区，用于安置每一个我们想监控的socket，这些socket会以红黑树的形式保存在内核cache里，以支持快速的查找、插入、删除。这个内核高速cache区，就是建立连续的物理内存页，然后在之上建立slab层，简单的说，就是物理上分配好你想要的size的内存对象，每次使用时都是使用空闲的已分配好的对象。</p>
 <p>几乎所有的epoll程序都使用下面的框架：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>( ; ; )</span><br><span class="line">    &#123;</span><br><span class="line">        nfds = epoll_wait(epfd,events,<span class="number">20</span>,<span class="number">500</span>);</span><br><span class="line">        <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;nfds;++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(events[i].data.fd==listenfd) <span class="comment">//有新的连接</span></span><br><span class="line">            &#123;</span><br><span class="line">                connfd = accept(listenfd,(sockaddr *)&amp;clientaddr, &amp;clilen); <span class="comment">//accept这个连接</span></span><br><span class="line">                ev.data.fd=connfd;</span><br><span class="line">                ev.events=EPOLLIN|EPOLLET;</span><br><span class="line">                epoll_ctl(epfd,EPOLL_CTL_ADD,connfd,&amp;ev); <span class="comment">//将新的fd添加到epoll的监听队列中</span></span><br><span class="line">            &#125;</span><br><span class="line"> </span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>( events[i].events&amp;EPOLLIN ) <span class="comment">//接收到数据，读socket</span></span><br><span class="line">            &#123;</span><br><span class="line">                n = read(sockfd, line, MAXLINE)) &lt; <span class="number">0</span>    <span class="comment">//读</span></span><br><span class="line">                ev.data.ptr = md;     <span class="comment">//md为自定义类型，添加数据</span></span><br><span class="line">                ev.events=EPOLLOUT|EPOLLET;</span><br><span class="line">                epoll_ctl(epfd,EPOLL_CTL_MOD,sockfd,&amp;ev);<span class="comment">//修改标识符，等待下一个循环时发送数据，异步处理的精髓</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(events[i].events&amp;EPOLLOUT) <span class="comment">//有数据待发送，写socket</span></span><br><span class="line">            &#123;</span><br><span class="line">                struct myepoll_data* md = (myepoll_data*)events[i].data.ptr;    <span class="comment">//取数据</span></span><br><span class="line">                sockfd = md-&gt;fd;</span><br><span class="line">                send( sockfd, md-&gt;ptr, <span class="built_in">strlen</span>((<span class="keyword">char</span>*)md-&gt;ptr), <span class="number">0</span> );        <span class="comment">//发送数据</span></span><br><span class="line">                ev.data.fd=sockfd;</span><br><span class="line">                ev.events=EPOLLIN|EPOLLET;</span><br><span class="line">                epoll_ctl(epfd,EPOLL_CTL_MOD,sockfd,&amp;ev); <span class="comment">//修改标识符，等待下一个循环时接收数据</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//其他的处理</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="LT-和-ET"><a href="#LT-和-ET" class="headerlink" title="LT 和 ET"></a>LT 和 ET</h2><h2 id="使用os提供的api如epoll编写并发应用程序"><a href="#使用os提供的api如epoll编写并发应用程序" class="headerlink" title="使用os提供的api如epoll编写并发应用程序"></a>使用os提供的api如epoll编写并发应用程序</h2><ul>
+<li>  <a target="_blank" rel="noopener" href="https://github.com/yedf/handy/blob/master/raw-examples/epoll.cc">epoll.cc</a>，演示了epoll的通常用法，使用epoll的LT模式</li>
+<li>  <a target="_blank" rel="noopener" href="https://github.com/yedf/handy/blob/master/raw-examples/epoll-et.cc">epoll-et.cc</a>，演示了epoll的ET模式，与LT模式非常像，区别主要体现在不需要手动开关EPOLLOUT事件</li>
+</ul>
+<h2 id="LT-和-ET本质的区别是"><a href="#LT-和-ET本质的区别是" class="headerlink" title="LT 和 ET本质的区别是"></a>LT 和 ET本质的区别是</h2><p>LT模式状态时，主线程正在epoll_wait等待事件时，请求到了，epoll_wait返回后没有去处理请求(recv)，那么下次epoll_wait时此请求还是会返回（立刻返回了）；而ET模式状态下，这次没处理，下次epoll_wait时将不返回（所以我们应该每次一定要处理），可见很大程度降低了epoll的触发次数（记住这句话先）。</p>
+
       
     </div>
     
@@ -356,7 +362,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
+            <a href="/tags/linux-kernel/" rel="tag"><i class="fa fa-tag"></i> linux kernel</a>
           
         </div>
       
@@ -458,7 +464,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">99</span>
+                  <span class="site-state-item-count">106</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -471,7 +477,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -504,7 +510,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#epoll%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">epoll实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">具体流程</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#epoll%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">epoll实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">具体流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LT-%E5%92%8C-ET"><span class="nav-number">4.</span> <span class="nav-text">LT 和 ET</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8os%E6%8F%90%E4%BE%9B%E7%9A%84api%E5%A6%82epoll%E7%BC%96%E5%86%99%E5%B9%B6%E5%8F%91%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F"><span class="nav-number">5.</span> <span class="nav-text">使用os提供的api如epoll编写并发应用程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LT-%E5%92%8C-ET%E6%9C%AC%E8%B4%A8%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF"><span class="nav-number">6.</span> <span class="nav-text">LT 和 ET本质的区别是</span></a></li></ol></div>
             
 
           </div>

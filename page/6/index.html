@@ -254,6 +254,1099 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/skynet%E6%B6%88%E6%81%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/23/skynet%E6%B6%88%E6%81%AF/" itemprop="url">skynet消息</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T21:26:42+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="消息队列mq"><a href="#消息队列mq" class="headerlink" title="消息队列mq"></a>消息队列mq</h2><p>消息队列是skynet的核心功能之一，它的功能说白了就是入队出队，先进先出，这个数据结构都有讲过。源码实现在skynet_mq.h和skynet_mq.c中。</p>
+<p>skynet的消息队列实际上是有两种，一种是全局消息队列，一种是服务消息队列。每个服务都有自己的消息队列，每个服务消息队列中都有服务的handle标识。这个涉及到消息的派发，这里就不展开了。每个服务消息队列被全局消息队列引用。<br>全局消息队列用的是经典的链表来实现的，而服务的消息队列用的是比较不直观，可能对有些人来说理解起来特别困难的循环数组来实现的。而且数组空间不够的时候，会动态扩展，容量扩展为当前容量的2倍。<br>消息队列的出队入队函数名都比较简单而且明了，push/pop。这个名字可能会带来一定的误解，如果改成enqueue/dequeue的话，就更符合它的实际功能。</p>
+<h2 id="消息机制之消息处理"><a href="#消息机制之消息处理" class="headerlink" title="消息机制之消息处理"></a>消息机制之消息处理</h2><p>kynet的消息机制准备拆成三个部分来讲，第一部分是接收处理，第二部分是分发，第三部分是消息注册。</p>
+<p>skynet是单进程多线程的，线程的种类有monitor/timer/socket/worker，monitor就是监控服务是不是陷入死循环了。timer是skynet自己实现的定时器。socket是负责网络的，这个应该是最容易被理解的。worker就是工作线程了，monitor/timer/socket都只有一个线程，唯独worker有多个线程，是可配的，不配的话是8个线程。每个工作线程有个叫worker_parm的参数。</p>
+<p>在开始讲线程之前还需要回顾一下消息队列，在第2篇中讲过全局消息队列是链表，里面链了工作消息队列，而工作消息队列内部使用的是循环数组。<br>另外还要回顾一下消息的handle，每个服务都有运行时一个独一无二的handle，这个handle可以跟名字绑定。</p>
+<h2 id="接收处理"><a href="#接收处理" class="headerlink" title="接收处理"></a>接收处理</h2><p>先总结一下，skynet_context_message_dispatch这个函数实际上就是不停地从全局消息队列里取工作队列，取到了以后呢，就一直处理这个队列里的消息。为了避免某个队列占用太多cpu，当前队列处理到一定的量，就把机会让给全局消息队列里的其它工作队列，把自己又放回全局消息队列。而这个处理的量是根据创建线程时thread_param里的weight权重来判定的，权重越大，流转的就越快，也就是说处理某个队列的消息数量就越少。这就是消息处理的主流程机制。<br>在主流程之外，还有monitor的触发和取消，每次处理前，触发monitor的检查。处理完了，取消monitor的检查。</p>
+<h2 id="分发"><a href="#分发" class="headerlink" title="分发"></a>分发</h2><p>消息的处理实际上就是对工作队列里的消息不停地调回调函数。那么消息是怎么放进消息队列的呢。带着这个疑问，让我们从lua层开始追根溯源。<br>在lua层有两个api，一个是skynet.send，这个是非阻塞发消息。另一个是skynet.call，这个是阻塞式发完消息等回应。skynet.call使用一个session来实现等待，这个session实际就是一个自增的数字，溢出了以后又从1开始。<br>skynet.send实际上就是往目标服务的消息队列里增加一条消息。</p>
+<h2 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h2><p>skynet的消息注册，C服务和lua服务设置回调走的函数是不同的。C的回调可以直接调，但是lua的回调不行，它需要一个默认的回调C函数，将返回参数转换为lua能理解的格式，遵循lua的api协议，传递到lua层。<br>当服务是lua实现的时候，skynet底层核心框架在处理完消息以后，回调lua层服务的回调函数时，要先经过一次lua api协议的处理，将参数准备好以后，然后调用lua服务中的回调函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">skynet.dispatch(callback)----------------------&gt;proto[typename].dispach &#x3D; callback</span><br><span class="line">                                                                                                                    |</span><br><span class="line">skynet.core.call(skynet.dispatch_message)----&gt;tbl[k] &#x3D; skynet.dispatch_message</span><br><span class="line">                                                                                                                    |</span><br><span class="line">                                                                                                                    |</span><br><span class="line">C dispatch_message-&gt;_cb---------------------------------------------------|</span><br></pre></td></tr></table></figure>
+<h2 id="消息"><a href="#消息" class="headerlink" title="消息"></a>消息</h2><p>每条 skynet 消息由 6 部分构成：消息类型、session 、发起服务地址 、接收服务地址 、消息 C 指针、消息长度。<br>每个 skynet 服务都可以处理多类消息。在 skynet 中，是用 type 这个词来区分消息的。但与其说消息类型不同，不如说更接近网络端口 (port) 这个概念。每个 skynet 服务都支持 255 个不同的 port 。消息分发函数可以根据不同的 port 来为不同的消息定制不同的消息处理流程。</p>
+<h2 id="消息队列结构分析"><a href="#消息队列结构分析" class="headerlink" title="消息队列结构分析"></a>消息队列结构分析</h2><p>队列一般可以用链表来模拟，用两个指针，分别指向头节点和尾节点。尾节点指向插入数据的方向，头节点指向消耗数据的方向。skynet全局消息队列也用到了上面的数据结构</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/skynet%E6%9C%8D%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/23/skynet%E6%9C%8D%E5%8A%A1/" itemprop="url">skynet服务</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T21:14:13+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>skynet刚开始是单进程多线程的，它是由一个一个的服务组成的。在skynet上做开发，实际上就是在写服务。服务与服务之间通过消息队列进行通信。</p>
+<p>做为核心功能，Skynet 仅解决一个问题：<br>把一个符合规范的 C 模块，从动态库（so 文件）中启动起来，绑定一个永不重复（即使模块退出）的数字 id 做为其 handle 。模块被称为服务（Service），服务间可以自由发送消息。每个模块可以向 Skynet 框架注册一个 callback 函数，用来接收发给它的消息。每个服务都是被一个个消息包驱动，当没有包到来的时候，它们就会处于挂起状态，对 CPU 资源零消耗。如果需要自主逻辑，则可以利用 Skynet 系统提供的 timeout 消息，定期触发。</p>
+<p>一个服务，默认不会执行任何逻辑，需要别人向它发出请求时，才会执行对应的逻辑（定时器也是通过消息队列，告诉指定服务，要执行定时事件），并在需要时返回结果给请求者。请求者往往也是其他服务。服务间的请求、响应和推送，并不是直接调用对方的api来执行，而是通过一个消息队列，也就是说，不论是请求、回应还是推送，都需要通过这个消息队列转发到另一个服务中。skynet的消息队列，分为两级，一个全局消息队列，他包含一个头尾指针，分别指向两个隶属于指定服务的次级消息队列。skynet中的每一个服务，都有一个唯一的、专属的次级消息队列。</p>
+<h2 id="skynet服务的本质"><a href="#skynet服务的本质" class="headerlink" title="skynet服务的本质"></a>skynet服务的本质</h2><p>每个skynet服务都是一个lua state，也就是一个lua虚拟机实例。而且，每个服务都是隔离的，各自使用自己独立的内存空间，服务之间通过发消息来完成数据交换。</p>
+<p>lua state本身没有多线程支持的，为了实现cpu的摊分，skynet实现上在一个线程运行多个lua state实例。而同一时间下，调度线程只运行一个服务实例。为了提高系统的并发性，skynet会启动一定数量的调度线程。同时，为了提高服务的并发性，就利用lua协程并发处理。</p>
+<p>所以，skynet的并发性有3点：<br>1、多个调度线程并发<br>2、lua协程并发处理<br>3、服务调度的切换</p>
+<p>skynet服务的设计基于Actor模型。有两个特点：</p>
+<ol>
+<li>每个Actor依次处理收到的消息</li>
+<li>不同的Actor可同时处理各自的消息<br>实现上，cpu会按照一定规则分摊给每个Actor，每个Actor不会独占cpu，在处理一定数量消息后主动让出cpu，给其他进程处理消息。</li>
+</ol>
+<h2 id="skynet的例子是怎么调用的"><a href="#skynet的例子是怎么调用的" class="headerlink" title="skynet的例子是怎么调用的"></a>skynet的例子是怎么调用的</h2><p>服务器：<br>simpledb.lua： skynet.register “SIMPLEDB” 向skynet里注册一个服务<br>agent.lua： skynet.call(“SIMPLEDB”, “text”, text) 调用相应的服务<br>main.lua： skynet.newservice(“simpledb”) 启动一个服务<br>以上函数都在\lualib\skynet.lua 文件内</p>
+<h2 id="以下是几个写服务时经常要用到的函数"><a href="#以下是几个写服务时经常要用到的函数" class="headerlink" title="以下是几个写服务时经常要用到的函数"></a>以下是几个写服务时经常要用到的函数</h2><p>newservice(name, …) 启动一个名为 name 的新服务。<br>uniqueservice(name, …) 启动一个唯一服务，如果服务该服务已经启动，则返回已启动的服务地址。<br>queryservice(name) 查询一个由 uniqueservice 启动的唯一服务的地址，若该服务尚未启动则等待。<br>localname(name) 返回同一进程内，用 register 注册的具名服务的地址。</p>
+<p>newservice可以在一个进程里启动多个服务，这适用于无状态的服务。<br>uniqueservice则是类似于设计模式中的单件(singleton)，这适用于需要唯一性的服务。举个例子，比如写日志，只想写一份。或者是全局共享的数据。</p>
+<h2 id="消息机制"><a href="#消息机制" class="headerlink" title="消息机制"></a>消息机制</h2><p>SKYNET设计综述讲到模块被称为服务。“服务间可以自由发送消息。每个模块可以向 Skynet 框架注册一个 callback 函数，用来接收发给它的消息。”还提到“把一个符合规范的 C 模块，从动态库（so 文件）中启动起来，绑定一个永不重复（即使模块退出）的数字 id 做为其 handle 。Skynet 提供了名字服务，还可以给特定的服务起一个易读的名字，而不是用 id 来指代它。id 和运行时态相关，无法保证每次启动服务，都有一致的 id ，但名字可以。”今天要分析的两个文件skynet_handle.c和skynet_handle.h就是实现名字服务的。</p>
+<p>skynet_handle.c实际上就做了两个核心的事情，一是给服务分配一个handle，二是把handle和name关联起来。<br>把handle和name关联起来比较容易懂，实际上使用一个数组，关联的时候使用二分查找到数组里查名字，如果名字不存在，就插入一个元素，然后把名字和handle关联起来。插入元素的时候，如果数组空间不足了，就扩容为原来的2倍。<br>而给服务分配handle稍复杂一些，实际上也是使用一个slot数组，数组下标使用的是一个hash，数组元素指向服务的上下文。这个hash的算法是比较简单粗暴的，就是看从handle_indx开始累计到slot_size，看中间有没有空闲的下标（也就是下标指向为null的），如果遍历完了还是没有，就把slot扩大一倍，还是没有就再扩大一倍，直到找到空位为止，或者是slot长度超出限制为止。<br>取到了handle以后呢，还要将harbor id附到handle的高8位。</p>
+<h2 id="每个服务分三个运行阶段"><a href="#每个服务分三个运行阶段" class="headerlink" title="每个服务分三个运行阶段"></a>每个服务分三个运行阶段</h2><p>首先是服务加载阶段，当服务的源文件被加载时，就会按 lua 的运行规则被执行到。这个阶段不可以调用任何有可能阻塞住该服务的 skynet api 。因为，在这个阶段中，和服务配套的 skynet 设置并没有初始化完毕。<br>然后是服务初始化阶段，由 skynet.start 这个 api 注册的初始化函数执行。这个初始化函数理论上可以调用任何 skynet api 了，但启动该服务的 skynet.newservice 这个 api 会一直等待到初始化函数结束才会返回。<br>最后是服务工作阶段，当你在初始化阶段注册了消息处理函数的话，只要有消息输入，就会触发注册的消息处理函数。这些消息都是 skynet 内部消息，外部的网络数据，定时器也会通过内部消息的形式表达出来。</p>
+<p>从 skynet 底层框架来看，每个服务就是一个消息处理器。但在应用层看来并非如此。它是利用 lua 的 coroutine 工作的。当你的服务向另一个服务发送一个请求（即一个带 session 的消息）后，可以认为当前的消息已经处理完毕，服务会被 skynet 挂起。待对应服务收到请求并做出回应（发送一个回应类型的消息）后，服务会找到挂起的 coroutine ，把回应信息传入，延续之前未完的业务流程。从使用者角度看，更像是一个独立线程在处理这个业务流程，每个业务流程有自己独立的上下文，而不像 nodejs 等其它框架中使用的 callback 模式。</p>
+<p>但框架已经提供了一个叫做 snlua 的用 C 开发的服务模块，它可以用来解析一段 Lua 脚本来实现业务逻辑。也就是说，你可以在 skynet 启动任意份 snlua 服务，只是它们承载的 Lua 脚本不同。这样，我们只使用 Lua 来进行开发就足够了。</p>
+<h2 id="ShareData"><a href="#ShareData" class="headerlink" title="ShareData"></a>ShareData</h2><p>当你把业务拆分到多个服务中去后，数据如何共享，可能是最易面临的问题。<br>最简单粗暴的方法是通过消息传递数据。如果 A 服务需要 B 服务中的数据，可以由 B 服务发送一个消息，将数据打包携带过去。如果是一份数据，很多地方都需要获得它，那么用一个服务装下这组数据，提供一组查询接口即可。DataCenter 模块对此做了简单的封装。<br>datacenter 可用来在整个 skynet 网络做跨节点的数据共享。<br>如果你仅仅需要一组只读的结构信息分享给很多服务（比如一些配置数据），你可以把数据写到一个 lua 文件中，让不同的服务加载它。Cluster 的配置文件就是这样做的。注意：默认 skynet 使用自带的修改版 lua ，会缓存 lua 源文件。当一个 lua 文件通过 loadfile 加载后，磁盘上的修改不会影响下一次加载。所以你需要直接用 io.open 打开文件，再用 load 加载内存中的 string 。</p>
+<p>另一个更好的方法是使用 sharedata 模块。<br>当大量的服务可能需要共享一大块并不太需要更新的结构化数据，每个服务却只使用其中一小部分。你可以设想成，这些数据在开发时就放在一个数据仓库中，各个服务按需要检索出需要的部分。<br>整个工程需要的数据仓库可能规模庞大，每个服务却只需要使用其中一小部分数据，如果每个服务都把所有数据加载进内存，服务数量很多时，就因为重复加载了大量不会触碰的数据而浪费了大量内存。在开发期，却很难把数据切分成更小的粒度，因为很难时刻根据需求的变化重新切分。<br>如果使用 DataCenter 这种中心式管理方案，却无法避免每次在检索数据时都要进行一次 RPC 调用，性能或许无法承受。<br>sharedata 模块正是为了解决这种需求而设计出来的。sharedata 只支持在同一节点内（同一进程下）共享数据，如果需要跨节点，需要自行同步处理。</p>
+<h2 id="skynet-call的实现–服务与服务的交互"><a href="#skynet-call的实现–服务与服务的交互" class="headerlink" title="skynet call的实现–服务与服务的交互"></a>skynet call的实现–服务与服务的交互</h2><p>如果一个服务生产了大量数据，想传给您一个服务消费，在同一进程下，是不必经过序列化过程，而只需要通过消息传递内存地址指针即可。这个优化存在 O(1) 和 O(n) 的性能差别，不可以无视。<br>架构图<br><img src="https://user-images.githubusercontent.com/11263320/108848571-1e08ff00-761c-11eb-9b28-77f3bdbe92c0.jpg" alt="1425134-20190308091754983-2095526062"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/lua%E5%8D%8F%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/23/lua%E5%8D%8F%E7%A8%8B/" itemprop="url">lua协程</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T16:09:56+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>协同程序与线程差不多，也就是一条执行序列，拥有自己独立的栈、局部变量和指令指针，同时又与其他协同程序共享全局变量和其他大部分东西。<br>一个具有多个协同程序的程序在任意时刻只能运行一个协同程序。</p>
+<p>lua将所有关于协同程序的函数放置在一个名为“coroutine”的table中。</p>
+<p>一个协同程序可以处于4种不同的状态：挂起、运行、死亡和正常。<br>程序初创建：挂起<br>程序运行：运行<br>程序结束：死亡<br>程序被其实程序唤醒：正常</p>
+<p>co_create 传一个函数参数，用来创建协程。返回一个“thread”对象</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">co = <span class="built_in">coroutine</span>.<span class="built_in">create</span>(<span class="function"><span class="keyword">function</span> <span class="params">(a,b)</span></span></span><br><span class="line">        <span class="built_in">coroutine</span>.<span class="built_in">yield</span>(a+b,a-b)</span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">coroutine</span>.<span class="built_in">resume</span>(co,<span class="number">20</span>,<span class="number">10</span>))</span><br></pre></td></tr></table></figure>
+<p>与协同程序之间的对称性区别相比，协同程序与generator（Python所提供的）之间的区别很大。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>协程实现的两个关键点在于：</p>
+<ul>
+<li>协程状态的保存</li>
+<li>不同协程之间的数据通信机制 </li>
+</ul>
+<p>在Lua1-t码中，使用的是lua State结构体来表示协程，这与Lua虚拟机用的是同一个数据结构 。 这一点可以从创建协程的函数lua newthread中看出来，唯一有区别的是， Lua协程的类型是LUA TTHREAD 。 换言之，在Lua源码的处理中， Lua协程与Lua虚拟机的表现形式并没有太大差异，也许这样做是为了实现方便。 前面提到过，一个协程有自己私有的环境，不会因为协程的切换而发生改变 。</p>
+<p>接下来，我们来看看如何在不同协程之间通信，或者说Lua协程间数据的交换。 前面提到过resume和 yield 函数的参数就是用来做协程数据交换的，现在来看看里面的实现 。 奥秘就在函数lua_xmove 中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LUA_API <span class="keyword">void</span> <span class="title">lua_xmove</span> <span class="params">(lua_State *from, lua_State *to, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">if</span> (from == to) <span class="keyword">return</span>;</span><br><span class="line">  lua_lock(to);</span><br><span class="line">  api_checknelems(from, n);</span><br><span class="line">  api_check(from, G(from) == G(to));</span><br><span class="line">  api_check(from, to-&gt;ci-&gt;top - to-&gt;top &gt;= n);</span><br><span class="line">  from-&gt;top -= n;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">    setobj2s(to, to-&gt;top++, from-&gt;top + i);</span><br><span class="line">  &#125;</span><br><span class="line">  lua_unlock(to);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码做的事情就是，从from协程中移动n个数据到 to协程中 。 当然在移动之前，数据要在from协程的战顶上准备好。<br>创建协程在函数luaB cocreate中进行．</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">luaB_cocreate</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  lua_State *NL = lua_newthread(L);</span><br><span class="line">  luaL_argcheck(L, lua_isfunction(L, <span class="number">1</span>) &amp;&amp; !lua_iscfunction(L, <span class="number">1</span>), <span class="number">1</span>,</span><br><span class="line">    <span class="string">&quot;Lua function expected&quot;</span>);</span><br><span class="line">  lua_pushvalue(L, <span class="number">1</span>);  <span class="comment">/* move function to top */</span></span><br><span class="line">  lua_xmove(L, NL, <span class="number">1</span>);  <span class="comment">/* move function from L to NL */</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>明白了前面的内容，理解创建协程的过程就不难了，这里主要做了以下几件事情。</p>
+<ul>
+<li>调用lua newthread创建lua State结构体。</li>
+<li>检查当前楼顶的元素是不是一个函数对象，因为需要一个函数作为协程开始运行时的主函数。 这个主函数必须是Lua函数， C函数将会报错。</li>
+<li>将协程主函数压人当前 lua State 的楼中，然后调用 lua xmove 将该函数从当前的lua State移动到新创建的协程的 lua State战中 。</li>
+</ul>
+<p>了解了Lua协程实现相关的数据结构，接下来看看最核心的两个操作resume和yield是如何实现的 。<br>resume操作在函数 luaB_coresume 中实现：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">luaB_coresume</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  lua_State *co = lua_tothread(L, <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">int</span> r;</span><br><span class="line">  luaL_argcheck(L, co, <span class="number">1</span>, <span class="string">&quot;coroutine expected&quot;</span>);</span><br><span class="line">  r = auxresume(L, co, lua_gettop(L) - <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    lua_pushboolean(L, <span class="number">0</span>);</span><br><span class="line">    lua_insert(L, <span class="number">-2</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span>;  <span class="comment">/* return false + error message */</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    lua_pushboolean(L, <span class="number">1</span>);</span><br><span class="line">    lua_insert(L, -(r + <span class="number">1</span>));</span><br><span class="line">    <span class="keyword">return</span> r + <span class="number">1</span>;  <span class="comment">/* return true + `resume&#x27; returns */</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，这里主要做几件事情：</p>
+<ul>
+<li>检查当前枝顶元素是不是协程指针。</li>
+<li>调用辅助函数auxresume进行实际的resume操作。</li>
+<li>根据auxresume的返回值来做不同的处理。 当返回值小于0时，说明 resume操作出错，并且此时出错信息在樵顶，因此压入false以及出错消息；否则， auxresume的返回值表示执行resume操作时返回的参数数量，这种情况下压人true以及这些返回参数。<br>auxresume 函数的实现如下：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">auxresume</span> <span class="params">(lua_State *L, lua_State *co, <span class="keyword">int</span> narg)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> status;</span><br><span class="line">  <span class="keyword">if</span> (!lua_checkstack(co, narg))</span><br><span class="line">    luaL_error(L, <span class="string">&quot;too many arguments to resume&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (lua_status(co) == <span class="number">0</span> &amp;&amp; lua_gettop(co) == <span class="number">0</span>) &#123;</span><br><span class="line">    lua_pushliteral(L, <span class="string">&quot;cannot resume dead coroutine&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* error flag */</span></span><br><span class="line">  &#125;</span><br><span class="line">  lua_xmove(L, co, narg);</span><br><span class="line">  status = lua_resume(co, narg);</span><br><span class="line">  <span class="keyword">if</span> (status == <span class="number">0</span> || status == LUA_YIELD) &#123;</span><br><span class="line">    <span class="keyword">int</span> nres = lua_gettop(co);</span><br><span class="line">    <span class="keyword">if</span> (!lua_checkstack(L, nres))</span><br><span class="line">      luaL_error(L, <span class="string">&quot;too many results to resume&quot;</span>);</span><br><span class="line">    lua_xmove(co, L, nres);  <span class="comment">/* move yielded values */</span></span><br><span class="line">    <span class="keyword">return</span> nres;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    lua_xmove(co, L, <span class="number">1</span>);  <span class="comment">/* move error message */</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* error flag */</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+它主要做如下操作 。</li>
+<li>检查数据的合法性 。</li>
+<li>将参数通过lua xmove函数传递到待启动的协程中，调用 lua resume函数执行协程代码 。</li>
+<li>当 lua_resume函数返回时，说明该协程已经执行完毕，通过lua_xmove函数将yield传入的参数传递回启动该协程的协程。<br>auxresume函数会调用 lua resume 函数，在 lua resume 函数中进行一些检查，比如当前的状态是否合理，调用层次是否过多，最终使用 luaD_rawrunprotected 函数来保护调用 resume 函数 。resume 函数的代码如下所示：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">resume</span> <span class="params">(lua_State *L, <span class="keyword">void</span> *ud)</span> </span>&#123;</span><br><span class="line">  StkId firstArg = cast(StkId, ud);</span><br><span class="line">  CallInfo *ci = L-&gt;ci;</span><br><span class="line">  <span class="keyword">if</span> (L-&gt;status == <span class="number">0</span>) &#123;  <span class="comment">/* start coroutine? */</span></span><br><span class="line">    lua_assert(ci == L-&gt;base_ci &amp;&amp; firstArg &gt; L-&gt;base);</span><br><span class="line">    <span class="keyword">if</span> (luaD_precall(L, firstArg - <span class="number">1</span>, LUA_MULTRET) != PCRLUA)</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;  <span class="comment">/* resuming from previous yield */</span></span><br><span class="line">    lua_assert(L-&gt;status == LUA_YIELD);</span><br><span class="line">    L-&gt;status = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!f_isLua(ci)) &#123;  <span class="comment">/* `common&#x27; yield? */</span></span><br><span class="line">      <span class="comment">/* finish interrupted execution of `OP_CALL&#x27; */</span></span><br><span class="line">      lua_assert(GET_OPCODE(*((ci<span class="number">-1</span>)-&gt;savedpc - <span class="number">1</span>)) == OP_CALL ||</span><br><span class="line">                 GET_OPCODE(*((ci<span class="number">-1</span>)-&gt;savedpc - <span class="number">1</span>)) == OP_TAILCALL);</span><br><span class="line">      <span class="keyword">if</span> (luaD_poscall(L, firstArg))  <span class="comment">/* complete it... */</span></span><br><span class="line">        L-&gt;top = L-&gt;ci-&gt;top;  <span class="comment">/* and correct top if not multiple results */</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>  <span class="comment">/* yielded inside a hook: just continue its execution */</span></span><br><span class="line">      L-&gt;base = L-&gt;ci-&gt;base;</span><br><span class="line">  &#125;</span><br><span class="line">  luaV_execute(L, cast_int(L-&gt;ci - L-&gt;base_ci));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这个函数做了以下的事情</li>
+<li>如果当前协程的状态是0 ，那么说明它是第一次执行 resume操作，此时调用 luaD_precall做函数调用前的准备工作。 如果luaD_precall函数的返回值不是PCRLUA ，说明是在C函数中进行resume操作的，此时并不需要后面的 luaV execute函数，就直接返回了 。</li>
+<li>否则就从之前的 YIELD状态中继续执行，首先将协程的状态置为0 ，其次判断此时口的类型，如果不是Lua函数，说明之前是被中断的函数调用，此时调用luaD_poscall函数继续完成未完的函数操作；否则只需要调整 base指针指向之前的ci的base指针即可 。</li>
+<li>以上的几种情况最终都会调用 luaV_execute 函数来进入 Lua虚拟机中执行 。 这里可以看到，由于使用了同样的结构lua State来表示Lua虚拟机和Lua协程，在表达Lua虚拟机的执行和协程的执行上，两者都是统一使用 luaV execute函数，方便了实现。</li>
+</ul>
+<p>yield操作在函数lua_yield 中进行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LUA_API <span class="keyword">int</span> <span class="title">lua_yield</span> <span class="params">(lua_State *L, <span class="keyword">int</span> nresults)</span> </span>&#123;</span><br><span class="line">  luai_userstateyield(L, nresults);</span><br><span class="line">  lua_lock(L);</span><br><span class="line">  <span class="keyword">if</span> (L-&gt;nCcalls &gt; <span class="number">0</span>)</span><br><span class="line">    luaG_runerror(L, <span class="string">&quot;attempt to yield across metamethod/C-call boundary&quot;</span>);</span><br><span class="line">  L-&gt;base = L-&gt;top - nresults;  <span class="comment">/* protect stack slots below */</span></span><br><span class="line">  L-&gt;status = LUA_YIELD;</span><br><span class="line">  lua_unlock(L);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数做的事情相比起来就简单多了，就是将协程执行状态至为YIELD ，这样可以终止luaV_execute函数的循环。<br><img src="https://user-images.githubusercontent.com/11263320/113825795-fdec6400-97b3-11eb-8f8f-40a19ca2088f.JPG" alt="捕获"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/lua%E5%87%BD%E6%95%B0%E4%B8%8E%E9%97%AD%E5%8C%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/23/lua%E5%87%BD%E6%95%B0%E4%B8%8E%E9%97%AD%E5%8C%85/" itemprop="url">lua函数与闭包</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T15:59:44+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在lua中，函数是一种第一类值，它们具有特定的词法域。<br>lua当中函数是一个值，他可以存在变量中（无论全局变量还是局部变量）或table中，可以作为函数参数，可以作为返回值。</p>
+<h2 id="upvalue"><a href="#upvalue" class="headerlink" title="upvalue"></a>upvalue</h2><p>词法域：当一个函数内嵌套另一个函数的时候，内函数可以访问外部函数的局部变量。这也意味着lua完全可以包含“λ演算（Lambda Calculus）”。<br>这个特性在以下场景特别有用：匿名函数作为高阶函数的参数，用于table遍历和模式匹配。</p>
+<p>在lua中，函数可以看作一个“值”，由一些表达式创建的。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">foo = <span class="function"><span class="keyword">function</span> <span class="params">(x)</span></span> <span class="keyword">return</span> <span class="number">2</span>*x <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>举个例子：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">network = &#123;</span><br><span class="line">    &#123;name = <span class="string">&quot;grauna&quot;</span>, IP = <span class="string">&quot;210.26.30.34&quot;</span>&#125;</span><br><span class="line">    &#123;name = <span class="string">&quot;arraial&quot;</span>, IP = <span class="string">&quot;210.26.30.23&quot;</span>&#125;</span><br><span class="line">    &#123;name = <span class="string">&quot;lua&quot;</span>, IP = <span class="string">&quot;210.26.23.12&quot;</span>&#125;</span><br><span class="line">    &#123;name = <span class="string">&quot;derain&quot;</span>, IP = <span class="string">&quot;210.26.23.20&quot;</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">table</span>.<span class="built_in">sort</span>(network, <span class="function"><span class="keyword">function</span><span class="params">(a,b)</span></span> <span class="keyword">return</span>(a.name&gt;b.name) <span class="keyword">end</span>)</span><br></pre></td></tr></table></figure>
+<p>这种用法叫匿名函数，在语句中显示出了极好的便捷性。</p>
+<h2 id="闭包-closure"><a href="#闭包-closure" class="headerlink" title="闭包(closure)"></a>闭包(closure)</h2><p>如果说C++式的面向对象编程是把一组函数绑定到特定数据类型上的话，那么闭包可以说是把一组数据绑定到特定函数上。<br>闭包通过调用含有一个内部函数加上该外部函数持有的外部局部变量（upvalue）的外部函数（就是工厂）产生的一个实例函数<br>闭包组成：外部函数+外部函数创建的upvalue+内部函数（闭包函数）</p>
+<p>Lua中只有闭包，函数是闭包一种特殊情况。</p>
+<h2 id="…"><a href="#…" class="headerlink" title="…"></a>…</h2><p>当一个变参函数被调用，对应…的参数将会收集到一个叫arg的table里。这种方式虽然很简单便捷，但是要把这些参数传给另一个函数，就需要解包这个table。因为程序员经常将参数传递给另一个函数，Lua 5.1允许…用于参数列表和赋值表达式的右值。这避免了没必要的创建arg table。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/lua%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/23/lua%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" itemprop="url">lua面向对象</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T15:44:34+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>lua中的table就是一种对象。<br>lua中可以通过修改<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/107">元表元方法</a>来实现面向对象。</p>
+<h2 id="self"><a href="#self" class="headerlink" title="self"></a>self</h2><p>table中的self相当于this。<br>首先，table与对象一样可以拥有状态。<br>其次，table也与对象一样拥有一个独立于其值的标识（一个self）。<br>最后，table与对象一样具有独立于创建者和创建地的生命周期。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Account:withdraw</span><span class="params">(v)</span></span></span><br><span class="line">    <span class="built_in">self</span>.balance = <span class="built_in">self</span>.balance - v</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>lua只需使用冒号，则能隐藏self参数。</p>
+<h2 id="类"><a href="#类" class="headerlink" title="类"></a>类</h2><p>一个类就像是一个创建对象的模具。我们可以利用__index元方法构造继承。<br>当访问一个table中不存在的字段时，得到的结果为nil。这是对的，但并非完全正确。实际上，这些访问会促使解释器去查找一个叫__index的元方法。如果没有这个元方法，那么访问结果如前述的为nil。否则，就由这个元方法来提供最终结果。<br>在lua中，将__index元方法用于继承很普遍，__index还可以是一个table。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">setmetatable</span>(a,&#123;<span class="comment">--index=b&#125;)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Account:new</span><span class="params">(o)</span></span></span><br><span class="line">    o = o <span class="keyword">or</span> &#123;&#125; <span class="comment">--如果用户没有提供table，则创建一个</span></span><br><span class="line">    <span class="built_in">setmetatable</span>(o,<span class="built_in">self</span>)</span><br><span class="line">    <span class="built_in">self</span>.<span class="built_in">__index</span> = <span class="built_in">self</span></span><br><span class="line">    <span class="keyword">return</span> o</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>之前写过一篇关于lua实现面向对象的文章，借助元表和元方法实现，感觉也是有点乱。<br>我们可以参考cocos2d-x自己给出的类的实现，也即在luaBinding目录下extern.lua的文件中给出的实现：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">class</span><span class="params">(classname, super)</span></span></span><br><span class="line">    <span class="comment">--superType获取父类类型，可以使nil、function以及table.</span></span><br><span class="line">    <span class="keyword">local</span> superType = <span class="built_in">type</span>(super)</span><br><span class="line">    <span class="keyword">local</span> cls</span><br><span class="line"></span><br><span class="line">    <span class="comment">--如果父类既不是函数也不是table则说明父类为空</span></span><br><span class="line">    <span class="keyword">if</span> superType ~= <span class="string">&quot;function&quot;</span> <span class="keyword">and</span> superType ~= <span class="string">&quot;table&quot;</span> <span class="keyword">then</span></span><br><span class="line">        superType = <span class="literal">nil</span></span><br><span class="line">        super = <span class="literal">nil</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">--如果父类的类型是函数或者是C对象</span></span><br><span class="line">    <span class="keyword">if</span> superType == <span class="string">&quot;function&quot;</span> <span class="keyword">or</span> (super <span class="keyword">and</span> super.__ctype == <span class="number">1</span>) <span class="keyword">then</span></span><br><span class="line">        <span class="comment">-- inherited from native C++ Object</span></span><br><span class="line">        cls = &#123;&#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">--如果父类是表则复制成员并且设置这个类的继承信息</span></span><br><span class="line">        <span class="keyword">if</span> superType == <span class="string">&quot;table&quot;</span> <span class="keyword">then</span></span><br><span class="line">            <span class="comment">-- 从父类copy 字段</span></span><br><span class="line">            <span class="built_in">print</span> (<span class="string">&quot;superTyper is table&quot;</span>);</span><br><span class="line">            <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="built_in">pairs</span>(super) <span class="keyword">do</span> cls[k] = v <span class="keyword">end</span></span><br><span class="line">            cls.__create = super.__create</span><br><span class="line">            cls.super    = super</span><br><span class="line">        <span class="keyword">else</span>  <span class="comment">--如果是函数类型则设置构造方法并且设置ctor函数</span></span><br><span class="line">            cls.__create = super</span><br><span class="line">            cls.ctor = <span class="function"><span class="keyword">function</span><span class="params">()</span></span> <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">--设置类型的名称</span></span><br><span class="line">        cls.__cname = classname</span><br><span class="line">        cls.__ctype = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">--定义该类型的创建实例的函数为基类的构造函数后复制到子类实例</span></span><br><span class="line">        <span class="comment">--并且调用子数的ctor方法</span></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">cls.new</span><span class="params">(...)</span></span></span><br><span class="line">            <span class="keyword">local</span> instance = cls.__create(...)</span><br><span class="line">            <span class="comment">-- copy fields from class to native object</span></span><br><span class="line">            <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="built_in">pairs</span>(cls) <span class="keyword">do</span> instance[k] = v <span class="keyword">end</span></span><br><span class="line">            instance.class = cls</span><br><span class="line">            instance:ctor(...)</span><br><span class="line">            <span class="keyword">return</span> instance</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment">--如果是继承自普通的lua表,则设置一下原型，并且构造实例后也会调用ctor方法</span></span><br><span class="line">        <span class="comment">-- inherited from Lua Object</span></span><br><span class="line">        <span class="keyword">if</span> super <span class="keyword">then</span></span><br><span class="line">            cls = &#123;&#125;</span><br><span class="line">            <span class="built_in">setmetatable</span>(cls, &#123;<span class="built_in">__index</span> = super&#125;)</span><br><span class="line">            cls.super = super</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            cls = &#123;ctor = <span class="function"><span class="keyword">function</span><span class="params">()</span></span> <span class="keyword">end</span>&#125;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        cls.__cname = classname</span><br><span class="line">        cls.__ctype = <span class="number">2</span> <span class="comment">-- lua</span></span><br><span class="line">        cls.<span class="built_in">__index</span> = cls</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">cls.new</span><span class="params">(...)</span></span></span><br><span class="line">            <span class="keyword">local</span> instance = <span class="built_in">setmetatable</span>(&#123;&#125;, cls)</span><br><span class="line">            instance.class = cls</span><br><span class="line">            instance:ctor(...)</span><br><span class="line">            <span class="keyword">return</span> instance</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> cls</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>创建对象时，可以通过className.new这种方式来创建，如</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> MySpriteClass = class(<span class="string">&quot;MySpriteClass&quot;</span>,cc.Sprite)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">MySpriteClass:ctor</span><span class="params">()</span></span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> MySpriteClass</span><br></pre></td></tr></table></figure>
+<p>mySpriteClass 实例创建</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> mySprite = MySpriteClass.new(xxx.png)</span><br></pre></td></tr></table></figure>
+<p><img src="https://user-images.githubusercontent.com/11263320/108814689-36622500-75ee-11eb-88a6-31a5d5bec388.png" alt="1425134-20190408154553314-1254158238"><br>classname.new()生成的instance包含一个class属性。class指向了类原型，并具有super,ctor,__cname和__ctype  4个属性<br>继承C++的类，new方法使用__create函数来创建实例<br>继承lua类，new方法使用{ }来创建实例。<br>继承Lua的类，new方法使用{ }来创建实例。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/%E6%8A%8Alua%E6%96%87%E6%9C%AC%E6%96%87%E4%BB%B6%E2%80%9C%E7%BC%96%E8%AF%91%E2%80%9D%E6%88%90%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%9A%84%E6%96%87%E6%9C%AC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/23/%E6%8A%8Alua%E6%96%87%E6%9C%AC%E6%96%87%E4%BB%B6%E2%80%9C%E7%BC%96%E8%AF%91%E2%80%9D%E6%88%90%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%9A%84%E6%96%87%E6%9C%AC/" itemprop="url">把lua文本文件“编译”成二进制的文本</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T15:14:21+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>当你发布lua时，你或许不想用户看到你的lua源码，更不想用户修改你的lua代码和系统内部的秘密，那就需要用别的方式来发布。</p>
+<p>最终的文本文件可以通过lua作者提供的标准发布版本中的程序来执行。这个程序称做luac.exe，把lua文本文件“编译”成二进制的文件。这样就可以让别人更难知道你的游戏是如何运行的，采用了什么技术。</p>
+<p>当写好一个lua文件后，可以通过一个典型的编译命令去“编译”这个文件：</p>
+<p>这一行代码会编译helloworld.lua脚本并在helloworld文件中生成二进制数据。<br>lua解析器并不关心你传给它的是文本文件还是二进制文件，也不关心扩展名是什么。</p>
+<p>用这个方法，就不用担心别人可以看到你的代码了。</p>
+<p>当require一个模块mod.sub时，require会用原始的模块名“mod.sub”作为key来查询table package.loaded和package.preload，其中，模块名中的点在搜索中没有任何意义。<br>当搜索一个定义子模块的文件时，require会将点转换为另一个字符，通常就是系统的目录分隔符。转换之后require就像搜索其他名称一样来搜索这个名称。<br>所以最好的方法是在编译完lua脚本后，也把二进制文件改成.lua后缀。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/%E4%BD%BF%E7%94%A8Lua%E5%A4%84%E7%90%86%E6%B8%B8%E6%88%8F%E6%95%B0%E6%8D%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/23/%E4%BD%BF%E7%94%A8Lua%E5%A4%84%E7%90%86%E6%B8%B8%E6%88%8F%E6%95%B0%E6%8D%AE/" itemprop="url">使用Lua处理游戏数据</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T15:05:14+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在之前lua学习：lua作配置文件里，我们学会了用lua作配置文件。<br>其实lua在游戏开发中可以作为一个强大的保存、载入游戏数据的工具。</p>
+<h2 id="载入游戏数据"><a href="#载入游戏数据" class="headerlink" title="载入游戏数据"></a>载入游戏数据</h2><p>比如说，现在我有一份表单：<br>data.xls</p>
+<p>用什么工具解析这个Excel文件并将数据载入游戏？<br>我们可以使用Lua来完成这个工作。不过要先将表单保存为csv文件（数值用逗号隔开的文件）。<br>从表单中，我们可以得知第一行是键名，剩下的行是数值。我们可以用下面的lua函数载入该csv文件并保存到表中。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">GetLines</span><span class="params">(fileName)</span></span></span><br><span class="line">    index = <span class="number">0</span></span><br><span class="line">    myLines = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> <span class="built_in">io</span>.<span class="built_in">lines</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;%s%s&quot;</span>, <span class="string">&quot;./&quot;</span>, fileName)) <span class="keyword">do</span></span><br><span class="line">        index = index + <span class="number">1</span></span><br><span class="line">        myLines[index] = line</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> index, myLines <span class="comment">--返回文件的行数和一个包括所有行的表</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>io.lines ([filename])：打开指定的文件filename为读模式并返回一个迭代函数,每次调用将获得文件中的一行内容,当到文件尾时，将返回nil,并自动关闭文件。<br>然后，可以再创建一个函数解析每行的字符，并创建表格保存该行的所有数据。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">GetValues</span><span class="params">(myString)</span></span></span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    values = &#123;&#125;</span><br><span class="line">    <span class="keyword">if</span> myString ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">while</span> <span class="built_in">string</span>.<span class="built_in">find</span>(myString,<span class="string">&quot;,&quot;</span>) ~= <span class="literal">nil</span> <span class="keyword">do</span></span><br><span class="line">            i,j = <span class="built_in">string</span>.<span class="built_in">find</span>(myString,<span class="string">&quot;,&quot;</span>)</span><br><span class="line">            num = num + <span class="number">1</span></span><br><span class="line">            values[num] = <span class="built_in">string</span>.<span class="built_in">sub</span>(myString,<span class="number">1</span>, j<span class="number">-1</span>)</span><br><span class="line">            myString = <span class="built_in">string</span>.<span class="built_in">sub</span>(myString, j+<span class="number">1</span>, <span class="built_in">string</span>.<span class="built_in">len</span>(myString))</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        num = num + <span class="number">1</span> <span class="comment">--接着对第二行数据</span></span><br><span class="line">        values[num] = myString</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> num, values</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>string.find(s, pattern, pos)：从源字符串s找到匹配pattern返回，pos参数可选， 表示起始位置，如果匹配不成功，返回nil。<br>string.sub()：函数截取字符串s的从第i个字符到第j个字符之间的串。<br>在这个函数中，我们传入字符。通过调用string.find()和string.sub，返回数值的个数和包含了所有数值的表。通过这两个简单的处理步骤可以让用户解析几乎所有的csv文件，不论简单还是复杂的文件。</p>
+<p>我们可以写个函数测试一下</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">LoadDatas</span><span class="params">()</span></span></span><br><span class="line">    myCharacters = &#123;&#125;</span><br><span class="line">    numLines, allLines = GetLines(<span class="string">&quot;data.csv&quot;</span>)</span><br><span class="line">    <span class="comment">--读第一行的键值</span></span><br><span class="line">    count, myLabels = GetValues(allLines[<span class="number">1</span>])</span><br><span class="line">    <span class="comment">--忽略第一行</span></span><br><span class="line">    <span class="keyword">for</span> index = <span class="number">2</span>, numLines <span class="keyword">do</span></span><br><span class="line">        count, charHold = GetValues(allLines[index])</span><br><span class="line">        myCharacters[index<span class="number">-1</span>] = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> index2 = <span class="number">1</span>, count <span class="keyword">do</span></span><br><span class="line">            myCharacters[index<span class="number">-1</span>][index2] = charHold[index2]</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment">--now print them</span></span><br><span class="line">    <span class="keyword">for</span> index = <span class="number">1</span>, <span class="number">3</span> <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">for</span> index2 = <span class="number">1</span>, <span class="built_in">table</span>.<span class="built_in">getn</span>(myLabels) <span class="keyword">do</span></span><br><span class="line">            <span class="built_in">print</span>(myLabels[index2], myCharacters[index][index2])</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="保存游戏数据"><a href="#保存游戏数据" class="headerlink" title="保存游戏数据"></a>保存游戏数据</h2><p>我们可以利用lua内建的I/O功能来处理数据输出。只要确保输出的数据是采用合适的语法，就可以使用dofile()载入数据了。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">save</span><span class="params">()</span></span></span><br><span class="line">    myFile = <span class="built_in">io</span>.<span class="built_in">open</span>(<span class="string">&quot;save_data.lua&quot;</span>, <span class="string">&quot;w&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> myFile ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="string">&quot;-- 游戏数据保存文件&quot;</span>)</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;%s%s&quot;</span>, <span class="string">&quot;-- 文件创建于: &quot;</span>, <span class="built_in">os</span>.<span class="built_in">date</span>()))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="string">&quot;myValue = 5&quot;</span>)</span><br><span class="line">        <span class="built_in">io</span>.<span class="built_in">close</span>(myFile)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="载入保存的数据"><a href="#载入保存的数据" class="headerlink" title="载入保存的数据"></a>载入保存的数据</h2><p>利用dofile()操作就可以恢复游戏的数据了</p>
+<h2 id="用lua处理log-筛取信息"><a href="#用lua处理log-筛取信息" class="headerlink" title="用lua处理log,筛取信息"></a>用lua处理log,筛取信息</h2><p>其实也就是一些io，string操作，没什么新的东西<br>把旧的log中想的筛取信息，写到新的文件中，具体可以参加以下代码：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">find_player</span><span class="params">()</span></span></span><br><span class="line">    <span class="keyword">local</span> logfile = <span class="built_in">assert</span>(<span class="built_in">io</span>.<span class="built_in">open</span>(<span class="string">&quot;房间201.log&quot;</span>,<span class="string">&quot;r&quot;</span>)) <span class="comment">--打开旧文件</span></span><br><span class="line">    <span class="keyword">local</span> findfile = <span class="built_in">io</span>.<span class="built_in">open</span>(<span class="string">&quot;find_player.txt&quot;</span>,<span class="string">&quot;w&quot;</span>) <span class="comment">--打开新文件</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">local</span> text = logfile:<span class="built_in">read</span>(<span class="string">&quot;*all&quot;</span>) <span class="comment">--读入所有内容</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> w <span class="keyword">in</span> <span class="built_in">string</span>.<span class="built_in">gmatch</span>(text,<span class="string">&quot;.-,&quot;</span>) <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">find</span>(w,<span class="string">&quot;player userid = (%d+) level=(%d+) enter&quot;</span>) ~= <span class="literal">nil</span> <span class="keyword">then</span> <span class="comment">--查找写入相关内容到新文件</span></span><br><span class="line">            findfile:<span class="built_in">write</span>(w)</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">find</span>(w,<span class="string">&quot;player userid = (%d+) leave&quot;</span>) ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">            findfile:<span class="built_in">write</span>(w)</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    logfile:<span class="built_in">close</span>() <span class="comment">--关闭文件</span></span><br><span class="line">    findfile:<span class="built_in">close</span>()</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">find_player()</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/lua%E4%B8%8EC-C-%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%95%B4%E5%90%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/02/23/lua%E4%B8%8EC-C-%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%95%B4%E5%90%88/" itemprop="url">lua与C/C++程序的整合</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T14:41:02+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>lua与C/C++交互，主要靠lua API和向lua注册好的函数。如下图</p>
+<p>注：LuaGlue就是让Lua脚本中可调用的C++函数的接口。即那些注册的函数。<br>这里起关键作用的要数lua_State的结构，这就得讲一下Lua环境和Lua Stack。</p>
+<h2 id="Lua环境"><a href="#Lua环境" class="headerlink" title="Lua环境"></a>Lua环境</h2><p>Lua环境由所有可操作的数据构成，如编译好的函数、变量以及其他运行时内存。这些数据保存在一个称做lua_State的结构中。所有Lua应用程序都要求至少有一个lua_State，如果需要还可以有多个（如需要为两个不同的系统保存不同的数据时）。</p>
+<h2 id="Lua-Stack"><a href="#Lua-Stack" class="headerlink" title="Lua Stack"></a>Lua Stack</h2><p>对于我们来说，Lua环境是用来发送和接收数据的地方，它利用栈（Lua Stack）来达到该目的。所有的数据交换，无论是Lua到C/C++语言或C/C++语言到Lua都通过这个栈来完成。Lua栈不同于系统栈，它只能通过Lua的API函数访问。</p>
+<h2 id="注册到Lua中的函数"><a href="#注册到Lua中的函数" class="headerlink" title="注册到Lua中的函数"></a>注册到Lua中的函数</h2><p>所有注册到Lua中的函数都具有相同的原型</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*lua_Function)</span><span class="params">(lua_State *L)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这个函数仅有一个参数，即Lua的状态。它返回一个整数，表示其压入栈中的返回值数量。因此函数无须在压入结果前清空栈。在它返回后，Lua会自动删除栈中结果之下的内容。</p>
+<p>在Lua使用这个函数前，必须注册这个函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lua_pushcfunction</span> <span class="params">(lua_State *L, lua_CFunction f)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>将一个 C 函数压入堆栈。 这个函数接收一个 C 函数指针，并将一个类型为 function 的 Lua 值 压入堆栈。当这个栈顶的值被调用时，将触发对应的 C 函数。<br>这种方法需要重新编译Lua的执行程序，才能在Lua程序中使用这个新函数。但用下面的方法会更好，直接将C函数链接到lua。</p>
+<h2 id="Lua调用C函数"><a href="#Lua调用C函数" class="headerlink" title="Lua调用C函数"></a>Lua调用C函数</h2><p>Lua调用C函数时，并不依赖于函数名、包的位置或可见性规则，而只依赖于注册时传入的函数地址。当用C函数扩展Lua时，最好将代码设计为一个C模块。因为现在只注册一个函数，但说之后可能会需要更多的函数。辅助库为这项工作提供了一个函数luaL_register，这个函数接收一些C函数及其名称，并将这些函数注册到一个与模块同名的table中。例如，假设创建一个模块，其中包含了这个luaglue函数。首先，必须定义这个模块函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">luaglue</span><span class="params">(lua_state *L)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，声明一个数组，其中包含模块中所有函数及名称。这个数组元素的类型为luaL_Reg结构，该结构有两个字段，一个字符串和一个函数指针：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">luaL_Reg</span> <span class="title">mylib</span>[] =</span> &#123;</span><br><span class="line">&#123;<span class="string">&quot;dir&quot;</span>,l_dir&#125;,</span><br><span class="line">&#123;<span class="literal">NULL</span>,<span class="literal">NULL</span>&#125;<span class="comment">//结尾</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>最后，声明一个主函数，其中用到了luaL_register:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">luaopen_mylib</span><span class="params">(lua_State *L)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     luaL_register(L,<span class="string">&quot;mylib&quot;</span>,mylib);</span><br><span class="line">     <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中luaL_register原型为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">luaL_register</span> <span class="params">(lua_State *L,<span class="keyword">const</span> <span class="keyword">char</span> *libname,<span class="keyword">const</span> luaL_Reg *l)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>luaL_register根据给定的名称（“mylib”）创建（或复用）一个table，并用数组mylib中的信息填充这个table。在luaL_Register返回时，会将这个table留在栈中。最后，luaopen_mylib函数返回1，表示将这个table返回给Lua。<br>ps：打开一个库，当libname为null时，该函数注册所有在luaL_Reg上的函数，不为null时，该函数会创建一个table，根据libname注册不与libname关联的函数。<br>当写完c模块后，必须将其链接到解释器。如果Lua解释器支持动态链接的话，那么最简便的方法是使用动态链接机制。在这种情况中，必须将c代码编译成动态链接库，并将这个库放入C路径（LUA_CPATH）中。然后，便可以用require从Lua中加载这个模块：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span> <span class="string">&quot;mylib&quot;</span></span><br></pre></td></tr></table></figure>
+<p>这名调用会将动态库mylib链接到Lua，并会寻找luaopen_mylib函数，将其注册为一个Lua函数，然后调用它以打开模块。<br>如果解释器不支持动态链接，那么就必须用新的模块来重新编译Lua。此外，还需要以某种方式来告诉解释器，它应在打开一个新状态的同时打开这个模块。最简单的做法是，将luaopen_mylib加到luaL_openlibs会打开的标准库列表中，这个列表在文件linit.c中。</p>
+<p>从C++程序员的观点来看，Lua像一个“黑盒子”，为一些服务处理命令和调用。Lua通常作为最上层接口直接和程序使用者和游戏玩家打交道，在核心程序处理之前接受并响应输入。</p>
+<h2 id="lua-tinker"><a href="#lua-tinker" class="headerlink" title="lua_tinker"></a>lua_tinker</h2><p>如果嫌麻烦，不想手动写这些代码的话，我推荐lua_tinker。也就只有两个文件，lua_tinker.h，lua_tinker.cpp。<br>环境配置，首先你需要搭建一个可以用lua的开发环境，这里网上有很多，我就不多说了。然后再将lua_tinker的lua_tinker.h和lua_tinker.cpp添加到你的工程中就可以了。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">lua_tinker::def(L, <span class="string">&quot;cpp_func&quot;</span>, cpp_func); <span class="comment">//在L栈中注册C++函数</span></span><br><span class="line">lua_tinker::dofile(L, <span class="string">&quot;sample1.lua&quot;</span>); <span class="comment">//加载lua文件</span></span><br><span class="line"><span class="keyword">int</span> result = lua_tinker::call&lt;<span class="keyword">int</span>&gt;(L, <span class="string">&quot;lua_func&quot;</span>, <span class="number">3</span>, <span class="number">4</span>); <span class="comment">//调用lua中的function lua_func</span></span><br><span class="line"></span><br><span class="line">lua_tinker::class_add(L,<span class="string">&quot;classA&quot;</span>);<span class="comment">//在lua中注册类</span></span><br><span class="line">lua_tinker::class_con(L,lua_tinker::constructor&lt;classA&gt;);<span class="comment">//在lua中注册构造函数</span></span><br><span class="line">lua_tinker::class_mem(L,<span class="string">&quot;memName&quot;</span>,&amp;classA::memName);</span><br></pre></td></tr></table></figure>
+<p>用lua_tinker::call是要注意，参数不支持智能指针</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/%E6%B8%B8%E6%88%8F%E4%B8%AD%E7%9A%84Lua/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -508,1139 +1601,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/lua-state/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/23/lua-state/" itemprop="url">lua_state</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T10:55:25+08:00">
-                2021-02-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Lua除了是一门扩展的言语外，还是一门“胶水语言”。最著名的就是作为游戏的脚本开发。</p>
-<p>这里主要说lua怎样与c交互。<br>Lua和c语言通信的主要方法是一个无所不在的虚拟栈。几乎所有的API调用都会操作这个栈上的值。所有的数据交换，无论是Lua到C语言或C语言到Lua都通过这个栈来完成。栈可以解决Lua和C语言之间存在的两大差异，第一种差异是Lua使用垃圾收集，而C语言要求显式地释放内存；第二种是Lua使用动态类型，而C语言使用静态类型。</p>
-<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buff[<span class="number">256</span>];</span><br><span class="line">    <span class="keyword">int</span> error;</span><br><span class="line">    lua_State *L = luaL_newstate();<span class="comment">//创建一个新的环境</span></span><br><span class="line">    luaL_openlibs(L);<span class="comment">//打开标准库</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(fgets(buff,<span class="keyword">sizeof</span>(buff),<span class="built_in">stdin</span>)!=<span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        error = luaL_loadbuffer(L,buff,<span class="built_in">strlen</span>(buff),<span class="string">&quot;line&quot;</span>) || lua_pcall(L,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (error)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>,<span class="string">&quot;%s&quot;</span>,lua_tostring(L,<span class="number">-1</span>));</span><br><span class="line">            lua_pop(L,<span class="number">1</span>);<span class="comment">//从栈中弹出错误消息</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    lua_close(L);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>luaL_newstate用c运行库的内存分配函数。<br>lua_newstate可自定义内存分配函数。</p>
-<p>头文件lua.h定义了lua提供的基础函数，包括创建lua环境、调用lua函数（如lua_pcall）、读写lua环境中全局变量，以及注册供lua调用的新函数等。Lua.h中定义所有内容都有一个lua_前缀。<br>头文件lauxlib.h定义了辅助库（auxiliary library,auxlib）提供的函数。它的所有定义都以luaL_开头（如luaL_loadbuffer）。辅助库是一个使用lua.h中API编写出的一个较高的抽象层。Lua的所有标准库编写都用到了辅助库。</p>
-<p>注意：Lua脚本的编译执行是相互独立的，在不同的线程上执行。通过luaL_newstate()函数可以申请一个虚拟机，返回指针类型lua_State。今后其他所有Lua Api函数的调用都需要此指针作为第一参数，用来指定某个虚拟机。所以lua_State代表一个lua虚拟机对像，luaL_newstate()分配一个虚拟机。lua类库管理着所有的虚拟机。销毁指定虚拟机的所有对像（如果有垃圾回收相关的无方法则会调用该方法）并收回所有由该虚拟机动态分配产生的内存，在有些平台下我们不需要调用此函数，因为当主程序退出时，资源会被自然的释放掉，但是但一个长时间运行的程序，比如后台运行的web服务器，需要立即回收虚拟机资源以避免内存过高占用。</p>
-<h2 id="Lua虚拟机相关的数据结构与栈"><a href="#Lua虚拟机相关的数据结构与栈" class="headerlink" title="Lua虚拟机相关的数据结构与栈"></a>Lua虚拟机相关的数据结构与栈</h2><p>下列代码分析，均源自lua5.1。</p>
-<p>解释器要做的就是模拟计算机的执行，这主要分为以下两大块。<br>CPU：用于指令的执行。<br>内存：用于数据的存储。<br>指令执行的部分在<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/113">lua虚拟机</a>（lua虚拟机工作流程）大体介绍过，即解释器分析Lua文件之后生成 Proto结构体，最后到luaV_execute函数中依次取出指令来执行。<br>而“内存”部分，在Lua解释器中就存放在Lua战中。 Lua中也是把栈的某一个位置称为寄存器（非真CPU中的寄存器）。<br>每个Lua虚拟机对应一个lua_State结构体，它使用TValue数组来模拟栈，其中包括几个与找相关的成员<br>stack ：栈数组的起始位置。<br>base ： 当前函数栈的基地址 。<br>top ： 当前栈的下一个可用位置 。<br>这些成员的初始化操作在stack_init函数中完成</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">stack_init</span> <span class="params">(lua_State *L1, lua_State *L)</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* initialize CallInfo array */</span></span><br><span class="line">  L1-&gt;base_ci = luaM_newvector(L, BASIC_CI_SIZE, CallInfo);</span><br><span class="line">  L1-&gt;ci = L1-&gt;base_ci;</span><br><span class="line">  L1-&gt;size_ci = BASIC_CI_SIZE;</span><br><span class="line">  L1-&gt;end_ci = L1-&gt;base_ci + L1-&gt;size_ci - <span class="number">1</span>;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>再看看lua_State</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** `per thread&#x27; state</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">lua_State</span> &#123;</span></span><br><span class="line">  CommonHeader;</span><br><span class="line">  lu_byte status;</span><br><span class="line">  StkId top;  <span class="comment">/* first free slot in the stack */</span></span><br><span class="line">  StkId base;  <span class="comment">/* base of current function */</span></span><br><span class="line">  global_State *l_G;</span><br><span class="line">  CallInfo *ci;  <span class="comment">/* call info for current function */</span></span><br><span class="line">  ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>lua_State里面存放的是一个Lua虚拟机的全局状态，当执行到一个两数时，需要有对应的数据结构来表示函数相关的信息。这个数据结构就是CallInfo，这个结构体中同样有top、base这两个与战相关的成员。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** informations about a call</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">CallInfo</span> &#123;</span></span><br><span class="line">  StkId base;  <span class="comment">/* base for this function */</span></span><br><span class="line">  StkId func;  <span class="comment">/* function index in the stack */</span></span><br><span class="line">  StkId	top;  <span class="comment">/* top for this function */</span></span><br><span class="line">  <span class="keyword">const</span> Instruction *savedpc;</span><br><span class="line">  <span class="keyword">int</span> nresults;  <span class="comment">/* expected number of results from this function */</span></span><br><span class="line">  <span class="keyword">int</span> tailcalls;  <span class="comment">/* number of tail calls lost under this entry */</span></span><br><span class="line">&#125; CallInfo;</span><br></pre></td></tr></table></figure>
-<p>无论函数怎么执行，有多少函数，最终它们引用到的栈都是当前Lua虚拟机的栈。 这好比一个操作系统中的进程无论有多少，最终引用的内存实际上都还是由操作系统内核来管理的。<br>在lua_Stat巴中，有一个base_ci的CallInfo数组，存储的就是CallInfo的信息。而另一个ci成员，指向的就是当前函数的CallInfo指针。<br>在调用函数之前，一般会调用luaD_precall函数，它主要完成如下几个操作 。<br>(1 ）保存当前虚拟机执行的指令savedpc到当前CallInfo的savedpc中。此处保存下来是为了后面调用完毕之后恢复执行。<br>(2）分别计算出待调用函数的base、top值，这些值的计算依赖于函数的参数数量。<br>(3）从lua_State的base_ci数组中分配一个新的CallInfo指针，存储前面两步计算出来的信息，切换到这个函数中准备调用。<br>可以看到，lua_State结构体中的top、base指针是与函数执行相关的变量，在函数执行前后都会有所变化。</p>
-<p>需要注意的是，前后调用的函数中Lua栈的大小是有限的，同时CallInfo数组的大小也是有限的。 栈的使用和函数的嵌套层次都不能过多，以防这些资源、用尽了。 这就好比操作系统内核不可能无限制新建进程，也不可能无限制分配内存，资源总是有限的 。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/lua%E7%8E%AF%E5%A2%83%E4%B8%8E%E6%A8%A1%E5%9D%97/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/23/lua%E7%8E%AF%E5%A2%83%E4%B8%8E%E6%A8%A1%E5%9D%97/" itemprop="url">lua环境与模块</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T10:32:51+08:00">
-                2021-02-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Lua实现了一个安全的运行环境、一套自动内存管理机制、优秀的字符串处理能力和动态大小数据的处理功能。</p>
-<p>我们都知道，只要应用程序加入lua解析器的功能，就能解析lua脚本。那lua脚本是怎样执行的？<br>我们通常用dofile去打开编译一个lua脚本。当应用程序调用dofile后，在执行完脚本后，才能后到主程序中，这lua脚本相当于一个函数。要等函数执行完才能回到主程序中。<br>在lua脚本中，一般有变量，函数，这些东西都保存在一个常规的table中，这个table称为“环境”。</p>
-<h2 id="loadfile、dofile、require"><a href="#loadfile、dofile、require" class="headerlink" title="loadfile、dofile、require"></a>loadfile、dofile、require</h2><p>loadfile——只加载编译，不运行<br>dofile——执行<br>require——只执行一次</p>
-<p>用require函数只能加载一次,因为它的特性是:<br>1、require函数会搜索目录加载文件<br>2、require会判断是否文件已经加载避免重复加载同一文件。<br>但当有一些特殊的需求需要反复加载某个lua文件，那如何实现反复加载一个lua文件?<br>答案是:二次加载前加这一句<br>package.loaded[luafile] = nil</p>
-<h2 id="环境相关的变量"><a href="#环境相关的变量" class="headerlink" title="环境相关的变量"></a>环境相关的变量</h2><p>这里首先分析几个与环境相关的特殊变量一–Global表 、 env表 、 registry表以及UpValue 。<br>关于前3个表，需要注意以下几点 。</p>
-<ul>
-<li>Global表存放在 lua State结构体中也称为G表 。 每个 lua State结构体都有一个对应的G表。 不用多说，这个表就是存放全局变量的。</li>
-<li>env表存放在Closure结构体中，也就是每个函数有自己独立的一个环境 。</li>
-<li>registry表是全局唯一的，它存放在global_State结构体中，这个结构体在整个运行环境中只有一个。</li>
-</ul>
-<p>在讲解OP G ETG LOBAL 以及OP SETG LOBA L指令时说到，查找一个全局变量的操作，其实更精确地说，是在当前函数的 env表中查找 ：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> OP_GETGLOBAL: &#123;</span><br><span class="line">        TValue g;</span><br><span class="line">        TValue *rb = KBx(i);</span><br><span class="line">        sethvalue(L, &amp;g, cl-&gt;env);</span><br><span class="line">        lua_assert(ttisstring(rb));</span><br><span class="line">        Protect(luaV_gettable(L, &amp;g, rb, ra));</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125;</span><br><span class="line"><span class="keyword">case</span> OP_SETGLOBAL: &#123;</span><br><span class="line">        TValue g;</span><br><span class="line">        sethvalue(L, &amp;g, cl-&gt;env);</span><br><span class="line">        lua_assert(ttisstring(KBx(i)));</span><br><span class="line">        Protect(luaV_settable(L, &amp;g, KBx(i), ra));</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，这两个操作都是到函数对应的Closure指针中的巴nv表去查询数据 。 这里仍然需要提醒一下前面提到的一点，即使对一个没有任何函数的代码而言，分析完毕之后都对应一个Closure 。 因此，这里提到的“当前函数环境”，指的不一定是某一个具体的函数，也可能是一个Lua文件 。</p>
-<p>Lua提供了几个API来读取当前函数的环境，分别是getfenv和 setfenv<br>因此，如果执行以下代码：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">setfenv</span>(<span class="number">1</span>,&#123;&#125;)</span><br><span class="line"><span class="built_in">print</span>(a)</span><br></pre></td></tr></table></figure>
-<p>实际上找不到Lua标准库提供的 print函数，并且会提示报错attempt to call global ’庐山’（a nilvalue） 。 原因就是首先使用 setfenv 函数将当前函数的 env表置为一个空表，此时在当前函数的 env表中查找不到这个名字的函数。</p>
-<p>下面来看看函数的 env表是如何创建的 。 在创建一个Closure对象时，都会调用getcurrenv函数来获取当前的环境表：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> Table *<span class="title">getcurrenv</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (L-&gt;ci == L-&gt;base_ci)  <span class="comment">/* no enclosing function? */</span></span><br><span class="line">    <span class="keyword">return</span> hvalue(gt(L));  <span class="comment">/* use global table as environment */</span></span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    Closure *func = curr_func(L);</span><br><span class="line">    <span class="keyword">return</span> func-&gt;c.env;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>它将区分如下两种情况</p>
-<ul>
-<li>如果该函数不是内嵌函数，那么直接返回G表</li>
-<li>再则，如果是内嵌函数，就返回其母函数的 env表</li>
-</ul>
-<p>在创建一个新的 Closure时，会调用这个函数返回的结果，对新的Closure的环境进行赋值。这里可以看出， env表会逐层继承。</p>
-<p>接着来看看registry表的作用，该表存放在global_State结构体中，因此里面的内容可供多个 lua State访问 。 另外，这个表只能由 C代码访问， Lua代码不能访问 。 除此之外，它和普通的表没有什么区别 。</p>
-<p>但是需要注意的是，使用普通的对表进行赋值的API对registry表进行赋值时，应该使用字符串类型的键。 LuaAPI中对外提供了接口 lua_ref 、 lua_unre于和lua_getref ，用于提供在registry表中存取唯一的数字键。 通过这组API ，使用者不需要关心给某个需要存放到registry表的数据如何分配一个全局唯一的键，由 Lua解释器自己来保证这一点：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> lua_ref(L,lock) ((lock) ? luaL_ref(L, LUA_REGISTRYINDEX) : \</span></span><br><span class="line">      (lua_pushstring(L, <span class="string">&quot;unlocked references are obsolete&quot;</span>), lua_error(L), <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> lua_unref(L,ref)        luaL_unref(L, LUA_REGISTRYINDEX, (ref))</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> lua_getref(L,ref)       lua_rawgeti(L, LUA_REGISTRYINDEX, (ref))</span></span><br></pre></td></tr></table></figure>
-<p>接着来看看这里面lual ref和 lu a L unref函数的实现。 需要说明的是，在调用 luaL ref函数之前，需要存放的数据已经位于枝顶：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LUALIB_API <span class="keyword">int</span> <span class="title">luaL_ref</span> <span class="params">(lua_State *L, <span class="keyword">int</span> t)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> ref;</span><br><span class="line">  t = abs_index(L, t);</span><br><span class="line">  <span class="keyword">if</span> (lua_isnil(L, <span class="number">-1</span>)) &#123;</span><br><span class="line">    lua_pop(L, <span class="number">1</span>);  <span class="comment">/* remove from stack */</span></span><br><span class="line">    <span class="keyword">return</span> LUA_REFNIL;  <span class="comment">/* `nil&#x27; has a unique fixed reference */</span></span><br><span class="line">  &#125;</span><br><span class="line">  lua_rawgeti(L, t, FREELIST_REF);  <span class="comment">/* get first free element */</span></span><br><span class="line">  ref = (<span class="keyword">int</span>)lua_tointeger(L, <span class="number">-1</span>);  <span class="comment">/* ref = t[FREELIST_REF] */</span></span><br><span class="line">  lua_pop(L, <span class="number">1</span>);  <span class="comment">/* remove it from stack */</span></span><br><span class="line">  <span class="keyword">if</span> (ref != <span class="number">0</span>) &#123;  <span class="comment">/* any free element? */</span></span><br><span class="line">    lua_rawgeti(L, t, ref);  <span class="comment">/* remove it from list */</span></span><br><span class="line">    lua_rawseti(L, t, FREELIST_REF);  <span class="comment">/* (t[FREELIST_REF] = t[ref]) */</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;  <span class="comment">/* no free elements */</span></span><br><span class="line">    ref = (<span class="keyword">int</span>)lua_objlen(L, t);</span><br><span class="line">    ref++;  <span class="comment">/* create new reference */</span></span><br><span class="line">  &#125;</span><br><span class="line">  lua_rawseti(L, t, ref);</span><br><span class="line">  <span class="keyword">return</span> ref;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">LUALIB_API <span class="keyword">void</span> <span class="title">luaL_unref</span> <span class="params">(lua_State *L, <span class="keyword">int</span> t, <span class="keyword">int</span> ref)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (ref &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">    t = abs_index(L, t);</span><br><span class="line">    lua_rawgeti(L, t, FREELIST_REF);</span><br><span class="line">    lua_rawseti(L, t, ref);  <span class="comment">/* t[ref] = t[FREELIST_REF] */</span></span><br><span class="line">    lua_pushinteger(L, ref);</span><br><span class="line">    lua_rawseti(L, t, FREELIST_REF);  <span class="comment">/* t[FREELIST_REF] = ref */</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里的设计其实很巧妙，仅使用一个数组就模拟了一个链表的实现，其原理如下</p>
-<ul>
-<li>FREELIST_REF用于保存当前registry表中可用键的索引，每次需要存储之前，都会先到这里拿到当前存放的值。</li>
-<li>如果拿出来的值是0 ，说明当前的h巳list中还没有数据，直接返回当前registry表的数据盐作为新的索引 。</li>
-<li>当调用 lual unref释放一个索引值的时候，将该索引值返回 FREELIST REF链表中 。</li>
-</ul>
-<p>下图演示了分配可用索引前后freelist的变化<br><img src="https://user-images.githubusercontent.com/11263320/113692378-126f2480-9700-11eb-99a2-8a8d4bbea09a.JPG" alt="捕获"><br>最后来看UpValue 。 前面谈到， registry表提供的是全局变量的存储， env表提供的是函数内全局变茸的存储，而UpValue用于提供函数内静态变量的存储，这些变量存储的地方，倒不是某个特殊的表，其实就是换算成对应的UpValue的索引值来访问函数的UpValue数组而已<br>接着我们来看一个关键的函数index2adr ，这个函数集中处理了所有索引值转换为械地址值的操作，不论该索’寻｜是椅上元素的索引，还是前面这几种特殊变量的索引：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** pseudo-indices</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_REGISTRYINDEX	(-10000)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_ENVIRONINDEX	(-10001)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_GLOBALSINDEX	(-10002)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> lua_upvalueindex(i)	(LUA_GLOBALSINDEX-(i))</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> TValue *<span class="title">index2adr</span> <span class="params">(lua_State *L, <span class="keyword">int</span> idx)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (idx &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    TValue *o = L-&gt;base + (idx - <span class="number">1</span>);</span><br><span class="line">    api_check(L, idx &lt;= L-&gt;ci-&gt;top - L-&gt;base);</span><br><span class="line">    <span class="keyword">if</span> (o &gt;= L-&gt;top) <span class="keyword">return</span> cast(TValue *, luaO_nilobject);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> o;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (idx &gt; LUA_REGISTRYINDEX) &#123;</span><br><span class="line">    api_check(L, idx != <span class="number">0</span> &amp;&amp; -idx &lt;= L-&gt;top - L-&gt;base);</span><br><span class="line">    <span class="keyword">return</span> L-&gt;top + idx;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">switch</span> (idx) &#123;  <span class="comment">/* pseudo-indices */</span></span><br><span class="line">    <span class="keyword">case</span> LUA_REGISTRYINDEX: <span class="keyword">return</span> registry(L);</span><br><span class="line">    <span class="keyword">case</span> LUA_ENVIRONINDEX: &#123;</span><br><span class="line">      Closure *func = curr_func(L);</span><br><span class="line">      sethvalue(L, &amp;L-&gt;env, func-&gt;c.env);</span><br><span class="line">      <span class="keyword">return</span> &amp;L-&gt;env;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> LUA_GLOBALSINDEX: <span class="keyword">return</span> gt(L);</span><br><span class="line">    <span class="keyword">default</span>: &#123;</span><br><span class="line">      Closure *func = curr_func(L);</span><br><span class="line">      idx = LUA_GLOBALSINDEX - idx;</span><br><span class="line">      <span class="keyword">return</span> (idx &lt;= func-&gt;c.nupvalues)</span><br><span class="line">                ? &amp;func-&gt;c.upvalue[idx<span class="number">-1</span>]</span><br><span class="line">                : cast(TValue *, luaO_nilobject);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这段代码的逻辑主要是根据传人的 idx的几种情况，分别返回不同的值。</p>
-<ul>
-<li>如果 idx &gt;O ，那么以 idx值为索引，返回基于 lua State的 base指针的值，也就是相对于战底向上的偏移值。</li>
-<li>如果 idx&gt;LUA_REGISTRYINDEX ，则以 idx值为索引，返回基于 l ua_State的top指针的值，也就是相对于钱顶向下的偏移值。</li>
-<li>如果是LUA_REGISTRYINDEX ，那么返回 registry表。</li>
-<li>如果是LUA ENVIRONINDEX ，那么返回当前函数的env表。</li>
-<li>如果是LUA GLOBALSINDEX ，那么返回Global表。</li>
-<li>如果以上都不符合，那么将根据情况返回当前函数的叩value数组中的值。</li>
-</ul>
-<h2 id="模块"><a href="#模块" class="headerlink" title="模块"></a>模块</h2><p>这一节将讲解Lua模块相关的知识点，首先介绍模块的加载、编写等原理，然后介绍热更新原理。</p>
-<h3 id="模块的加载"><a href="#模块的加载" class="headerlink" title="模块的加载"></a>模块的加载</h3><p>在Lua内部，所有模块的注册都在linit.c的函数lual_openlibs 中提供。 可以看到，它依次访问lualibs数组中的成员，这些成员定义了每个模块的模块名及相应的模块注册函数，依次调用每个模块的注册函数完成模块的注册 ：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> luaL_Reg lualibs[] = &#123;</span><br><span class="line">  &#123;<span class="string">&quot;&quot;</span>, luaopen_base&#125;,</span><br><span class="line">  &#123;LUA_LOADLIBNAME, luaopen_package&#125;,</span><br><span class="line">  &#123;LUA_TABLIBNAME, luaopen_table&#125;,</span><br><span class="line">  &#123;LUA_IOLIBNAME, luaopen_io&#125;,</span><br><span class="line">  &#123;LUA_OSLIBNAME, luaopen_os&#125;,</span><br><span class="line">  &#123;LUA_STRLIBNAME, luaopen_string&#125;,</span><br><span class="line">  &#123;LUA_MATHLIBNAME, luaopen_math&#125;,</span><br><span class="line">  &#123;LUA_DBLIBNAME, luaopen_debug&#125;,</span><br><span class="line">  &#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function">LUALIB_API <span class="keyword">void</span> <span class="title">luaL_openlibs</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> luaL_Reg *lib = lualibs;</span><br><span class="line">  <span class="keyword">for</span> (; lib-&gt;func; lib++) &#123;</span><br><span class="line">    lua_pushcfunction(L, lib-&gt;func);</span><br><span class="line">    lua_pushstring(L, lib-&gt;name);</span><br><span class="line">    lua_call(L, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>结构体lual_Reg有两个变量，分别是模块名以及模块初始化函数。 可以看到，第一个模块是base模块，其模块名是一个空字符串，因此访问这个模块的函数不需要加模块名前缀，比如我们熟悉的 print 函数就是属于这个模块的 。 这就是在调用 print函数时，不需要在前面加模块名前缀的原因 。 这里就以 base模块为例来讲解模块的注册过程。</p>
-<p>加载base模块最终会调用 base_open函数，下面我们看看这个函数里面最核心的几行代码：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">base_open</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* set global _G */</span></span><br><span class="line">  lua_pushvalue(L, LUA_GLOBALSINDEX);</span><br><span class="line">  lua_setglobal(L, <span class="string">&quot;_G&quot;</span>);</span><br><span class="line">  <span class="comment">/* open lib into global table */</span></span><br><span class="line">  luaL_register(L, <span class="string">&quot;_G&quot;</span>, base_funcs);</span><br></pre></td></tr></table></figure>
-<p>最开始的两句首先将 LUA_GLOBA LSINDEX对应的值压人拢中，接着调用 lua_setglobal(L ,二C ”） ; , e n 当在 lua_State 的 l_gt表中查找工C”时，查找到的是索引值为 LUA_GLOBALSINDEX的表 。如果觉得有点绕，可以简单理解为，在C表满足这个等式＿G = _G ［二G”］ 。 也就是这个叫＿G的表内部有一个key为二G”的表是指向自己的 。 可以在Lua命令行中执行print(_G ）和 print(_G ［”＿G”］）看看输出结果，来验证一下这个结论。</p>
-<p>我猜想这么处理的理由是 ： 为了让G表和其他表使用同样的机制 。 查找变量时，最终会一直顺着层次往上查到G表中，这是很自然的事情 。 所以，为了也能按照这个机制顺利地查找到自己，于是在G表中有一个同名成员指向自己 。</p>
-<p>好了，前两句的作用已经分析完毕，其结果有以下两个 ：</p>
-<ul>
-<li>＿G = _G [”_G”]</li>
-<li>G表的值压入函数枝中方便后面的调用 。</li>
-</ul>
-<p>所以，这个G表的注册操作需要在所有模块注册之前进行。</p>
-<p>在第63 1行中， base_fu n cs也是一个lual_Reg数组，上面的操作会将base_funcs数组中的函数注册到G表中，但是里面还有些细节需要看看。 这个操作最终会调用函数luaI←openlib:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LUALIB_API <span class="keyword">void</span> <span class="title">luaI_openlib</span> <span class="params">(lua_State *L, <span class="keyword">const</span> <span class="keyword">char</span> *libname,</span></span></span><br><span class="line"><span class="function"><span class="params">                              <span class="keyword">const</span> luaL_Reg *l, <span class="keyword">int</span> nup)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (libname) &#123;</span><br><span class="line">    <span class="keyword">int</span> size = libsize(l);</span><br><span class="line">    <span class="comment">/* check whether lib already exists */</span></span><br><span class="line">    luaL_findtable(L, LUA_REGISTRYINDEX, <span class="string">&quot;_LOADED&quot;</span>, size);</span><br><span class="line">    lua_getfield(L, <span class="number">-1</span>, libname);  <span class="comment">/* get _LOADED[libname] */</span></span><br><span class="line">    <span class="keyword">if</span> (!lua_istable(L, <span class="number">-1</span>)) &#123;  <span class="comment">/* not found? */</span></span><br><span class="line">      lua_pop(L, <span class="number">1</span>);  <span class="comment">/* remove previous result */</span></span><br><span class="line">      <span class="comment">/* try global variable (and create one if it does not exist) */</span></span><br><span class="line">      <span class="keyword">if</span> (luaL_findtable(L, LUA_GLOBALSINDEX, libname, size) != <span class="literal">NULL</span>)</span><br><span class="line">        luaL_error(L, <span class="string">&quot;name conflict for module &quot;</span> LUA_QS, libname);</span><br><span class="line">      lua_pushvalue(L, <span class="number">-1</span>);</span><br><span class="line">      lua_setfield(L, <span class="number">-3</span>, libname);  <span class="comment">/* _LOADED[libname] = new table */</span></span><br><span class="line">    &#125;</span><br><span class="line">    lua_remove(L, <span class="number">-2</span>);  <span class="comment">/* remove _LOADED table */</span></span><br><span class="line">    lua_insert(L, -(nup+<span class="number">1</span>));  <span class="comment">/* move library table to below upvalues */</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (; l-&gt;name; l++) &#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;nup; i++)  <span class="comment">/* copy upvalues to the top */</span></span><br><span class="line">      lua_pushvalue(L, -nup);</span><br><span class="line">    lua_pushcclosure(L, l-&gt;func, nup);</span><br><span class="line">    lua_setfield(L, -(nup+<span class="number">2</span>), l-&gt;name);</span><br><span class="line">  &#125;</span><br><span class="line">  lua_pop(L, nup);  <span class="comment">/* remove upvalues */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注册这些函数之前，首先会到registry ［二LOADED＂］表中查找该库，如果不存在，则在G表中查找这个库，若不存在则创建一个表。<br>因此，不管是Lua内部的库还是外部使用require引用的库，首先会到 registry ［”一LOADED ”］ 中存放该库的表。 最后，再遍历传进来的函数指针数组，完成库函数的注册。<br>比如，注册as . print时，首先将print函数绑定在一个函数指针上，再去l_registry[_LOADED]和G表中查询名为OS的库是否存在，不存在则创建一个表，即 ：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">G[”OS<span class="string">&quot;] = &#123;&#125;</span></span><br></pre></td></tr></table></figure>
-<p>紧跟着注册print函数，即： G ［”os ”］［ ” print ”］＝待注册的函数指针。<br>这样在调用os . print(1）时，首先根据OS到G表中查找对应的表，再在这个表中查找print成员得到函数指针，最后完成函数的调用 。</p>
-<h3 id="模块的编写"><a href="#模块的编写" class="headerlink" title="模块的编写"></a>模块的编写</h3><p>在定义Lua模块时，第一句代码一般都是module(xxx ） 。 module调用的对应C函数是loadlib.c中的函数ll_module:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ll_module</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *modname = luaL_checkstring(L, <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">int</span> loaded = lua_gettop(L) + <span class="number">1</span>;  <span class="comment">/* index of _LOADED table */</span></span><br><span class="line">  lua_getfield(L, LUA_REGISTRYINDEX, <span class="string">&quot;_LOADED&quot;</span>);</span><br><span class="line">  lua_getfield(L, loaded, modname);  <span class="comment">/* get _LOADED[modname] */</span></span><br><span class="line">  <span class="keyword">if</span> (!lua_istable(L, <span class="number">-1</span>)) &#123;  <span class="comment">/* not found? */</span></span><br><span class="line">    lua_pop(L, <span class="number">1</span>);  <span class="comment">/* remove previous result */</span></span><br><span class="line">    <span class="comment">/* try global variable (and create one if it does not exist) */</span></span><br><span class="line">    <span class="keyword">if</span> (luaL_findtable(L, LUA_GLOBALSINDEX, modname, <span class="number">1</span>) != <span class="literal">NULL</span>)</span><br><span class="line">      <span class="keyword">return</span> luaL_error(L, <span class="string">&quot;name conflict for module &quot;</span> LUA_QS, modname);</span><br><span class="line">    lua_pushvalue(L, <span class="number">-1</span>);</span><br><span class="line">    lua_setfield(L, loaded, modname);  <span class="comment">/* _LOADED[modname] = new table */</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/* check whether table already has a _NAME field */</span></span><br><span class="line">  lua_getfield(L, <span class="number">-1</span>, <span class="string">&quot;_NAME&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (!lua_isnil(L, <span class="number">-1</span>))  <span class="comment">/* is table an initialized module? */</span></span><br><span class="line">    lua_pop(L, <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">else</span> &#123;  <span class="comment">/* no; initialize it */</span></span><br><span class="line">    lua_pop(L, <span class="number">1</span>);</span><br><span class="line">    modinit(L, modname);</span><br><span class="line">  &#125;</span><br><span class="line">  lua_pushvalue(L, <span class="number">-1</span>);</span><br><span class="line">  setfenv(L);</span><br><span class="line">  dooptions(L, loaded - <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>代码的前半部分首先根据module(XXX）中的模块名去registry [“_LOADED”］表中查找，如果找不到，则创建一个新表，这个表为＿G ［” xxx叮＝ registry ［二LOADED ”］［ “XXX ＂］ 。 换言之，这个名为xxx 的模块本质上是一个表，这个表存储了这个模块中的所有变革－以及函数，它既可以通过一G ［” xxx”］来访问，也可以通过registry ［二 LOADED ”］［ “XXX ”］来访问 。<br>紧跟着，在modi nit 函数中，将这个表的成员 K NAME 、 PACKAGE分别赋值。<br>最后，调用 setfenv将该模块对应的环境置空 。 根据前面的分析， setfenv将该模块对应的环境置空就是将这个模块分析完毕之后返回的Closure对应的env环境表置空 。 这意味着，前面的所有全局变量都看不见了，比如下面的代码中 ：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">myprint=<span class="built_in">print</span></span><br><span class="line">myprint(”<span class="number">1</span>”)</span><br><span class="line"><span class="built_in">module</span>(”test”)</span><br><span class="line">myprint (” <span class="number">2</span>”)</span><br></pre></td></tr></table></figure>
-<p>这里首先将全局函数printl赋值给全局变量myprint ，第二行代码可以正常调用这个函数。但当调用module声明 test模块之后，在此之前的全局变量myprint被清空，第四行代码调用myprint函数时就会报错，错误信息是attempt to call global ‘myprint’(a nil value），因为此时已经查不到这个变量了 。<br>如果写下的是module(xxx,package . seeall）呢？它将会调用后面的dooptions 函数并且最后调用 package.seeall对应的处理函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ll_seeall</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  luaL_checktype(L, <span class="number">1</span>, LUA_TTABLE);</span><br><span class="line">  <span class="keyword">if</span> (!lua_getmetatable(L, <span class="number">1</span>)) &#123;</span><br><span class="line">    lua_createtable(L, <span class="number">0</span>, <span class="number">1</span>); <span class="comment">/* create new metatable */</span></span><br><span class="line">    lua_pushvalue(L, <span class="number">-1</span>);</span><br><span class="line">    lua_setmetatable(L, <span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  lua_pushvalue(L, LUA_GLOBALSINDEX);</span><br><span class="line">  lua_setfield(L, <span class="number">-2</span>, <span class="string">&quot;__index&quot;</span>);  <span class="comment">/* mt.__index = _G */</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这个函数就两个作用 ： 一个是创建该模块对应表的metatable ， 另一个是将meta表的 index指向 G表。 也就是说，所有在该模块中找不到的变量都会去 G表中查找 。 可以看到，这里的操作并不会把环境表清空 。 因此，如果把前面的代码改成这样，就可以正确执行：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">myprint=<span class="built_in">print</span></span><br><span class="line">myprint(” test ”)</span><br><span class="line">morlule (”test <span class="string">&#x27;’, package. seeall)</span></span><br><span class="line"><span class="string">myprint(”test”) </span></span><br></pre></td></tr></table></figure>
-<p>根据前面对module函数的分析，得出以下几个结论。</p>
-<ul>
-<li>创建模块时会创建一个表，该表挂载在registry ［ ”一LOADED ＇ ’ ］、＿G ［模块名］下 。 自然而然地，该模块中的变量（函数也是一种变量）就会挂载到这个表里面 。</li>
-<li>在 module 函数的参数中写下 package.seeall将会创建该表的 metatable ，同时该表的index将指向 G表。 简单地说，这个模块将可以看到所有全局环境下的变量（这里再提醒一次，函数也是一种变量） 。</li>
-</ul>
-<p>明白了 module 背后的作用，再来看看 require 函数，它对应的处理函数是 loadlib.c 中的ll_require 函数，这个函数做了如下几件事情 。</p>
-<ul>
-<li>首先在 registry[ “_LOADED”］表中查找该库，如果已存在，说明是已经加载过的模块，不再重复加载直接返回。</li>
-<li>在当前环境表中查找 loaders变量，这里存放的是所有加载器组成的数组 。 在 Lua代码中，有4个loader :<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> lua_CFunction loaders[] =</span><br><span class="line">  &#123;loader_preload, loader_Lua, loader_C, loader_Croot, <span class="literal">NULL</span>&#125;;</span><br></pre></td></tr></table></figure>
-加载时，会依次调用 loaders数组中的四种 loader 。 如果加载的结果在Lua找中返回的是函数（前面提过，分析完Lua源代码文件，返回的是Closure ），那么说明加载成功，不再继续往下调用其他的 loader加载模块 。<br>最后，调用lua call函数尝试加载该模块。 加载之前，在L回校中压入一个哨兵值sentinel,如果加载完毕之后这个值没有被改动过，则说明加载完毕，将registry ［ ”＿LOADED”］赋值为true表示加载成功 。</li>
-</ul>
-<h3 id="模块的热更新原理"><a href="#模块的热更新原理" class="headerlink" title="模块的热更新原理"></a>模块的热更新原理</h3><p>能很好地支持代码热更新机制，是开发时选择使用脚本语言的原因之一 。 热更新的好处很在于，能在不重启程序或者发布新版本的情况下更新脚本，给调试和线上解决问题带来很大的便利，对开发效率有很大的提升 。<br>下面就来谈谈如何实现热更新 。先简单回顾之前提过的模块和lrequire机制 。 Lua内部提供了一个require 函数来实现模块的加载，它做的事情主要有以下几个。</p>
-<ul>
-<li>在registry ［二LOADED”］表中判断该模块是否已经加载过了，如果是则返回，避免重复加载某个模块代码 。</li>
-<li>依次调用注册的 loader来加载模块 。</li>
-<li>将加载过的模块赋值给registry ［”一LOADED ＂］表。<br>而如果要实现Lua的代码热更新，其实也就是需要重新加载某个模块，因此就要想办法让Lua虚拟机认为它之前没有加载过。 查看Lua代码可以发现 ， registry ［”一LOADED ”］表实际上对应的是package.loaded表，这在以下函数中有体现：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LUALIB_API <span class="keyword">int</span> <span class="title">luaopen_package</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="comment">/* create new type _LOADLIB */</span></span><br><span class="line">  luaL_newmetatable(L, <span class="string">&quot;_LOADLIB&quot;</span>);</span><br><span class="line">  lua_pushcfunction(L, gctm);</span><br><span class="line">  lua_setfield(L, <span class="number">-2</span>, <span class="string">&quot;__gc&quot;</span>);</span><br></pre></td></tr></table></figure>
-因此，事情就很简单了，需要提供require_ex函数，可以把它理解为require的增强版 。 使用这个函数，可以动态更新某个模块的代码：<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">干unction require_ex( _mname )</span><br><span class="line"><span class="built_in">print</span>( <span class="built_in">string</span> .<span class="built_in">format</span>(<span class="string">&quot;require_ex ＝喃5 ”，＿mname) )</span></span><br><span class="line"><span class="string">if package.loaded[_mname] then</span></span><br><span class="line"><span class="string">print( string.format(”require_ex module[ %s] reload”,_mname))</span></span><br><span class="line"><span class="string">end</span></span><br><span class="line"><span class="string">package .loaded[_mname] = nil</span></span><br><span class="line"><span class="string">require( _mname )</span></span><br><span class="line"><span class="string">end</span></span><br></pre></td></tr></table></figure>
-这个函数做的事情一目了然 。 首先，判断是否曾经加载过这个模块，如果有，则打印一条日志，表示需要重新加载某个模块，然后将该模块原来在表中注册的值赋空，然后再次调用require进行模块的加载和注册。</li>
-</ul>
-<p>一般热更新都是函数的实现，所以需要对全局变量做一些保护 。 比如，当前某全局变量为 100 ，表示某个操作已经进行了 100次，它不能因为热更新重置为0 ，所以要对这些不能改变的全局变量做一个保护，最简单的方式就是这样 ：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a = a <span class="keyword">or</span> o</span><br></pre></td></tr></table></figure>
-<p>这个原理很简单，只有当前a这个变量没有初始值的时候才会赋值为0 ，而后面不管这个Lua文件被加载多少次， a者~J之会因为重新加载了Lua代码而发生改变 。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《lua设计与实现》</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/mysql%EF%BC%9A%E9%94%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/23/mysql%EF%BC%9A%E9%94%81/" itemprop="url">mysql：锁</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T00:42:29+08:00">
-                2021-02-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>锁机制用于管理对共享资源的并发访问。</p>
-<h2 id="行级锁"><a href="#行级锁" class="headerlink" title="行级锁"></a>行级锁</h2><p>行级锁只在存储引擎层实现，在服务器层没有实现。</p>
-<h2 id="mysql乐观锁、悲观锁"><a href="#mysql乐观锁、悲观锁" class="headerlink" title="mysql乐观锁、悲观锁"></a>mysql乐观锁、悲观锁</h2><p>latch门闩，因为其要求锁定的时间必须非常短。若持续的时间长，则应用的性能会非常差。在InnoDB存储引擎中，latch又可以分为mutex（互斥量）和rwlock（读写锁）。其目的是用来保证并发线程操作临界资源的正确性，并且通常没有死锁检测的机制。</p>
-<p>lock的对象是事务，用来锁定的是数据库中的对象，如表、页、行。并且一般lock的对象仅在事务commt或rollback后进行释放（不同事务隔离级别释放的时间可能不同）。此外，lock，正如在大多数数据库中一样，是有死锁机制的。</p>
-<h2 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h2><p>死锁是指两个或两个以上的事务在执行过程中，因争夺锁资源而造成的一种互相等待的现象</p>
-<h2 id="锁升级"><a href="#锁升级" class="headerlink" title="锁升级"></a>锁升级</h2><p>锁升级是指将当前锁的粒度降低。比如，数据库可以把一个表的1000个行锁升级为一个页锁，或者将页锁升级为表负。如果在数据库的设计中认为锁是一种稀有资源，而且想避免锁的开销，那数据库中会频繁出现锁升级现象</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/mysql%EF%BC%9A%E4%BA%8B%E5%8A%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/23/mysql%EF%BC%9A%E4%BA%8B%E5%8A%A1/" itemprop="url">mysql：事务</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-23T00:21:10+08:00">
-                2021-02-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>如果一个数据库声称支持事务的操作，那么该数据库必须要具备以下四个特性：<br>⑴ 原子性（Atomicity）<br>　　原子性是指事务包含的所有操作要么全部成功，要么全部失败回滚，这和前面两篇博客介绍事务的功能是一样的概念，因此事务的操作如果成功就必须要完全应用到数据库，如果操作失败则不能对数据库有任何影响。</p>
-<p>⑵ 一致性（Consistency）<br>　　一致性是指事务必须使数据库从一个一致性状态变换到另一个一致性状态，也就是说一个事务执行之前和执行之后都必须处于一致性状态。<br>　　拿转账来说，假设用户A和用户B两者的钱加起来一共是5000，那么不管A和B之间如何转账，转几次账，事务结束后两个用户的钱相加起来应该还得是5000，这就是事务的一致性。</p>
-<p>⑶ 隔离性（Isolation）<br>　　隔离性是当多个用户并发访问数据库时，比如操作同一张表时，数据库为每一个用户开启的事务，不能被其他事务的操作所干扰，多个并发事务之间要相互隔离。<br>　　即要达到这么一种效果：对于任意两个并发的事务T1和T2，在事务T1看来，T2要么在T1开始之前就已经结束，要么在T1结束之后才开始，这样每个事务都感觉不到有其他事务在并发地执行。<br>　　关于事务的隔离性数据库提供了多种隔离级别，稍后会介绍到。</p>
-<p>⑷ 持久性（Durability）<br>　　持久性是指一个事务一旦被提交了，那么对数据库中的数据的改变就是永久性的，即便是在数据库系统遇到故障的情况下也不会丢失提交事务的操作。<br>　　例如我们在使用JDBC操作数据库时，在提交事务方法后，提示用户事务操作完成，当我们程序执行完成直到看到提示后，就可以认定事务以及正确提交，即使这时候数据库出现了问题，也必须要将我们的事务完全执行完成，否则就会造成我们看到提示事务处理完毕，但是数据库因为故障而没有执行事务的重大错误。</p>
-<p>以上介绍完事务的四大特性(简称ACID)</p>
-<p>死锁是指两个或者多个事务在同一资源上相互占用，并请求锁定对方占用的资源，从而导致恶性循环的现象。<br>mysql服务器层不管理事务，事务是由下层的存储引擎实现的。所以在同一个事务中使用多种存储引擎是不可靠的。</p>
-<p>输入：MySQL的 ROLLBACK 命令用来回退（撤销）MySQL语句</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">select * from ordertotals;</span><br><span class="line">start transaction;</span><br><span class="line">delete from ordertotals;</span><br><span class="line">select * from ordertotals;</span><br><span class="line">rollback;</span><br><span class="line">select * from ordertotals;</span><br></pre></td></tr></table></figure>
-<p>养成书写start tran + commit/rollback的习惯，exec的时候不要离开现场<br>rollback 是回滚事务，只要没有commit提交，还可以恢复之前的数据。commit是提交事务，你不提交事务，你之前所有更改的数据别人在查看是看不到只能看到之前的数据，commit提交以后，别人才可看到你更新后的数据</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/linux%E4%B8%8B%E7%9A%84%E4%B8%80%E4%BA%9B%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/22/linux%E4%B8%8B%E7%9A%84%E4%B8%80%E4%BA%9B%E7%BD%91%E7%BB%9C%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4/" itemprop="url">linux下的一些网络调试命令</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T22:55:06+08:00">
-                2021-02-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="测试到达目的主机的网络是否连接-但ping无法检查系统端口是否开放"><a href="#测试到达目的主机的网络是否连接-但ping无法检查系统端口是否开放" class="headerlink" title="测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放"></a>测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping www.google.com</span><br></pre></td></tr></table></figure>
-<h2 id="检查某个端口是否开放"><a href="#检查某个端口是否开放" class="headerlink" title="检查某个端口是否开放"></a>检查某个端口是否开放</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet ip_addr:port</span><br></pre></td></tr></table></figure>
-<h2 id="检测发出数据包的主机到目标主机之间所经过的网关数量"><a href="#检测发出数据包的主机到目标主机之间所经过的网关数量" class="headerlink" title="检测发出数据包的主机到目标主机之间所经过的网关数量"></a>检测发出数据包的主机到目标主机之间所经过的网关数量</h2><p>traceroute 的原理是试图以最小的TTL发出探测包来跟踪数据包到达目标主机所经过的网关，然后监听一个来自网关ICMP的应答。<br>程序利用增加存活时间（TTL）值来实现其功能。每当数据包经过一个路由器，其存活时间就会减1。当其存活时间是0时，主机便取消数据包，并传送一个ICMP TTL数据包给原数据包的发出者</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute www.google.com</span><br></pre></td></tr></table></figure>
-<h2 id="判断连接是否健康"><a href="#判断连接是否健康" class="headerlink" title="判断连接是否健康"></a>判断连接是否健康</h2><h3 id="查看服务器端口有没有客户端来连接"><a href="#查看服务器端口有没有客户端来连接" class="headerlink" title="查看服务器端口有没有客户端来连接"></a>查看服务器端口有没有客户端来连接</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -anp | grep xxxx</span><br></pre></td></tr></table></figure>
-<h3 id="查看到进程id之后，使用netstat命令查看其占用的端口"><a href="#查看到进程id之后，使用netstat命令查看其占用的端口" class="headerlink" title="查看到进程id之后，使用netstat命令查看其占用的端口"></a>查看到进程id之后，使用netstat命令查看其占用的端口</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -nap | grep pid</span><br></pre></td></tr></table></figure>
-<h3 id="查看tcp连接数及状态"><a href="#查看tcp连接数及状态" class="headerlink" title="查看tcp连接数及状态"></a>查看tcp连接数及状态</h3><p>netstat -n | awk ‘/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}’</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">LAST_ACK 5  </span><br><span class="line">SYN_RECV 30  </span><br><span class="line">ESTABLISHED 15  </span><br><span class="line">FIN_WAIT1 51  </span><br><span class="line">FIN_WAIT2 5  </span><br><span class="line">TIME_WAIT 10  </span><br></pre></td></tr></table></figure>
-<p>状态：描述<br>CLOSED：无连接是活动的或正在进行<br>LISTEN：服务器在等待进入呼叫<br>SYN_RECV：一个连接请求已经到达，等待确认<br>SYN_SENT：应用已经开始，打开一个连接<br>ESTABLISHED：正常数据传输状态<br>FIN_WAIT1：应用说它已经完成<br>FIN_WAIT2：另一边已同意释放<br>ITMED_WAIT：等待所有分组死掉<br>CLOSING：两边同时尝试关闭<br>TIME_WAIT表示处理完毕，等待超时结束的请求数。<br>LAST_ACK：等待所有分组死掉</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/mysql%EF%BC%9A%E7%B4%A2%E5%BC%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/22/mysql%EF%BC%9A%E7%B4%A2%E5%BC%95/" itemprop="url">mysql：索引</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T22:36:08+08:00">
-                2021-02-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>聚集索引以及非聚集索引用的是B+树索引。</p>
-<h2 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h2><p>单单从定义来看是不是显得有点抽象，打个比方，一个表就像是我们以前用的新华字典，聚集索引就像是拼音目录，而每个字存放的页码就是我们的数据物理地址。</p>
-<h2 id="非聚集索引"><a href="#非聚集索引" class="headerlink" title="非聚集索引"></a>非聚集索引</h2><p>其实按照定义，除了聚集索引以外的索引都是非聚集索引，只是人们想细分一下非聚集索引，分成普通索引，唯一索引，全文索引。如果非要把非聚集索引类比成现实生活中的东西，那么非聚集索引就像新华字典的偏旁字典，他结构顺序与实际存放顺序不一定一致</p>
-<h2 id="为什么要创建索引"><a href="#为什么要创建索引" class="headerlink" title="为什么要创建索引"></a>为什么要创建索引</h2><p>这是因为，创建索引可以大大提高系统的性能。<br>第一，通过创建唯一性索引，可以保证数据库表中每一行数据的唯一性。<br>第二，可以大大加快数据的检索速度，这也是创建索引的最主要的原因。<br>第三，可以加速表和表之间的连接，特别是在实现数据的参考完整性方面特别有意义。<br>第四，在使用分组和排序子句进行数据检索时，同样可以显著减少查询中分组和排序的时间。<br>第五，通过使用索引，可以在查询的过程中，使用优化隐藏器，提高系统的性能。</p>
-<h2 id="深入浅出理解索引结构"><a href="#深入浅出理解索引结构" class="headerlink" title="深入浅出理解索引结构"></a>深入浅出理解索引结构</h2><p>实际上，您可以把索引理解为一种特殊的目录。微软的SQL SERVER提供了两种索引：聚集索引（clustered index，也称聚类索引、簇集索引）和非聚集索引（nonclustered index，也称非聚类索引、非簇集索引）。下面，我们举例来说明一下聚集索引和非聚集索引的区别：</p>
-<p>其实，我们的汉语字典的正文本身就是一个聚集索引。比如，我们要查“安”字，就会很自然地翻开字典的前几页，因为“安”的拼音是“an”，而按照拼音排序汉字的字典是以英文字母“a”开头并以“z”结尾的，那么“安”字就自然地排在字典的前部。如果您翻完了所有以“a”开头的部分仍然找不到这个字，那么就说明您的字典中没有这个字；同样的，如果查“张”字，那您也会将您的字典翻到最后部分，因为“张”的拼音是“zhang”。也就是说，字典的正文部分本身就是一个目录，您不需要再去查其他目录来找到您需要找的内容。我们把这种正文内容本身就是一种按照一定规则排列的目录称为“聚集索引”。</p>
-<p>如果您认识某个字，您可以快速地从自动中查到这个字。但您也可能会遇到您不认识的字，不知道它的发音，这时候，您就不能按照刚才的方法找到您要查的字，而需要去根据“偏旁部首”查到您要找的字，然后根据这个字后的页码直接翻到某页来找到您要找的字。但您结合“部首目录”和“检字表”而查到的字的排序并不是真正的正文的排序方法，比如您查“张”字，我们可以看到在查部首之后的检字表中“张”的页码是672页，检字表中“张”的上面是“驰”字，但页码却是63页，“张”的下面是“弩”字，页面是390页。很显然，这些字并不是真正的分别位于“张”字的上下方，现在您看到的连续的“驰、张、弩”三字实际上就是他们在非聚集索引中的排序，是字典正文中的字在非聚集索引中的映射。我们可以通过这种方式来找到您所需要的字，但它需要两个过程，先找到目录中的结果，然后再翻到您所需要的页码。我们把这种目录纯粹是目录，正文纯粹是正文的排序方式称为“非聚集索引”。</p>
-<p>通过以上例子，我们可以理解到什么是“聚集索引”和“非聚集索引”。进一步引申一下，我们可以很容易的理解：每个表只能有一个聚集索引，因为目录只能按照一种方法进行排序。</p>
-<h2 id="何时使用聚集索引或非聚集索引"><a href="#何时使用聚集索引或非聚集索引" class="headerlink" title="何时使用聚集索引或非聚集索引"></a>何时使用聚集索引或非聚集索引</h2><p>事实上，我们可以通过前面聚集索引和非聚集索引的定义的例子来理解上表。如：返回某范围内的数据一项。比如您的某个表有一个时间列，恰好您把聚合索引建立在了该列，这时您查询2004年1月1日至2004年10月1日之间的全部数据时，这个速度就将是很快的，因为您的这本字典正文是按日期进行排序的，聚类索引只需要找到要检索的所有数据中的开头和结尾数据即可；而不像非聚集索引，必须先查到目录中查到每一项数据对应的页码，然后再根据页码查到具体内容。</p>
-<h2 id="结合实际，谈索引使用的误区"><a href="#结合实际，谈索引使用的误区" class="headerlink" title="结合实际，谈索引使用的误区"></a>结合实际，谈索引使用的误区</h2><p>理论的目的是应用。虽然我们刚才列出了何时应使用聚集索引或非聚集索引，但在实践中以上规则却很容易被忽视或不能根据实际情况进行综合分析。下面我们将根据在实践中遇到的实际问题来谈一下索引使用的误区，以便于大家掌握索引建立的方法。</p>
-<p>1、主键就是聚集索引<br>这种想法笔者认为是极端错误的，是对聚集索引的一种浪费。虽然SQL SERVER默认是在主键上建立聚集索引的。<br>通常，我们会在每个表中都建立一个ID列，以区分每条数据，并且这个ID列是自动增大的，步长一般为1。我们的这个办公自动化的实例中的列Gid就是如此。此时，如果我们将这个列设为主键，SQL SERVER会将此列默认为聚集索引。这样做有好处，就是可以让您的数据在数据库中按照ID进行物理排序，但笔者认为这样做意义不大。<br>显而易见，聚集索引的优势是很明显的，而每个表中只能有一个聚集索引的规则，这使得聚集索引变得更加珍贵。<br>从我们前面谈到的聚集索引的定义我们可以看出，使用聚集索引的最大好处就是能够根据查询要求，迅速缩小查询范围，避免全表扫描。在实际应用中，因为ID号是自动生成的，我们并不知道每条记录的ID号，所以我们很难在实践中用ID号来进行查询。这就使让ID号这个主键作为聚集索引成为一种资源浪费。其次，让每个ID号都不同的字段作为聚集索引也不符合“大数目的不同值情况下不应建立聚合索引”规则；当然，这种情况只是针对用户经常修改记录内容，特别是索引项的时候会负作用，但对于查询速度并没有影响。<br>在办公自动化系统中，无论是系统首页显示的需要用户签收的文件、会议还是用户进行文件查询等任何情况下进行数据查询都离不开字段的是“日期”还有用户本身的“用户名”。<br>通常，办公自动化的首页会显示每个用户尚未签收的文件或会议。虽然我们的where语句可以仅仅限制当前用户尚未签收的情况，但如果您的系统已建立了很长时间，并且数据量很大，那么，每次每个用户打开首页的时候都进行一次全表扫描，这样做意义是不大的，绝大多数的用户1个月前的文件都已经浏览过了，这样做只能徒增数据库的开销而已。事实上，我们完全可以让用户打开系统首页时，数据库仅仅查询这个用户近3个月来未阅览的文件，通过“日期”这个字段来限制表扫描，提高查询速度。如果您的办公自动化系统已经建立的2年，那么您的首页显示速度理论上将是原来速度8倍，甚至更快。<br>在这里之所以提到“理论上”三字，是因为如果您的聚集索引还是盲目地建在ID这个主键上时，您的查询速度是没有这么高的，即使您在“日期”这个字段上建立的索引（非聚合索引）。</p>
-<h2 id="其他注意事项"><a href="#其他注意事项" class="headerlink" title="其他注意事项"></a>其他注意事项</h2><p>“水可载舟，亦可覆舟”，索引也一样。索引有助于提高检索性能，但过多或不当的索引也会导致系统低效。因为用户在表中每加进一个索引，数据库就要做更多的工作。过多的索引甚至会导致索引碎片。<br>所以说，我们要建立一个“适当”的索引体系，特别是对聚合索引的创建，更应精益求精，以使您的数据库能得到高性能的发挥。<br>当然，在实践中，作为一个尽职的数据库管理员，您还要多测试一些方案，找出哪种方案效率最高、最为有效。</p>
-<p>有索引情况下，insert速度一定有影响，不过：</p>
-<ol>
-<li>你不大可能一该不停地进行insert, SQL Server能把你传来的命令缓存起来，依次执行，不会漏掉任何一个insert。</li>
-<li>你也可以建立一个相同结构但不做索引的表，insert数据先插入到这个表里，当这个表中行数达到一定行数再用insert table1 select * from table2这样的命令整批插入到有索引的那个表里。</li>
-</ol>
-<h2 id="InnoDB存储引擎支持以下几种常见的索引"><a href="#InnoDB存储引擎支持以下几种常见的索引" class="headerlink" title="InnoDB存储引擎支持以下几种常见的索引"></a>InnoDB存储引擎支持以下几种常见的索引</h2><h3 id="B-树索引"><a href="#B-树索引" class="headerlink" title="B+树索引"></a>B+树索引</h3><p>就是传统意义上的索引，B+树索引的构造类似于二叉树，根据键值快速找到数据。B+树索引并不能找到一个给定键值的具体行。B+树索引能找到的只是被查找数据行所在的页。然后数据库通过把页读入到内存，再在内存中进行查找，最后得到要查找的数据。</p>
-<h3 id="全文索引"><a href="#全文索引" class="headerlink" title="全文索引"></a>全文索引</h3><p>通过数值比较、范围过滤就可以完成绝大多数我们需要的查询了。但是，如果你希望通过关键字的匹配来进行查询过滤，那么就需要基于相似度的查询，而不是原来的精确数值比较。全文索引就是为这种场景设计的。</p>
-<h3 id="哈希索引"><a href="#哈希索引" class="headerlink" title="哈希索引"></a>哈希索引</h3><p>InnoDB存储引擎支持的哈希索引是自适应的，InnoDB存储引擎会根据表的使用情况自动为表生成哈希索引，不能人为干预是否在一张表中生成哈希索引。</p>
-<h2 id="mysql-键值类型"><a href="#mysql-键值类型" class="headerlink" title="mysql 键值类型"></a>mysql 键值类型</h2><p>普通索引 index (id name sex age loves)<br>唯一索引 unique<br>主键 primary key<br>外键 foreign key<br>全文索引 fulltext </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/%E6%80%8E%E6%A0%B7%E7%9C%8Bmysql%E6%80%A7%E8%83%BD/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/22/%E6%80%8E%E6%A0%B7%E7%9C%8Bmysql%E6%80%A7%E8%83%BD/" itemprop="url">怎样看mysql性能</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T22:25:19+08:00">
-                2021-02-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="慢查询日志"><a href="#慢查询日志" class="headerlink" title="慢查询日志"></a>慢查询日志</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;%slow%&#x27;</span>; </span><br></pre></td></tr></table></figure>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> <span class="keyword">global</span> status <span class="keyword">like</span> <span class="string">&#x27;%slow%&#x27;</span>; </span><br></pre></td></tr></table></figure>
-<h2 id="连接数"><a href="#连接数" class="headerlink" title="连接数"></a>连接数</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;max_connections&#x27;</span>; </span><br></pre></td></tr></table></figure>
-<h2 id="进程使用情况"><a href="#进程使用情况" class="headerlink" title="进程使用情况"></a>进程使用情况</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">global</span> status <span class="keyword">like</span> ‘Thread<span class="operator">%</span>’; </span><br></pre></td></tr></table></figure>
-<h2 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h2><p>mysql数据库常见的日志文件有：<br>错误日志（error log）<br>二进制日志（binlog）<br>慢查询日志（slow query log）<br>查询日志（log）</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/22/mysql%E6%9E%B6%E6%9E%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/02/22/mysql%E6%9E%B6%E6%9E%84/" itemprop="url">mysql架构</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-02-22T11:18:09+08:00">
-                2021-02-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>MySQL是单进程多线程，而Oracle等是多进程。</p>
-<p>一般来说，关键的生产DBMS应该运行在自己的专用服务器上。 </p>
-<h2 id="mysql包括"><a href="#mysql包括" class="headerlink" title="mysql包括"></a>mysql包括</h2><ul>
-<li>DBMS数据库管理系统（实例）</li>
-<li>数据库（容器）<br>在mysql数据库中，实例与数据库的关系通常是一一对应的，但是，在集群情况下可能存在一个数据库被多个数据实例使用的情况。</li>
-</ul>
-<h2 id="mysql逻辑架构"><a href="#mysql逻辑架构" class="headerlink" title="mysql逻辑架构"></a>mysql逻辑架构</h2><p><img src="https://user-images.githubusercontent.com/11263320/108652560-6bdc1500-74ff-11eb-9f36-34d29dbcc2ef.jpg" alt="1425134-20190311163049501-1910090477"><br>上层是服务器层的服务和查询执行引擎，下层则是存储引擎。 </p>
-<p>除非需要用到某些InnodDB不具备的特性，并且没有其他办法可以替代，否则都应该优先选择InnoDB引擎。<br>除非万不得已，否则建议不要混合使用多种存储引擎，否则可能带来一系列复杂的问题，以及一些潜在的bug和边界问题。存储引擎层和服务器层的交互已经比较复杂，更不用说混合多个存储引擎了。至少，混合存储对一致性备份和服务器参数配置都带来了一些困难。</p>
-<p>因为MySQL是单进程多线程，所以每个客户端连接都会在服务器进程中拥有一个线程，这个连接的查询只会在这个单独的线程中执行，该线程只能轮流在某个CPU核心或者CPU中运行。服务器会负责缓存线程，因此不需要为每一个新建的连接创建或者销毁线程。</p>
-<h2 id="InnoDB存储引擎"><a href="#InnoDB存储引擎" class="headerlink" title="InnoDB存储引擎"></a>InnoDB存储引擎</h2><p><img src="https://user-images.githubusercontent.com/11263320/108652613-86ae8980-74ff-11eb-97c2-3943134276da.jpg" alt="1425134-20190315154442820-765166828"></p>
-<h2 id="后台线程"><a href="#后台线程" class="headerlink" title="后台线程"></a>后台线程</h2><p>master：核心线程，主要负责将缓冲池中的数据异步刷新到磁盘。<br>IO：负责IO请求的回调处理。<br>purge：事务被提交台，其所使用的undolog可能不再需要，因此需要purge来回收已经使用并分配的undo页。<br>page cleaner：脏页的刷新操作。</p>
-<h2 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h2><p>缓冲池：InnoDB存储引擎是基于磁盘存储的，并将其中的记录按照页的方式进行管理。因此可将其视为基于磁盘的数据库系统。在数据库系统中，由于CPU速度与磁盘速度之间的鸿沟，基于磁盘的数据库系统通常使用缓冲池技术来提高数据库的整体性能。</p>
-<h2 id="InnoDB关键特性"><a href="#InnoDB关键特性" class="headerlink" title="InnoDB关键特性"></a>InnoDB关键特性</h2><p>插入缓冲<br>两次写<br>自适应哈希索引<br>异步IO<br>刷新邻接页</p>
-<p>关系型数据库系统和文件系统的一个不同点是，关系数据库本身能保证存储数据的完整性，不需要应用程序的控制，而文件系统一般需要在程序端进行控制。当前几乎所有的关系型数据库都提供了约束机制，该机制提供了一条强大而简易的途径来保证数据库中数据的完整性。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/7/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/5/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/7/">&gt;</a>
   </nav>
 
 
@@ -1686,7 +1651,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">99</span>
+                  <span class="site-state-item-count">106</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1699,7 +1664,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
