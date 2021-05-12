@@ -30,7 +30,7 @@
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/115652669-45502400-a360-11eb-837c-cef626156a95.JPG">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/115653689-30749000-a362-11eb-872c-8552058812b2.JPG">
 <meta property="article:published_time" content="2021-04-22T01:06:51.000Z">
-<meta property="article:modified_time" content="2021-05-12T07:56:15.097Z">
+<meta property="article:modified_time" content="2021-05-12T08:05:25.344Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="blog">
 <meta name="twitter:card" content="summary">
@@ -204,7 +204,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-12 15:56:15" itemprop="dateModified" datetime="2021-05-12T15:56:15+08:00">2021-05-12</time>
+                <time title="修改时间：2021-05-12 16:05:25" itemprop="dateModified" datetime="2021-05-12T16:05:25+08:00">2021-05-12</time>
               </span>
 
           
@@ -221,11 +221,11 @@
         <p>这里一定要注意，Next是不是更新到最新的版本。有可能下面的问题是版本老旧造成的。</p>
 <a id="more"></a>
 
-<div class="note info"><p>新版本维护的地址是这个：https://github.com/theme-next/hexo-theme-next</p></div>
+<div class="note warning"><p>新版本维护的地址是这个：https://github.com/theme-next/hexo-theme-next</p></div>
 
-<h2 id="主题分页的翻页箭头显示异常"><a href="#主题分页的翻页箭头显示异常" class="headerlink" title="主题分页的翻页箭头显示异常"></a>主题分页的翻页箭头显示异常</h2><p><img src="https://user-images.githubusercontent.com/11263320/115652669-45502400-a360-11eb-837c-cef626156a95.JPG" alt="捕获"><br>修改代码的位置: themes\next\layout_partials\pagination.swig<br>修改为:</p>
+<h2 id="主题分页的翻页箭头显示异常"><a href="#主题分页的翻页箭头显示异常" class="headerlink" title="主题分页的翻页箭头显示异常"></a>主题分页的翻页箭头显示异常</h2><p><img src="https://user-images.githubusercontent.com/11263320/115652669-45502400-a360-11eb-837c-cef626156a95.JPG" alt="捕获"><br>修改代码的位置: <code>themes\next\layout\_partials\pagination.swig</code><br>修改为:</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="keyword">if</span> page.prev or page.next %&#125;</span><br><span class="line">  &lt;nav <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;pagination&quot;</span>&gt;</span><br><span class="line">    &#123;&#123;</span><br><span class="line">      paginator(&#123;</span><br><span class="line">        prev_text: <span class="string">&#x27;&lt;&#x27;</span>,</span><br><span class="line">        next_text: <span class="string">&#x27;&gt;&#x27;</span>,</span><br><span class="line">        mid_size: <span class="number">1</span></span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;&#125;</span><br><span class="line">  &lt;/nav&gt;</span><br><span class="line">&#123;% endif %&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="中文目录不跳转"><a href="#中文目录不跳转" class="headerlink" title="中文目录不跳转"></a>中文目录不跳转</h2><p>文章左侧的中文目录一直不能跳转也不能展开<br>浏览器按F12，点击目录链接会在控制台报错：Cannot read property ‘top’ of undefined。<br>打开控制台，查看目录的的超链接标签，会看到 href 是一串乱码。<br>实际上直接点击这个超链接是可以跳转的，但是点目录却不行。这是因为标题 id 是中文，但是目录的连接是中文乱码，代码里头的 JQuery 选择器拿着乱码是没法找到对应 id 的标题的。<br>顺着控制台错误提示找到 themes\next\source\js\src\post-details.js，找到第 75 行为目录绑定点击事件的方法，会看到：<br><img src="https://user-images.githubusercontent.com/11263320/115653689-30749000-a362-11eb-872c-8552058812b2.JPG" alt="捕获"><br>targetSelector就是对应标题的 id，我们在他被塞到选择器之前重新编码一下：</p>
+<h2 id="中文目录不跳转"><a href="#中文目录不跳转" class="headerlink" title="中文目录不跳转"></a>中文目录不跳转</h2><p>文章左侧的中文目录一直不能跳转也不能展开<br>浏览器按F12，点击目录链接会在控制台报错：<code>Cannot read property &#39;top&#39; of undefined</code>。<br>打开控制台，查看目录的的超链接标签，会看到 href 是一串乱码。<br>实际上直接点击这个超链接是可以跳转的，但是点目录却不行。这是因为标题 id 是中文，但是目录的连接是中文乱码，代码里头的 JQuery 选择器拿着乱码是没法找到对应 id 的标题的。<br>顺着控制台错误提示找到<code>themes\next\source\js\src\post-details.js</code>，找到第 75 行为目录绑定点击事件的方法，会看到：<br><img src="https://user-images.githubusercontent.com/11263320/115653689-30749000-a362-11eb-872c-8552058812b2.JPG" alt="捕获"><br>targetSelector就是对应标题的 id，我们在他被塞到选择器之前重新编码一下：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 对获取到的url进行重编码</span></span><br><span class="line">targetSelector = <span class="built_in">decodeURI</span>(<span class="built_in">this</span>.getAttribute(<span class="string">&#x27;href&#x27;</span>))</span><br></pre></td></tr></table></figure>
 <p>然后 </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo clean </span><br><span class="line">hexo g </span><br><span class="line">hexo s </span><br></pre></td></tr></table></figure>
