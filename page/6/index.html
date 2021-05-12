@@ -165,6 +165,83 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/82e16ca1.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/82e16ca1.html" class="post-title-link" itemprop="url">skynet http</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-23 22:49:48" itemprop="dateCreated datePublished" datetime="2021-02-23T22:49:48+08:00">2021-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-12 16:05:27" itemprop="dateModified" datetime="2021-05-12T16:05:27+08:00">2021-05-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>skynet中有http server和http client的代码，用来支持http访问。在分析http之前，要先看一下url库。文件位于skyet/lualib/http/url.lua。<br>skynet 从 v0.5.0 开始提供了简单的 http 服务器的支持。skynet.httpd 是一个独立于 skynet 的，用于 http 协议解析的库，它本身依赖 socket api 的注入。使用它，你需要把读写 socket 的 API 封装好，注入到里面就可以工作。<br>skynet.sockethelper 模块将 skynet 的 Socket API 封装成 skynet.httpd 可以接受的形式：阻塞读写指定的字节数、网络错误以异常形式抛出。</p>
+<h2 id="httpc"><a href="#httpc" class="headerlink" title="httpc"></a>httpc</h2><p>skynet 提供了一个非常简单的 http 客户端模块。你可以用:</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">httpc.request(method, host, uri, recvheader, header, content)</span><br></pre></td></tr></table></figure>
+<p>来提交一个 http 请求，其中</p>
+<ul>
+<li>method 是 “GET” “POST” 等。</li>
+<li>host 为目标机的地址</li>
+<li>uri 为请求的 URI</li>
+<li>recvheader 可以是 nil 或一张空表，用于接收回应的 http 协议头。</li>
+<li>header 是自定义的 http 请求头。注：如果 header 中没有给出 host ，那么将用前面的 host 参数自动补上。</li>
+<li>content 为请求的内容。<br>它返回状态码和内容。如果网络出错，则抛出 error 。<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">httpc.dns(server, port)</span><br></pre></td></tr></table></figure>
+可以用来设置一个异步查询 dns 的服务器地址。如果你不给出地址，那么将从 /etc/resolv.conf查找地址。如果你没有调用它设置异步 dns 查询，那么 skynet 将在网络底层做同步查询。这很有可能阻塞住整个 skynet 的网络消息处理（不仅仅阻塞单个 skynet 服务）。<br>另外，httpc 还提供了简单的 httpc.get 以及 httpc.post 的封装，具体可以参考源代码。<br>如果有https的需求，可使用 lua-webclient 它是libcurl multi interface的简单封装，支持单线程，非阻塞的大量http、https请求。<br>httpc 可以通过设置 httpc.timeout 的值来控制超时时间。时间单位为 1/100 秒。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/f7f65340.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -870,95 +947,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/b165dcb7.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/b165dcb7.html" class="post-title-link" itemprop="url">lua与C/C++程序的整合</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-23 14:41:02" itemprop="dateCreated datePublished" datetime="2021-02-23T14:41:02+08:00">2021-02-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-12 16:05:27" itemprop="dateModified" datetime="2021-05-12T16:05:27+08:00">2021-05-12</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>lua与C/C++交互，主要靠lua API和向lua注册好的函数。如下图</p>
-<p>注：LuaGlue就是让Lua脚本中可调用的C++函数的接口。即那些注册的函数。<br>这里起关键作用的要数lua_State的结构，这就得讲一下Lua环境和Lua Stack。</p>
-<h2 id="Lua环境"><a href="#Lua环境" class="headerlink" title="Lua环境"></a>Lua环境</h2><p>Lua环境由所有可操作的数据构成，如编译好的函数、变量以及其他运行时内存。这些数据保存在一个称做lua_State的结构中。所有Lua应用程序都要求至少有一个lua_State，如果需要还可以有多个（如需要为两个不同的系统保存不同的数据时）。</p>
-<h2 id="Lua-Stack"><a href="#Lua-Stack" class="headerlink" title="Lua Stack"></a>Lua Stack</h2><p>对于我们来说，Lua环境是用来发送和接收数据的地方，它利用栈（Lua Stack）来达到该目的。所有的数据交换，无论是Lua到C/C++语言或C/C++语言到Lua都通过这个栈来完成。Lua栈不同于系统栈，它只能通过Lua的API函数访问。</p>
-<h2 id="注册到Lua中的函数"><a href="#注册到Lua中的函数" class="headerlink" title="注册到Lua中的函数"></a>注册到Lua中的函数</h2><p>所有注册到Lua中的函数都具有相同的原型</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*lua_Function)</span><span class="params">(lua_State *L)</span></span>;</span><br></pre></td></tr></table></figure>
-<p>这个函数仅有一个参数，即Lua的状态。它返回一个整数，表示其压入栈中的返回值数量。因此函数无须在压入结果前清空栈。在它返回后，Lua会自动删除栈中结果之下的内容。</p>
-<p>在Lua使用这个函数前，必须注册这个函数。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lua_pushcfunction</span> <span class="params">(lua_State *L, lua_CFunction f)</span></span>;</span><br></pre></td></tr></table></figure>
-<p>将一个 C 函数压入堆栈。 这个函数接收一个 C 函数指针，并将一个类型为 function 的 Lua 值 压入堆栈。当这个栈顶的值被调用时，将触发对应的 C 函数。<br>这种方法需要重新编译Lua的执行程序，才能在Lua程序中使用这个新函数。但用下面的方法会更好，直接将C函数链接到lua。</p>
-<h2 id="Lua调用C函数"><a href="#Lua调用C函数" class="headerlink" title="Lua调用C函数"></a>Lua调用C函数</h2><p>Lua调用C函数时，并不依赖于函数名、包的位置或可见性规则，而只依赖于注册时传入的函数地址。当用C函数扩展Lua时，最好将代码设计为一个C模块。因为现在只注册一个函数，但说之后可能会需要更多的函数。辅助库为这项工作提供了一个函数luaL_register，这个函数接收一些C函数及其名称，并将这些函数注册到一个与模块同名的table中。例如，假设创建一个模块，其中包含了这个luaglue函数。首先，必须定义这个模块函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">luaglue</span><span class="params">(lua_state *L)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后，声明一个数组，其中包含模块中所有函数及名称。这个数组元素的类型为luaL_Reg结构，该结构有两个字段，一个字符串和一个函数指针：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">luaL_Reg</span> <span class="title">mylib</span>[] =</span> &#123;</span><br><span class="line">&#123;<span class="string">&quot;dir&quot;</span>,l_dir&#125;,</span><br><span class="line">&#123;<span class="literal">NULL</span>,<span class="literal">NULL</span>&#125;<span class="comment">//结尾</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>最后，声明一个主函数，其中用到了luaL_register:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">luaopen_mylib</span><span class="params">(lua_State *L)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">     luaL_register(L,<span class="string">&quot;mylib&quot;</span>,mylib);</span><br><span class="line">     <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其中luaL_register原型为：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">luaL_register</span> <span class="params">(lua_State *L,<span class="keyword">const</span> <span class="keyword">char</span> *libname,<span class="keyword">const</span> luaL_Reg *l)</span></span>;</span><br></pre></td></tr></table></figure>
-<p>luaL_register根据给定的名称（“mylib”）创建（或复用）一个table，并用数组mylib中的信息填充这个table。在luaL_Register返回时，会将这个table留在栈中。最后，luaopen_mylib函数返回1，表示将这个table返回给Lua。<br>ps：打开一个库，当libname为null时，该函数注册所有在luaL_Reg上的函数，不为null时，该函数会创建一个table，根据libname注册不与libname关联的函数。<br>当写完c模块后，必须将其链接到解释器。如果Lua解释器支持动态链接的话，那么最简便的方法是使用动态链接机制。在这种情况中，必须将c代码编译成动态链接库，并将这个库放入C路径（LUA_CPATH）中。然后，便可以用require从Lua中加载这个模块：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span> <span class="string">&quot;mylib&quot;</span></span><br></pre></td></tr></table></figure>
-<p>这名调用会将动态库mylib链接到Lua，并会寻找luaopen_mylib函数，将其注册为一个Lua函数，然后调用它以打开模块。<br>如果解释器不支持动态链接，那么就必须用新的模块来重新编译Lua。此外，还需要以某种方式来告诉解释器，它应在打开一个新状态的同时打开这个模块。最简单的做法是，将luaopen_mylib加到luaL_openlibs会打开的标准库列表中，这个列表在文件linit.c中。</p>
-<p>从C++程序员的观点来看，Lua像一个“黑盒子”，为一些服务处理命令和调用。Lua通常作为最上层接口直接和程序使用者和游戏玩家打交道，在核心程序处理之前接受并响应输入。</p>
-<h2 id="lua-tinker"><a href="#lua-tinker" class="headerlink" title="lua_tinker"></a>lua_tinker</h2><p>如果嫌麻烦，不想手动写这些代码的话，我推荐lua_tinker。也就只有两个文件，lua_tinker.h，lua_tinker.cpp。<br>环境配置，首先你需要搭建一个可以用lua的开发环境，这里网上有很多，我就不多说了。然后再将lua_tinker的lua_tinker.h和lua_tinker.cpp添加到你的工程中就可以了。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">lua_tinker::def(L, <span class="string">&quot;cpp_func&quot;</span>, cpp_func); <span class="comment">//在L栈中注册C++函数</span></span><br><span class="line">lua_tinker::dofile(L, <span class="string">&quot;sample1.lua&quot;</span>); <span class="comment">//加载lua文件</span></span><br><span class="line"><span class="keyword">int</span> result = lua_tinker::call&lt;<span class="keyword">int</span>&gt;(L, <span class="string">&quot;lua_func&quot;</span>, <span class="number">3</span>, <span class="number">4</span>); <span class="comment">//调用lua中的function lua_func</span></span><br><span class="line"></span><br><span class="line">lua_tinker::class_add(L,<span class="string">&quot;classA&quot;</span>);<span class="comment">//在lua中注册类</span></span><br><span class="line">lua_tinker::class_con(L,lua_tinker::constructor&lt;classA&gt;);<span class="comment">//在lua中注册构造函数</span></span><br><span class="line">lua_tinker::class_mem(L,<span class="string">&quot;memName&quot;</span>,&amp;classA::memName);</span><br></pre></td></tr></table></figure>
-<p>用lua_tinker::call是要注意，参数不支持智能指针</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1029,7 +1017,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">109</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

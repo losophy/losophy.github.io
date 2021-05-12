@@ -165,6 +165,75 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/20d016ff.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/20d016ff.html" class="post-title-link" itemprop="url">STL Adapters</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-25 21:51:02" itemprop="dateCreated datePublished" datetime="2021-02-25T21:51:02+08:00">2021-02-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-12 16:05:25" itemprop="dateModified" datetime="2021-05-12T16:05:25+08:00">2021-05-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>配接器在STL组件的灵活组合运用功能上，扮演着轴承、转换器的角色。Adaper这个概念，事实上是一种设计模式。在《设计模式》中adapter定义如下：将一个class的接口转换为另一个class的接口，使原本因接口不兼容而不能合作的classes，可以一起运作。</p>
+<h2 id="adapter模式"><a href="#adapter模式" class="headerlink" title="adapter模式"></a>adapter模式</h2><p>如果你有一个存在的系统需要插入一个新的类库,但是新的类库并不能匹配你写的系统，这时候我们就需要写一个适配器了,用这个适配器来适配新类库的接口。</p>
+<p>adapter取自生活中的配接器<br><img src="https://user-images.githubusercontent.com/11263320/111445192-200b3d00-8746-11eb-9fc2-f2eb3b84b33a.jpg" alt="242dd42a2834349bcff8dd6ecbea15ce37d3be5b"><br>在软件中也就是<br><img src="https://user-images.githubusercontent.com/11263320/111445271-3618fd80-8746-11eb-9055-ab836b4a01a6.jpg" alt="902397dda144ad34bc5d346cd2a20cf430ad857f"></p>
+<p>实现Adapter的方式主要有两种：组合(composition)和继承(inheritance)。<br>stl主要是用组合这种方式<br>container adapters内藏了一个container member一样，reverse iterator底层内藏了iterator member，而functions 的底层内藏了一个functions， 每个配接器的底层都有封装了一个对象，既然是这个对象的主人，就有资格调用该对象，并在参数和返回值上动手脚。</p>
+<h2 id="stl配接器分类"><a href="#stl配接器分类" class="headerlink" title="stl配接器分类"></a>stl配接器分类</h2><p>function adapter（通过它们之间的绑定，组合，修饰能力，几乎可以无限制地创造出各种可能的表达式。如使用bind2nd）<br>container adapter（如queue和stack，这两者底层容器都是deque，修饰deque的接口而成就出另一种容器风貌）<br>iterator adapter（所谓对迭代器的修饰，只是一种观念上的改变（赋值操作变成插入操作、前进变成后退、绑定到特殊装置上）。如insert iterators，reverse iterators，iostream iterators）</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/303d52cd.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -852,94 +921,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/e3f0f84a.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/e3f0f84a.html" class="post-title-link" itemprop="url">c++对象模型研究之数据</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-25 16:30:20" itemprop="dateCreated datePublished" datetime="2021-02-25T16:30:20+08:00">2021-02-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-12 16:05:27" itemprop="dateModified" datetime="2021-05-12T16:05:27+08:00">2021-05-12</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>开始前先看看</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Y</span>:</span><span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Z</span>:</span><span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span><span class="keyword">public</span> Y,<span class="keyword">public</span> Z &#123;&#125;;</span><br></pre></td></tr></table></figure>
-<p>上述X，Y，Z，A中没有任何一个class内含明显的数据，其间只表示了继承关系。<br>按照书上的例子</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X = <span class="number">1</span></span><br><span class="line"><span class="keyword">sizeof</span> Y = <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Z = <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> A = <span class="number">12</span></span><br></pre></td></tr></table></figure>
-<p>译注是</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X = <span class="number">1</span></span><br><span class="line"><span class="keyword">sizeof</span> Y = <span class="number">4</span></span><br><span class="line"><span class="keyword">sizeof</span> Z = <span class="number">4</span></span><br><span class="line"><span class="keyword">sizeof</span> A = <span class="number">8</span></span><br></pre></td></tr></table></figure>
-<p>先看X，事实上并不是空的，编译器会安插进去一个char。使得这个class的对象在内存中配置独一无二的地址。</p>
-<p>至于Y和Z受到三个因素的影响：<br>1.语言本身所造成的额外负担。其实就是之前一直说的virtual问题。<br>2.编译器对于特殊情况所提供的优化处理。有些编译器会对这个1bytes作出不同的处理（例如省略）。<br>3.Alignment的限制，我的理解是字节对齐，在大部分机器上，群聚的结构体大小会受到alignment的限制，使它们能够更有效率地在内存中被存取。</p>
-<p>ps:一个虚基类对象只会在派生类中存在一份实体，不管它在class继承体系中出现了多少次。</p>
-<p>C++对象模型尽量以空间优化和存取速度优化的考虑来表现非static成员数据，并且保持和C语言struct数据配置的兼容性。它把数据直接存放在每一个类对象之中。对于继承而来的非static成员数据（不管是virtual还是非virtual基类）也是如此。而类的static成员数据是存放在全局中，只有一份实例（甚至即使该class没有任何对象实体，其static成员数据也已存在），但是一个template类的static成员数据的行为稍有不同。</p>
-<p>每一个类对象必须有足够的大小以容纳它所有的非static成员数据，它可能比你想象的还大，原因是：<br>1.由编译器自动加上的额外成员数据，用以支持某些语言特性（主要是各种virtual特性）。<br>2.因为alignment的需要。</p>
-<h2 id="成员数据的绑定"><a href="#成员数据的绑定" class="headerlink" title="成员数据的绑定"></a>成员数据的绑定</h2><p>先说说extern：<br>extern 表明该变量在别的地方已经定义过了,在这里要使用那个变量.。例如变量在xxx.cpp里面定义过了，现在在本头文件中，以extern int a; 的形式声明，那么include”本头文件”的cpp，都可以使用该变量。extern与（const&amp;static）不同，（const和static只在本模块中起作用） extern可以在其他模块中起作用。</p>
-<p>如果成员函数没参数，或者不闲的蛋疼把两个类型定义成同个关键字typedef。那么typedef或者成员数据放前放后都一样；如果出现了以上状况，那么必须把内联typedef 放在成员函数的参数之前。这个主要注意的是内联typedef声明需要放在类的起始处，而其他成员函数里面的数据，可以放在类里面的任何地方。</p>
-<h2 id="成员数据的布局"><a href="#成员数据的布局" class="headerlink" title="成员数据的布局"></a>成员数据的布局</h2><p>非static成员数据在类对象中的排列顺序将和其被声明的顺序一样，任何中间介入的static成员数据都不会被放进对象布局之中。</p>
-<p>c++ standard要求，同一个access section（访问级别）中，成员的排列只需要符合“较晚出现的成员在对象中有较高的地址”即可，并不一定要连续排列。原因之一是边界调整，原因之二是插入的关于virtual的东西，如vptr。<br>c++ standard也允许将多个access sections中的成员数据自由排列，不必在乎声明次序(是指access sections之间的自由排列)，但当前各家编译器都是把一个以上的access section连起来，依照声明次序，称为一个连续区块。另外access sections的多寡不会招来额外的负担。</p>
-<h2 id="成员数据的存取"><a href="#成员数据的存取" class="headerlink" title="成员数据的存取"></a>成员数据的存取</h2><p>static成员数据：在内存中只有一份实体，所以用什么方式，无论是指针也好，对象也罢；本子类的也好，从祖祖父继承来的也罢，都一样其存取路径还是一样的直接。</p>
-<p>非static成员数据：直接存放在每个对象中，所以只能由对象来对他们进行存取操作。对象分为explicit class object（自己定义的）和implicit class object（由this指针表达这个implicit class object）（成员函数中访问成员数据时用的）。</p>
-<p>从object origin存取”和“从pointer pt存取”的区别：<br>如果是关于virtual，这里就涉及多态的概念。如果用pt，那么我们不能说pt必然指向哪个class type（因此我们也就不知道编译时期这个成员真正的offset）所以这个存取操作必须延迟至执行期，经由一个额外的间接导引，才能解决。但如果用“.”那么class type就确定无疑了，也就没那么多的事儿了。</p>
-<h2 id="继承与成员数据"><a href="#继承与成员数据" class="headerlink" title="继承与成员数据"></a>继承与成员数据</h2><p>单一继承不含virtual函数<br>其数据布局是这样的，子类对象总是把从父类对象弄成一个子对象，然后把这个子对象放在自己的成员数据之前。因此，子类通过对象或者通过对象指针访问父类成员不会存在间接性，父类成员在编译期就可以确定其offset值（父类成员在父类中的offset值和在子类中的offset值是一样的，因为子类对象把整个父类对象给扒拉下来直接按头上了）。因为父类对象在子类对象的首部，这样当父类指针被子类赋值时，父类指针仍然指向子类对象的父类部分（子对象）起始地址。<br>当然这样的存放方式也是有缺点的（指的是没有虚函数，没有多态的情况）。</p>
-<p>加上多态<br>加上多态即虚函数后，首先是virtual table 和vptr 会创建出来，当然这个创建过程会影响到constructor、copy constructor（为vptr设初值）、destructor（结束后删除vptr）。<br>至于vptr放在哪里要看具体的编译器，vptr放在尾端，可以兼容c的struct object；vptr放在前端可以避免“从class object起始点开始量起的offset在执行期必须备妥，甚至于class vptr之间的offset也必须备妥”。</p>
-<p>多重继承<br>单一继承提供了一种“自然多态”形式，换句话说单一继承可以把子对象一个一个的叠加在derived object上面，based object和derived object 都是从相同地址开始的。所以derived object转based object比较方便（只要改变对象size就行了）。</p>
-<p>虚拟继承<br>如果一个class 内含一个或多个virtual based class subobjects，那它将会被分成两个部分：不变的部分和共享的部分。不变的部分不论后继如何衍化，总是拥有固定的offset（从object头算起），所以这部分数据可以被直接存取。共享部分表现出来的就是virtual base class（虚基类） subobject（因为虚基类被多个class继承，也会被多个子object 更改，为了保证虚基类的 object 的统一性，就需要单独把虚基类的 object 给拎出来了），这一部分其位置会因为派生对象操作而发生变化，所以只能被间接存取（引入一个新的指针，指向共享的内容）。<br>当然只是单纯的引入指针指向共享的virtual base class subobject的话会存在两个缺点：1是随着虚基类的增加，指针的个数也会增加；2是虚基类之间如果也存在虚继承的话，间接存取的层数也会增加（子对象-&gt;父虚基类对象-&gt;祖父虚基类对象···）。<br>对于第一个问题，有两种解决方案：1是设一个指针指向一张虚基类表，虚基类表中存放虚基类对象访问地址；2是在虚基类表中存放每一个虚基类的offset，而不是地址。</p>
-<h2 id="对象成员的访问效率"><a href="#对象成员的访问效率" class="headerlink" title="对象成员的访问效率"></a>对象成员的访问效率</h2><p>指向数据成员的指针，是一个有点神秘又颇有用处的语言特性，特别是如果你需要详细调查类成员的底层布局的话。这样的调查可以用于决定vptr是放在class的起始处或者尾端。另外一个用途是可以用来决定类中的access sections的次序。</p>
-<p>指向成员数据的指针的效率问题<br>具体要看编译器怎样优化了</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1010,7 +991,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">109</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

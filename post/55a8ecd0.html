@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="在lua中，函数是一种第一类值，它们具有特定的词法域。lua当中函数是一个值，他可以存在变量中（无论全局变量还是局部变量）或table中，可以作为函数参数，可以作为返回值。 upvalue词法域：当一个函数内嵌套另一个函数的时候，内函数可以访问外部函数的局部变量。这也意味着lua完全可以包含“λ演算（Lambda Calculus）”。这个特性在以下场景特别有用：匿名函数作为高阶函数的参数，用于t">
+  <meta name="description" content="摘要一段话作一个概括。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="lua函数与闭包">
-<meta property="og:url" content="http://example.com/post/d1fa9805.html">
+<meta property="og:title" content="博客markdown内容美化">
+<meta property="og:url" content="http://example.com/post/55a8ecd0.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="在lua中，函数是一种第一类值，它们具有特定的词法域。lua当中函数是一个值，他可以存在变量中（无论全局变量还是局部变量）或table中，可以作为函数参数，可以作为返回值。 upvalue词法域：当一个函数内嵌套另一个函数的时候，内函数可以访问外部函数的局部变量。这也意味着lua完全可以包含“λ演算（Lambda Calculus）”。这个特性在以下场景特别有用：匿名函数作为高阶函数的参数，用于t">
+<meta property="og:description" content="摘要一段话作一个概括。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-02-23T07:59:44.000Z">
-<meta property="article:modified_time" content="2021-05-12T08:05:27.416Z">
+<meta property="article:published_time" content="2021-05-12T08:17:08.000Z">
+<meta property="article:modified_time" content="2021-05-12T08:23:07.531Z">
 <meta property="article:author" content="losophy">
-<meta property="article:tag" content="lua">
+<meta property="article:tag" content="blog">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/post/d1fa9805.html">
+<link rel="canonical" href="http://example.com/post/55a8ecd0.html">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>lua函数与闭包 | losophy</title>
+  <title>博客markdown内容美化 | losophy</title>
   
 
 
@@ -171,7 +171,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/d1fa9805.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/55a8ecd0.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -184,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          lua函数与闭包
+          博客markdown内容美化
         </h1>
 
         <div class="post-meta">
@@ -193,16 +193,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2021-02-23 15:59:44" itemprop="dateCreated datePublished" datetime="2021-02-23T15:59:44+08:00">2021-02-23</time>
+              <time title="创建时间：2021-05-12 16:17:08 / 修改时间：16:23:07" itemprop="dateCreated datePublished" datetime="2021-05-12T16:17:08+08:00">2021-05-12</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-12 16:05:27" itemprop="dateModified" datetime="2021-05-12T16:05:27+08:00">2021-05-12</time>
-              </span>
 
           
 
@@ -215,16 +209,22 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>在lua中，函数是一种第一类值，它们具有特定的词法域。<br>lua当中函数是一个值，他可以存在变量中（无论全局变量还是局部变量）或table中，可以作为函数参数，可以作为返回值。</p>
-<h2 id="upvalue"><a href="#upvalue" class="headerlink" title="upvalue"></a>upvalue</h2><p>词法域：当一个函数内嵌套另一个函数的时候，内函数可以访问外部函数的局部变量。这也意味着lua完全可以包含“λ演算（Lambda Calculus）”。<br>这个特性在以下场景特别有用：匿名函数作为高阶函数的参数，用于table遍历和模式匹配。</p>
-<p>在lua中，函数可以看作一个“值”，由一些表达式创建的。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">foo = <span class="function"><span class="keyword">function</span> <span class="params">(x)</span></span> <span class="keyword">return</span> <span class="number">2</span>*x <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>举个例子：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">network = &#123;</span><br><span class="line">    &#123;name = <span class="string">&quot;grauna&quot;</span>, IP = <span class="string">&quot;210.26.30.34&quot;</span>&#125;</span><br><span class="line">    &#123;name = <span class="string">&quot;arraial&quot;</span>, IP = <span class="string">&quot;210.26.30.23&quot;</span>&#125;</span><br><span class="line">    &#123;name = <span class="string">&quot;lua&quot;</span>, IP = <span class="string">&quot;210.26.23.12&quot;</span>&#125;</span><br><span class="line">    &#123;name = <span class="string">&quot;derain&quot;</span>, IP = <span class="string">&quot;210.26.23.20&quot;</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">table</span>.<span class="built_in">sort</span>(network, <span class="function"><span class="keyword">function</span><span class="params">(a,b)</span></span> <span class="keyword">return</span>(a.name&gt;b.name) <span class="keyword">end</span>)</span><br></pre></td></tr></table></figure>
-<p>这种用法叫匿名函数，在语句中显示出了极好的便捷性。</p>
-<h2 id="闭包-closure"><a href="#闭包-closure" class="headerlink" title="闭包(closure)"></a>闭包(closure)</h2><p>如果说C++式的面向对象编程是把一组函数绑定到特定数据类型上的话，那么闭包可以说是把一组数据绑定到特定函数上。<br>闭包通过调用含有一个内部函数加上该外部函数持有的外部局部变量（upvalue）的外部函数（就是工厂）产生的一个实例函数<br>闭包组成：外部函数+外部函数创建的upvalue+内部函数（闭包函数）</p>
-<p>Lua中只有闭包，函数是闭包一种特殊情况。</p>
-<h2 id="…"><a href="#…" class="headerlink" title="…"></a>…</h2><p>当一个变参函数被调用，对应…的参数将会收集到一个叫arg的table里。这种方式虽然很简单便捷，但是要把这些参数传给另一个函数，就需要解包这个table。因为程序员经常将参数传递给另一个函数，Lua 5.1允许…用于参数列表和赋值表达式的右值。这避免了没必要的创建arg table。</p>
+        <h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>一段话作一个概括。</p>
+<a id="more"></a>
+
+<h2 id="特出的语句"><a href="#特出的语句" class="headerlink" title="特出的语句"></a>特出的语句</h2><div class="note warning"><p>这里是警告。</p></div>
+<div class="note info"><p>这里是提示</p></div>
+
+<h2 id="长字符处理"><a href="#长字符处理" class="headerlink" title="长字符处理"></a>长字符处理</h2><p>背景加深，如<code>root\server\websocket</code></p>
+<h2 id="列举"><a href="#列举" class="headerlink" title="列举"></a>列举</h2><p>最好能用 <code>&gt; </code></p>
+<blockquote>
+<ul>
+<li>整理知识</li>
+<li>发布日记</li>
+<li>撰写发布技术文稿</li>
+<li>撰写发布学术论文</li>
+</ul>
+</blockquote>
 
     </div>
 
@@ -235,26 +235,26 @@
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\6349ecd2.html" rel="bookmark">lua Table</a></div>
+      <div class="popular-posts-title"><a href="\post\aae6d682.html" rel="bookmark">Hexo+GitHub Pages博客搭建</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\d46217f.html" rel="bookmark">lua_state</a></div>
+      <div class="popular-posts-title"><a href="\post\e0582cf9.html" rel="bookmark">Hexo替换主题</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\b165dcb7.html" rel="bookmark">lua与C/C++程序的整合</a></div>
+      <div class="popular-posts-title"><a href="\post\71afd747.html" rel="bookmark">NexT主题美化</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\fde3146b.html" rel="bookmark">lua与配置文件</a></div>
+      <div class="popular-posts-title"><a href="\post\943049d2.html" rel="bookmark">NexT问题改进</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\4d7ca723.html" rel="bookmark">lua使用优化</a></div>
+      <div class="popular-posts-title"><a href="\post\4283f8fe.html" rel="bookmark">用插件将 issues内容转换成博客的内容</a></div>
     </li>
   </ul>
 
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/lua/" rel="tag"><i class="fa fa-tag"></i> lua</a>
+              <a href="/tags/blog/" rel="tag"><i class="fa fa-tag"></i> blog</a>
           </div>
 
         
@@ -263,13 +263,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/3e476df1.html" rel="prev" title="lua面向对象">
-      <i class="fa fa-chevron-left"></i> lua面向对象
+    <a href="/post/f006d367.html" rel="prev" title="调试nodejs程序">
+      <i class="fa fa-chevron-left"></i> 调试nodejs程序
     </a></div>
-      <div class="post-nav-item">
-    <a href="/post/9ff34ca8.html" rel="next" title="lua协程">
-      lua协程 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -329,7 +326,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#upvalue"><span class="nav-number">1.</span> <span class="nav-text">upvalue</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AD%E5%8C%85-closure"><span class="nav-number">2.</span> <span class="nav-text">闭包(closure)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%80%A6"><span class="nav-number">3.</span> <span class="nav-text">…</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E5%87%BA%E7%9A%84%E8%AF%AD%E5%8F%A5"><span class="nav-number">2.</span> <span class="nav-text">特出的语句</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%95%BF%E5%AD%97%E7%AC%A6%E5%A4%84%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">长字符处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%97%E4%B8%BE"><span class="nav-number">4.</span> <span class="nav-text">列举</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -459,7 +456,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blog.comments',
       owner       : 'losophy',
       admin       : ['losophy'],
-      id          : '335ea4949f2cfa88c3b2e33ce76e3770',
+      id          : 'ef522845911aea96b8d536293579d0bb',
         language: 'zh-CN',
       distractionFreeMode: true
     });
