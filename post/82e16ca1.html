@@ -28,7 +28,7 @@
 <meta property="og:description" content="skynet中有http server和http client的代码，用来支持http访问。在分析http之前，要先看一下url库。文件位于skyet&#x2F;lualib&#x2F;http&#x2F;url.lua。skynet 从 v0.5.0 开始提供了简单的 http 服务器的支持。skynet.httpd 是一个独立于 skynet 的，用于 http 协议解析的库，它本身依赖 socket api 的注入。使用">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-02-23T14:49:48.000Z">
-<meta property="article:modified_time" content="2021-05-11T18:28:40.361Z">
+<meta property="article:modified_time" content="2021-05-11T18:28:53.191Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="skynet">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-12 02:28:40" itemprop="dateModified" datetime="2021-05-12T02:28:40+08:00">2021-05-12</time>
+                <time title="修改时间：2021-05-12 02:28:53" itemprop="dateModified" datetime="2021-05-12T02:28:53+08:00">2021-05-12</time>
               </span>
 
           
@@ -265,6 +265,7 @@
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -429,6 +430,26 @@
   
 
   
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '305836da6c4a706f6fb7',
+      clientSecret: '69be853985a105119444ad9dd25d60ac7ee03f3d',
+      repo        : 'losophy.github.io',
+      owner       : 'losophy',
+      admin       : ['losophy'],
+      id          : 'bfd706f38a5411233ca4318016cf6118',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 </body>
 </html>

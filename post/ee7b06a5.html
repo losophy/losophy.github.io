@@ -28,7 +28,7 @@
 <meta property="og:description" content="skynet中提供了一个简单的计时器实现，可以设置一个超时时间，时间到达后给对应的服务发送消息。 skynet中没有使用signal信号的方式来实现计时器，而是程序自身进行计时并处理计时器事件。另外，skynet中将时间由近及远划分为五个level，在时间复杂度和空间复杂度上达到了平衡。初始化计时器 1void skynet_timer_init(void); 设置超时时间及相应的回调消息 1in">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-02-24T08:30:18.000Z">
-<meta property="article:modified_time" content="2021-05-11T18:28:40.361Z">
+<meta property="article:modified_time" content="2021-05-11T18:28:53.191Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="skynet">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-12 02:28:40" itemprop="dateModified" datetime="2021-05-12T02:28:40+08:00">2021-05-12</time>
+                <time title="修改时间：2021-05-12 02:28:53" itemprop="dateModified" datetime="2021-05-12T02:28:53+08:00">2021-05-12</time>
               </span>
 
           
@@ -258,6 +258,7 @@
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -421,6 +422,26 @@
   
 
   
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '305836da6c4a706f6fb7',
+      clientSecret: '69be853985a105119444ad9dd25d60ac7ee03f3d',
+      repo        : 'losophy.github.io',
+      owner       : 'losophy',
+      admin       : ['losophy'],
+      id          : 'a5e01a36c3395faeaa068de51e022116',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 </body>
 </html>
