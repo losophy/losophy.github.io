@@ -28,7 +28,7 @@
 <meta property="og:description" content="前言Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。 设计哲学 向system heap要求空间 考虑多线程状态 考虑内存不足时的应变措施 考虑过多“小型区块”可能造成的内存碎片问题  考虚到小型区块所可能造成的内存破碎问题，SGI设计了双层级配置器，第一级配置器直接使用malloc()和free()，第二级配置器则视情况采用不同的策略：当配置区块超过128">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-02-25T12:03:44.000Z">
-<meta property="article:modified_time" content="2021-05-13T06:27:16.558Z">
+<meta property="article:modified_time" content="2021-05-13T15:17:17.397Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
               </span>
 
           

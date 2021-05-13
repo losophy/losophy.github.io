@@ -165,6 +165,83 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/f68e1d0f.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/f68e1d0f.html" class="post-title-link" itemprop="url">使用Lua处理游戏数据</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-23 15:05:14" itemprop="dateCreated datePublished" datetime="2021-02-23T15:05:14+08:00">2021-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在之前lua学习：lua作配置文件里，我们学会了用lua作配置文件。<br>其实lua在游戏开发中可以作为一个强大的保存、载入游戏数据的工具。</p>
+<h2 id="载入游戏数据"><a href="#载入游戏数据" class="headerlink" title="载入游戏数据"></a>载入游戏数据</h2><p>比如说，现在我有一份表单：<br>data.xls</p>
+<p>用什么工具解析这个Excel文件并将数据载入游戏？<br>我们可以使用Lua来完成这个工作。不过要先将表单保存为csv文件（数值用逗号隔开的文件）。<br>从表单中，我们可以得知第一行是键名，剩下的行是数值。我们可以用下面的lua函数载入该csv文件并保存到表中。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">GetLines</span><span class="params">(fileName)</span></span></span><br><span class="line">    index = <span class="number">0</span></span><br><span class="line">    myLines = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> <span class="built_in">io</span>.<span class="built_in">lines</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;%s%s&quot;</span>, <span class="string">&quot;./&quot;</span>, fileName)) <span class="keyword">do</span></span><br><span class="line">        index = index + <span class="number">1</span></span><br><span class="line">        myLines[index] = line</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> index, myLines <span class="comment">--返回文件的行数和一个包括所有行的表</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>io.lines ([filename])：打开指定的文件filename为读模式并返回一个迭代函数,每次调用将获得文件中的一行内容,当到文件尾时，将返回nil,并自动关闭文件。<br>然后，可以再创建一个函数解析每行的字符，并创建表格保存该行的所有数据。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">GetValues</span><span class="params">(myString)</span></span></span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    values = &#123;&#125;</span><br><span class="line">    <span class="keyword">if</span> myString ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">while</span> <span class="built_in">string</span>.<span class="built_in">find</span>(myString,<span class="string">&quot;,&quot;</span>) ~= <span class="literal">nil</span> <span class="keyword">do</span></span><br><span class="line">            i,j = <span class="built_in">string</span>.<span class="built_in">find</span>(myString,<span class="string">&quot;,&quot;</span>)</span><br><span class="line">            num = num + <span class="number">1</span></span><br><span class="line">            values[num] = <span class="built_in">string</span>.<span class="built_in">sub</span>(myString,<span class="number">1</span>, j<span class="number">-1</span>)</span><br><span class="line">            myString = <span class="built_in">string</span>.<span class="built_in">sub</span>(myString, j+<span class="number">1</span>, <span class="built_in">string</span>.<span class="built_in">len</span>(myString))</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        num = num + <span class="number">1</span> <span class="comment">--接着对第二行数据</span></span><br><span class="line">        values[num] = myString</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> num, values</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>string.find(s, pattern, pos)：从源字符串s找到匹配pattern返回，pos参数可选， 表示起始位置，如果匹配不成功，返回nil。<br>string.sub()：函数截取字符串s的从第i个字符到第j个字符之间的串。<br>在这个函数中，我们传入字符。通过调用string.find()和string.sub，返回数值的个数和包含了所有数值的表。通过这两个简单的处理步骤可以让用户解析几乎所有的csv文件，不论简单还是复杂的文件。</p>
+<p>我们可以写个函数测试一下</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">LoadDatas</span><span class="params">()</span></span></span><br><span class="line">    myCharacters = &#123;&#125;</span><br><span class="line">    numLines, allLines = GetLines(<span class="string">&quot;data.csv&quot;</span>)</span><br><span class="line">    <span class="comment">--读第一行的键值</span></span><br><span class="line">    count, myLabels = GetValues(allLines[<span class="number">1</span>])</span><br><span class="line">    <span class="comment">--忽略第一行</span></span><br><span class="line">    <span class="keyword">for</span> index = <span class="number">2</span>, numLines <span class="keyword">do</span></span><br><span class="line">        count, charHold = GetValues(allLines[index])</span><br><span class="line">        myCharacters[index<span class="number">-1</span>] = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> index2 = <span class="number">1</span>, count <span class="keyword">do</span></span><br><span class="line">            myCharacters[index<span class="number">-1</span>][index2] = charHold[index2]</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment">--now print them</span></span><br><span class="line">    <span class="keyword">for</span> index = <span class="number">1</span>, <span class="number">3</span> <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">for</span> index2 = <span class="number">1</span>, <span class="built_in">table</span>.<span class="built_in">getn</span>(myLabels) <span class="keyword">do</span></span><br><span class="line">            <span class="built_in">print</span>(myLabels[index2], myCharacters[index][index2])</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="保存游戏数据"><a href="#保存游戏数据" class="headerlink" title="保存游戏数据"></a>保存游戏数据</h2><p>我们可以利用lua内建的I/O功能来处理数据输出。只要确保输出的数据是采用合适的语法，就可以使用dofile()载入数据了。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">save</span><span class="params">()</span></span></span><br><span class="line">    myFile = <span class="built_in">io</span>.<span class="built_in">open</span>(<span class="string">&quot;save_data.lua&quot;</span>, <span class="string">&quot;w&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> myFile ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="string">&quot;-- 游戏数据保存文件&quot;</span>)</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;%s%s&quot;</span>, <span class="string">&quot;-- 文件创建于: &quot;</span>, <span class="built_in">os</span>.<span class="built_in">date</span>()))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="string">&quot;myValue = 5&quot;</span>)</span><br><span class="line">        <span class="built_in">io</span>.<span class="built_in">close</span>(myFile)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="载入保存的数据"><a href="#载入保存的数据" class="headerlink" title="载入保存的数据"></a>载入保存的数据</h2><p>利用dofile()操作就可以恢复游戏的数据了</p>
+<h2 id="用lua处理log-筛取信息"><a href="#用lua处理log-筛取信息" class="headerlink" title="用lua处理log,筛取信息"></a>用lua处理log,筛取信息</h2><p>其实也就是一些io，string操作，没什么新的东西<br>把旧的log中想的筛取信息，写到新的文件中，具体可以参加以下代码：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">find_player</span><span class="params">()</span></span></span><br><span class="line">    <span class="keyword">local</span> logfile = <span class="built_in">assert</span>(<span class="built_in">io</span>.<span class="built_in">open</span>(<span class="string">&quot;房间201.log&quot;</span>,<span class="string">&quot;r&quot;</span>)) <span class="comment">--打开旧文件</span></span><br><span class="line">    <span class="keyword">local</span> findfile = <span class="built_in">io</span>.<span class="built_in">open</span>(<span class="string">&quot;find_player.txt&quot;</span>,<span class="string">&quot;w&quot;</span>) <span class="comment">--打开新文件</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">local</span> text = logfile:<span class="built_in">read</span>(<span class="string">&quot;*all&quot;</span>) <span class="comment">--读入所有内容</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> w <span class="keyword">in</span> <span class="built_in">string</span>.<span class="built_in">gmatch</span>(text,<span class="string">&quot;.-,&quot;</span>) <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">find</span>(w,<span class="string">&quot;player userid = (%d+) level=(%d+) enter&quot;</span>) ~= <span class="literal">nil</span> <span class="keyword">then</span> <span class="comment">--查找写入相关内容到新文件</span></span><br><span class="line">            findfile:<span class="built_in">write</span>(w)</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">find</span>(w,<span class="string">&quot;player userid = (%d+) leave&quot;</span>) ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">            findfile:<span class="built_in">write</span>(w)</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    logfile:<span class="built_in">close</span>() <span class="comment">--关闭文件</span></span><br><span class="line">    findfile:<span class="built_in">close</span>()</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">find_player()</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/b165dcb7.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -196,7 +273,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -285,7 +362,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -359,7 +436,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -442,7 +519,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -521,7 +598,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -682,7 +759,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -752,7 +829,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -825,7 +902,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -898,7 +975,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -933,75 +1010,6 @@
 <h3 id="全文索引"><a href="#全文索引" class="headerlink" title="全文索引"></a>全文索引</h3><p>通过数值比较、范围过滤就可以完成绝大多数我们需要的查询了。但是，如果你希望通过关键字的匹配来进行查询过滤，那么就需要基于相似度的查询，而不是原来的精确数值比较。全文索引就是为这种场景设计的。</p>
 <h3 id="哈希索引"><a href="#哈希索引" class="headerlink" title="哈希索引"></a>哈希索引</h3><p>InnoDB存储引擎支持的哈希索引是自适应的，InnoDB存储引擎会根据表的使用情况自动为表生成哈希索引，不能人为干预是否在一张表中生成哈希索引。</p>
 <h2 id="mysql-键值类型"><a href="#mysql-键值类型" class="headerlink" title="mysql 键值类型"></a>mysql 键值类型</h2><p>普通索引 index (id name sex age loves)<br>唯一索引 unique<br>主键 primary key<br>外键 foreign key<br>全文索引 fulltext </p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/fc1d9307.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/fc1d9307.html" class="post-title-link" itemprop="url">怎样看mysql性能</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-22 22:25:19" itemprop="dateCreated datePublished" datetime="2021-02-22T22:25:19+08:00">2021-02-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="慢查询日志"><a href="#慢查询日志" class="headerlink" title="慢查询日志"></a>慢查询日志</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;%slow%&#x27;</span>; </span><br></pre></td></tr></table></figure>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> <span class="keyword">global</span> status <span class="keyword">like</span> <span class="string">&#x27;%slow%&#x27;</span>; </span><br></pre></td></tr></table></figure>
-<h2 id="连接数"><a href="#连接数" class="headerlink" title="连接数"></a>连接数</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;max_connections&#x27;</span>; </span><br></pre></td></tr></table></figure>
-<h2 id="进程使用情况"><a href="#进程使用情况" class="headerlink" title="进程使用情况"></a>进程使用情况</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">global</span> status <span class="keyword">like</span> ‘Thread<span class="operator">%</span>’; </span><br></pre></td></tr></table></figure>
-<h2 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h2><p>mysql数据库常见的日志文件有：<br>错误日志（error log）<br>二进制日志（binlog）<br>慢查询日志（slow query log）<br>查询日志（log）</p>
 
       
     </div>

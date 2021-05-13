@@ -165,6 +165,75 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/fc1d9307.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/fc1d9307.html" class="post-title-link" itemprop="url">怎样看mysql性能</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-22 22:25:19" itemprop="dateCreated datePublished" datetime="2021-02-22T22:25:19+08:00">2021-02-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="慢查询日志"><a href="#慢查询日志" class="headerlink" title="慢查询日志"></a>慢查询日志</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;%slow%&#x27;</span>; </span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> <span class="keyword">global</span> status <span class="keyword">like</span> <span class="string">&#x27;%slow%&#x27;</span>; </span><br></pre></td></tr></table></figure>
+<h2 id="连接数"><a href="#连接数" class="headerlink" title="连接数"></a>连接数</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;max_connections&#x27;</span>; </span><br></pre></td></tr></table></figure>
+<h2 id="进程使用情况"><a href="#进程使用情况" class="headerlink" title="进程使用情况"></a>进程使用情况</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">global</span> status <span class="keyword">like</span> ‘Thread<span class="operator">%</span>’; </span><br></pre></td></tr></table></figure>
+<h2 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h2><p>mysql数据库常见的日志文件有：<br>错误日志（error log）<br>二进制日志（binlog）<br>慢查询日志（slow query log）<br>查询日志（log）</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/2113b019.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -196,7 +265,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -274,7 +343,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -345,7 +414,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -425,7 +494,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -504,7 +573,7 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -577,7 +646,7 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -658,7 +727,7 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -731,7 +800,7 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -802,7 +871,7 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
               </span>
 
           
@@ -820,80 +889,6 @@ redis-server.exe sentinel26381.conf --sentinel</code></pre>
 <h2 id="Redis服务器创建并修改Lua环境的整个过程由以下步骤组成"><a href="#Redis服务器创建并修改Lua环境的整个过程由以下步骤组成" class="headerlink" title="Redis服务器创建并修改Lua环境的整个过程由以下步骤组成"></a>Redis服务器创建并修改Lua环境的整个过程由以下步骤组成</h2><p>①创建一个基础的Lua环境，之后的所有修改都是针对这个环境进行的<br>②载入多个函数库到Lua环境里面，让Lua脚本可以使用这些函数库来进行数据操作<br>③创建全局表格redis，这个表格包含了对Redis进行操作的函数，比如用于在Lua脚本中 执行Redis命令的redis.call函数<br>④使用Redis自制的随机函数来替换Lua原有的带有副作用的随机函数，从而避免在脚本 中引入副作用<br>⑤创建排序辅助函数，Lua环境使用这个辅佐函数来对一部分Redis命令的结果进行排 序，从而消除这些命令的不确定性<br>⑥创建redis.pcall函数的错误报告辅助函数，这个函数可以提供更详细的出错信息<br>⑦对Lua环境中的全局环境进行保护，防止用户在执行Lua脚本的过程中，将额外的全 局变量添加到Lua环境中<br>⑧将完成修改的Lua环境保存到服务器状态的lua属性中，等待执行服务器传来的Lua脚本</p>
 <p>EVAL、EVALSHA</p>
 
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/fbc79433.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/fbc79433.html" class="post-title-link" itemprop="url">查看linux的情况</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-22 00:51:04" itemprop="dateCreated datePublished" datetime="2021-02-22T00:51:04+08:00">2021-02-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:18" itemprop="dateModified" datetime="2021-05-13T14:27:18+08:00">2021-05-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="查看进程内存占用情况"><a href="#查看进程内存占用情况" class="headerlink" title="查看进程内存占用情况"></a>查看进程内存占用情况</h2><p>以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户的进程内存使用情况的话可以使用如下的命令：</p>
-<p>(1)top<br>top命令是Linux下常用的性能分析工具，能够实时显示系统中各个进程的资源占用状况，类似于Windows的任务管理器<br>可以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户的进程内存使用情况的话可以使用如下的命令：<br>$ top -u oracle</p>
-<h3 id="与ps的不同"><a href="#与ps的不同" class="headerlink" title="与ps的不同"></a>与ps的不同</h3><p>ps看到的是命令执行瞬间的进程信息,而top可以持续的监视<br>ps只是查看进程,而top还可以监视系统性能,如平均负载,cpu和内存的消耗</p>
-<h2 id="打印某个程序的线程栈"><a href="#打印某个程序的线程栈" class="headerlink" title="打印某个程序的线程栈"></a>打印某个程序的线程栈</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pstack $pid</span><br></pre></td></tr></table></figure>
-<h2 id="查看存储空间"><a href="#查看存储空间" class="headerlink" title="查看存储空间"></a>查看存储空间</h2><p>先看看根目录下面<br>du -sh /* </p>
-<p>下面这条命令就是显示所有隐藏文件和非隐藏文件的大小并根据占用空间排序的语句<br>du -sh .[!.]* * | sort -hr  </p>
-<p>看磁盘使用情况<br>df -h</p>
-<h2 id="查看系统信息"><a href="#查看系统信息" class="headerlink" title="查看系统信息"></a>查看系统信息</h2><p>lsb_release -a</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">No LSB modules are available.</span><br><span class="line">Distributor ID: Ubuntu</span><br><span class="line">Description:    Ubuntu 16.04.5 LTS</span><br><span class="line">Release:        16.04</span><br><span class="line">Codename:       xenial</span><br></pre></td></tr></table></figure>
-<p>uname -a</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux coding.ide 3.10.107-1-tlinux2_kvm_guest-0046.cd.nosign #1 SMP Wed Jan 31 15:25:12 CST 2018 x86_64 x86_64 x86_64 GNU&#x2F;Linux</span><br></pre></td></tr></table></figure>
       
     </div>
 

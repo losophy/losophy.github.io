@@ -165,6 +165,101 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/7f9f1e3d.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/7f9f1e3d.html" class="post-title-link" itemprop="url">skynet控制台管理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-23 22:57:48" itemprop="dateCreated datePublished" datetime="2021-02-23T22:57:48+08:00">2021-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>skynet 自带了一个控制台服务，可以很方便获取和调试 skynet 运行数据，而且可以热更新代码，所以，弄明白skynet控制台管理可以让你更好地使用skynet，甚至改进这个控制台服务，以满足不同业务需求。</p>
+<p>这个服务默认不会启动，需要你手动启动它，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">skynet.newservice(&quot;debug_console&quot;, 8000)</span><br></pre></td></tr></table></figure>
+<p>设计原因，调试控制台只监听本地地址 127.0.0.1 ，如果需要远程使用，需要先登录到本机，然后再连接。</p>
+<p>使用时，通过 telnet 或 nc 登录调试控制台，启动后显示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br></pre></td></tr></table></figure>
+<p>表示连接成功。</p>
+<p>注：skynet控制台不能使用上下键回溯历史命令，退格键也不能使用（改用删除键）等等，这是由于 skynet 使用了自己的 IO 库，很难接入 libreadline （不能在 readline 的 hook 中 yield）。如果希望在控制台中使用 readline 的 history 等特性，可以自己使用 rlwrap 。</p>
+<p>这时，你可以输入调试指令，输入 help 可以列出目前支持的所有指令。（不同版本结果不同）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">help</span><br><span class="line">clearcache      clear lua code cache</span><br><span class="line">cmem    Show C memory info</span><br><span class="line">debug   debug address : debug a lua service</span><br><span class="line">exit    exit address : kill a lua service</span><br><span class="line">gc      gc : force every lua service do garbage collect</span><br><span class="line">help    This help message</span><br><span class="line">info    Info address : get service infomation</span><br><span class="line">inject  inject address luascript.lua</span><br><span class="line">kill    kill address : kill service</span><br><span class="line">list    List all the service</span><br><span class="line">logoff  logoff address</span><br><span class="line">logon   logon address</span><br><span class="line">mem     mem : show memory status</span><br><span class="line">service List unique service</span><br><span class="line">signal  signal address sig</span><br><span class="line">snax    lanuch a new snax service</span><br><span class="line">start   lanuch a new lua service</span><br><span class="line">stat    Dump all stats</span><br><span class="line">task    task address : show service task detail</span><br></pre></td></tr></table></figure>
+<p>命令的一般格式是 命令 地址 ，有些命令不带地址，会针对所有的服务。当输入地址时，可以使用 :01000001 这样的格式指代一个服务地址：由冒号开头的 8 位 16 进制数字，也可以省略前面两个数字的 harbor id 以及接下来的连续 0 ，比如 :01000001 可以简写为 1 。所有活动的服务可以输入 list 列出。</p>
+<p>常用的通用指令：<br>list 列出所有服务，以及服务的启动参数。<br>gc 对所有 lua 服务执行gc，并列出gc后所有服务的内存情况。<br>mem 列出所有 lua 服务的内存占用情况。（注：只获取 lua 服务的 lua vm 内存占用情况，如果需要 C 模块中内存使用情况，使用cmem。）<br>stat 列出所有 lua 服务的消息队列长度，以及被挂起的请求（协程）数量。<br>service 列出所有的唯一 lua 服务。<br>注意，由于这些指令是逐个向每个服务发送消息并等待回应，所以当某个 lua 服务过载时，可能需要等待很长时间才有返回。</p>
+<p>针对单个 lua 服务的指令：<br>exit address 退出指定 lua 服务<br>kill address 强制中止指定 lua 服务。<br>info address 让指定 lua 服务输出自己的内部信息（数据通过回调服务内 skynet.info_func 生成）<br>signal address sig 向服务发送一个信号，sig 默认为 0 。当一个服务陷入死循环时，默认信号会打断正在执行的 lua 字节码，并抛出 error 显示调用栈。这是针对 endless loop 的 log 的有效调试方法。（注：这里的信号并非系统信号。）<br>task address 显示一个服务中所有被挂起的请求的调用栈。<br>debug address 针对一个 lua 服务启动内置的单步调试器。<br>logon/logoff address 记录一个服务所有的输入消息（source, type, session, data, size）到文件。（生成文件的路径地址取配置 logpath） 。<br>inject address script 将 script 对应的脚本插入到指定服务中运行（通常可用于热更新补丁）。</p>
+<p>这里重点说下 info address 和 inject address script，这两个命令很重要。</p>
+<h2 id="获取服务内部数据-info-address"><a href="#获取服务内部数据-info-address" class="headerlink" title="获取服务内部数据 - info address"></a>获取服务内部数据 - info address</h2><p>前面提到，这个命令让指定 lua 服务输出自己的内部信息，数据通过回调服务内 skynet.info_func 生成。<br>下面以 example/simpledb.lua做说明，这是个典型的skynet服务。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> skynet = <span class="built_in">require</span> <span class="string">&quot;skynet&quot;</span></span><br><span class="line"><span class="built_in">require</span> <span class="string">&quot;skynet.manager&quot;</span>    <span class="comment">-- import skynet.register</span></span><br><span class="line"><span class="keyword">local</span> db = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">local</span> command = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">command.GET</span><span class="params">(key)</span></span></span><br><span class="line">  <span class="keyword">return</span> db[key]</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">command.SET</span><span class="params">(key, value)</span></span></span><br><span class="line">  <span class="keyword">local</span> last = db[key]</span><br><span class="line">  db[key] = value</span><br><span class="line">  <span class="keyword">return</span> last</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 新增的代码 -- start</span></span><br><span class="line">skynet.info_func(<span class="function"><span class="keyword">function</span><span class="params">()</span></span> <span class="keyword">return</span> <span class="string">&quot;hello mycwq!&quot;</span> <span class="keyword">end</span>)</span><br><span class="line"><span class="comment">-- 新增的代码 -- end</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">skynet.start(<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">  skynet.dispatch(<span class="string">&quot;lua&quot;</span>, <span class="function"><span class="keyword">function</span><span class="params">(session, address, cmd, ...)</span></span></span><br><span class="line">    <span class="keyword">local</span> f = command[<span class="built_in">string</span>.<span class="built_in">upper</span>(cmd)]</span><br><span class="line">    <span class="keyword">if</span> f <span class="keyword">then</span></span><br><span class="line">      skynet.ret(skynet.pack(f(...)))</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      <span class="built_in">error</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;Unknown command %s&quot;</span>, <span class="built_in">tostring</span>(cmd)))</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span>)</span><br><span class="line">  skynet.register <span class="string">&quot;SIMPLEDB&quot;</span></span><br><span class="line"><span class="keyword">end</span>)</span><br></pre></td></tr></table></figure>
+<p>启动example例子，连接控制台</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">list</span><br><span class="line">:00000004       snlua cmaster</span><br><span class="line">:00000005       snlua cslave</span><br><span class="line">:00000007       snlua datacenterd</span><br><span class="line">:00000008       snlua service_mgr</span><br><span class="line">:0000000a       snlua protoloader</span><br><span class="line">:0000000b       snlua console</span><br><span class="line">:0000000c       snlua debug_console 8000</span><br><span class="line">:0000000d       snlua simpledb</span><br><span class="line">:0000000e       snlua watchdog</span><br><span class="line">:0000000f       snlua gate</span><br><span class="line">OK</span><br><span class="line">info :0000000d</span><br><span class="line">hello mycwq!</span><br></pre></td></tr></table></figure>
+<h2 id="代码热更新-inject-address-script"><a href="#代码热更新-inject-address-script" class="headerlink" title="代码热更新 - inject address script"></a>代码热更新 - inject address script</h2><p>前面提到，这个命令将 script 对应的脚本插入到指定服务中运行<br>下面写个简单的inject例子，保存为 example/inject_simpledb.lua</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> _P <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">print</span> <span class="string">&quot;inject error!!&quot;</span></span><br><span class="line">  <span class="keyword">return</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">local</span> command = _P.lua.command</span><br><span class="line">command.TEST = <span class="function"><span class="keyword">function</span><span class="params">()</span></span> <span class="keyword">return</span> <span class="string">&quot;TEST&quot;</span> <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;inject ok!&quot;</span></span><br></pre></td></tr></table></figure>
+<p>启动example例子，连接控制台</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">list</span><br><span class="line">:00000004       snlua cmaster</span><br><span class="line">:00000005       snlua cslave</span><br><span class="line">:00000007       snlua datacenterd</span><br><span class="line">:00000008       snlua service_mgr</span><br><span class="line">:0000000a       snlua protoloader</span><br><span class="line">:0000000b       snlua console</span><br><span class="line">:0000000c       snlua debug_console 8000</span><br><span class="line">:0000000d       snlua simpledb</span><br><span class="line">:0000000e       snlua watchdog</span><br><span class="line">:0000000f       snlua gate</span><br><span class="line">OK</span><br><span class="line">inject :0000000d example/inject_simpledb.lua</span><br><span class="line">inject ok!</span><br></pre></td></tr></table></figure>
+<h2 id="使用-rlwrap-强化-skynet-控制台"><a href="#使用-rlwrap-强化-skynet-控制台" class="headerlink" title="使用 rlwrap 强化 skynet 控制台"></a>使用 rlwrap 强化 skynet 控制台</h2><p>前面提到了skynet控制台不能使用上下键回溯历史命令，退格键也不能使用等，为了弥补这个不足，可以使用 rlwrap<br>这里以 centos做说明， rlwrap依赖 readline，系统必须装有 readline ，在现有很多linux系统，readline都可自动化安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install readline-devel  </span><br></pre></td></tr></table></figure>
+<p>rlwrap则需要手动安装，如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tar -zxf rlwrap-0.37.tar.gz </span><br><span class="line">cd rlwrap-0.37</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<p>以后，skynet控制台的连接方式改成这样，就可以回溯命令了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> rlwrap nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">list</span><br><span class="line">:01000004       snlua cmaster</span><br><span class="line">:01000005       snlua cslave</span><br><span class="line">:01000007       snlua datacenterd</span><br><span class="line">:01000008       snlua service_mgr</span><br><span class="line">:0100000a       snlua protoloader</span><br><span class="line">:0100000b       snlua console</span><br><span class="line">:0100000c       snlua debug_console 8000</span><br><span class="line">:0100000d       snlua simpledb</span><br><span class="line">:0100000e       snlua watchdog</span><br><span class="line">:0100000f       snlua gate</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+<p>最后，这里列举 rlwrap常用的快捷键：<br>Ctrl+L 清屏，实际是将当前行置顶<br>Ctrl+P 上一条命令<br>Ctrl+N 下一条命令<br>Ctrl+U 从光标处删除到行首<br>Ctrl+W 向前删除一个单词<br>Ctrl+B 光标向前移动一个位置<br>Ctrl+T 光标处字符与前一个字符交换位置<br>Ctrl+Z 后台运行，使用fg调出<br>Ctrl+H 相当于删除键<br>Ctrl+J 相当于回车键<br>Ctrl+O 相当于回车键<br>Ctrl+M 相当于回车键</p>
+<p>追踪业务逻辑<br>skynet.trace() </p>
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>目前在 skynet 的内存分配 API 预埋了调试接口。可以通过在 make 时加上预定义宏 MEMORY_CHECK 打开。<br>例如，在 linux 下，可以用 make linux SKYNET_DEFINES=-DMEMORY_CHECK 打开。<br>btw，还有一些同学用 C 编写 lua 扩展模块没有经验，导致 lua 堆栈溢出，最终致使程序崩溃。推荐在编译 lua 的时候加上宏定义：LUA_USE_APICHECK 。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/82e16ca1.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -196,7 +291,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
               </span>
 
           
@@ -273,7 +368,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
               </span>
 
           
@@ -342,7 +437,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
               </span>
 
           
@@ -418,7 +513,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
               </span>
 
           
@@ -493,7 +588,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
               </span>
 
           
@@ -579,7 +674,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
               </span>
 
           
@@ -684,7 +779,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
               </span>
 
           
@@ -758,7 +853,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
               </span>
 
           
@@ -835,7 +930,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
               </span>
 
           
@@ -856,83 +951,6 @@
 <p>用这个方法，就不用担心别人可以看到你的代码了。</p>
 <p>当require一个模块mod.sub时，require会用原始的模块名“mod.sub”作为key来查询table package.loaded和package.preload，其中，模块名中的点在搜索中没有任何意义。<br>当搜索一个定义子模块的文件时，require会将点转换为另一个字符，通常就是系统的目录分隔符。转换之后require就像搜索其他名称一样来搜索这个名称。<br>所以最好的方法是在编译完lua脚本后，也把二进制文件改成.lua后缀。</p>
 
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/f68e1d0f.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/f68e1d0f.html" class="post-title-link" itemprop="url">使用Lua处理游戏数据</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-23 15:05:14" itemprop="dateCreated datePublished" datetime="2021-02-23T15:05:14+08:00">2021-02-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:16" itemprop="dateModified" datetime="2021-05-13T14:27:16+08:00">2021-05-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在之前lua学习：lua作配置文件里，我们学会了用lua作配置文件。<br>其实lua在游戏开发中可以作为一个强大的保存、载入游戏数据的工具。</p>
-<h2 id="载入游戏数据"><a href="#载入游戏数据" class="headerlink" title="载入游戏数据"></a>载入游戏数据</h2><p>比如说，现在我有一份表单：<br>data.xls</p>
-<p>用什么工具解析这个Excel文件并将数据载入游戏？<br>我们可以使用Lua来完成这个工作。不过要先将表单保存为csv文件（数值用逗号隔开的文件）。<br>从表单中，我们可以得知第一行是键名，剩下的行是数值。我们可以用下面的lua函数载入该csv文件并保存到表中。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">GetLines</span><span class="params">(fileName)</span></span></span><br><span class="line">    index = <span class="number">0</span></span><br><span class="line">    myLines = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> <span class="built_in">io</span>.<span class="built_in">lines</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;%s%s&quot;</span>, <span class="string">&quot;./&quot;</span>, fileName)) <span class="keyword">do</span></span><br><span class="line">        index = index + <span class="number">1</span></span><br><span class="line">        myLines[index] = line</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> index, myLines <span class="comment">--返回文件的行数和一个包括所有行的表</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>io.lines ([filename])：打开指定的文件filename为读模式并返回一个迭代函数,每次调用将获得文件中的一行内容,当到文件尾时，将返回nil,并自动关闭文件。<br>然后，可以再创建一个函数解析每行的字符，并创建表格保存该行的所有数据。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">GetValues</span><span class="params">(myString)</span></span></span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    values = &#123;&#125;</span><br><span class="line">    <span class="keyword">if</span> myString ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">while</span> <span class="built_in">string</span>.<span class="built_in">find</span>(myString,<span class="string">&quot;,&quot;</span>) ~= <span class="literal">nil</span> <span class="keyword">do</span></span><br><span class="line">            i,j = <span class="built_in">string</span>.<span class="built_in">find</span>(myString,<span class="string">&quot;,&quot;</span>)</span><br><span class="line">            num = num + <span class="number">1</span></span><br><span class="line">            values[num] = <span class="built_in">string</span>.<span class="built_in">sub</span>(myString,<span class="number">1</span>, j<span class="number">-1</span>)</span><br><span class="line">            myString = <span class="built_in">string</span>.<span class="built_in">sub</span>(myString, j+<span class="number">1</span>, <span class="built_in">string</span>.<span class="built_in">len</span>(myString))</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        num = num + <span class="number">1</span> <span class="comment">--接着对第二行数据</span></span><br><span class="line">        values[num] = myString</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> num, values</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>string.find(s, pattern, pos)：从源字符串s找到匹配pattern返回，pos参数可选， 表示起始位置，如果匹配不成功，返回nil。<br>string.sub()：函数截取字符串s的从第i个字符到第j个字符之间的串。<br>在这个函数中，我们传入字符。通过调用string.find()和string.sub，返回数值的个数和包含了所有数值的表。通过这两个简单的处理步骤可以让用户解析几乎所有的csv文件，不论简单还是复杂的文件。</p>
-<p>我们可以写个函数测试一下</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">LoadDatas</span><span class="params">()</span></span></span><br><span class="line">    myCharacters = &#123;&#125;</span><br><span class="line">    numLines, allLines = GetLines(<span class="string">&quot;data.csv&quot;</span>)</span><br><span class="line">    <span class="comment">--读第一行的键值</span></span><br><span class="line">    count, myLabels = GetValues(allLines[<span class="number">1</span>])</span><br><span class="line">    <span class="comment">--忽略第一行</span></span><br><span class="line">    <span class="keyword">for</span> index = <span class="number">2</span>, numLines <span class="keyword">do</span></span><br><span class="line">        count, charHold = GetValues(allLines[index])</span><br><span class="line">        myCharacters[index<span class="number">-1</span>] = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> index2 = <span class="number">1</span>, count <span class="keyword">do</span></span><br><span class="line">            myCharacters[index<span class="number">-1</span>][index2] = charHold[index2]</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment">--now print them</span></span><br><span class="line">    <span class="keyword">for</span> index = <span class="number">1</span>, <span class="number">3</span> <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">for</span> index2 = <span class="number">1</span>, <span class="built_in">table</span>.<span class="built_in">getn</span>(myLabels) <span class="keyword">do</span></span><br><span class="line">            <span class="built_in">print</span>(myLabels[index2], myCharacters[index][index2])</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<h2 id="保存游戏数据"><a href="#保存游戏数据" class="headerlink" title="保存游戏数据"></a>保存游戏数据</h2><p>我们可以利用lua内建的I/O功能来处理数据输出。只要确保输出的数据是采用合适的语法，就可以使用dofile()载入数据了。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">save</span><span class="params">()</span></span></span><br><span class="line">    myFile = <span class="built_in">io</span>.<span class="built_in">open</span>(<span class="string">&quot;save_data.lua&quot;</span>, <span class="string">&quot;w&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> myFile ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="string">&quot;-- 游戏数据保存文件&quot;</span>)</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;%s%s&quot;</span>, <span class="string">&quot;-- 文件创建于: &quot;</span>, <span class="built_in">os</span>.<span class="built_in">date</span>()))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="built_in">string</span>.<span class="built_in">char</span> (<span class="number">10</span>))</span><br><span class="line">        myFile:<span class="built_in">write</span>(<span class="string">&quot;myValue = 5&quot;</span>)</span><br><span class="line">        <span class="built_in">io</span>.<span class="built_in">close</span>(myFile)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<h2 id="载入保存的数据"><a href="#载入保存的数据" class="headerlink" title="载入保存的数据"></a>载入保存的数据</h2><p>利用dofile()操作就可以恢复游戏的数据了</p>
-<h2 id="用lua处理log-筛取信息"><a href="#用lua处理log-筛取信息" class="headerlink" title="用lua处理log,筛取信息"></a>用lua处理log,筛取信息</h2><p>其实也就是一些io，string操作，没什么新的东西<br>把旧的log中想的筛取信息，写到新的文件中，具体可以参加以下代码：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">find_player</span><span class="params">()</span></span></span><br><span class="line">    <span class="keyword">local</span> logfile = <span class="built_in">assert</span>(<span class="built_in">io</span>.<span class="built_in">open</span>(<span class="string">&quot;房间201.log&quot;</span>,<span class="string">&quot;r&quot;</span>)) <span class="comment">--打开旧文件</span></span><br><span class="line">    <span class="keyword">local</span> findfile = <span class="built_in">io</span>.<span class="built_in">open</span>(<span class="string">&quot;find_player.txt&quot;</span>,<span class="string">&quot;w&quot;</span>) <span class="comment">--打开新文件</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">local</span> text = logfile:<span class="built_in">read</span>(<span class="string">&quot;*all&quot;</span>) <span class="comment">--读入所有内容</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> w <span class="keyword">in</span> <span class="built_in">string</span>.<span class="built_in">gmatch</span>(text,<span class="string">&quot;.-,&quot;</span>) <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">find</span>(w,<span class="string">&quot;player userid = (%d+) level=(%d+) enter&quot;</span>) ~= <span class="literal">nil</span> <span class="keyword">then</span> <span class="comment">--查找写入相关内容到新文件</span></span><br><span class="line">            findfile:<span class="built_in">write</span>(w)</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">find</span>(w,<span class="string">&quot;player userid = (%d+) leave&quot;</span>) ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">            findfile:<span class="built_in">write</span>(w)</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    logfile:<span class="built_in">close</span>() <span class="comment">--关闭文件</span></span><br><span class="line">    findfile:<span class="built_in">close</span>()</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">find_player()</span><br></pre></td></tr></table></figure>
       
     </div>
 

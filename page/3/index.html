@@ -165,6 +165,104 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/ac3dad1f.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/ac3dad1f.html" class="post-title-link" itemprop="url">lua数据类型</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-20 15:50:49" itemprop="dateCreated datePublished" datetime="2021-03-20T15:50:49+08:00">2021-03-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-13 23:17:13" itemprop="dateModified" datetime="2021-05-13T23:17:13+08:00">2021-05-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="八种基本数据类型"><a href="#八种基本数据类型" class="headerlink" title="八种基本数据类型"></a>八种基本数据类型</h2><p>Lua的类型系统是相对稳定的。很长时间里，Lua只有6个基本类型：nil，number，string，table，function和userdata（实际上，直到Lua 3.0为止，之前的C函数和Lua函数有不同的内部类型，但是这个差异对于调用者是透明的）。唯一真正的改变来自于Lua 5.0，这个版本引入了两个新类型：thread和boolean。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** basic types</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TNONE	(-1)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TNIL	0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TBOOLEAN	1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TLIGHTUSERDATA	2        <span class="comment">//void *</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TNUMBER	3                        <span class="comment">//lua3后采用double精度表示数字整型</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TSTRING	4                        <span class="comment">//TString</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TTABLE	5                        <span class="comment">//Table</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TFUNCTION	6                <span class="comment">//CClosure、LClosure</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TUSERDATA	7                <span class="comment">//void *</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TTHREAD	8                        <span class="comment">//协程</span></span></span><br></pre></td></tr></table></figure>
+<p>变量第一次赋值之前，值为nil。</p>
+<h2 id="第一类值"><a href="#第一类值" class="headerlink" title="第一类值"></a>第一类值</h2><p>lua中所有值都是第一类值，他们可以存在变量中（无论全局变量还是局部变量）或table中，可以作为函数参数，可以作为返回值。</p>
+<h2 id="Lua通用数据结构的实现"><a href="#Lua通用数据结构的实现" class="headerlink" title="Lua通用数据结构的实现"></a>Lua通用数据结构的实现</h2><h3 id="C语言中实现通用数据结构的一般做法"><a href="#C语言中实现通用数据结构的一般做法" class="headerlink" title="C语言中实现通用数据结构的一般做法"></a>C语言中实现通用数据结构的一般做法</h3><p>如果要使用一个通用的数据结构来表示不同的数据类型，一般的做法是</p>
+<ul>
+<li>需要一个字段来存储数据的类型</li>
+<li>需要存储不同的数据类型的数据 </li>
+</ul>
+<p>这里有这两种<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/61200681/what-are-the-pros-and-cons-of-these-twoa-common-data-structure-to-represent-dif">实现方法</a></p>
+<ol>
+<li>定义一个公共的数据结构作为基础类型，里面存储的都是表达这个数据的基础信息，其他具体的类型是从这里派生出来的 。 这就是一般的面向对象的思路。</li>
+<li> 使用联舍（ union ）来将所有数据包进来</li>
+</ol>
+<h3 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h3><p>上面两种做法各有利弊 。 在Lua代码中，一般采用两种做法相结合的方式<br>Lua需要进行GC操作的数据类型都会有一个CommonHeader宏定义的成员，并且这个成员在结构体定义的最开始部分。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CommoHeader GCObject *next; lu_byte tt; lu_byte marked</span></span><br></pre></td></tr></table></figure>
+<p>任何需要进行垃圾回收处理的Lua数据类型，必然以 CommonHeader作为该结构体定义的最开始部分。如果熟悉C++类的实现原理，可以将CommoHeader这个成员理解为一个基类的所有成员，而其他需要回收处理的数据类型均从这个基类继承下来，所以它们的结构体定义的开始部分就是这个成员。</p>
+<p>还有一个名为GCheader的结构体，其中的成员只有Common Header</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Common header in struct form</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">GCheader</span> &#123;</span></span><br><span class="line">    CommonHeader;</span><br><span class="line">&#125; GCheader;</span><br></pre></td></tr></table></figure>
+<p>于是，在Lua中就使用了GCObject联合体将所有需要进行垃圾回收的数据类型囊括了进来</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Union of all collectable objects</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="class"><span class="keyword">union</span> <span class="title">GCObject</span> &#123;</span></span><br><span class="line">  GCheader gch;</span><br><span class="line">  <span class="class"><span class="keyword">union</span> <span class="title">TString</span> <span class="title">ts</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">union</span> <span class="title">Udata</span> <span class="title">u</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">union</span> <span class="title">Closure</span> <span class="title">cl</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Table</span> <span class="title">h</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Proto</span> <span class="title">p</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">UpVal</span> <span class="title">uv</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">lua_State</span> <span class="title">th</span>;</span>  <span class="comment">/* thread */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>GCObject这个联合体，将所有需要进行垃圾回收的数据类型全部囊括其中，这样定位和查找不同类型的数据时就方便多了。</p>
+<p>还有几种数据类型是不需要进行垃圾回收的，Lua中将GCObject和它们一起放在了联合体Value中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Union of all Lua values</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">  GCObject *gc;</span><br><span class="line">  <span class="keyword">void</span> *p;<span class="comment">//LUA_TLIGHTUSERDATA</span></span><br><span class="line">  lua_Number n;<span class="comment">//LUA_TNUMBER</span></span><br><span class="line">  <span class="keyword">int</span> b;<span class="comment">//LUA_TBOOLEAN</span></span><br><span class="line">&#125; Value;</span><br></pre></td></tr></table></figure>
+<p>到了这一步 ，差不多可以表示Lua中所有的数据类型了。但是还欠缺一点东西，那就是这些数据到底是什么类型的。于是Lua代码中又有了TValue，它用于将Value和类型结合在一起。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Tagged Values</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TValuefields	Value value; int tt</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">lua_TValue</span> &#123;</span></span><br><span class="line">  TValuefields;</span><br><span class="line">&#125; TValue;</span><br></pre></td></tr></table></figure>
+<p>前面提到过， Lua同时采用了两种方式来做到数据统一。根据前面的分析，这表现在以下两个方面。</p>
+<ul>
+<li>具体类型中有CommonHeader 用来存放所有数据类型都通用的字段</li>
+<li>TValue作为统一表示所有数据的数据结构，内部使用了联合体Value将所有数据都包起来</li>
+</ul>
+<p>在具体的代码中，TValue用于统一地表示数据，而一旦知道了具体的类型，就需要使用具体的类型了。因此，代码中有不少涉及TValue与具体类型之间转换的代码，其主要逻辑都是将TValue中的tt、value与具体类型的数据进行转换。<br>如将 lua Number转换为TValue的宏 setnvalue：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> setnvalue(obj,x) \</span></span><br><span class="line">  &#123; TValue *i_o=(obj); i_o-&gt;value.n=(x); i_o-&gt;tt=LUA_TNUMBER; &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>《Lua设计与实现》</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/e141c56e.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -196,7 +294,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:14" itemprop="dateModified" datetime="2021-05-13T14:27:14+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:13" itemprop="dateModified" datetime="2021-05-13T23:17:13+08:00">2021-05-13</time>
               </span>
 
           
@@ -269,7 +367,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:14" itemprop="dateModified" datetime="2021-05-13T14:27:14+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:13" itemprop="dateModified" datetime="2021-05-13T23:17:13+08:00">2021-05-13</time>
               </span>
 
           
@@ -346,7 +444,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:14" itemprop="dateModified" datetime="2021-05-13T14:27:14+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:13" itemprop="dateModified" datetime="2021-05-13T23:17:13+08:00">2021-05-13</time>
               </span>
 
           
@@ -411,7 +509,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:14" itemprop="dateModified" datetime="2021-05-13T14:27:14+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:13" itemprop="dateModified" datetime="2021-05-13T23:17:13+08:00">2021-05-13</time>
               </span>
 
           
@@ -481,7 +579,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:14" itemprop="dateModified" datetime="2021-05-13T14:27:14+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:13" itemprop="dateModified" datetime="2021-05-13T23:17:13+08:00">2021-05-13</time>
               </span>
 
           
@@ -553,7 +651,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:14" itemprop="dateModified" datetime="2021-05-13T14:27:14+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:13" itemprop="dateModified" datetime="2021-05-13T23:17:13+08:00">2021-05-13</time>
               </span>
 
           
@@ -633,7 +731,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:14" itemprop="dateModified" datetime="2021-05-13T14:27:14+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:13" itemprop="dateModified" datetime="2021-05-13T23:17:13+08:00">2021-05-13</time>
               </span>
 
           
@@ -702,7 +800,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:14" itemprop="dateModified" datetime="2021-05-13T14:27:14+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:13" itemprop="dateModified" datetime="2021-05-13T23:17:13+08:00">2021-05-13</time>
               </span>
 
           
@@ -775,7 +873,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:14" itemprop="dateModified" datetime="2021-05-13T14:27:14+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:13" itemprop="dateModified" datetime="2021-05-13T23:17:13+08:00">2021-05-13</time>
               </span>
 
           
@@ -793,7 +891,7 @@
 <h2 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h2><p><img src="https://user-images.githubusercontent.com/11263320/109392605-069d7f00-7958-11eb-9e01-51d10239f93a.jpg" alt="makefile知识点"><br><img src="https://user-images.githubusercontent.com/11263320/109392606-07361580-7958-11eb-9c6b-04b1574b57d4.jpg" alt="makefile进阶"></p>
 <h2 id="使用autotools来进行Makefile的自动生成"><a href="#使用autotools来进行Makefile的自动生成" class="headerlink" title="使用autotools来进行Makefile的自动生成"></a>使用autotools来进行Makefile的自动生成</h2><ul>
 <li>运行 autoscan , 自动创建两个文件： autoscan.log configure.scan<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost main]# autoscan</span><br><span class="line">[root@localhost main]# ls</span><br><span class="line">autoscan.log configure.scan main.c</span><br></pre></td></tr></table></figure></li>
-<li>修改configure.scan的文件名为configure.in<br>修改configure.in:<br>  1.修改AC_INIT里面的参数: AC_INIT(main,1.0, <a href="mailto:&#112;&#103;&#112;&#x78;&#x63;&#64;&#49;&#54;&#51;&#x2e;&#99;&#x6f;&#x6d;">&#112;&#103;&#112;&#x78;&#x63;&#64;&#49;&#54;&#51;&#x2e;&#99;&#x6f;&#x6d;</a>)<br>  2.添加宏AM_INIT_AUTOMAKE, 它是automake所必备的宏，也同前面一样，PACKAGE是所要产生软件套件的名称，VERSION是版本编号。<br>  3.在AC_OUTPUT后添加输出文件Makefile</li>
+<li>修改configure.scan的文件名为configure.in<br>修改configure.in:<br>  1.修改AC_INIT里面的参数: AC_INIT(main,1.0, <a href="mailto:&#112;&#103;&#112;&#120;&#x63;&#64;&#x31;&#54;&#51;&#x2e;&#x63;&#111;&#109;">&#112;&#103;&#112;&#120;&#x63;&#64;&#x31;&#54;&#51;&#x2e;&#x63;&#111;&#109;</a>)<br>  2.添加宏AM_INIT_AUTOMAKE, 它是automake所必备的宏，也同前面一样，PACKAGE是所要产生软件套件的名称，VERSION是版本编号。<br>  3.在AC_OUTPUT后添加输出文件Makefile</li>
 </ul>
 <p>修改后的结果:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#                                               -*- Autoconf -*-</span><br><span class="line"># Process this file with autoconf to produce a configure script.</span><br><span class="line"></span><br><span class="line">AC_PREREQ(2.61)</span><br><span class="line">AC_INIT(main, 1.0, pgpxc@163.com)</span><br><span class="line">AC_CONFIG_SRCDIR([main.c])</span><br><span class="line">AC_CONFIG_HEADER([config.h])</span><br><span class="line">AM_INIT_AUTOMAKE(main,1.0)</span><br><span class="line"></span><br><span class="line"># Checks for programs.</span><br><span class="line">AC_PROG_CC</span><br><span class="line"></span><br><span class="line"># Checks for libraries.</span><br><span class="line"></span><br><span class="line"># Checks for header files.</span><br><span class="line"></span><br><span class="line"># Checks for typedefs, structures, and compiler characteristics.</span><br><span class="line"></span><br><span class="line"># Checks for library functions.</span><br><span class="line"></span><br><span class="line">AC_OUTPUT([Makefile])</span><br></pre></td></tr></table></figure>
@@ -805,72 +903,6 @@
 其次，使用automake对其生成“configure.in”文件，在这里使用选项“—adding-missing”可以让automake自动添加有一些必需的脚本文件。<br>运行后的状态是：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost main]# automake --add-missing</span><br><span class="line">configure.in:8: installing `./missing&#x27;</span><br><span class="line">configure.in:8: installing `./install-sh&#x27;</span><br><span class="line">Makefile.am: installing `./depcomp&#x27;</span><br><span class="line">[root@localhost main]# ls</span><br><span class="line">aclocal.m4      config.h.in   configure.in~ main.c        Makefile.in</span><br><span class="line">autom4te.cache configure     depcomp        Makefile.am missing</span><br><span class="line">autoscan.log    configure.in install-sh     Makefile.am~</span><br></pre></td></tr></table></figure></li>
 <li>到这里，就是我们熟悉的环节了。<br>运行configure，在这一步中，通过运行自动配置设置文件configure，把Makefile.in变成了最终的Makefile。<br>运行make，根据Makefile操作。<br>运行make install，安装到指定目录。</li>
 </ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/e7be9fe5.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/e7be9fe5.html" class="post-title-link" itemprop="url">计算机业余英语</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-26 16:50:50" itemprop="dateCreated datePublished" datetime="2021-02-26T16:50:50+08:00">2021-02-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:14" itemprop="dateModified" datetime="2021-05-13T14:27:14+08:00">2021-05-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>knapsack-&gt;背包<br>copy-&gt;游戏副本<br>redPacket-&gt;红包</p>
-<h2 id="常见缩写化简字段名大小"><a href="#常见缩写化简字段名大小" class="headerlink" title="常见缩写化简字段名大小"></a>常见缩写化简字段名大小</h2><p>level-&gt;lv<br>current-&gt;cur</p>
 
       
     </div>

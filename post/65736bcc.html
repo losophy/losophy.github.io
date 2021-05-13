@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="前言之前有提过IO模型，而这些介绍下，用这些IO模型发展出来的IO设计模式 先介绍两种高性能服务器模式Reactor、ProactorReactor模型1 向事件分发器注册事件回调2 事件发生4 事件分发器调用之前注册的函数4 在回调函数中读取数据，对数据进行后续处理Reactor模型实例：libevent，Redis、ACE Proactor模型1 向事件分发器注册事件回调2 事件发生3 操作系">
+  <meta name="description" content="反应器模式（Reactor Pattern）是一种为处理服务请求并发提交到一个或者多个服务处理程序的事件设计模式。反应器模式与观察都模式相似。但观察者模式与单个事件源关联，而反应器模式则与多个事件源关联。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="IO设计模式：Actor、Reactor、Proactor">
-<meta property="og:url" content="http://example.com/post/7e8fdabc.html">
+<meta property="og:title" content="反应器模式Reactor和Proactor">
+<meta property="og:url" content="http://example.com/post/65736bcc.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="前言之前有提过IO模型，而这些介绍下，用这些IO模型发展出来的IO设计模式 先介绍两种高性能服务器模式Reactor、ProactorReactor模型1 向事件分发器注册事件回调2 事件发生4 事件分发器调用之前注册的函数4 在回调函数中读取数据，对数据进行后续处理Reactor模型实例：libevent，Redis、ACE Proactor模型1 向事件分发器注册事件回调2 事件发生3 操作系">
+<meta property="og:description" content="反应器模式（Reactor Pattern）是一种为处理服务请求并发提交到一个或者多个服务处理程序的事件设计模式。反应器模式与观察都模式相似。但观察者模式与单个事件源关联，而反应器模式则与多个事件源关联。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-02-13T01:31:26.000Z">
-<meta property="article:modified_time" content="2021-05-13T06:27:20.216Z">
+<meta property="article:modified_time" content="2021-05-13T15:17:50.726Z">
 <meta property="article:author" content="losophy">
-<meta property="article:tag" content="linux">
+<meta property="article:tag" content="design">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/post/7e8fdabc.html">
+<link rel="canonical" href="http://example.com/post/65736bcc.html">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>IO设计模式：Actor、Reactor、Proactor | losophy</title>
+  <title>反应器模式Reactor和Proactor | losophy</title>
   
 
 
@@ -171,7 +171,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/7e8fdabc.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/65736bcc.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -184,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          IO设计模式：Actor、Reactor、Proactor
+          反应器模式Reactor和Proactor
         </h1>
 
         <div class="post-meta">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:20" itemprop="dateModified" datetime="2021-05-13T14:27:20+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 23:17:50" itemprop="dateModified" datetime="2021-05-13T23:17:50+08:00">2021-05-13</time>
               </span>
 
           
@@ -215,21 +215,27 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前有提过<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/19">IO模型</a>，而这些介绍下，用这些IO模型发展出来的IO设计模式</p>
-<h2 id="先介绍两种高性能服务器模式Reactor、Proactor"><a href="#先介绍两种高性能服务器模式Reactor、Proactor" class="headerlink" title="先介绍两种高性能服务器模式Reactor、Proactor"></a>先介绍两种高性能服务器模式Reactor、Proactor</h2><h3 id="Reactor模型"><a href="#Reactor模型" class="headerlink" title="Reactor模型"></a>Reactor模型</h3><p>1 向事件分发器注册事件回调<br>2 事件发生<br>4 事件分发器调用之前注册的函数<br>4 在回调函数中读取数据，对数据进行后续处理<br>Reactor模型实例：libevent，Redis、ACE</p>
-<h3 id="Proactor模型"><a href="#Proactor模型" class="headerlink" title="Proactor模型"></a>Proactor模型</h3><p>1 向事件分发器注册事件回调<br>2 事件发生<br>3 操作系统读取数据，并放入应用缓冲区，然后通知事件分发器<br>4 事件分发器调用之前注册的函数<br>5 在回调函数中对数据进行后续处理<br>Preactor模型实例：ASIO</p>
-<h3 id="reactor和proactor的主要区别"><a href="#reactor和proactor的主要区别" class="headerlink" title="reactor和proactor的主要区别"></a>reactor和proactor的主要区别</h3><h4 id="主动和被动"><a href="#主动和被动" class="headerlink" title="主动和被动"></a>主动和被动</h4><p>以主动写为例：<br>Reactor将handle放到select()，等待可写就绪，然后调用write()写入数据；写完处理后续逻辑；<br>Proactor调用aoi_write后立刻返回，由内核负责写操作，写完后调用相应的回调函数处理后续逻辑；</p>
-<p>可以看出，Reactor被动的等待指示事件的到来并做出反应；它有一个等待的过程，做什么都要先放入到监听事件集合中等待handler可用时再进行操作；<br>Proactor直接调用异步读写操作，调用完后立刻返回；</p>
-<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>Reactor实现了一个被动的事件分离和分发模型，服务等待请求事件的到来，再通过不受间断的同步处理事件，从而做出反应；<br>Proactor实现了一个主动的事件分离和分发模型；这种设计允许多个任务并发的执行，从而提高吞吐量；并可执行耗时长的任务（各个任务间互不影响）</p>
-<h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><p>Reactor实现相对简单，对于耗时短的处理场景处理高效；<br>操作系统可以在多个事件源上等待，并且避免了多线程编程相关的性能开销和编程复杂性；<br>事件的串行化对应用是透明的，可以顺序的同步执行而不需要加锁；<br>事务分离：将与应用无关的多路分解和分配机制和与应用相关的回调函数分离开来，<br>Proactor性能更高，能够处理耗时长的并发场景；</p>
-<h4 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h4><p>Reactor处理耗时长的操作会造成事件分发的阻塞，影响到后续事件的处理；<br>Proactor实现逻辑复杂；依赖操作系统对异步的支持，目前实现了纯异步操作的操作系统少，实现优秀的如windows IOCP，但由于其windows系统用于服务器的局限性，目前应用范围较小；而Unix/Linux系统对纯异步的支持有限，应用事件驱动的主流还是通过select/epoll来实现；</p>
-<h4 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h4><p>Reactor：同时接收多个服务请求，并且依次同步的处理它们的事件驱动程序；<br>Proactor：异步接收和同时处理多个服务请求的事件驱动程序；</p>
-<h2 id="再说Actor模型"><a href="#再说Actor模型" class="headerlink" title="再说Actor模型"></a>再说Actor模型</h2><p>Actor模型被称为高并发事务的终极解决方案，<br>实体之通过消息通讯，各自处理自己的数据，能够实现这并行。<br>actor模型实例：skynet，Erlang </p>
-<p>Actor模型是一个概念模型，用于处理并发计算。它定义了一系列系统组件应该如何动作和交互的通用规则，最著名的使用这套规则的编程语言是Erlang。<br>一个Actor指的是一个最基本的计算单元。它能接收一个消息并且基于其执行计算。<br>这个理念很像面向对象语言，一个对象接收一条消息（方法调用），然后根据接收的消息做事（调用了哪个方法）。</p>
-<p>Actors一大重要特征在于actors之间相互隔离，它们并不互相共享内存。这点区别于上述的对象。也就是说，一个actor能维持一个私有的状态，并且这个状态不可能被另一个actor所改变。</p>
-<h3 id="思路方向"><a href="#思路方向" class="headerlink" title="思路方向"></a>思路方向</h3><p>其实无论是使用数据库锁 还是多线程，这里有一个共同思路，就是将数据喂给线程，就如同计算机是一套加工流水线，数据作为原材料投入这个流水线的开始，流水线出来后就是成品，这套模式的前提是数据是被动的，自身不复杂，没有自身业务逻辑要求。适合大数据处理或互联网网站应用等等。</p>
-<p>但是如果数据自身要求有严格的一致性，也就是事务机制，数据就不能被动被加工，要让数据自己有行为能力保护实现自己的一致性，就像孩子小的时候可以任由爸妈怎么照顾关心都可以，但是如果孩子长大有自己的思想和要求，他就可能不喜欢被爸妈照顾，他要求自己通过行动实现自己的要求。</p>
-<p>数据也是如此。<br>只有我们改变思路，让数据自己有行为维护自己的一致性，才能真正安全实现真正的事务。<br>我们可以看到<br>Actor模型=数据+行为+消息。<br>Actor模型内部的状态由自己的行为维护，外部线程不能直接调用对象的行为，必须通过消息才能激发行为，这样就保证Actor内部数据只有被自己修改。</p>
+        <p>反应器模式（Reactor Pattern）是一种为处理服务请求并发提交到一个或者多个服务处理程序的事件设计模式。反应器模式与观察都模式相似。但观察者模式与单个事件源关联，而反应器模式则与多个事件源关联。</p>
+<a id="more"></a>
+
+<h2 id="先介绍两种高性能服务器模式Reactor、Proactor"><a href="#先介绍两种高性能服务器模式Reactor、Proactor" class="headerlink" title="先介绍两种高性能服务器模式Reactor、Proactor"></a>先介绍两种高性能服务器模式Reactor、Proactor</h2><p>这里用收快递作比喻。<code>reactor</code>就像快速能收的时候，快递员会通知你拿快递。<code>proactor</code>就像使用菜鸟驿站，<code>内核</code>帮你代收了这个快递。</p>
+<h3 id="Reactor模型"><a href="#Reactor模型" class="headerlink" title="Reactor模型"></a>Reactor模型</h3><p>在<code>Reactor</code>中实现读：</p>
+<blockquote>
+<p>1 向事件分发器注册事件回调<br>2 事件分发器等待事件<br>3 事件分发器调用之前注册的函数<br>4 在回调函数中读取数据，对数据进行后续处理<br><code>Reactor</code>模型实例：<code>libevent</code>，<code>Redis</code>、<code>ACE</code>。</p>
+</blockquote>
+<h3 id="Proactor模型"><a href="#Proactor模型" class="headerlink" title="Proactor模型"></a>Proactor模型</h3><p>在<code>Proactor</code>中实现读：</p>
+<blockquote>
+<p>1 向事件分发器注册事件回调<br>2 事件分发器等待事件发生<br>3 操作系统读取数据，并放入应用缓冲区，然后通知事件分发器<br>4 事件分发器调用之前注册的函数<br>5 在回调函数中对数据进行后续处理<br>Preactor模型实例：ASIO。</p>
+</blockquote>
+<h3 id="reactor和proactor的主要区别"><a href="#reactor和proactor的主要区别" class="headerlink" title="reactor和proactor的主要区别"></a>reactor和proactor的主要区别</h3><h4 id="主动和被动"><a href="#主动和被动" class="headerlink" title="主动和被动"></a>主动和被动</h4><p>以主动写为例：<br><code>Reactor</code>将<code>handle</code>放到<code>select()</code>，等待可写就绪，然后调用<code>write()</code>写入数据；写完处理后续逻辑。<br><code>Proactor</code>调用<code>aoi_write</code>后立刻返回，由内核负责写操作，写完后调用相应的回调函数处理后续逻辑。</p>
+<p>可以看出，<code>Reactor</code>被动的等待指示事件的到来并做出反应；它有一个等待的过程，做什么都要先放入到监听事件集合中等待<code>handler</code>可用时再进行操作。<br><code>Proactor</code>直接调用异步读写操作，调用完后立刻返回。</p>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p><code>Reactor</code>实现了一个被动的事件分离和分发模型，服务等待请求事件的到来，再通过不受间断的同步处理事件，从而做出反应。<br><code>Proactor</code>实现了一个主动的事件分离和分发模型，这种设计允许多个任务并发的执行，从而提高吞吐量，并可执行耗时长的任务（各个任务间互不影响）。</p>
+<h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><p><code>Reactor</code>实现相对简单，对于耗时短的处理场景处理高效。操作系统可以在多个事件源上等待，并且避免了多线程编程相关的性能开销和编程复杂性。事件的串行化对应用是透明的，可以顺序的同步执行而不需要加锁。事务分离，将与应用无关的多路分解和分配机制和与应用相关的回调函数分离开来。</p>
+<p><code>Proactor</code>性能更高，能够处理耗时长的并发场景。</p>
+<h4 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h4><p><code>Reactor</code>处理耗时长的操作会造成事件分发的阻塞，影响到后续事件的处理；<br><code>Proactor</code>实现逻辑复杂。依赖操作系统对异步的支持，目前实现了纯异步操作的操作系统少，实现优秀的如<code>windows IOCP</code>，但由于其<code>windows</code>系统用于服务器的局限性，目前应用范围较小。而<code>Unix/Linux</code>系统对纯异步的支持有限，应用事件驱动的主流还是通过<code>select/epoll</code>来实现。</p>
+<h4 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h4><p><code>Reactor</code>：同时接收多个服务请求，并且依次同步的处理它们的事件驱动程序。<br><code>Proactor</code>：异步接收和同时处理多个服务请求的事件驱动程序。</p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/20">El amor todo lo puede.</a></p>
 
     </div>
 
@@ -240,26 +246,26 @@
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\3a6de6ae.html" rel="bookmark">IO模型:select,poll,epoll</a></div>
+      <div class="popular-posts-title"><a href="\post\d6fe94a3.html" rel="bookmark">Actor模型</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\233853f2.html" rel="bookmark">cmake</a></div>
+      <div class="popular-posts-title"><a href="\post\9a7f448e.html" rel="bookmark">Jenkins</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\9780b568.html" rel="bookmark">linux下的一些操作</a></div>
+      <div class="popular-posts-title"><a href="\post\2f4d2249.html" rel="bookmark">代码整洁之道</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\750cd44d.html" rel="bookmark">linux下的一些网络调试命令</a></div>
+      <div class="popular-posts-title"><a href="\post\f1601c3e.html" rel="bookmark">单例模式</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\1f8fc9f6.html" rel="bookmark">linux信号</a></div>
+      <div class="popular-posts-title"><a href="\post\54788f73.html" rel="bookmark">工厂模式</a></div>
     </li>
   </ul>
 
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
+              <a href="/tags/design/" rel="tag"><i class="fa fa-tag"></i> design</a>
           </div>
 
         
@@ -268,8 +274,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/3a6de6ae.html" rel="prev" title="IO模型:select,poll,epoll">
-      <i class="fa fa-chevron-left"></i> IO模型:select,poll,epoll
+    <a href="/post/c352656a.html" rel="prev" title="IO模型select,poll,epoll">
+      <i class="fa fa-chevron-left"></i> IO模型select,poll,epoll
     </a></div>
       <div class="post-nav-item">
     <a href="/post/e47927c.html" rel="next" title="vim快捷键">
@@ -334,7 +340,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%88%E4%BB%8B%E7%BB%8D%E4%B8%A4%E7%A7%8D%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A8%A1%E5%BC%8FReactor%E3%80%81Proactor"><span class="nav-number">2.</span> <span class="nav-text">先介绍两种高性能服务器模式Reactor、Proactor</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reactor%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">Reactor模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Proactor%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.2.</span> <span class="nav-text">Proactor模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reactor%E5%92%8Cproactor%E7%9A%84%E4%B8%BB%E8%A6%81%E5%8C%BA%E5%88%AB"><span class="nav-number">2.3.</span> <span class="nav-text">reactor和proactor的主要区别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E5%8A%A8%E5%92%8C%E8%A2%AB%E5%8A%A8"><span class="nav-number">2.3.1.</span> <span class="nav-text">主动和被动</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.3.2.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">2.3.3.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9"><span class="nav-number">2.3.4.</span> <span class="nav-text">缺点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.3.5.</span> <span class="nav-text">适用场景</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%8D%E8%AF%B4Actor%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">再说Actor模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF%E6%96%B9%E5%90%91"><span class="nav-number">3.1.</span> <span class="nav-text">思路方向</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%88%E4%BB%8B%E7%BB%8D%E4%B8%A4%E7%A7%8D%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A8%A1%E5%BC%8FReactor%E3%80%81Proactor"><span class="nav-number">1.</span> <span class="nav-text">先介绍两种高性能服务器模式Reactor、Proactor</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reactor%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">Reactor模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Proactor%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.</span> <span class="nav-text">Proactor模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reactor%E5%92%8Cproactor%E7%9A%84%E4%B8%BB%E8%A6%81%E5%8C%BA%E5%88%AB"><span class="nav-number">1.3.</span> <span class="nav-text">reactor和proactor的主要区别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E5%8A%A8%E5%92%8C%E8%A2%AB%E5%8A%A8"><span class="nav-number">1.3.1.</span> <span class="nav-text">主动和被动</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.3.2.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">1.3.3.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9"><span class="nav-number">1.3.4.</span> <span class="nav-text">缺点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.3.5.</span> <span class="nav-text">适用场景</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -464,7 +470,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blog.comments',
       owner       : 'losophy',
       admin       : ['losophy'],
-      id          : '6268f420598fc4a4dae3656546320fef',
+      id          : '6b384e09f0be5b7b3bc50bf50e3402b6',
         language: 'zh-CN',
       distractionFreeMode: true
     });
