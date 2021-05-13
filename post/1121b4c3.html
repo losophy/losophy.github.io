@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="提交不停弹出登陆弹窗的问题无论是用git push 还是tortoisegit push，都会不停弹出登录窗口结果不论如何填写用户名和密码，都说logon failed。 google了一下，发现原来有个git credentials manager这个软件，这是安装git的时候勾选安装的，这个弹窗就是这个软件弹出来的。 根据提示，执行了“git credential-manager uninst">
+  <meta name="description" content="这里记录下git的相关问题。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="git项目相关问题">
 <meta property="og:url" content="http://example.com/post/1121b4c3.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="提交不停弹出登陆弹窗的问题无论是用git push 还是tortoisegit push，都会不停弹出登录窗口结果不论如何填写用户名和密码，都说logon failed。 google了一下，发现原来有个git credentials manager这个软件，这是安装git的时候勾选安装的，这个弹窗就是这个软件弹出来的。 根据提示，执行了“git credential-manager uninst">
+<meta property="og:description" content="这里记录下git的相关问题。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-01-25T16:21:21.000Z">
-<meta property="article:modified_time" content="2021-05-13T06:27:20.221Z">
+<meta property="article:modified_time" content="2021-05-13T07:13:11.246Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="git">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 14:27:20" itemprop="dateModified" datetime="2021-05-13T14:27:20+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-13 15:13:11" itemprop="dateModified" datetime="2021-05-13T15:13:11+08:00">2021-05-13</time>
               </span>
 
           
@@ -215,13 +215,19 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="提交不停弹出登陆弹窗的问题"><a href="#提交不停弹出登陆弹窗的问题" class="headerlink" title="提交不停弹出登陆弹窗的问题"></a>提交不停弹出登陆弹窗的问题</h2><p>无论是用git push 还是tortoisegit push，都会不停弹出登录窗口<br>结果不论如何填写用户名和密码，都说logon failed。</p>
-<p>google了一下，发现原来有个git credentials manager这个软件，这是安装git的时候勾选安装的，这个弹窗就是这个软件弹出来的。</p>
-<p>根据提示，执行了“git credential-manager uninstall”。不再弹出登录窗口了，提交直接push就行了。</p>
-<h2 id="git项目如何过滤没有后缀的二进制文件"><a href="#git项目如何过滤没有后缀的二进制文件" class="headerlink" title="git项目如何过滤没有后缀的二进制文件"></a>git项目如何过滤没有后缀的二进制文件</h2><p>一般是输出到固定目录，比如dest然后统一忽略。要不然就赋予他们一个相同的pattern 然后忽略。</p>
-<p>原本扩展名对liunx的影响不大，只是今年来linux也才慢慢的用扩展名标识文件类型。<br>window文件你也可以不写扩展名。<br>不一定非要二进制文件才没有扩展名。<br>git没有通过判断文件内容来忽略的接口，除非自己写。</p>
+        <p>这里记录下<code>git</code>的相关问题。</p>
+<a id="more"></a>
+
+<h2 id="提交不停弹出登陆弹窗的问题"><a href="#提交不停弹出登陆弹窗的问题" class="headerlink" title="提交不停弹出登陆弹窗的问题"></a>提交不停弹出登陆弹窗的问题</h2><p>无论是用<code>git push</code>还是<code>tortoisegit push</code>，都会不停弹出登录窗口。<br>结果不论如何填写用户名和密码，都说<code>logon failed</code>。</p>
+<p><code>google</code>了一下，发现原来有个<code>git credentials manager</code>这个软件，这是安装git的时候勾选安装的，这个弹窗就是这个软件弹出来的。</p>
+<p>根据提示，执行了<code>git credential-manager uninstall</code>。不再弹出登录窗口了，提交直接<code>push</code>就行了。</p>
+<h2 id="git项目如何过滤没有后缀的二进制文件"><a href="#git项目如何过滤没有后缀的二进制文件" class="headerlink" title="git项目如何过滤没有后缀的二进制文件"></a>git项目如何过滤没有后缀的二进制文件</h2><p>一般是输出到固定目录，比如<code>dest</code>然后统一忽略。要不然就赋予他们一个相同的<code>pattern</code>然后忽略。</p>
+<p>原本扩展名对<code>liunx</code>的影响不大，只是今年来<code>linux</code>也才慢慢的用扩展名标识文件类型。<br><code>window</code>文件你也可以不写扩展名。<br>不一定非要二进制文件才没有扩展名。<br><code>git</code>没有通过判断文件内容来忽略的接口，除非自己写。</p>
 <h2 id="git仓库太大的处理方法"><a href="#git仓库太大的处理方法" class="headerlink" title="git仓库太大的处理方法"></a>git仓库太大的处理方法</h2><h3 id="只下载最后一次的提交"><a href="#只下载最后一次的提交" class="headerlink" title="只下载最后一次的提交"></a>只下载最后一次的提交</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;Wuchenwcf&#x2F;MyCode.git --depth&#x3D;&#x3D;1</span><br></pre></td></tr></table></figure>
 <h3 id="git仓库压缩瘦身"><a href="#git仓库压缩瘦身" class="headerlink" title="git仓库压缩瘦身"></a>git仓库压缩瘦身</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 查看历史大文件</span><br><span class="line">git rev-list --objects --all | grep &quot;$(git verify-pack -v .git&#x2F;objects&#x2F;pack&#x2F;*.idx | sort -k 3 -n | tail -5 | awk &#39;&#123;print$1&#125;&#39;)&quot;</span><br><span class="line"># 从历史中删除 target&#x2F; 这个文件夹</span><br><span class="line">git filter-branch --force --index-filter &#39;git rm -r  --cached --ignore-unmatch target&#x2F;&#39; --prune-empty --tag-name-filter cat -- --all</span><br><span class="line"># 执行仓库压缩</span><br><span class="line">git gc --prune&#x3D;now</span><br><span class="line"># 推送到远程仓库</span><br><span class="line">git push origin --force --all</span><br></pre></td></tr></table></figure>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/3">El hábito no hace al monje.</a></p>
+
     </div>
 
     
