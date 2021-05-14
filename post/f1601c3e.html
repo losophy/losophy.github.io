@@ -27,11 +27,13 @@
 <meta property="og:site_name" content="losophy">
 <meta property="og:description" content="游戏中用到单例模式的例子很多，几乎适用于系统资源管理类中，如聊天，道具，日志等等。单例模式（Singleton），保证了全局有且只有一个实例对象，保证自动地初始化该对象，使得程序在任何时候任何地方都可以访问、获取该对象。 通常我们可以让一个全局变量使得一个对象被访问，但它不能防止你实例化多个对象。一个最好的办法就是让类自身保存它的唯一实例。这个类可以保证没有其他实例可以被创建，并且它可以提供一个访">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/118207973-5b04c500-b498-11eb-907d-fb58ff9f1dfd.jpg">
 <meta property="article:published_time" content="2021-02-21T15:09:34.000Z">
-<meta property="article:modified_time" content="2021-05-13T15:17:48.023Z">
+<meta property="article:modified_time" content="2021-05-14T04:14:15.604Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="design">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/118207973-5b04c500-b498-11eb-907d-fb58ff9f1dfd.jpg">
 
 <link rel="canonical" href="http://example.com/post/f1601c3e.html">
 
@@ -201,7 +203,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -215,18 +217,25 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>游戏中用到单例模式的例子很多，几乎适用于系统资源管理类中，如聊天，道具，日志等等。<br>单例模式（Singleton），保证了全局有且只有一个实例对象，保证自动地初始化该对象，使得程序在任何时候任何地方都可以访问、获取该对象。</p>
+        <p>游戏中用到单例模式的例子很多，几乎适用于系统资源管理类中，如聊天，道具，日志等等。<br>单例模式<code>（Singleton）</code>，保证了全局有且只有一个实例对象，保证自动地初始化该对象，使得程序在任何时候任何地方都可以访问、获取该对象。</p>
 <p>通常我们可以让一个全局变量使得一个对象被访问，但它不能防止你实例化多个对象。一个最好的办法就是让类自身保存它的唯一实例。这个类可以保证没有其他实例可以被创建，并且它可以提供一个访问该实例的方法。</p>
-<p>基本上类图都像这样：</p>
-<p>这里把构造函数定义为private或protected，可以防止外界利用new创建此类实例。而且GetInstance是一个静态的函数，主要负责创建自己的唯一实例。而且GetInstance是一个静态的函数，主要负责创建自己的唯一实例。</p>
+<a id="more"></a>
+
+<h2 id="基本类图"><a href="#基本类图" class="headerlink" title="基本类图"></a>基本类图</h2><p><img src="https://user-images.githubusercontent.com/11263320/118207973-5b04c500-b498-11eb-907d-fb58ff9f1dfd.jpg" alt="15102221-3340ff6dde434ed0b8f2a0a3340cfa88"></p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>这里把构造函数定义为<code>private</code>或<code>protected</code>，可以防止外界利用<code>new</code>创建此类实例。而且<code>GetInstance</code>是一个静态的函数，主要负责创建自己的唯一实例。而且<code>GetInstance</code>是一个静态的函数，主要负责创建自己的唯一实例。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取某个类的单例</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetClassInstance( classname ) static_cast<span class="meta-string">&lt;classname*&gt;( CMySingleton&lt;classname&gt;::GetInstance() )</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//单例模板</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CMySingleton</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    CMySingleton();</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ~CMySingleton();</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取全局唯一实例对象。如果还没有创建，创建她。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> T* <span class="title">GetInstance</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;        </span><br><span class="line">        <span class="keyword">if</span> (m_pInstance == <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            m_pInstance= <span class="keyword">new</span> T();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m_pInstance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 消除全局唯一实例对象。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Destroy</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (m_pInstance != <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">delete</span> m_pInstance;</span><br><span class="line">            m_pInstance = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> T* m_pInstance;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>但有时候，在多线程的程序中，多个线程同时访问Singleton，调用GetInstance()方法，会有可能造成创建多个实例。这时候就要给程序加锁。</p>
+<p>但有时候，在多线程的程序中，多个线程同时访问<code>Singleton</code>，调用<code>GetInstance()</code>方法，会有可能造成创建多个实例。这时候就要给程序加锁。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取某个类的单例</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GetClassInstance( classname ) static_cast<span class="meta-string">&lt;classname*&gt;( CMySingleton&lt;classname&gt;::GetInstance() )</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//单例模板</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CMySingleton</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    CMySingleton()</span><br><span class="line">    &#123;</span><br><span class="line">        pthread_mutex_init(&amp;m_mutex, <span class="literal">NULL</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ~CMySingleton()</span><br><span class="line">    &#123;</span><br><span class="line">        pthread_mutex_destory(&amp;m_mutex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取全局唯一实例对象。如果还没有创建，创建她。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> T* <span class="title">GetInstance</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;        </span><br><span class="line">        <span class="keyword">if</span> (m_pInstance == <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            pthread_mutex_lock(&amp;m_mutex);</span><br><span class="line">            <span class="keyword">if</span> (m_pInstance == <span class="literal">NULL</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                m_pInstance= <span class="keyword">new</span> T();</span><br><span class="line">            &#125;</span><br><span class="line">            pthread_mutex_unlock(&amp;m_mutex);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> m_pInstance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 消除全局唯一实例对象。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Destroy</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        pthread_mutex_lock(&amp;m_mutex);<span class="comment">//此处无需双重检测，因为delete null并不会导致bug.</span></span><br><span class="line">        <span class="keyword">if</span> (m_pInstance != <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">delete</span> m_pInstance;</span><br><span class="line">            m_pInstance = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">static</span> T* m_pInstance;</span><br><span class="line">    <span class="keyword">pthread_mutex_t</span> m_mutex;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>这里有个疑惑，为什么在lock后，还需要做一次instance实例是否存在的判断？<br>当instance为null并且同时有两个纯种调用GetInstance()方法时，它们将都可以通过第一重判断。然后由于lock机制，这两个线程则只有一个进入，另一个在外排队等候，必须要其中的一个进入并出来后，另一个才能进入。而此时如果没有了第二重的判断，则第一个线程创建了实例，而第二个线程还是可以继续再创建新的实例，这就没有达到单例的目的了。</p>
-<p>总结<br>单例模式有以下的特点：<br>1 单例类只可有一个实例。<br>2 单例类必须自己创建自己这惟一的实例。<br>3 单例类必须给所有其他对象提供这一实例。<br>4 在大并发程序里，可能有多个线程同时访问单例，所以一定要记得加锁。</p>
+<p>这里有个疑惑，为什么在<code>lock</code>后，还需要做一次<code>instance</code>实例是否存在的判断？<br>当<code>instance</code>为<code>null</code>并且同时有两个纯种调用<code>GetInstance()</code>方法时，它们将都可以通过第一重判断。然后由于<code>lock</code>机制，这两个线程则只有一个进入，另一个在外排队等候，必须要其中的一个进入并出来后，另一个才能进入。而此时如果没有了第二重的判断，则第一个线程创建了实例，而第二个线程还是可以继续再创建新的实例，这就没有达到单例的目的了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>单例模式有以下的特点： </p>
+<blockquote>
+<p>1 单例类只可有一个实例<br>2 单例类必须自己创建自己这惟一的实例<br>3 单例类必须给所有其他对象提供这一实例<br>4 在大并发程序里，可能有多个线程同时访问单例，所以一定要记得加锁</p>
+</blockquote>
 <p>多线程时：<br>单例模式主要有2中形式，一种是饿汉式，一种是懒汉式。<br>饿汉式：程序一加载单例模式就已经创建了，也就很饥饿嘛。因为是静态属性进行单例初始化，所以优点是线程是安全的，缺点是无论用户是否使用单例对象都会创建单例对象。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//静态属性类外初始化</span></span><br><span class="line">Singleton_Hungry* Singleton_Hungry::singleton = <span class="keyword">new</span> Singleton_Hungry;</span><br></pre></td></tr></table></figure>
 <p>懒汉式：当用户使用单例对象时，才去创建单例对象，所以很懒惰嘛。优点是用户不使用就不会创建对象，缺点是 当遇到多线程是，是线程不安全的，但是我们可以使用加强版的也就是线程安全的懒汉式。（上面用到的是这个）。</p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/33">A otro perro con ese hueso.</a></p>
 
     </div>
 
@@ -269,8 +278,8 @@
       <i class="fa fa-chevron-left"></i> 工厂模式
     </a></div>
       <div class="post-nav-item">
-    <a href="/post/7eb99ae2.html" rel="next" title="线程，进程，锁，协程">
-      线程，进程，锁，协程 <i class="fa fa-chevron-right"></i>
+    <a href="/post/efd5c410.html" rel="next" title="进程，线程，协程">
+      进程，线程，协程 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -331,6 +340,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">基本类图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -345,7 +355,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

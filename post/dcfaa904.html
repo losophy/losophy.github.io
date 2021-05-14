@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="Redis由于支持非常丰富的内存数据结构类型，如何把这些复杂的内存组织方式持久化到磁盘上是一个难题，所以Redis的持久化方式与传统数据库的方式有比较多的差别，Redis主要支持下面两种持久化方式，分别是：定时快照方式(RDB)基于语句追加文件的方式(AOF) Redis 还可以同时使用 AOF 持久化和 RDB 持久化。 在这种情况下， 当 Redis 重启时， 它会优先使用 AOF 文件来还原">
+  <meta name="description" content="Redis由于支持非常丰富的内存数据结构类型，如何把这些复杂的内存组织方式持久化到磁盘上是一个难题，所以Redis的持久化方式与传统数据库的方式有比较多的差别。Redis主要支持下面两种持久化方式，分别是：  定时快照方式(RDB)基于语句追加文件的方式(AOF)">
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis持久化">
 <meta property="og:url" content="http://example.com/post/dcfaa904.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="Redis由于支持非常丰富的内存数据结构类型，如何把这些复杂的内存组织方式持久化到磁盘上是一个难题，所以Redis的持久化方式与传统数据库的方式有比较多的差别，Redis主要支持下面两种持久化方式，分别是：定时快照方式(RDB)基于语句追加文件的方式(AOF) Redis 还可以同时使用 AOF 持久化和 RDB 持久化。 在这种情况下， 当 Redis 重启时， 它会优先使用 AOF 文件来还原">
+<meta property="og:description" content="Redis由于支持非常丰富的内存数据结构类型，如何把这些复杂的内存组织方式持久化到磁盘上是一个难题，所以Redis的持久化方式与传统数据库的方式有比较多的差别。Redis主要支持下面两种持久化方式，分别是：  定时快照方式(RDB)基于语句追加文件的方式(AOF)">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-02-21T18:15:27.000Z">
-<meta property="article:modified_time" content="2021-05-13T15:17:48.023Z">
+<meta property="article:modified_time" content="2021-05-14T04:14:15.604Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="redis">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -215,23 +215,32 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Redis由于支持非常丰富的内存数据结构类型，如何把这些复杂的内存组织方式持久化到磁盘上是一个难题，所以Redis的持久化方式与传统数据库的方式有比较多的差别，Redis主要支持下面两种持久化方式，分别是：<br>定时快照方式(RDB)<br>基于语句追加文件的方式(AOF)</p>
-<p>Redis 还可以同时使用 AOF 持久化和 RDB 持久化。 在这种情况下， 当 Redis 重启时， 它会优先使用 AOF 文件来还原数据集， 因为 AOF 文件保存的数据集通常比 RDB 文件所保存的数据集更完整。</p>
-<h2 id="定时快照方式-snapshot，RDB-快照"><a href="#定时快照方式-snapshot，RDB-快照" class="headerlink" title="定时快照方式(snapshot，RDB 快照)"></a>定时快照方式(snapshot，RDB 快照)</h2><p>该持久化方式实际是在Redis内部一个定时器事件，每隔固定时间去检查当前数据发生的改变次数与时间是否满足配置的持久化触发的条件，如果满足则 通过操作系统fork调用来创建出一个子进程，这个子进程默认会与父进程共享相同的地址空间，这时就可以通过子进程来遍历整个内存来进行存储操作，而主进 程则仍然可以提供服务，当有写入时由操作系统按照内存页(page)为单位来进行copy-on-write保证父子进程之间不会互相影响。</p>
-<p>该持久化的主要缺点是定时快照只是代表一段时间内的内存映像，所以系统重启会丢失上次快照与重启之间所有的数据。<br>在默认情况下，Redis 将数据库快照保存在名字为 dump.rdb 的二进制文件中。<br>可以在.conf文件中修改</p>
+        <p><code>Redis</code>由于支持非常丰富的内存数据结构类型，如何把这些复杂的内存组织方式持久化到磁盘上是一个难题，所以<code>Redis</code>的持久化方式与传统数据库的方式有比较多的差别。<br><code>Redis</code>主要支持下面两种持久化方式，分别是：</p>
+<blockquote>
+<p>定时快照方式<code>(RDB)</code><br>基于语句追加文件的方式<code>(AOF)</code></p>
+</blockquote>
+<a id="more"></a>
+
+<p><code>Redis</code>还可以同时使用<code>AOF</code>持久化和<code>RDB</code>持久化。 在这种情况下， 当<code>Redis</code>重启时， 它会优先使用<code>AOF</code>文件来还原数据集， 因为<code>AOF</code>文件保存的数据集通常比<code>RDB</code>文件所保存的数据集更完整。</p>
+<h2 id="定时快照方式-snapshot，RDB快照"><a href="#定时快照方式-snapshot，RDB快照" class="headerlink" title="定时快照方式(snapshot，RDB快照)"></a>定时快照方式(<code>snapshot</code>，<code>RDB</code>快照)</h2><p>该持久化方式实际是在<code>Redis</code>内部一个定时器事件，每隔固定时间去检查当前数据发生的改变次数与时间是否满足配置的持久化触发的条件，如果满足则 通过操作系统<code>fork</code>调用来创建出一个子进程，这个子进程默认会与父进程共享相同的地址空间，这时就可以通过子进程来遍历整个内存来进行存储操作，而主进程则仍然可以提供服务，当有写入时由操作系统按照内存页<code>(page)</code>为单位来进行<code>copy-on-write</code>保证父子进程之间不会互相影响。</p>
+<div class="note warning"><p>该持久化的主要缺点是定时快照只是代表一段时间内的内存映像，所以系统重启会丢失上次快照与重启之间所有的数据。</p></div>
+
+<p>在默认情况下，<code>Redis</code>将数据库快照保存在名字为<code>dump.rdb</code>的二进制文件中。<br>可以在<code>.conf</code>文件中修改</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#   save &quot;&quot;</span><br><span class="line">save 60 1000</span><br><span class="line"></span><br><span class="line"># The filename where to dump the DB</span><br><span class="line">dbfilename &quot;dump.rdb&quot;</span><br></pre></td></tr></table></figure>
-<p>你也可以通过调用 SAVE 或者 BGSAVE ， 手动让 Redis 进行数据集保存操作。</p>
+<p>你也可以通过调用<code>SAVE</code>或者<code>BGSAVE</code> ， 手动让<code>Redis</code>进行数据集保存操作。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SAVE</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">redis&gt; BGSAVE</span><br><span class="line">Background saving started</span><br></pre></td></tr></table></figure>
-<h3 id="Redis恢复数据"><a href="#Redis恢复数据" class="headerlink" title="Redis恢复数据"></a>Redis恢复数据</h3><p>只要覆盖一下dump.rdb，再重启下redis就可以了。</p>
-<h2 id="基于语句追加方式-AOF"><a href="#基于语句追加方式-AOF" class="headerlink" title="基于语句追加方式(AOF)"></a>基于语句追加方式(AOF)</h2><p>aof方式实际类似mysql的基于语句的binlog方式，即每条会使Redis内存数据发生改变的命令都会追加到一个log文件中，也就是说这个log文件就是Redis的持久化数据。</p>
-<p>aof的方式的主要缺点是追加log文件可能导致体积过大，当系统重启恢复数据时如果是aof的方式则加载数据会非常慢，几十G的数据可能需要几小 时才能加载完，当然这个耗时并不是因为磁盘文件读取速度慢，而是由于读取的所有命令都要在内存中执行一遍。另外由于每条命令都要写log,所以使用aof 的方式，Redis的读写性能也会有所下降。</p>
-<p>AOF 重写和 RDB 创建快照一样，都巧妙地利用了写时复制机制。 打开只需要写入conf文件</p>
+<h3 id="Redis恢复数据"><a href="#Redis恢复数据" class="headerlink" title="Redis恢复数据"></a>Redis恢复数据</h3><p>只要覆盖一下<code>dump.rdb</code>，再重启下<code>redis</code>就可以了。</p>
+<h2 id="基于语句追加方式-AOF"><a href="#基于语句追加方式-AOF" class="headerlink" title="基于语句追加方式(AOF)"></a>基于语句追加方式(AOF)</h2><p><code>aof</code>方式实际类似<code>mysql</code>的基于语句的<code>binlog</code>方式，即每条会使<code>Redis</code>内存数据发生改变的命令都会追加到一个<code>log</code>文件中，也就是说这个<code>log</code>文件就是<code>Redis</code>的持久化数据。</p>
+<p><code>aof</code>的方式的主要缺点是追加<code>log</code>文件可能导致体积过大，当系统重启恢复数据时如果是<code>aof</code>的方式则加载数据会非常慢，几十G的数据可能需要几小 时才能加载完，当然这个耗时并不是因为磁盘文件读取速度慢，而是由于读取的所有命令都要在内存中执行一遍。另外由于每条命令都要写<code>log</code>,所以使用<code>aof</code>的方式，<code>Redis</code>的读写性能也会有所下降。</p>
+<p><code>AOF</code>重写和<code>RDB</code>创建快照一样，都巧妙地利用了写时复制机制。 打开只需要写入<code>conf</code>文件</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
-<h2 id="RDB-和-AOF，应该用哪一个"><a href="#RDB-和-AOF，应该用哪一个" class="headerlink" title="RDB 和 AOF，应该用哪一个"></a>RDB 和 AOF，应该用哪一个</h2><p>一般来说， 如果想达到足以媲美 PostgreSQL 的数据安全性， 你应该同时使用两种持久化功能。</p>
-<p>如果你非常关心你的数据， 但仍然可以承受数分钟以内的数据丢失， 那么你可以只使用 RDB 持久化。</p>
-<p>有很多用户都只使用 AOF 持久化， 但我们并不推荐这种方式： 因为定时生成 RDB 快照（snapshot）非常便于进行数据库备份， 并且 RDB 恢复数据集的速度也要比 AOF 恢复的速度要快， 除此之外， 使用 RDB 还可以避免之前提到的 AOF 程序的 bug 。</p>
-<h2 id="实验阶段"><a href="#实验阶段" class="headerlink" title="实验阶段"></a>实验阶段</h2><h3 id="虚拟内存方式"><a href="#虚拟内存方式" class="headerlink" title="虚拟内存方式"></a>虚拟内存方式</h3><p>虚拟内存方式是Redis来进行用户空间的数据换入换出的一个策略，此种方式在实现的效果上比较差，主要问题是代码复杂，重启慢，复制慢等等，目前已经被作者放弃。</p>
-<h3 id="diskstore方式："><a href="#diskstore方式：" class="headerlink" title="diskstore方式："></a>diskstore方式：</h3><p>diskstore方式是作者放弃了虚拟内存方式后选择的一种新的实现方式，也就是传统的B-tree的方式，目前仍在实验阶段，后续是否可用我们可以拭目以待。</p>
+<h2 id="RDB-和-AOF，应该用哪一个"><a href="#RDB-和-AOF，应该用哪一个" class="headerlink" title="RDB 和 AOF，应该用哪一个"></a>RDB 和 AOF，应该用哪一个</h2><p>一般来说， 如果想达到足以媲美<code>PostgreSQL</code>的数据安全性， 你应该同时使用两种持久化功能。</p>
+<p>如果你非常关心你的数据， 但仍然可以承受数分钟以内的数据丢失， 那么你可以只使用<code>RDB</code>持久化。</p>
+<p>有很多用户都只使用<code>AOF</code>持久化， 但我们并不推荐这种方式： 因为定时生成<code>RDB 快照（snapshot）</code>非常便于进行数据库备份， 并且<code>RDB</code>恢复数据集的速度也要比<code>AOF</code>恢复的速度要快， 除此之外， 使用<code>RDB</code>还可以避免之前提到的<code>AOF</code>程序的<code>bug</code>。</p>
+<h2 id="实验阶段"><a href="#实验阶段" class="headerlink" title="实验阶段"></a>实验阶段</h2><h3 id="虚拟内存方式"><a href="#虚拟内存方式" class="headerlink" title="虚拟内存方式"></a>虚拟内存方式</h3><p>虚拟内存方式是<code>Redis</code>来进行用户空间的数据换入换出的一个策略，此种方式在实现的效果上比较差，主要问题是代码复杂，重启慢，复制慢等等，目前已经被作者放弃。</p>
+<h3 id="diskstore方式："><a href="#diskstore方式：" class="headerlink" title="diskstore方式："></a>diskstore方式：</h3><p><code>diskstore</code>方式是作者放弃了虚拟内存方式后选择的一种新的实现方式，也就是传统的<code>B-tree</code>的方式，目前仍在实验阶段，后续是否可用我们可以拭目以待。</p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/42">Qué bonito es ver la lluvia y no mojarse.</a></p>
 
     </div>
 
@@ -241,9 +250,6 @@
       
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\2cb154da.html" rel="bookmark">redis使用lua脚本操作</a></div>
-    </li>
     <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="\post\b7b3d1ea.html" rel="bookmark">redis单机数据库的实现</a></div>
     </li>
@@ -255,6 +261,9 @@
     </li>
     <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="\post\d2255048.html" rel="bookmark">redis数据结构与对象</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\post\66f0b82.html" rel="bookmark">redis模式</a></div>
     </li>
   </ul>
 
@@ -270,8 +279,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/c0845cc1.html" rel="prev" title="redis设置过期方式">
-      <i class="fa fa-chevron-left"></i> redis设置过期方式
+    <a href="/post/22e29991.html" rel="prev" title="mysql数据结构">
+      <i class="fa fa-chevron-left"></i> mysql数据结构
     </a></div>
       <div class="post-nav-item">
     <a href="/post/c251f772.html" rel="next" title="一些sql语句">
@@ -336,7 +345,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E6%97%B6%E5%BF%AB%E7%85%A7%E6%96%B9%E5%BC%8F-snapshot%EF%BC%8CRDB-%E5%BF%AB%E7%85%A7"><span class="nav-number">1.</span> <span class="nav-text">定时快照方式(snapshot，RDB 快照)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis%E6%81%A2%E5%A4%8D%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.</span> <span class="nav-text">Redis恢复数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E8%AF%AD%E5%8F%A5%E8%BF%BD%E5%8A%A0%E6%96%B9%E5%BC%8F-AOF"><span class="nav-number">2.</span> <span class="nav-text">基于语句追加方式(AOF)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB-%E5%92%8C-AOF%EF%BC%8C%E5%BA%94%E8%AF%A5%E7%94%A8%E5%93%AA%E4%B8%80%E4%B8%AA"><span class="nav-number">3.</span> <span class="nav-text">RDB 和 AOF，应该用哪一个</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E9%98%B6%E6%AE%B5"><span class="nav-number">4.</span> <span class="nav-text">实验阶段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E6%96%B9%E5%BC%8F"><span class="nav-number">4.1.</span> <span class="nav-text">虚拟内存方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#diskstore%E6%96%B9%E5%BC%8F%EF%BC%9A"><span class="nav-number">4.2.</span> <span class="nav-text">diskstore方式：</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E6%97%B6%E5%BF%AB%E7%85%A7%E6%96%B9%E5%BC%8F-snapshot%EF%BC%8CRDB%E5%BF%AB%E7%85%A7"><span class="nav-number">1.</span> <span class="nav-text">定时快照方式(snapshot，RDB快照)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis%E6%81%A2%E5%A4%8D%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.</span> <span class="nav-text">Redis恢复数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E8%AF%AD%E5%8F%A5%E8%BF%BD%E5%8A%A0%E6%96%B9%E5%BC%8F-AOF"><span class="nav-number">2.</span> <span class="nav-text">基于语句追加方式(AOF)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB-%E5%92%8C-AOF%EF%BC%8C%E5%BA%94%E8%AF%A5%E7%94%A8%E5%93%AA%E4%B8%80%E4%B8%AA"><span class="nav-number">3.</span> <span class="nav-text">RDB 和 AOF，应该用哪一个</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E9%98%B6%E6%AE%B5"><span class="nav-number">4.</span> <span class="nav-text">实验阶段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E6%96%B9%E5%BC%8F"><span class="nav-number">4.1.</span> <span class="nav-text">虚拟内存方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#diskstore%E6%96%B9%E5%BC%8F%EF%BC%9A"><span class="nav-number">4.2.</span> <span class="nav-text">diskstore方式：</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -351,7 +360,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

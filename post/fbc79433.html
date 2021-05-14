@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="查看进程内存占用情况以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户的进程内存使用情况的话可以使用如下的命令： (1)toptop命令是Linux下常用的性能分析工具，能够实时显示系统中各个进程的资源占用状况，类似于Windows的任务管理器可以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户">
+  <meta name="description" content="在系统维护的过程中，随时可能有需要查看系统的情况，这里记录下查看系统情况的操作。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="查看linux的情况">
 <meta property="og:url" content="http://example.com/post/fbc79433.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="查看进程内存占用情况以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户的进程内存使用情况的话可以使用如下的命令： (1)toptop命令是Linux下常用的性能分析工具，能够实时显示系统中各个进程的资源占用状况，类似于Windows的任务管理器可以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户">
+<meta property="og:description" content="在系统维护的过程中，随时可能有需要查看系统的情况，这里记录下查看系统情况的操作。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-02-21T16:51:04.000Z">
-<meta property="article:modified_time" content="2021-05-13T15:17:48.023Z">
+<meta property="article:modified_time" content="2021-05-14T04:14:15.604Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -215,17 +215,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="查看进程内存占用情况"><a href="#查看进程内存占用情况" class="headerlink" title="查看进程内存占用情况"></a>查看进程内存占用情况</h2><p>以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户的进程内存使用情况的话可以使用如下的命令：</p>
-<p>(1)top<br>top命令是Linux下常用的性能分析工具，能够实时显示系统中各个进程的资源占用状况，类似于Windows的任务管理器<br>可以直接使用top命令后，查看%MEM的内容。可以选择按进程查看或者按用户查看，如想查看oracle用户的进程内存使用情况的话可以使用如下的命令：<br>$ top -u oracle</p>
-<h3 id="与ps的不同"><a href="#与ps的不同" class="headerlink" title="与ps的不同"></a>与ps的不同</h3><p>ps看到的是命令执行瞬间的进程信息,而top可以持续的监视<br>ps只是查看进程,而top还可以监视系统性能,如平均负载,cpu和内存的消耗</p>
+        <p>在系统维护的过程中，随时可能有需要查看系统的情况，这里记录下查看系统情况的操作。</p>
+<a id="more"></a>
+
+<h2 id="查看进程内存占用情况"><a href="#查看进程内存占用情况" class="headerlink" title="查看进程内存占用情况"></a>查看进程内存占用情况</h2><p>(1)top<br>top命令是Linux下常用的性能分析工具，能够实时显示系统中各个进程的资源占用状况，类似于Windows的任务管理器。<br>以直接使用<code>top</code>命令后，查看<code>%MEM</code>（内存）的内容。可以选择按进程查看或者按用户查看，如想查看<code>oracle</code>用户的进程内存使用情况的话可以使用如下的命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> top -u oracle</span></span><br></pre></td></tr></table></figure>
+<h3 id="与ps的不同"><a href="#与ps的不同" class="headerlink" title="与ps的不同"></a>与ps的不同</h3><p><code>ps</code>看到的是命令执行瞬间的进程信息，而<code>top</code>可以持续的监视。<code>ps</code>只是查看进程，而<code>top</code>还可以监视系统性能，如平均负载，<code>cpu</code>和内存的消耗。</p>
+<h2 id="查看存储空间"><a href="#查看存储空间" class="headerlink" title="查看存储空间"></a>查看存储空间</h2><p>先看看根目录下面：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">du -sh /* </span><br></pre></td></tr></table></figure>
+<p>下面这条命令就是显示所有隐藏文件和非隐藏文件的大小并根据占用空间排序的语句</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">du -sh .[!.]* * | sort -hr  </span><br></pre></td></tr></table></figure>
+<h2 id="查看系统信息"><a href="#查看系统信息" class="headerlink" title="查看系统信息"></a>查看系统信息</h2><p>查看发行版信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsb_release -a</span><br></pre></td></tr></table></figure>
+<p>查看内核信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname -a</span><br></pre></td></tr></table></figure>
 <h2 id="打印某个程序的线程栈"><a href="#打印某个程序的线程栈" class="headerlink" title="打印某个程序的线程栈"></a>打印某个程序的线程栈</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pstack $pid</span><br></pre></td></tr></table></figure>
-<h2 id="查看存储空间"><a href="#查看存储空间" class="headerlink" title="查看存储空间"></a>查看存储空间</h2><p>先看看根目录下面<br>du -sh /* </p>
-<p>下面这条命令就是显示所有隐藏文件和非隐藏文件的大小并根据占用空间排序的语句<br>du -sh .[!.]* * | sort -hr  </p>
-<p>看磁盘使用情况<br>df -h</p>
-<h2 id="查看系统信息"><a href="#查看系统信息" class="headerlink" title="查看系统信息"></a>查看系统信息</h2><p>lsb_release -a</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">No LSB modules are available.</span><br><span class="line">Distributor ID: Ubuntu</span><br><span class="line">Description:    Ubuntu 16.04.5 LTS</span><br><span class="line">Release:        16.04</span><br><span class="line">Codename:       xenial</span><br></pre></td></tr></table></figure>
-<p>uname -a</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux coding.ide 3.10.107-1-tlinux2_kvm_guest-0046.cd.nosign #1 SMP Wed Jan 31 15:25:12 CST 2018 x86_64 x86_64 x86_64 GNU&#x2F;Linux</span><br></pre></td></tr></table></figure>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/36">No hay peor sordo que el que no quiere oír.</a></p>
+
     </div>
 
     
@@ -267,8 +274,8 @@
       <i class="fa fa-chevron-left"></i> cmake
     </a></div>
       <div class="post-nav-item">
-    <a href="/post/2cb154da.html" rel="next" title="redis使用lua脚本操作">
-      redis使用lua脚本操作 <i class="fa fa-chevron-right"></i>
+    <a href="/post/22e29991.html" rel="next" title="mysql数据结构">
+      mysql数据结构 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -329,7 +336,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E8%BF%9B%E7%A8%8B%E5%86%85%E5%AD%98%E5%8D%A0%E7%94%A8%E6%83%85%E5%86%B5"><span class="nav-number">1.</span> <span class="nav-text">查看进程内存占用情况</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8Eps%E7%9A%84%E4%B8%8D%E5%90%8C"><span class="nav-number">1.1.</span> <span class="nav-text">与ps的不同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%93%E5%8D%B0%E6%9F%90%E4%B8%AA%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%BA%BF%E7%A8%8B%E6%A0%88"><span class="nav-number">2.</span> <span class="nav-text">打印某个程序的线程栈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4"><span class="nav-number">3.</span> <span class="nav-text">查看存储空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E4%BF%A1%E6%81%AF"><span class="nav-number">4.</span> <span class="nav-text">查看系统信息</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E8%BF%9B%E7%A8%8B%E5%86%85%E5%AD%98%E5%8D%A0%E7%94%A8%E6%83%85%E5%86%B5"><span class="nav-number">1.</span> <span class="nav-text">查看进程内存占用情况</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8Eps%E7%9A%84%E4%B8%8D%E5%90%8C"><span class="nav-number">1.1.</span> <span class="nav-text">与ps的不同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4"><span class="nav-number">2.</span> <span class="nav-text">查看存储空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E4%BF%A1%E6%81%AF"><span class="nav-number">3.</span> <span class="nav-text">查看系统信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%93%E5%8D%B0%E6%9F%90%E4%B8%AA%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%BA%BF%E7%A8%8B%E6%A0%88"><span class="nav-number">4.</span> <span class="nav-text">打印某个程序的线程栈</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -344,7 +351,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

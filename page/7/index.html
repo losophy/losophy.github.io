@@ -165,6 +165,76 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/505cc6be.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/505cc6be.html" class="post-title-link" itemprop="url">把lua文本文件“编译”成二进制的文本</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-23 15:14:21" itemprop="dateCreated datePublished" datetime="2021-02-23T15:14:21+08:00">2021-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>当你发布lua时，你或许不想用户看到你的lua源码，更不想用户修改你的lua代码和系统内部的秘密，那就需要用别的方式来发布。</p>
+<p>最终的文本文件可以通过lua作者提供的标准发布版本中的程序来执行。这个程序称做luac.exe，把lua文本文件“编译”成二进制的文件。这样就可以让别人更难知道你的游戏是如何运行的，采用了什么技术。</p>
+<p>当写好一个lua文件后，可以通过一个典型的编译命令去“编译”这个文件：</p>
+<p>这一行代码会编译helloworld.lua脚本并在helloworld文件中生成二进制数据。<br>lua解析器并不关心你传给它的是文本文件还是二进制文件，也不关心扩展名是什么。</p>
+<p>用这个方法，就不用担心别人可以看到你的代码了。</p>
+<p>当require一个模块mod.sub时，require会用原始的模块名“mod.sub”作为key来查询table package.loaded和package.preload，其中，模块名中的点在搜索中没有任何意义。<br>当搜索一个定义子模块的文件时，require会将点转换为另一个字符，通常就是系统的目录分隔符。转换之后require就像搜索其他名称一样来搜索这个名称。<br>所以最好的方法是在编译完lua脚本后，也把二进制文件改成.lua后缀。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/f68e1d0f.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -196,7 +266,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -273,7 +343,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -362,7 +432,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -436,7 +506,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -519,7 +589,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -598,7 +668,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -759,7 +829,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -829,7 +899,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -902,7 +972,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -925,91 +995,6 @@
 <h3 id="查看tcp连接数及状态"><a href="#查看tcp连接数及状态" class="headerlink" title="查看tcp连接数及状态"></a>查看tcp连接数及状态</h3><p>netstat -n | awk ‘/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}’</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">LAST_ACK 5  </span><br><span class="line">SYN_RECV 30  </span><br><span class="line">ESTABLISHED 15  </span><br><span class="line">FIN_WAIT1 51  </span><br><span class="line">FIN_WAIT2 5  </span><br><span class="line">TIME_WAIT 10  </span><br></pre></td></tr></table></figure>
 <p>状态：描述<br>CLOSED：无连接是活动的或正在进行<br>LISTEN：服务器在等待进入呼叫<br>SYN_RECV：一个连接请求已经到达，等待确认<br>SYN_SENT：应用已经开始，打开一个连接<br>ESTABLISHED：正常数据传输状态<br>FIN_WAIT1：应用说它已经完成<br>FIN_WAIT2：另一边已同意释放<br>ITMED_WAIT：等待所有分组死掉<br>CLOSING：两边同时尝试关闭<br>TIME_WAIT表示处理完毕，等待超时结束的请求数。<br>LAST_ACK：等待所有分组死掉</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/3168aee4.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/3168aee4.html" class="post-title-link" itemprop="url">mysql：索引</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-22 22:36:08" itemprop="dateCreated datePublished" datetime="2021-02-22T22:36:08+08:00">2021-02-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>聚集索引以及非聚集索引用的是B+树索引。</p>
-<h2 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h2><p>单单从定义来看是不是显得有点抽象，打个比方，一个表就像是我们以前用的新华字典，聚集索引就像是拼音目录，而每个字存放的页码就是我们的数据物理地址。</p>
-<h2 id="非聚集索引"><a href="#非聚集索引" class="headerlink" title="非聚集索引"></a>非聚集索引</h2><p>其实按照定义，除了聚集索引以外的索引都是非聚集索引，只是人们想细分一下非聚集索引，分成普通索引，唯一索引，全文索引。如果非要把非聚集索引类比成现实生活中的东西，那么非聚集索引就像新华字典的偏旁字典，他结构顺序与实际存放顺序不一定一致</p>
-<h2 id="为什么要创建索引"><a href="#为什么要创建索引" class="headerlink" title="为什么要创建索引"></a>为什么要创建索引</h2><p>这是因为，创建索引可以大大提高系统的性能。<br>第一，通过创建唯一性索引，可以保证数据库表中每一行数据的唯一性。<br>第二，可以大大加快数据的检索速度，这也是创建索引的最主要的原因。<br>第三，可以加速表和表之间的连接，特别是在实现数据的参考完整性方面特别有意义。<br>第四，在使用分组和排序子句进行数据检索时，同样可以显著减少查询中分组和排序的时间。<br>第五，通过使用索引，可以在查询的过程中，使用优化隐藏器，提高系统的性能。</p>
-<h2 id="深入浅出理解索引结构"><a href="#深入浅出理解索引结构" class="headerlink" title="深入浅出理解索引结构"></a>深入浅出理解索引结构</h2><p>实际上，您可以把索引理解为一种特殊的目录。微软的SQL SERVER提供了两种索引：聚集索引（clustered index，也称聚类索引、簇集索引）和非聚集索引（nonclustered index，也称非聚类索引、非簇集索引）。下面，我们举例来说明一下聚集索引和非聚集索引的区别：</p>
-<p>其实，我们的汉语字典的正文本身就是一个聚集索引。比如，我们要查“安”字，就会很自然地翻开字典的前几页，因为“安”的拼音是“an”，而按照拼音排序汉字的字典是以英文字母“a”开头并以“z”结尾的，那么“安”字就自然地排在字典的前部。如果您翻完了所有以“a”开头的部分仍然找不到这个字，那么就说明您的字典中没有这个字；同样的，如果查“张”字，那您也会将您的字典翻到最后部分，因为“张”的拼音是“zhang”。也就是说，字典的正文部分本身就是一个目录，您不需要再去查其他目录来找到您需要找的内容。我们把这种正文内容本身就是一种按照一定规则排列的目录称为“聚集索引”。</p>
-<p>如果您认识某个字，您可以快速地从自动中查到这个字。但您也可能会遇到您不认识的字，不知道它的发音，这时候，您就不能按照刚才的方法找到您要查的字，而需要去根据“偏旁部首”查到您要找的字，然后根据这个字后的页码直接翻到某页来找到您要找的字。但您结合“部首目录”和“检字表”而查到的字的排序并不是真正的正文的排序方法，比如您查“张”字，我们可以看到在查部首之后的检字表中“张”的页码是672页，检字表中“张”的上面是“驰”字，但页码却是63页，“张”的下面是“弩”字，页面是390页。很显然，这些字并不是真正的分别位于“张”字的上下方，现在您看到的连续的“驰、张、弩”三字实际上就是他们在非聚集索引中的排序，是字典正文中的字在非聚集索引中的映射。我们可以通过这种方式来找到您所需要的字，但它需要两个过程，先找到目录中的结果，然后再翻到您所需要的页码。我们把这种目录纯粹是目录，正文纯粹是正文的排序方式称为“非聚集索引”。</p>
-<p>通过以上例子，我们可以理解到什么是“聚集索引”和“非聚集索引”。进一步引申一下，我们可以很容易的理解：每个表只能有一个聚集索引，因为目录只能按照一种方法进行排序。</p>
-<h2 id="何时使用聚集索引或非聚集索引"><a href="#何时使用聚集索引或非聚集索引" class="headerlink" title="何时使用聚集索引或非聚集索引"></a>何时使用聚集索引或非聚集索引</h2><p>事实上，我们可以通过前面聚集索引和非聚集索引的定义的例子来理解上表。如：返回某范围内的数据一项。比如您的某个表有一个时间列，恰好您把聚合索引建立在了该列，这时您查询2004年1月1日至2004年10月1日之间的全部数据时，这个速度就将是很快的，因为您的这本字典正文是按日期进行排序的，聚类索引只需要找到要检索的所有数据中的开头和结尾数据即可；而不像非聚集索引，必须先查到目录中查到每一项数据对应的页码，然后再根据页码查到具体内容。</p>
-<h2 id="结合实际，谈索引使用的误区"><a href="#结合实际，谈索引使用的误区" class="headerlink" title="结合实际，谈索引使用的误区"></a>结合实际，谈索引使用的误区</h2><p>理论的目的是应用。虽然我们刚才列出了何时应使用聚集索引或非聚集索引，但在实践中以上规则却很容易被忽视或不能根据实际情况进行综合分析。下面我们将根据在实践中遇到的实际问题来谈一下索引使用的误区，以便于大家掌握索引建立的方法。</p>
-<p>1、主键就是聚集索引<br>这种想法笔者认为是极端错误的，是对聚集索引的一种浪费。虽然SQL SERVER默认是在主键上建立聚集索引的。<br>通常，我们会在每个表中都建立一个ID列，以区分每条数据，并且这个ID列是自动增大的，步长一般为1。我们的这个办公自动化的实例中的列Gid就是如此。此时，如果我们将这个列设为主键，SQL SERVER会将此列默认为聚集索引。这样做有好处，就是可以让您的数据在数据库中按照ID进行物理排序，但笔者认为这样做意义不大。<br>显而易见，聚集索引的优势是很明显的，而每个表中只能有一个聚集索引的规则，这使得聚集索引变得更加珍贵。<br>从我们前面谈到的聚集索引的定义我们可以看出，使用聚集索引的最大好处就是能够根据查询要求，迅速缩小查询范围，避免全表扫描。在实际应用中，因为ID号是自动生成的，我们并不知道每条记录的ID号，所以我们很难在实践中用ID号来进行查询。这就使让ID号这个主键作为聚集索引成为一种资源浪费。其次，让每个ID号都不同的字段作为聚集索引也不符合“大数目的不同值情况下不应建立聚合索引”规则；当然，这种情况只是针对用户经常修改记录内容，特别是索引项的时候会负作用，但对于查询速度并没有影响。<br>在办公自动化系统中，无论是系统首页显示的需要用户签收的文件、会议还是用户进行文件查询等任何情况下进行数据查询都离不开字段的是“日期”还有用户本身的“用户名”。<br>通常，办公自动化的首页会显示每个用户尚未签收的文件或会议。虽然我们的where语句可以仅仅限制当前用户尚未签收的情况，但如果您的系统已建立了很长时间，并且数据量很大，那么，每次每个用户打开首页的时候都进行一次全表扫描，这样做意义是不大的，绝大多数的用户1个月前的文件都已经浏览过了，这样做只能徒增数据库的开销而已。事实上，我们完全可以让用户打开系统首页时，数据库仅仅查询这个用户近3个月来未阅览的文件，通过“日期”这个字段来限制表扫描，提高查询速度。如果您的办公自动化系统已经建立的2年，那么您的首页显示速度理论上将是原来速度8倍，甚至更快。<br>在这里之所以提到“理论上”三字，是因为如果您的聚集索引还是盲目地建在ID这个主键上时，您的查询速度是没有这么高的，即使您在“日期”这个字段上建立的索引（非聚合索引）。</p>
-<h2 id="其他注意事项"><a href="#其他注意事项" class="headerlink" title="其他注意事项"></a>其他注意事项</h2><p>“水可载舟，亦可覆舟”，索引也一样。索引有助于提高检索性能，但过多或不当的索引也会导致系统低效。因为用户在表中每加进一个索引，数据库就要做更多的工作。过多的索引甚至会导致索引碎片。<br>所以说，我们要建立一个“适当”的索引体系，特别是对聚合索引的创建，更应精益求精，以使您的数据库能得到高性能的发挥。<br>当然，在实践中，作为一个尽职的数据库管理员，您还要多测试一些方案，找出哪种方案效率最高、最为有效。</p>
-<p>有索引情况下，insert速度一定有影响，不过：</p>
-<ol>
-<li>你不大可能一该不停地进行insert, SQL Server能把你传来的命令缓存起来，依次执行，不会漏掉任何一个insert。</li>
-<li>你也可以建立一个相同结构但不做索引的表，insert数据先插入到这个表里，当这个表中行数达到一定行数再用insert table1 select * from table2这样的命令整批插入到有索引的那个表里。</li>
-</ol>
-<h2 id="InnoDB存储引擎支持以下几种常见的索引"><a href="#InnoDB存储引擎支持以下几种常见的索引" class="headerlink" title="InnoDB存储引擎支持以下几种常见的索引"></a>InnoDB存储引擎支持以下几种常见的索引</h2><h3 id="B-树索引"><a href="#B-树索引" class="headerlink" title="B+树索引"></a>B+树索引</h3><p>就是传统意义上的索引，B+树索引的构造类似于二叉树，根据键值快速找到数据。B+树索引并不能找到一个给定键值的具体行。B+树索引能找到的只是被查找数据行所在的页。然后数据库通过把页读入到内存，再在内存中进行查找，最后得到要查找的数据。</p>
-<h3 id="全文索引"><a href="#全文索引" class="headerlink" title="全文索引"></a>全文索引</h3><p>通过数值比较、范围过滤就可以完成绝大多数我们需要的查询了。但是，如果你希望通过关键字的匹配来进行查询过滤，那么就需要基于相似度的查询，而不是原来的精确数值比较。全文索引就是为这种场景设计的。</p>
-<h3 id="哈希索引"><a href="#哈希索引" class="headerlink" title="哈希索引"></a>哈希索引</h3><p>InnoDB存储引擎支持的哈希索引是自适应的，InnoDB存储引擎会根据表的使用情况自动为表生成哈希索引，不能人为干预是否在一张表中生成哈希索引。</p>
-<h2 id="mysql-键值类型"><a href="#mysql-键值类型" class="headerlink" title="mysql 键值类型"></a>mysql 键值类型</h2><p>普通索引 index (id name sex age loves)<br>唯一索引 unique<br>主键 primary key<br>外键 foreign key<br>全文索引 fulltext </p>
 
       
     </div>
@@ -1095,7 +1080,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

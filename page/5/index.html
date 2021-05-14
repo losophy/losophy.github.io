@@ -165,6 +165,88 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/4ed2ed7b.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/4ed2ed7b.html" class="post-title-link" itemprop="url">c++对象模型研究之执行期</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-25 19:19:57" itemprop="dateCreated datePublished" datetime="2021-02-25T19:19:57+08:00">2021-02-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-14 12:14:13" itemprop="dateModified" datetime="2021-05-14T12:14:13+08:00">2021-05-14</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。<br>执行期语意学，即在程序执行时，编译器产生而外的指令调用，确保对象的构造，内存的释放，以及类型转换与临时对象的生成的安全进行。</p>
+<h2 id="对象的构造和析构"><a href="#对象的构造和析构" class="headerlink" title="对象的构造和析构"></a>对象的构造和析构</h2><p>一般而言，我们会把对象尽可能放置在使用它的那个程序区段附近，这样做可以节省不必要的对象产生操作和摧毁操作（主要是析构）。不建议把所有的对象放在函数或某个区段的起始处。</p>
+<p>全局对象<br>对于全局变量，C++会保证在调用全局变量之前，将全局变量构造出来。<br>而所有的全局变量都被放置在程序的数据段中（data segment），并且为没有显示指定值的变量初始化为0。<br>同时对于全局的类对象，在编译时期被放置于data segment中并且内容也为0.只有在程序启动时其对应的constructor才会实施。因此object需要静态初始化。<br>静态初始化的munch策略：<br>1.为每个需要静态初始化的文件产生一个_sti()函数，内含必要的constructor调用操作和inline expansions。<br>2.为每一个需要静态的内存释放操作的文件，产生一个_std()函数。<br>3.提供一个_main()函数调用所有的_sti()函数，一个_exit()函数调用所有的_std()函数</p>
+<p>局部静态对象<br>局部静态对象的构造函数只能被施行一次，析构函数也只有一次。<br>所以对于局部静态对象，一个很简单的思路就是导入一个临时性对象，当第一次传入时，设置为true，之后则不再进行处理。<br>条件式析构也是所有编译器所必须的，而局部静态对象需以构造的相反的顺序被析构。</p>
+<p>对象数组<br>对于以下数组定义，我们一般使用vec_new()函数来构造数组(这是在cfront中的方式), 对于VS等，则提供一个用来处理没有”virtual base class”的class，另一个用来处理”内含virtual base class”的class。后一个函数通常称为 vec_vnew()。<br>函数的原型一般如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*constructor)(<span class="keyword">void</span> *)        <span class="comment">//类的constructor函数指针</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
+<p>所以对上述的Point对象的初始化，对应的vec_new()的实例化如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vec_new( &amp;knots, <span class="keyword">sizeof</span>(Point), <span class="number">10</span>, &amp;Point::Point, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>同理，对于对象的删除，也有类似的vec_delete()来进行操作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
+<h2 id="new和delete运算符"><a href="#new和delete运算符" class="headerlink" title="new和delete运算符"></a>new和delete运算符</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *pi = <span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+<p>其实是通过两个步骤完成的，第一步通过适当的new运算符函数实例，配置所需的内存，然后将配置来的内存设定初值。</p>
+<p>使用pi，和使用pi所指的对象，其差别在于哪一个生命已经结束了。因为即使对象不合法，但是指针所指的对象也是合法的。<br>new其实是通过标准的c malloc完成的，每一次对new的调用必须传回一个独一无二的指针，指向默认1byte的内存地址。</p>
+<p>针对数组的new语意<br>如果类对象数组没定义constructor和destructor，则不会调用vec_new。<br>对于delete[] p_array, 只有中括号出现时，编译器才会寻找数组的维度，否则他只会假设单独的一个object要被删除。<br>那么如何记录数组的元素个数呢？一个明显的方法是为vec_new()所传回的每一个内存区域块设置一个额外的word，然后把元素个数包藏在那个word之中。而包藏的数值通常称为cookie。<br>在原始编译器中，有两个主要函数用来存取cookie</p>
+<p>注意，避免一个base class指针指向一个derived class object所组成的数组。</p>
+<p>如果一定要这样做，默认情况下只会交给施行vec_delete()函数的”被删除之指针类型的destructor“，也就是Point destructor。<br>所以，需要程序员如下显著的进行释放内存。</p>
+<p>placement Operator new语意</p>
+<h2 id="临时性对象"><a href="#临时性对象" class="headerlink" title="临时性对象"></a>临时性对象</h2><p>临时性对象的摧毁，应该是对完整表达式求值过程中最后一个步骤。该完整表达式造成临时对象的产生。<br>凡持有表达式执行结果的临时对象，应该保留到object的初始化操作完成为止。<br>如果一个临时对象被绑定于一个reference，对象将残留，直到初始化之reference生命结束，或直到临时对象的什么范畴结束。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/336d1b21.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -196,7 +278,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:13" itemprop="dateModified" datetime="2021-05-14T12:14:13+08:00">2021-05-14</time>
               </span>
 
           
@@ -276,7 +358,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:13" itemprop="dateModified" datetime="2021-05-14T12:14:13+08:00">2021-05-14</time>
               </span>
 
           
@@ -364,7 +446,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:13" itemprop="dateModified" datetime="2021-05-14T12:14:13+08:00">2021-05-14</time>
               </span>
 
           
@@ -451,7 +533,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:13" itemprop="dateModified" datetime="2021-05-14T12:14:13+08:00">2021-05-14</time>
               </span>
 
           
@@ -531,7 +613,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:13" itemprop="dateModified" datetime="2021-05-14T12:14:13+08:00">2021-05-14</time>
               </span>
 
           
@@ -600,7 +682,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:13" itemprop="dateModified" datetime="2021-05-14T12:14:13+08:00">2021-05-14</time>
               </span>
 
           
@@ -670,7 +752,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:13" itemprop="dateModified" datetime="2021-05-14T12:14:13+08:00">2021-05-14</time>
               </span>
 
           
@@ -740,7 +822,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:13" itemprop="dateModified" datetime="2021-05-14T12:14:13+08:00">2021-05-14</time>
               </span>
 
           
@@ -809,7 +891,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:13" itemprop="dateModified" datetime="2021-05-14T12:14:13+08:00">2021-05-14</time>
               </span>
 
           
@@ -850,85 +932,6 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cluster.call(&quot;nodeb&quot;,&quot;.main&quot;,&quot;xxxxxx&quot;)</span><br><span class="line">cluster.call(&quot;nodeb2&quot;,&quot;.main&quot;,&quot;xxxxxx&quot;)</span><br></pre></td></tr></table></figure>
 <h2 id="关于cluster的实现"><a href="#关于cluster的实现" class="headerlink" title="关于cluster的实现"></a>关于cluster的实现</h2><p>为什么要cluster：<br>除非你的业务本来就是偏重 IO 的，也就是你根本不打算利用单台硬件的多核心优势来增强计算力，抹平本机和网络的差异是没有意义的。无论硬件怎样发展，你都不可能看到主板上的总线带宽和 TCP 网络的带宽工作在同一数量级的那一天，因为这是物理基本规律决定的。<br>当你的业务需要高计算力，把 actor 放在一台机器上才可以正常的发挥 CPU 能力去合作；如果你的系统又需要分布式扩展，那么一定是有很多组独立无关的业务可以平行处理。这两类工作必须由构架系统的人自己想清楚，规划好怎么部署这些 actor ，而不可能随手把 actor 扔在分布式系统中，随便挑台硬件运行就够了。<br>恰巧网络游戏服务就是这种业务类型。多组服务器、多个游戏场景之间交互很弱，但其中的个体又需要很强的计算力。这就是 skynet 切合的应用场景。</p>
 <h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>skynet 的核心层之上，设计了 cluster 模块。它大部分用 lua 编写，只有通讯协议处理的部分涉及一个很小的 C 模块。用 Lua 编写可以提高系统的可维护性，和网络通讯的带宽相比，Lua 相对 C 在处理数据包的性能降低是微不足道的。<br>在每个 skynet 节点（单个进程）内，启动一个叫 clusterd 的服务。所有需要跨进程的消息投递都先把消息投递到这个服务上，再由它来转发到网络。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/eb9dcede.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/eb9dcede.html" class="post-title-link" itemprop="url">skynet热更新lua代码</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-23 23:33:43" itemprop="dateCreated datePublished" datetime="2021-02-23T23:33:43+08:00">2021-02-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:17" itemprop="dateModified" datetime="2021-05-13T23:17:17+08:00">2021-05-13</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>skynet有两种方法热更新lua代码，clearcache和inject，文章分别对这两种方法做说明。</p>
-<h2 id="clearcache热更新"><a href="#clearcache热更新" class="headerlink" title="clearcache热更新"></a>clearcache热更新</h2><p>讲这个前，先说明下skynet代码加载的事情。因为skynet的每个服务都是一个独立的lua虚拟机，对于同一份lua代码，N个服务就要加载lua文件N次，所以，skynet做了优化，代码文件只需要加载一次到内存，其他服务复制这份内存就可以了，省了读取lua文件和解析lua语法的过程。</p>
-<p>clearcache 使用很简单，启动skynet，连接到其控制台：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">clearcache</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
-<p>但clearcache有个不可忽视的问题，每次clearcache后，不管代码有没有用到，skynet不会清理旧的内存。这会导致了多次clearcache后，skynet内存使用会越来越大<br>这是为什么？因为clearcache后，只有新起的服务会用到新代码，旧的服务还引用着旧代码。而skynet没有做引用GC的复杂逻辑，在旧服务销毁时，没有清理用不到的旧代码。</p>
-<p>或许你会很好奇，clearcache 没清的内存到底是啥？<br>这要从skynet代码共享说起，skynet加载lua代码时，对于一个代码文件使用了一个新的vm加载，然后以文件名作为key将代码索引到全局的vm中。这样，当有服务需要代码了，就从全局vm找到代码，复制一份到服务。而clearcache，就是删除这个全局的vm，然后再重建一个。这么做的好处是，执行clearcache后，不影响已有服务的运行。问题是，全局vm删了，这个vm索引的所有代码没有清理，这样，那些加载代码用的vm没做清理。</p>
-<h2 id="inject热更新"><a href="#inject热更新" class="headerlink" title="inject热更新"></a>inject热更新</h2><p>inject命令相当于注入代码到服务中，原理就是让指定服务执行某个代码文件，通过修改模块及其函数的upvalue，完成对lua模块代码或变量的替换。这个命令我在前面的文章[1]有详细介绍。<br>inject用法很简单，启动skynet，连接到其控制台:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">list</span><br><span class="line">:00000004       snlua cmaster</span><br><span class="line">:00000005       snlua cslave</span><br><span class="line">:00000007       snlua datacenterd</span><br><span class="line">:00000008       snlua service_mgr</span><br><span class="line">:0000000a       snlua protoloader</span><br><span class="line">:0000000b       snlua console</span><br><span class="line">:0000000c       snlua debug_console 8000</span><br><span class="line">:0000000d       snlua simpledb</span><br><span class="line">OK</span><br><span class="line">inject :0000000d example/inject_simpledb.lua</span><br></pre></td></tr></table></figure>
-<p>inject命令的难点是，这个要注入的lua代码该怎么写。<br>下面直接改写skynet自带的example做说明：</p>
-<h1 id="cat-examples-simpledb-lua"><a href="#cat-examples-simpledb-lua" class="headerlink" title="cat examples/simpledb.lua"></a>cat examples/simpledb.lua</h1><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> skynet = <span class="built_in">require</span> <span class="string">&quot;skynet&quot;</span></span><br><span class="line"><span class="built_in">require</span> <span class="string">&quot;skynet.manager&quot;</span> </span><br><span class="line"><span class="keyword">local</span> db = &#123;&#125;</span><br><span class="line"><span class="keyword">local</span> command = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 增加了这里</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span><span class="params">(msg)</span></span></span><br><span class="line">        <span class="built_in">print</span>(msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment">-- 增加了这里</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">command.do_test</span><span class="params">(msg)</span></span></span><br><span class="line">        test(msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">skynet.start(<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">        skynet.dispatch(<span class="string">&quot;lua&quot;</span>, <span class="function"><span class="keyword">function</span><span class="params">(session, address, cmd, ...)</span></span></span><br><span class="line">                <span class="keyword">local</span> f = command[<span class="built_in">string</span>.<span class="built_in">upper</span>(cmd)]</span><br><span class="line">                <span class="keyword">if</span> f <span class="keyword">then</span></span><br><span class="line">                        skynet.ret(skynet.pack(f(...)))</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                        <span class="built_in">error</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;Unknown command %s&quot;</span>, <span class="built_in">tostring</span>(cmd)))</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line">        <span class="comment">-- 增加了这里</span></span><br><span class="line">        skynet.fork(<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">                <span class="keyword">while</span> <span class="literal">true</span> <span class="keyword">do</span></span><br><span class="line">                        skynet.sleep(<span class="number">100</span>)</span><br><span class="line">                        command.do_test(<span class="string">&quot;itest!&quot;</span>)</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line">        skynet.register <span class="string">&quot;SIMPLEDB&quot;</span></span><br><span class="line"><span class="keyword">end</span>)</span><br></pre></td></tr></table></figure>
-<p>假设以上的 command.do_test 就是我们要热更改掉的函数。那用于inject的lua代码如下：</p>
-<h1 id="cat-inject-test-lua"><a href="#cat-inject-test-lua" class="headerlink" title="cat inject_test.lua"></a>cat inject_test.lua</h1><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> _P <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;hotfix fail, no _P define&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;hotfix begin&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 用于获取函数变量</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">get_up</span><span class="params">(f)</span></span></span><br><span class="line">        <span class="keyword">local</span> u = &#123;&#125;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> f <span class="keyword">then</span></span><br><span class="line">                <span class="keyword">return</span> u</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">local</span> i = <span class="number">1</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">true</span> <span class="keyword">do</span></span><br><span class="line">                <span class="keyword">local</span> name, value = <span class="built_in">debug</span>.<span class="built_in">getupvalue</span>(f, i)</span><br><span class="line">                <span class="keyword">if</span> name == <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">                        <span class="keyword">return</span> u</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">                u[name] = value</span><br><span class="line">                i = i + <span class="number">1</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">return</span> u</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 获取原来的函数地址，及函数变量</span></span><br><span class="line"><span class="keyword">local</span> command = _P.lua.command</span><br><span class="line"><span class="keyword">local</span> upvs = get_up(command.do_test)</span><br><span class="line"><span class="keyword">local</span> test = upvs.test</span><br><span class="line"></span><br><span class="line">command.do_test = <span class="function"><span class="keyword">function</span><span class="params">(msg)</span></span></span><br><span class="line">    test(<span class="string">&#x27;New &#x27;</span> .. msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;hotfix end&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>启动控制台，执行inject后，就会看到类似下面的skynet的日志：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ./skynet examples/config</span></span><br><span class="line">[:00000001] LAUNCH logger </span><br><span class="line">[:00000002] LAUNCH snlua bootstrap</span><br><span class="line">[:00000003] LAUNCH snlua launcher</span><br><span class="line">[:00000004] LAUNCH snlua cmaster</span><br><span class="line">[:00000005] LAUNCH snlua cslave</span><br><span class="line">[:00000006] LAUNCH harbor 1 16777221</span><br><span class="line">[:00000007] LAUNCH snlua datacenterd</span><br><span class="line">[:00000008] LAUNCH snlua service_mgr</span><br><span class="line">[:00000009] LAUNCH snlua main</span><br><span class="line">[:0000000a] LAUNCH snlua protoloader</span><br><span class="line">[:0000000b] LAUNCH snlua console</span><br><span class="line">[:0000000c] LAUNCH snlua debug_console 8000</span><br><span class="line">[:0000000d] LAUNCH snlua simpledb</span><br><span class="line">[:0000000e] LAUNCH snlua watchdog</span><br><span class="line">[:0000000f] LAUNCH snlua gate</span><br><span class="line">[:0000000f] Listen on 0.0.0.0:8888</span><br><span class="line">Watchdog listen on      8888</span><br><span class="line">[:00000009] KILL self</span><br><span class="line">[:00000002] KILL self</span><br><span class="line">itest!</span><br><span class="line">itest!</span><br><span class="line">itest!</span><br><span class="line">New itest!</span><br><span class="line">New itest!</span><br></pre></td></tr></table></figure>
-<p>通过前面的分析，我们知道了，clearcache和inject两种方法都可以热更代码。clearcache比较简单，但这种方法对于已有的服务是没有效果的，只有在新的服务才生效。而inject可以热更已有的服务，但不管是inject脚本的编写，还是inject命令的执行，都相对比较繁琐。所以要根据实际的需求，选择适合的方法热更lua代码。</p>
 
       
     </div>
@@ -1014,7 +1017,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

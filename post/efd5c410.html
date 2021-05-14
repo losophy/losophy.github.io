@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="redis.conf中的默认的过期策略是volatile-lru maxmemory-policy 六种方式 volatile-lru只对设置了过期时间的key进行LRU（默认值）  allkeys-lru删除lru算法的key    volatile-random随机删除即将过期key    allkeys-random随机删除    volatile-ttl删除即将过期的    noevict">
+  <meta name="description" content="多进程多线程已经是老生常谈了，本文主要介绍进程、线程和协程三者之间的区别。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="redis设置过期方式">
-<meta property="og:url" content="http://example.com/post/c0845cc1.html">
+<meta property="og:title" content="进程，线程，协程">
+<meta property="og:url" content="http://example.com/post/efd5c410.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="redis.conf中的默认的过期策略是volatile-lru maxmemory-policy 六种方式 volatile-lru只对设置了过期时间的key进行LRU（默认值）  allkeys-lru删除lru算法的key    volatile-random随机删除即将过期key    allkeys-random随机删除    volatile-ttl删除即将过期的    noevict">
+<meta property="og:description" content="多进程多线程已经是老生常谈了，本文主要介绍进程、线程和协程三者之间的区别。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-02-21T17:59:57.000Z">
-<meta property="article:modified_time" content="2021-05-13T15:17:48.023Z">
+<meta property="article:published_time" content="2021-02-21T16:02:26.000Z">
+<meta property="article:modified_time" content="2021-05-14T04:14:15.604Z">
 <meta property="article:author" content="losophy">
-<meta property="article:tag" content="redis">
+<meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/post/c0845cc1.html">
+<link rel="canonical" href="http://example.com/post/efd5c410.html">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>redis设置过期方式 | losophy</title>
+  <title>进程，线程，协程 | losophy</title>
   
 
 
@@ -171,7 +171,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/c0845cc1.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/efd5c410.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -184,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          redis设置过期方式
+          进程，线程，协程
         </h1>
 
         <div class="post-meta">
@@ -194,14 +194,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-22 01:59:57" itemprop="dateCreated datePublished" datetime="2021-02-22T01:59:57+08:00">2021-02-22</time>
+              <time title="创建时间：2021-02-22 00:02:26" itemprop="dateCreated datePublished" datetime="2021-02-22T00:02:26+08:00">2021-02-22</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-13 23:17:48" itemprop="dateModified" datetime="2021-05-13T23:17:48+08:00">2021-05-13</time>
+                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
               </span>
 
           
@@ -215,15 +215,22 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="redis-conf中的默认的过期策略是"><a href="#redis-conf中的默认的过期策略是" class="headerlink" title="redis.conf中的默认的过期策略是"></a>redis.conf中的默认的过期策略是</h2><p>volatile-lru</p>
-<h2 id="maxmemory-policy-六种方式"><a href="#maxmemory-policy-六种方式" class="headerlink" title="maxmemory-policy 六种方式"></a>maxmemory-policy 六种方式</h2><ul>
-<li>volatile-lru<br>只对设置了过期时间的key进行LRU（默认值） </li>
-<li>allkeys-lru<br>删除lru算法的key   </li>
-<li>volatile-random<br>随机删除即将过期key   </li>
-<li>allkeys-random<br>随机删除   </li>
-<li>volatile-ttl<br>删除即将过期的   </li>
-<li>noeviction<br>永不过期，返回错误</li>
+        <p>多进程多线程已经是老生常谈了，本文主要介绍进程、线程和协程三者之间的区别。</p>
+<a id="more"></a>
+
+<h2 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h2><p>进程是资源（<code>CPU</code>、内存等）分配的基本单位，它是程序执行时的一个实例。</p>
+<h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><p>线程是程序执行时的最小单位，它是进程的一个执行流，是<code>CPU</code>调度和分派的基本单位，一个进程可以由很多个线程组成，线程间共享进程的所有资源，每个线程有自己的堆栈、局部变量和指令指针。</p>
+<h3 id="线程和进程的区别和优劣"><a href="#线程和进程的区别和优劣" class="headerlink" title="线程和进程的区别和优劣"></a>线程和进程的区别和优劣</h3><blockquote>
+<ul>
+<li>进程是资源分配的最小单位，线程是程序执行的最小单位</li>
+<li>进程有自己的独立地址空间，每启动一个进程，系统就会为它分配地址空间，建立数据表来维护代码段、堆栈段和数据段，这种操作非常昂贵。而线程是共享进程中的数据的，使用相同的地址空间，因此<code>CPU</code>切换一个线程的花费远比进程要小很多，同时创建一个线程的开销也比进程要小很多</li>
+<li>线程之间的通信更方便，同一进程下的线程共享全局变量、静态变量等数据，而进程之间的通信需要以通信的方式<code>(IPC)</code>进行。不过如何处理好同步与互斥是编写多线程程序的难点</li>
+<li>多进程程序更健壮，多线程程序只要有一个线程死掉，整个进程也死掉了，而一个进程死掉并不会对另外一个进程造成影响，因为进程有自己独立的地址空间</li>
 </ul>
+</blockquote>
+<h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><p>从概念上讲线程与协同程序的主要区别在于，一个具有多个线程的程序可以同时运行几个线程，而协同程序却需要彼此协作地运行。就是说，<strong>一个具有多个协同程序的程序在任意时刻只能运行一个协同程序</strong>，并且正在运行的协同程序只会在其显式地要求挂起<code>(suspend)</code>时，它的执行才会暂停。</p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/34">Desgracia compartida, menos sentida.</a></p>
 
     </div>
 
@@ -234,26 +241,26 @@
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\2cb154da.html" rel="bookmark">redis使用lua脚本操作</a></div>
+      <div class="popular-posts-title"><a href="\post\233853f2.html" rel="bookmark">cmake</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\b7b3d1ea.html" rel="bookmark">redis单机数据库的实现</a></div>
+      <div class="popular-posts-title"><a href="\post\9780b568.html" rel="bookmark">linux下的一些操作</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\c718a52d.html" rel="bookmark">redis在游戏开发中的应用</a></div>
+      <div class="popular-posts-title"><a href="\post\750cd44d.html" rel="bookmark">linux下的一些网络调试命令</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\f2066cc0.html" rel="bookmark">redis多机数据库的实现</a></div>
+      <div class="popular-posts-title"><a href="\post\1acc766e.html" rel="bookmark">make</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\dcfaa904.html" rel="bookmark">redis持久化</a></div>
+      <div class="popular-posts-title"><a href="\post\e47927c.html" rel="bookmark">vim快捷键</a></div>
     </li>
   </ul>
 
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/redis/" rel="tag"><i class="fa fa-tag"></i> redis</a>
+              <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
           </div>
 
         
@@ -262,12 +269,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/22e29991.html" rel="prev" title="mysql数据结构">
-      <i class="fa fa-chevron-left"></i> mysql数据结构
+    <a href="/post/f1601c3e.html" rel="prev" title="单例模式">
+      <i class="fa fa-chevron-left"></i> 单例模式
     </a></div>
       <div class="post-nav-item">
-    <a href="/post/dcfaa904.html" rel="next" title="redis持久化">
-      redis持久化 <i class="fa fa-chevron-right"></i>
+    <a href="/post/233853f2.html" rel="next" title="cmake">
+      cmake <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -328,7 +335,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#redis-conf%E4%B8%AD%E7%9A%84%E9%BB%98%E8%AE%A4%E7%9A%84%E8%BF%87%E6%9C%9F%E7%AD%96%E7%95%A5%E6%98%AF"><span class="nav-number">1.</span> <span class="nav-text">redis.conf中的默认的过期策略是</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#maxmemory-policy-%E5%85%AD%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">maxmemory-policy 六种方式</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%92%8C%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%8C%BA%E5%88%AB%E5%92%8C%E4%BC%98%E5%8A%A3"><span class="nav-number">2.1.</span> <span class="nav-text">线程和进程的区别和优劣</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">协程</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -343,7 +350,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -458,7 +465,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blog.comments',
       owner       : 'losophy',
       admin       : ['losophy'],
-      id          : '32ac89d94bac67b293fc54a49d2def15',
+      id          : 'cb5b8833fd9e4a532e82fbdcb97add96',
         language: 'zh-CN',
       distractionFreeMode: true
     });
