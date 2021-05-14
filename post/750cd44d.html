@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放1ping www.google.com 检查某个端口是否开放1telnet ip_addr:port 检测发出数据包的主机到目标主机之间所经过的网关数量traceroute 的原理是试图以最小的TTL发出探测包来跟踪数据包到达目标主机所经过的网关，然后监听一个来自网关ICMP的应答。程序利用增加存活时间（TTL）值来实现其功能。每">
+  <meta name="description" content="这里记录一下，linux下的一些网络调试命令。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="linux下的一些网络调试命令">
 <meta property="og:url" content="http://example.com/post/750cd44d.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放1ping www.google.com 检查某个端口是否开放1telnet ip_addr:port 检测发出数据包的主机到目标主机之间所经过的网关数量traceroute 的原理是试图以最小的TTL发出探测包来跟踪数据包到达目标主机所经过的网关，然后监听一个来自网关ICMP的应答。程序利用增加存活时间（TTL）值来实现其功能。每">
+<meta property="og:description" content="这里记录一下，linux下的一些网络调试命令。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-02-22T14:55:06.000Z">
-<meta property="article:modified_time" content="2021-05-14T04:14:15.603Z">
+<meta property="article:modified_time" content="2021-05-14T07:46:17.192Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-14 12:14:15" itemprop="dateModified" datetime="2021-05-14T12:14:15+08:00">2021-05-14</time>
+                <time title="修改时间：2021-05-14 15:46:17" itemprop="dateModified" datetime="2021-05-14T15:46:17+08:00">2021-05-14</time>
               </span>
 
           
@@ -215,15 +215,22 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="测试到达目的主机的网络是否连接-但ping无法检查系统端口是否开放"><a href="#测试到达目的主机的网络是否连接-但ping无法检查系统端口是否开放" class="headerlink" title="测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放"></a>测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping www.google.com</span><br></pre></td></tr></table></figure>
+        <p>这里记录一下，linux下的一些网络调试命令。</p>
+<a id="more"></a>
+
+<h2 id="测试到达目的主机的网络是否连接-但ping无法检查系统端口是否开放"><a href="#测试到达目的主机的网络是否连接-但ping无法检查系统端口是否开放" class="headerlink" title="测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放"></a>测试到达目的主机的网络是否连接,但ping无法检查系统端口是否开放</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping www.google.com</span><br></pre></td></tr></table></figure>
 <h2 id="检查某个端口是否开放"><a href="#检查某个端口是否开放" class="headerlink" title="检查某个端口是否开放"></a>检查某个端口是否开放</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">telnet ip_addr:port</span><br></pre></td></tr></table></figure>
-<h2 id="检测发出数据包的主机到目标主机之间所经过的网关数量"><a href="#检测发出数据包的主机到目标主机之间所经过的网关数量" class="headerlink" title="检测发出数据包的主机到目标主机之间所经过的网关数量"></a>检测发出数据包的主机到目标主机之间所经过的网关数量</h2><p>traceroute 的原理是试图以最小的TTL发出探测包来跟踪数据包到达目标主机所经过的网关，然后监听一个来自网关ICMP的应答。<br>程序利用增加存活时间（TTL）值来实现其功能。每当数据包经过一个路由器，其存活时间就会减1。当其存活时间是0时，主机便取消数据包，并传送一个ICMP TTL数据包给原数据包的发出者</p>
+<h2 id="检测发出数据包的主机到目标主机之间所经过的网关数量"><a href="#检测发出数据包的主机到目标主机之间所经过的网关数量" class="headerlink" title="检测发出数据包的主机到目标主机之间所经过的网关数量"></a>检测发出数据包的主机到目标主机之间所经过的网关数量</h2><p><code>traceroute</code>的原理是试图以最小的TTL发出探测包来跟踪数据包到达目标主机所经过的网关，然后监听一个来自网关<code>ICMP</code>的应答。<br>程序利用增加存活时间<code>（TTL）</code>值来实现其功能。每当数据包经过一个路由器，其存活时间就会减1。当其存活时间是0时，主机便取消数据包，并传送一个<code>ICMP TTL</code>数据包给原数据包的发出者</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute www.google.com</span><br></pre></td></tr></table></figure>
 <h2 id="判断连接是否健康"><a href="#判断连接是否健康" class="headerlink" title="判断连接是否健康"></a>判断连接是否健康</h2><h3 id="查看服务器端口有没有客户端来连接"><a href="#查看服务器端口有没有客户端来连接" class="headerlink" title="查看服务器端口有没有客户端来连接"></a>查看服务器端口有没有客户端来连接</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -anp | grep xxxx</span><br></pre></td></tr></table></figure>
-<h3 id="查看到进程id之后，使用netstat命令查看其占用的端口"><a href="#查看到进程id之后，使用netstat命令查看其占用的端口" class="headerlink" title="查看到进程id之后，使用netstat命令查看其占用的端口"></a>查看到进程id之后，使用netstat命令查看其占用的端口</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -nap | grep pid</span><br></pre></td></tr></table></figure>
-<h3 id="查看tcp连接数及状态"><a href="#查看tcp连接数及状态" class="headerlink" title="查看tcp连接数及状态"></a>查看tcp连接数及状态</h3><p>netstat -n | awk ‘/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}’</p>
+<h3 id="查看到进程id之后，使用netstat命令查看其占用的端口"><a href="#查看到进程id之后，使用netstat命令查看其占用的端口" class="headerlink" title="查看到进程id之后，使用netstat命令查看其占用的端口"></a>查看到进程<code>id</code>之后，使用<code>netstat</code>命令查看其占用的端口</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -nap | grep pid</span><br></pre></td></tr></table></figure>
+<h3 id="查看tcp连接数及状态"><a href="#查看tcp连接数及状态" class="headerlink" title="查看tcp连接数及状态"></a>查看tcp连接数及状态</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -n | awk &#39;&#x2F;^tcp&#x2F; &#123;++S[$NF]&#125; END &#123;for(a in S) print a, S[a]&#125;&#39;</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">LAST_ACK 5  </span><br><span class="line">SYN_RECV 30  </span><br><span class="line">ESTABLISHED 15  </span><br><span class="line">FIN_WAIT1 51  </span><br><span class="line">FIN_WAIT2 5  </span><br><span class="line">TIME_WAIT 10  </span><br></pre></td></tr></table></figure>
+<blockquote>
 <p>状态：描述<br>CLOSED：无连接是活动的或正在进行<br>LISTEN：服务器在等待进入呼叫<br>SYN_RECV：一个连接请求已经到达，等待确认<br>SYN_SENT：应用已经开始，打开一个连接<br>ESTABLISHED：正常数据传输状态<br>FIN_WAIT1：应用说它已经完成<br>FIN_WAIT2：另一边已同意释放<br>ITMED_WAIT：等待所有分组死掉<br>CLOSING：两边同时尝试关闭<br>TIME_WAIT表示处理完毕，等待超时结束的请求数。<br>LAST_ACK：等待所有分组死掉</p>
+</blockquote>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/50">No dejes camino viejo por sendero nuevo.</a></p>
 
     </div>
 
@@ -262,12 +269,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/3168aee4.html" rel="prev" title="mysql：索引">
-      <i class="fa fa-chevron-left"></i> mysql：索引
+    <a href="/post/71014c5a.html" rel="prev" title="mysql索引">
+      <i class="fa fa-chevron-left"></i> mysql索引
     </a></div>
       <div class="post-nav-item">
-    <a href="/post/7d5ee75f.html" rel="next" title="mysql：事务">
-      mysql：事务 <i class="fa fa-chevron-right"></i>
+    <a href="/post/3d3705e1.html" rel="next" title="mysql事务">
+      mysql事务 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -343,7 +350,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">107</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
