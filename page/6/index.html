@@ -165,6 +165,176 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/e9005ae.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/e9005ae.html" class="post-title-link" itemprop="url">skynet cluster</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-23 15:41:40" itemprop="dateCreated datePublished" datetime="2021-02-23T15:41:40+00:00">2021-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-25 00:50:34" itemprop="dateModified" datetime="2021-05-25T00:50:34+00:00">2021-05-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>skynet跟mq扮演的角色类似，每个skynet进程维护了一个MQ，会dispatch msg到每个skynet_context的私有mq。有skynet就没必要再在自己项目里引入MQ了。<br>skynet 支持两种集群模式。</p>
+<h2 id="master-slave-模式（局域网）"><a href="#master-slave-模式（局域网）" class="headerlink" title="master/slave 模式（局域网）"></a>master/slave 模式（局域网）</h2><p>当单台机器的处理能力达到极限后，可以考虑通过内置的 master/slave 机制来扩展。具体的配置方法见 Config 。<br>集群服务用到的配置项：</p>
+<ul>
+<li>cluster 它决定了集群配置文件的路径。</li>
+<li>standalone 如果把这个 skynet 进程作为主进程启动（skynet 可以由分布在多台机器上的多个进程构成网络），那么需要配置standalone 这一项，表示这个进程是主节点，它需要开启一个控制中心，监听一个端口，让其它节点接入。</li>
+<li>master 指定 skynet 控制中心的地址和端口，如果你配置了 standalone 项，那么这一项通常和 standalone 相同。</li>
+</ul>
+<p>每个 skynet 进程都是一个 slave 节点。但其中一个 slave 节点可以通过配置 standalone 来多启动一个 cmaster 服务，用来协调 slave 组网。对于每个 slave 节点，都内置一个 harbor 服务用于和其它 slave 节点通讯。<br>每个 skynet 服务都有一个全网唯一的地址，这个地址是一个 32bit 数字，其高 8bit 标识着它所属 slave 的号码。即 harbor id 。在 master/slave 网络中，id 为 0 是保留的。所以最多可以有 255 个 slave 节点。<br>在 master/slave 模式中，节点内的消息通讯和节点间的通讯是透明的。skynet 核心会根据目的地址的 harbor id 来决定是直接投递消息，还是把消息转发给 harbor 服务。<br>不要把这个模式用于跨机房的组网。所有 slave 节点都应该在同一局域网内（最好在同一交换机下）。不应该把系统设计成可以任意上线或下线 slave 的模式。<br>slave 的组网机制也限制了这一点。如果一个 slave 意外退出网络，这个 harbor id 就被废弃，不可再使用。这样是为了防止网络中其它服务还持有这个断开的 slave 上的服务地址；而一个新的进程以相同的 harbor id 接入时，是无法保证旧地址和新地址不重复的。</p>
+<p>cluster 模式<br>cluster 模块，它大部分用 lua 编写，只有通讯协议处理的部分涉及一个很小的 C 模块。<br>它的工作原理是这样的：<br>在每个 skynet 节点（单个进程）内，启动一个叫 clusterd 的服务。所有需要跨进程的消息投递都先把消息投递到这个服务上，再由它来转发到网络。</p>
+<p>要使用它之前，你需要编写一个 cluster 配置文件，配置集群内所有节点的名字和对应的监听端口。并将这个文件事先部署到所有节点</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db = <span class="string">&quot;127.0.0.1:2528&quot;</span></span><br></pre></td></tr></table></figure>
+<p>接下来，你需要在 db 的启动脚本里写上 cluster.open “db”<br>有两种方式可以访问到这个节点</p>
+<ul>
+<li>可以通过 cluster.call(nodename, service, …) 提起请求。这里 nodename 就是在配置表中给出的节点名。service 可以是一个字符串，或者直接是一个数字地址（如果你能从其它渠道获得地址的话）。当 service 是一个字符串时，只需要是那个节点可以见到的服务别名，可以是全局名或本地名。但更推荐是 . 开头的本地名，因为使用 cluster 模式时，似乎没有特别的理由还需要在那个节点上使用 master/slave 的架构（全局名也就没有特别的意义）。cluster.call 有可能因为 cluster 间连接不稳定而抛出 error 。但一旦因为 cluster 间连接断开而抛出 error 后，下一次调用前 cluster 间会尝试重新建立连接。</li>
+<li>可以通过 cluster.proxy(nodename, service) 生成一个本地代理。之后，就可以像访问一个本地服务一样，和这个远程服务通讯。但向这个代理服务 send 消息，有可能因为 cluster 间的连接不稳定而丢失。详见 cluster.send 的说明。</li>
+<li>如果想单向推送消息，可以调用 cluster.send(nodename, service, …) 。但注意，跨越节点推送消息有丢失消息的风险。因为 cluster 基于 tcp 连接，当 cluster 间的连接断开，cluster.send 的消息就可能丢失。而这个函数会立刻返回，所以调用者没有机会知道发送出错。</li>
+</ul>
+<p>Cluster 是去中心化的，所以需要在每台机器上都放置一份配置文件（通常是相同的）。通过调用 cluster.reload 可以让本进程重新加载配置。如果你修改了每个节点名字对应的地址，那么 reload 之后的请求都会发到新的地址。而之前没有收到回应的请求还是会在老地址上等待。如果你老的地址已经无效（通常是主动关闭了进程）那么请求方会收到一个错误。</p>
+<h2 id="某个节点配置多个通道"><a href="#某个节点配置多个通道" class="headerlink" title="某个节点配置多个通道"></a>某个节点配置多个通道</h2><p>在skynet框架中使用cluster模式，经常有消息在节点之间传递。大部分情况，我们在节点A和节点B之间只需要建立一个连接通道，但是在有些时候我们希望让一些比较独立的业务能占用一条单独的通道进行处理，不希望跟到正常的业务逻辑去抢通道资源。这个时候，我们就需要为某个节点配置多个通道了。</p>
+<p>比如，我们要在节点A中再开辟一条连接连通节点B的通道，由于一条通道就是一条tcp连接，所以我们需要为节点B再配置一个端口。我们打开集群的cluster配置文件，添加一个节点B的记录，新分配一个端口：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nodea &#x3D; &quot;127.0.0.1:50653&quot;</span><br><span class="line">nodeb &#x3D; &quot;127.0.0.1:50654&quot;</span><br><span class="line">nodeb2&#x3D; &quot;127.0.0.1:50655&quot;</span><br></pre></td></tr></table></figure>
+<p>然后重新启动节点，在节点B的启动脚本中，我们也需要在集群中打开nodeb2：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster.open(&quot;nodeb2&quot;)</span><br></pre></td></tr></table></figure>
+<p>然后，在节点A中，我们就可以进行跨节点访问了，这个时候，我们可以分别用nodeb和nodeb2进行访问，框架将使用2条tcp通道进行分别处理。你也可以使用netsta命令，查看nodeb和nodeb2的连接情况。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cluster.call(&quot;nodeb&quot;,&quot;.main&quot;,&quot;xxxxxx&quot;)</span><br><span class="line">cluster.call(&quot;nodeb2&quot;,&quot;.main&quot;,&quot;xxxxxx&quot;)</span><br></pre></td></tr></table></figure>
+<h2 id="关于cluster的实现"><a href="#关于cluster的实现" class="headerlink" title="关于cluster的实现"></a>关于cluster的实现</h2><p>为什么要cluster：<br>除非你的业务本来就是偏重 IO 的，也就是你根本不打算利用单台硬件的多核心优势来增强计算力，抹平本机和网络的差异是没有意义的。无论硬件怎样发展，你都不可能看到主板上的总线带宽和 TCP 网络的带宽工作在同一数量级的那一天，因为这是物理基本规律决定的。<br>当你的业务需要高计算力，把 actor 放在一台机器上才可以正常的发挥 CPU 能力去合作；如果你的系统又需要分布式扩展，那么一定是有很多组独立无关的业务可以平行处理。这两类工作必须由构架系统的人自己想清楚，规划好怎么部署这些 actor ，而不可能随手把 actor 扔在分布式系统中，随便挑台硬件运行就够了。<br>恰巧网络游戏服务就是这种业务类型。多组服务器、多个游戏场景之间交互很弱，但其中的个体又需要很强的计算力。这就是 skynet 切合的应用场景。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>skynet 的核心层之上，设计了 cluster 模块。它大部分用 lua 编写，只有通讯协议处理的部分涉及一个很小的 C 模块。用 Lua 编写可以提高系统的可维护性，和网络通讯的带宽相比，Lua 相对 C 在处理数据包的性能降低是微不足道的。<br>在每个 skynet 节点（单个进程）内，启动一个叫 clusterd 的服务。所有需要跨进程的消息投递都先把消息投递到这个服务上，再由它来转发到网络。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/eb9dcede.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/eb9dcede.html" class="post-title-link" itemprop="url">skynet热更新lua代码</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-23 15:33:43" itemprop="dateCreated datePublished" datetime="2021-02-23T15:33:43+00:00">2021-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-25 00:50:34" itemprop="dateModified" datetime="2021-05-25T00:50:34+00:00">2021-05-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>skynet有两种方法热更新lua代码，clearcache和inject，文章分别对这两种方法做说明。</p>
+<h2 id="clearcache热更新"><a href="#clearcache热更新" class="headerlink" title="clearcache热更新"></a>clearcache热更新</h2><p>讲这个前，先说明下skynet代码加载的事情。因为skynet的每个服务都是一个独立的lua虚拟机，对于同一份lua代码，N个服务就要加载lua文件N次，所以，skynet做了优化，代码文件只需要加载一次到内存，其他服务复制这份内存就可以了，省了读取lua文件和解析lua语法的过程。</p>
+<p>clearcache 使用很简单，启动skynet，连接到其控制台：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">clearcache</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+<p>但clearcache有个不可忽视的问题，每次clearcache后，不管代码有没有用到，skynet不会清理旧的内存。这会导致了多次clearcache后，skynet内存使用会越来越大<br>这是为什么？因为clearcache后，只有新起的服务会用到新代码，旧的服务还引用着旧代码。而skynet没有做引用GC的复杂逻辑，在旧服务销毁时，没有清理用不到的旧代码。</p>
+<p>或许你会很好奇，clearcache 没清的内存到底是啥？<br>这要从skynet代码共享说起，skynet加载lua代码时，对于一个代码文件使用了一个新的vm加载，然后以文件名作为key将代码索引到全局的vm中。这样，当有服务需要代码了，就从全局vm找到代码，复制一份到服务。而clearcache，就是删除这个全局的vm，然后再重建一个。这么做的好处是，执行clearcache后，不影响已有服务的运行。问题是，全局vm删了，这个vm索引的所有代码没有清理，这样，那些加载代码用的vm没做清理。</p>
+<h2 id="inject热更新"><a href="#inject热更新" class="headerlink" title="inject热更新"></a>inject热更新</h2><p>inject命令相当于注入代码到服务中，原理就是让指定服务执行某个代码文件，通过修改模块及其函数的upvalue，完成对lua模块代码或变量的替换。这个命令我在前面的文章[1]有详细介绍。<br>inject用法很简单，启动skynet，连接到其控制台:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">list</span><br><span class="line">:00000004       snlua cmaster</span><br><span class="line">:00000005       snlua cslave</span><br><span class="line">:00000007       snlua datacenterd</span><br><span class="line">:00000008       snlua service_mgr</span><br><span class="line">:0000000a       snlua protoloader</span><br><span class="line">:0000000b       snlua console</span><br><span class="line">:0000000c       snlua debug_console 8000</span><br><span class="line">:0000000d       snlua simpledb</span><br><span class="line">OK</span><br><span class="line">inject :0000000d example/inject_simpledb.lua</span><br></pre></td></tr></table></figure>
+<p>inject命令的难点是，这个要注入的lua代码该怎么写。<br>下面直接改写skynet自带的example做说明：</p>
+<h1 id="cat-examples-simpledb-lua"><a href="#cat-examples-simpledb-lua" class="headerlink" title="cat examples/simpledb.lua"></a>cat examples/simpledb.lua</h1><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> skynet = <span class="built_in">require</span> <span class="string">&quot;skynet&quot;</span></span><br><span class="line"><span class="built_in">require</span> <span class="string">&quot;skynet.manager&quot;</span> </span><br><span class="line"><span class="keyword">local</span> db = &#123;&#125;</span><br><span class="line"><span class="keyword">local</span> command = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 增加了这里</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span><span class="params">(msg)</span></span></span><br><span class="line">        <span class="built_in">print</span>(msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment">-- 增加了这里</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">command.do_test</span><span class="params">(msg)</span></span></span><br><span class="line">        test(msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">skynet.start(<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">        skynet.dispatch(<span class="string">&quot;lua&quot;</span>, <span class="function"><span class="keyword">function</span><span class="params">(session, address, cmd, ...)</span></span></span><br><span class="line">                <span class="keyword">local</span> f = command[<span class="built_in">string</span>.<span class="built_in">upper</span>(cmd)]</span><br><span class="line">                <span class="keyword">if</span> f <span class="keyword">then</span></span><br><span class="line">                        skynet.ret(skynet.pack(f(...)))</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                        <span class="built_in">error</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;Unknown command %s&quot;</span>, <span class="built_in">tostring</span>(cmd)))</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line">        <span class="comment">-- 增加了这里</span></span><br><span class="line">        skynet.fork(<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">                <span class="keyword">while</span> <span class="literal">true</span> <span class="keyword">do</span></span><br><span class="line">                        skynet.sleep(<span class="number">100</span>)</span><br><span class="line">                        command.do_test(<span class="string">&quot;itest!&quot;</span>)</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line">        skynet.register <span class="string">&quot;SIMPLEDB&quot;</span></span><br><span class="line"><span class="keyword">end</span>)</span><br></pre></td></tr></table></figure>
+<p>假设以上的 command.do_test 就是我们要热更改掉的函数。那用于inject的lua代码如下：</p>
+<h1 id="cat-inject-test-lua"><a href="#cat-inject-test-lua" class="headerlink" title="cat inject_test.lua"></a>cat inject_test.lua</h1><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> _P <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;hotfix fail, no _P define&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;hotfix begin&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 用于获取函数变量</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">get_up</span><span class="params">(f)</span></span></span><br><span class="line">        <span class="keyword">local</span> u = &#123;&#125;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> f <span class="keyword">then</span></span><br><span class="line">                <span class="keyword">return</span> u</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">local</span> i = <span class="number">1</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">true</span> <span class="keyword">do</span></span><br><span class="line">                <span class="keyword">local</span> name, value = <span class="built_in">debug</span>.<span class="built_in">getupvalue</span>(f, i)</span><br><span class="line">                <span class="keyword">if</span> name == <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">                        <span class="keyword">return</span> u</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">                u[name] = value</span><br><span class="line">                i = i + <span class="number">1</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">return</span> u</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 获取原来的函数地址，及函数变量</span></span><br><span class="line"><span class="keyword">local</span> command = _P.lua.command</span><br><span class="line"><span class="keyword">local</span> upvs = get_up(command.do_test)</span><br><span class="line"><span class="keyword">local</span> test = upvs.test</span><br><span class="line"></span><br><span class="line">command.do_test = <span class="function"><span class="keyword">function</span><span class="params">(msg)</span></span></span><br><span class="line">    test(<span class="string">&#x27;New &#x27;</span> .. msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;hotfix end&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>启动控制台，执行inject后，就会看到类似下面的skynet的日志：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ./skynet examples/config</span></span><br><span class="line">[:00000001] LAUNCH logger </span><br><span class="line">[:00000002] LAUNCH snlua bootstrap</span><br><span class="line">[:00000003] LAUNCH snlua launcher</span><br><span class="line">[:00000004] LAUNCH snlua cmaster</span><br><span class="line">[:00000005] LAUNCH snlua cslave</span><br><span class="line">[:00000006] LAUNCH harbor 1 16777221</span><br><span class="line">[:00000007] LAUNCH snlua datacenterd</span><br><span class="line">[:00000008] LAUNCH snlua service_mgr</span><br><span class="line">[:00000009] LAUNCH snlua main</span><br><span class="line">[:0000000a] LAUNCH snlua protoloader</span><br><span class="line">[:0000000b] LAUNCH snlua console</span><br><span class="line">[:0000000c] LAUNCH snlua debug_console 8000</span><br><span class="line">[:0000000d] LAUNCH snlua simpledb</span><br><span class="line">[:0000000e] LAUNCH snlua watchdog</span><br><span class="line">[:0000000f] LAUNCH snlua gate</span><br><span class="line">[:0000000f] Listen on 0.0.0.0:8888</span><br><span class="line">Watchdog listen on      8888</span><br><span class="line">[:00000009] KILL self</span><br><span class="line">[:00000002] KILL self</span><br><span class="line">itest!</span><br><span class="line">itest!</span><br><span class="line">itest!</span><br><span class="line">New itest!</span><br><span class="line">New itest!</span><br></pre></td></tr></table></figure>
+<p>通过前面的分析，我们知道了，clearcache和inject两种方法都可以热更代码。clearcache比较简单，但这种方法对于已有的服务是没有效果的，只有在新的服务才生效。而inject可以热更已有的服务，但不管是inject脚本的编写，还是inject命令的执行，都相对比较繁琐。所以要根据实际的需求，选择适合的方法热更lua代码。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/7f9f1e3d.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -189,14 +359,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 22:57:48" itemprop="dateCreated datePublished" datetime="2021-02-23T22:57:48+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 14:57:48" itemprop="dateCreated datePublished" datetime="2021-02-23T14:57:48+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:34" itemprop="dateModified" datetime="2021-05-25T00:50:34+00:00">2021-05-25</time>
               </span>
 
           
@@ -284,14 +454,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 22:49:48" itemprop="dateCreated datePublished" datetime="2021-02-23T22:49:48+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 14:49:48" itemprop="dateCreated datePublished" datetime="2021-02-23T14:49:48+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:34" itemprop="dateModified" datetime="2021-05-25T00:50:34+00:00">2021-05-25</time>
               </span>
 
           
@@ -361,14 +531,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 22:44:29" itemprop="dateCreated datePublished" datetime="2021-02-23T22:44:29+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 14:44:29" itemprop="dateCreated datePublished" datetime="2021-02-23T14:44:29+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:34" itemprop="dateModified" datetime="2021-05-25T00:50:34+00:00">2021-05-25</time>
               </span>
 
           
@@ -430,14 +600,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 22:37:22" itemprop="dateCreated datePublished" datetime="2021-02-23T22:37:22+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 14:37:22" itemprop="dateCreated datePublished" datetime="2021-02-23T14:37:22+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:34" itemprop="dateModified" datetime="2021-05-25T00:50:34+00:00">2021-05-25</time>
               </span>
 
           
@@ -506,14 +676,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 21:26:42" itemprop="dateCreated datePublished" datetime="2021-02-23T21:26:42+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 13:26:42" itemprop="dateCreated datePublished" datetime="2021-02-23T13:26:42+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:34" itemprop="dateModified" datetime="2021-05-25T00:50:34+00:00">2021-05-25</time>
               </span>
 
           
@@ -581,14 +751,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 21:14:13" itemprop="dateCreated datePublished" datetime="2021-02-23T21:14:13+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 13:14:13" itemprop="dateCreated datePublished" datetime="2021-02-23T13:14:13+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:34" itemprop="dateModified" datetime="2021-05-25T00:50:34+00:00">2021-05-25</time>
               </span>
 
           
@@ -667,14 +837,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 16:09:56" itemprop="dateCreated datePublished" datetime="2021-02-23T16:09:56+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 08:09:56" itemprop="dateCreated datePublished" datetime="2021-02-23T08:09:56+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:34" itemprop="dateModified" datetime="2021-05-25T00:50:34+00:00">2021-05-25</time>
               </span>
 
           
@@ -772,14 +942,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 15:59:44" itemprop="dateCreated datePublished" datetime="2021-02-23T15:59:44+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 07:59:44" itemprop="dateCreated datePublished" datetime="2021-02-23T07:59:44+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:34" itemprop="dateModified" datetime="2021-05-25T00:50:34+00:00">2021-05-25</time>
               </span>
 
           
@@ -803,153 +973,6 @@
 <h2 id="闭包-closure"><a href="#闭包-closure" class="headerlink" title="闭包(closure)"></a>闭包(closure)</h2><p>如果说C++式的面向对象编程是把一组函数绑定到特定数据类型上的话，那么闭包可以说是把一组数据绑定到特定函数上。<br>闭包通过调用含有一个内部函数加上该外部函数持有的外部局部变量（upvalue）的外部函数（就是工厂）产生的一个实例函数<br>闭包组成：外部函数+外部函数创建的upvalue+内部函数（闭包函数）</p>
 <p>Lua中只有闭包，函数是闭包一种特殊情况。</p>
 <h2 id="…"><a href="#…" class="headerlink" title="…"></a>…</h2><p>当一个变参函数被调用，对应…的参数将会收集到一个叫arg的table里。这种方式虽然很简单便捷，但是要把这些参数传给另一个函数，就需要解包这个table。因为程序员经常将参数传递给另一个函数，Lua 5.1允许…用于参数列表和赋值表达式的右值。这避免了没必要的创建arg table。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/3e476df1.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/3e476df1.html" class="post-title-link" itemprop="url">lua面向对象</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-23 15:44:34" itemprop="dateCreated datePublished" datetime="2021-02-23T15:44:34+08:00">2021-02-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>lua中的table就是一种对象。<br>lua中可以通过修改<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/107">元表元方法</a>来实现面向对象。</p>
-<h2 id="self"><a href="#self" class="headerlink" title="self"></a>self</h2><p>table中的self相当于this。<br>首先，table与对象一样可以拥有状态。<br>其次，table也与对象一样拥有一个独立于其值的标识（一个self）。<br>最后，table与对象一样具有独立于创建者和创建地的生命周期。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Account:withdraw</span><span class="params">(v)</span></span></span><br><span class="line">    <span class="built_in">self</span>.balance = <span class="built_in">self</span>.balance - v</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>lua只需使用冒号，则能隐藏self参数。</p>
-<h2 id="类"><a href="#类" class="headerlink" title="类"></a>类</h2><p>一个类就像是一个创建对象的模具。我们可以利用__index元方法构造继承。<br>当访问一个table中不存在的字段时，得到的结果为nil。这是对的，但并非完全正确。实际上，这些访问会促使解释器去查找一个叫__index的元方法。如果没有这个元方法，那么访问结果如前述的为nil。否则，就由这个元方法来提供最终结果。<br>在lua中，将__index元方法用于继承很普遍，__index还可以是一个table。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">setmetatable</span>(a,&#123;<span class="comment">--index=b&#125;)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Account:new</span><span class="params">(o)</span></span></span><br><span class="line">    o = o <span class="keyword">or</span> &#123;&#125; <span class="comment">--如果用户没有提供table，则创建一个</span></span><br><span class="line">    <span class="built_in">setmetatable</span>(o,<span class="built_in">self</span>)</span><br><span class="line">    <span class="built_in">self</span>.<span class="built_in">__index</span> = <span class="built_in">self</span></span><br><span class="line">    <span class="keyword">return</span> o</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>之前写过一篇关于lua实现面向对象的文章，借助元表和元方法实现，感觉也是有点乱。<br>我们可以参考cocos2d-x自己给出的类的实现，也即在luaBinding目录下extern.lua的文件中给出的实现：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">class</span><span class="params">(classname, super)</span></span></span><br><span class="line">    <span class="comment">--superType获取父类类型，可以使nil、function以及table.</span></span><br><span class="line">    <span class="keyword">local</span> superType = <span class="built_in">type</span>(super)</span><br><span class="line">    <span class="keyword">local</span> cls</span><br><span class="line"></span><br><span class="line">    <span class="comment">--如果父类既不是函数也不是table则说明父类为空</span></span><br><span class="line">    <span class="keyword">if</span> superType ~= <span class="string">&quot;function&quot;</span> <span class="keyword">and</span> superType ~= <span class="string">&quot;table&quot;</span> <span class="keyword">then</span></span><br><span class="line">        superType = <span class="literal">nil</span></span><br><span class="line">        super = <span class="literal">nil</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">--如果父类的类型是函数或者是C对象</span></span><br><span class="line">    <span class="keyword">if</span> superType == <span class="string">&quot;function&quot;</span> <span class="keyword">or</span> (super <span class="keyword">and</span> super.__ctype == <span class="number">1</span>) <span class="keyword">then</span></span><br><span class="line">        <span class="comment">-- inherited from native C++ Object</span></span><br><span class="line">        cls = &#123;&#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">--如果父类是表则复制成员并且设置这个类的继承信息</span></span><br><span class="line">        <span class="keyword">if</span> superType == <span class="string">&quot;table&quot;</span> <span class="keyword">then</span></span><br><span class="line">            <span class="comment">-- 从父类copy 字段</span></span><br><span class="line">            <span class="built_in">print</span> (<span class="string">&quot;superTyper is table&quot;</span>);</span><br><span class="line">            <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="built_in">pairs</span>(super) <span class="keyword">do</span> cls[k] = v <span class="keyword">end</span></span><br><span class="line">            cls.__create = super.__create</span><br><span class="line">            cls.super    = super</span><br><span class="line">        <span class="keyword">else</span>  <span class="comment">--如果是函数类型则设置构造方法并且设置ctor函数</span></span><br><span class="line">            cls.__create = super</span><br><span class="line">            cls.ctor = <span class="function"><span class="keyword">function</span><span class="params">()</span></span> <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">--设置类型的名称</span></span><br><span class="line">        cls.__cname = classname</span><br><span class="line">        cls.__ctype = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">--定义该类型的创建实例的函数为基类的构造函数后复制到子类实例</span></span><br><span class="line">        <span class="comment">--并且调用子数的ctor方法</span></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">cls.new</span><span class="params">(...)</span></span></span><br><span class="line">            <span class="keyword">local</span> instance = cls.__create(...)</span><br><span class="line">            <span class="comment">-- copy fields from class to native object</span></span><br><span class="line">            <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="built_in">pairs</span>(cls) <span class="keyword">do</span> instance[k] = v <span class="keyword">end</span></span><br><span class="line">            instance.class = cls</span><br><span class="line">            instance:ctor(...)</span><br><span class="line">            <span class="keyword">return</span> instance</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment">--如果是继承自普通的lua表,则设置一下原型，并且构造实例后也会调用ctor方法</span></span><br><span class="line">        <span class="comment">-- inherited from Lua Object</span></span><br><span class="line">        <span class="keyword">if</span> super <span class="keyword">then</span></span><br><span class="line">            cls = &#123;&#125;</span><br><span class="line">            <span class="built_in">setmetatable</span>(cls, &#123;<span class="built_in">__index</span> = super&#125;)</span><br><span class="line">            cls.super = super</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            cls = &#123;ctor = <span class="function"><span class="keyword">function</span><span class="params">()</span></span> <span class="keyword">end</span>&#125;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        cls.__cname = classname</span><br><span class="line">        cls.__ctype = <span class="number">2</span> <span class="comment">-- lua</span></span><br><span class="line">        cls.<span class="built_in">__index</span> = cls</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">cls.new</span><span class="params">(...)</span></span></span><br><span class="line">            <span class="keyword">local</span> instance = <span class="built_in">setmetatable</span>(&#123;&#125;, cls)</span><br><span class="line">            instance.class = cls</span><br><span class="line">            instance:ctor(...)</span><br><span class="line">            <span class="keyword">return</span> instance</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> cls</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>创建对象时，可以通过className.new这种方式来创建，如</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> MySpriteClass = class(<span class="string">&quot;MySpriteClass&quot;</span>,cc.Sprite)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">MySpriteClass:ctor</span><span class="params">()</span></span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> MySpriteClass</span><br></pre></td></tr></table></figure>
-<p>mySpriteClass 实例创建</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> mySprite = MySpriteClass.new(xxx.png)</span><br></pre></td></tr></table></figure>
-<p><img src="https://user-images.githubusercontent.com/11263320/108814689-36622500-75ee-11eb-88a6-31a5d5bec388.png" alt="1425134-20190408154553314-1254158238"><br>classname.new()生成的instance包含一个class属性。class指向了类原型，并具有super,ctor,__cname和__ctype  4个属性<br>继承C++的类，new方法使用__create函数来创建实例<br>继承lua类，new方法使用{ }来创建实例。<br>继承Lua的类，new方法使用{ }来创建实例。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/505cc6be.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/505cc6be.html" class="post-title-link" itemprop="url">把lua文本文件“编译”成二进制的文本</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-23 15:14:21" itemprop="dateCreated datePublished" datetime="2021-02-23T15:14:21+08:00">2021-02-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>当你发布lua时，你或许不想用户看到你的lua源码，更不想用户修改你的lua代码和系统内部的秘密，那就需要用别的方式来发布。</p>
-<p>最终的文本文件可以通过lua作者提供的标准发布版本中的程序来执行。这个程序称做luac.exe，把lua文本文件“编译”成二进制的文件。这样就可以让别人更难知道你的游戏是如何运行的，采用了什么技术。</p>
-<p>当写好一个lua文件后，可以通过一个典型的编译命令去“编译”这个文件：</p>
-<p>这一行代码会编译helloworld.lua脚本并在helloworld文件中生成二进制数据。<br>lua解析器并不关心你传给它的是文本文件还是二进制文件，也不关心扩展名是什么。</p>
-<p>用这个方法，就不用担心别人可以看到你的代码了。</p>
-<p>当require一个模块mod.sub时，require会用原始的模块名“mod.sub”作为key来查询table package.loaded和package.preload，其中，模块名中的点在搜索中没有任何意义。<br>当搜索一个定义子模块的文件时，require会将点转换为另一个字符，通常就是系统的目录分隔符。转换之后require就像搜索其他名称一样来搜索这个名称。<br>所以最好的方法是在编译完lua脚本后，也把二进制文件改成.lua后缀。</p>
 
       
     </div>
@@ -1035,7 +1058,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">107</span>
+          <span class="site-state-item-count">109</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

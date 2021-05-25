@@ -165,6 +165,180 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/6349ecd2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/6349ecd2.html" class="post-title-link" itemprop="url">lua Table</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-21 17:50:00" itemprop="dateCreated datePublished" datetime="2021-03-21T17:50:00+00:00">2021-03-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-25 00:50:31" itemprop="dateModified" datetime="2021-05-25T00:50:31+00:00">2021-05-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>table实现了关联数组，即可以同时用数字和字符串索引的数组。<br>table是一种强大的语言构造。因为table的泛型特点，简化了使用lua编写程序所用的数据结构和算法。</p>
+<h2 id="哈希与数组"><a href="#哈希与数组" class="headerlink" title="哈希与数组"></a>哈希与数组</h2><p>直到Lua 4.0为止，table都是作为纯哈希表实现的，所有的键值对都是显式存储的。在Lua 5.0版本引入了table的混合表示：每个table包含了一个哈希部分和一个数组部分，两个部分都可以是空的。Lua检测一个table是不是作为一个数组来使用，并自动将数字索引的值移动到数组部分，而非原本的存储在哈希部分。这种分裂只在底层实现层次进行；访问table域是透明的，即使是对虚拟机来说。table会自动根据内容使用两个部分。<br>这个混合机制有两个优点。第一，访问整型key的操作会变得更快了，因为不再需要哈希。第二，更重要的是，数组部分只占原来哈希部分的一半大小，因为哈希部分需要同时存储key和value，而数组部分的key已经隐含在下标了。结果是，如果一个table是作为数组使用的，它的表现就像数组一样，只要它的整型key是密集分布的。而且，哈希部分没有内存或者时间的代价，因为作为数组使用时，哈希部分不存在。反过来说，如果table是作为记录使用而非数组，那么数组部分就是空的。这些节省下来的内存是重要的。</p>
+<h2 id="Lua核心突出角色"><a href="#Lua核心突出角色" class="headerlink" title="Lua核心突出角色"></a>Lua核心突出角色</h2><p>从Lua 4.0开始，全局变量就存储在普通的Lua table里，称为全局table。Lua 5.0用元表和元方法取代了tag和tag方法（Lua 3.0引入的）。元表是普通的Lua table，元方法是作为元表的域存储的。Lua 5.0也引入了环境table，可以附加到Lua函数上；它们就是Lua函数索引的全局环境。Lua 5.1将环境变量table扩展到C函数、userdata和协程，取代了全局的环境变量。这些改动简化了Lua的实现、Lua和C程序员所用的API，因为全局变量和元方法可以在Lua里操控，不再需要特殊函数了。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>先看看表的数据类型定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Table</span> &#123;</span></span><br><span class="line">  CommonHeader;</span><br><span class="line">  lu_byte flags;  <span class="comment">/* 1&lt;&lt;p means tagmethod(p) is not present */</span> </span><br><span class="line">  lu_byte lsizenode;  <span class="comment">/* log2 of size of `node&#x27; array */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Table</span> *<span class="title">metatable</span>;</span><span class="comment">//存放该表的元表</span></span><br><span class="line">  TValue *<span class="built_in">array</span>;  <span class="comment">//指向数组部分的指针</span></span><br><span class="line">  Node *node;  <span class="comment">//指向该表的散列桶数组起始位置的指针 </span></span><br><span class="line">  Node *lastfree;  <span class="comment">//指向该表散列桶数组的最后位置的指针</span></span><br><span class="line">  GCObject *gclist; <span class="comment">//GC相关的链表</span></span><br><span class="line">  <span class="keyword">int</span> sizearray;  <span class="comment">//数组部分的大小</span></span><br><span class="line">&#125; Table;</span><br></pre></td></tr></table></figure>
+<p>lu_byte_flags：这是一个byte类型的数据，用于表示这个表中提供了哪些元方法。最开始这个flags是空的，也就是0，当查找一次之后，如果该表中存在某个元方法，那么将该元方法对应的flag bit置为1，这样下一次查找时只需要比较这个bit就行了。每个元方法对应的bit定义在ltm. h文件中。<br>lu_byte_lsizenode：该表中以2为底的散列表大小的对数值。同时由此可知，散列表部分的大小一定是2的幕，即如果散列桶数组要扩展的话，也是以每次在原大小基础上乘以2的形式扩展。</p>
+<p>从Node类型来看，它包含两个成员，一个是key，另一个是value（TValue）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">union</span> <span class="title">TKey</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    TValuefields;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Node</span> *<span class="title">next</span>;</span>  <span class="comment">/* for chaining */</span></span><br><span class="line">  &#125; nk;</span><br><span class="line">  TValue tvk;</span><br><span class="line">&#125; TKey;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Node</span> &#123;</span></span><br><span class="line">  TValue i_val;</span><br><span class="line">  TKey i_key;</span><br><span class="line">&#125; Node;</span><br></pre></td></tr></table></figure>
+<h2 id="表查找"><a href="#表查找" class="headerlink" title="表查找"></a>表查找</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** search function for integers</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">const</span> TValue *<span class="title">luaH_getnum</span> <span class="params">(Table *t, <span class="keyword">int</span> key)</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* (1 &lt;= key &amp;&amp; key &lt;= t-&gt;sizearray) */</span></span><br><span class="line">  <span class="keyword">if</span> (cast(<span class="keyword">unsigned</span> <span class="keyword">int</span>, key<span class="number">-1</span>) &lt; cast(<span class="keyword">unsigned</span> <span class="keyword">int</span>, t-&gt;sizearray))</span><br><span class="line">    <span class="keyword">return</span> &amp;t-&gt;<span class="built_in">array</span>[key<span class="number">-1</span>];</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    lua_Number nk = cast_num(key);</span><br><span class="line">    Node *n = hashnum(t, nk);</span><br><span class="line">    <span class="keyword">do</span> &#123;  <span class="comment">/* check whether `key&#x27; is somewhere in the chain */</span></span><br><span class="line">      <span class="keyword">if</span> (ttisnumber(gkey(n)) &amp;&amp; luai_numeq(nvalue(gkey(n)), nk))</span><br><span class="line">        <span class="keyword">return</span> gval(n);  <span class="comment">/* that&#x27;s it */</span></span><br><span class="line">      <span class="keyword">else</span> n = gnext(n);</span><br><span class="line">    &#125; <span class="keyword">while</span> (n);</span><br><span class="line">    <span class="keyword">return</span> luaO_nilobject;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如采输入的Key是一个正坐数，并且它的位＞0 &amp;&amp; ＜= 数组且大小，尝试在数组部分查找。<br>如果不是，尝试在散列表部分查找，计算出该Key的散列值，根据此散列值访问Node数组得到散列桶所在的位置，遍历该散列桶下的所有链表元素，直到找到该Key为止。<br>可以看到，即使是一个正整数的key，其存储部分也不见得会一定落在数组部分，这完全取决于它的大小是再落在了当前数组可容纳的空间范围内。也解释了ipairs遍历断裂的问题。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> t = &#123;&#125;</span><br><span class="line">t[<span class="number">1</span>] = <span class="number">0</span> <span class="comment">-- 1作为数组部分存储下来</span></span><br><span class="line">t[<span class="number">100</span>] = <span class="number">0</span> <span class="comment">--100存储到散列表部分中</span></span><br></pre></td></tr></table></figure>
+<h2 id="新增元素"><a href="#新增元素" class="headerlink" title="新增元素"></a>新增元素</h2><p>当找不到对应的key时，最终都会调用内部的 newkey函数分配一个新的key来返回</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** inserts a new key into a hash table; first, check whether key&#x27;s main </span></span><br><span class="line"><span class="comment">** position is free. If not, check whether colliding node is in its main </span></span><br><span class="line"><span class="comment">** position or not: if it is not, move colliding node to an empty place and </span></span><br><span class="line"><span class="comment">** put new key in its main position; otherwise (colliding node is in its main </span></span><br><span class="line"><span class="comment">** position), new key goes to an empty position. </span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> TValue *<span class="title">newkey</span> <span class="params">(lua_State *L, Table *t, <span class="keyword">const</span> TValue *key)</span> </span>&#123;</span><br><span class="line">  Node *mp = mainposition(t, key);</span><br><span class="line">  <span class="keyword">if</span> (!ttisnil(gval(mp)) || mp == dummynode) &#123;</span><br><span class="line">    Node *othern;</span><br><span class="line">    Node *n = getfreepos(t);  <span class="comment">/* get a free place */</span></span><br><span class="line">    <span class="keyword">if</span> (n == <span class="literal">NULL</span>) &#123;  <span class="comment">/* cannot find a free place? */</span></span><br><span class="line">      rehash(L, t, key);  <span class="comment">/* grow table */</span></span><br><span class="line">      <span class="keyword">return</span> luaH_set(L, t, key);  <span class="comment">/* re-insert key into grown table */</span></span><br><span class="line">    &#125;</span><br><span class="line">    lua_assert(n != dummynode);</span><br><span class="line">    othern = mainposition(t, key2tval(mp));</span><br><span class="line">    <span class="keyword">if</span> (othern != mp) &#123;  <span class="comment">/* is colliding node out of its main position? */</span></span><br><span class="line">      <span class="comment">/* yes; move colliding node into free position */</span></span><br><span class="line">      <span class="keyword">while</span> (gnext(othern) != mp) othern = gnext(othern);  <span class="comment">/* find previous */</span></span><br><span class="line">      gnext(othern) = n;  <span class="comment">/* redo the chain with `n&#x27; in place of `mp&#x27; */</span></span><br><span class="line">      *n = *mp;  <span class="comment">/* copy colliding node into free pos. (mp-&gt;next also goes) */</span></span><br><span class="line">      gnext(mp) = <span class="literal">NULL</span>;  <span class="comment">/* now `mp&#x27; is free */</span></span><br><span class="line">      setnilvalue(gval(mp));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;  <span class="comment">/* colliding node is in its own main position */</span></span><br><span class="line">      <span class="comment">/* new node will go into free position */</span></span><br><span class="line">      gnext(n) = gnext(mp);  <span class="comment">/* chain new position */</span></span><br><span class="line">      gnext(mp) = n;</span><br><span class="line">      mp = n;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  gkey(mp)-&gt;value = key-&gt;value; gkey(mp)-&gt;tt = key-&gt;tt;</span><br><span class="line">  luaC_barriert(L, t, key);</span><br><span class="line">  lua_assert(ttisnil(gval(mp)));</span><br><span class="line">  <span class="keyword">return</span> gval(mp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>散列表部分的数据组织是，首先计算数据的key所在的桶数组位置，这个位置称为mainposition。相同mainposition的数据以链表形式组织<br>上述代码主要操作：</p>
+<ul>
+<li>根据key来查找其所在散列桶的mainposition，如果返回的结果中，该Node的值为nil，那么直接将key赋值并且返回Node的TValue指针就可以了。</li>
+<li>再则说明该mainposition上已经有其他数据了，需要重新分配空间给这个新的 key ，然后将这个新的Node串联到对应的散列桶上 。<br>可见，整个过程都是在散列桶部分进行的，理由是即使key是一个数字，也已经在调用 newkey函数之前进行了查找，结果却没有找到，所以这个key都会进入散列桶部分来查找。</li>
+</ul>
+<h3 id="rehash"><a href="#rehash" class="headerlink" title="rehash"></a>rehash</h3><p>以上操作涉及重新对表空间进行分配的情况。入口函数是rehash，顾名思义，这个两数的作用就是为了做重新散列操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">rehash</span> <span class="params">(lua_State *L, Table *t, <span class="keyword">const</span> TValue *ek)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> nasize, na;</span><br><span class="line">  <span class="keyword">int</span> nums[MAXBITS+<span class="number">1</span>];  <span class="comment">/* nums[i] = number of keys between 2^(i-1) and 2^i */</span></span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">int</span> totaluse;</span><br><span class="line">  <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;=MAXBITS; i++) nums[i] = <span class="number">0</span>;  <span class="comment">/* reset counts */</span></span><br><span class="line">  nasize = numusearray(t, nums);  <span class="comment">/* count keys in array part */</span></span><br><span class="line">  totaluse = nasize;  <span class="comment">/* all those keys are integer keys */</span></span><br><span class="line">  totaluse += numusehash(t, nums, &amp;nasize);  <span class="comment">/* count keys in hash part */</span></span><br><span class="line">  <span class="comment">/* count extra key */</span></span><br><span class="line">  nasize += countint(ek, nums);</span><br><span class="line">  totaluse++;</span><br><span class="line">  <span class="comment">/* compute new size for array part */</span></span><br><span class="line">  na = computesizes(nums, &amp;nasize);</span><br><span class="line">  <span class="comment">/* resize the table to new computed sizes */</span></span><br><span class="line">  resize(L, t, nasize, totaluse - na);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码主要操作：</p>
+<ul>
+<li>分配一个位图nums，将其中的所有位置0。这个位图的意义在于：nums数组中第 i个元素存放的是key在2{i- l）和i之间的元素数量。</li>
+<li>遍历Lua表中的数组部分，计算其中的元素数量，更新对应的nums数组中的元素数量( numusearray函数）。</li>
+<li>遍历 lua表中的散列桶部分，因为其中也可能存放了正整数，需要根据这里的正整数数量更新对应的nums数组元素数量（numusehash函数）</li>
+<li>此时nums数组已经有了当前这个Table中所有正整数的分配统计，逐个遍历nums数组，获得其范围区间内所包含的整数数量大于50%的最大索引，作为重新散列之后的数组大小，超过这个范围的正整数，就分配到散列桶部分了（ computesizes函数）</li>
+<li>根据上面计算得到的调整后的数组和散列桶大小调整表（ resize 函数）。</li>
+</ul>
+<p>在重新散列的过程中，除了增大Lua表的大小以容纳新的数据之外，还希望能借此机会对原有的数组和散列桶部分进行调整，让两部分都尽可能发挥其存储的最高容纳效率。那么，这里的标准是什么呢？希望在调整过后，数组在每一个2次方位置容纳的元素数量都超过该范围的50%。 能达到这个目标的话，就认为这个数组范围发挥了最大的效率。</p>
+<p>当数字键值的统计跑完之后，得到了这个数组每个元素的数据，也就是得到了落在每个范围内的数据数量。接着会计算怎样才能最大限度地使用这部分空间 。这个算法由函数computesizes实现：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">computesizes</span> <span class="params">(<span class="keyword">int</span> nums[], <span class="keyword">int</span> *narray)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">int</span> twotoi;  <span class="comment">/* 2^i */</span></span><br><span class="line">  <span class="keyword">int</span> a = <span class="number">0</span>;  <span class="comment">/* number of elements smaller than 2^i */</span></span><br><span class="line">  <span class="keyword">int</span> na = <span class="number">0</span>;  <span class="comment">/* number of elements to go to array part */</span></span><br><span class="line">  <span class="keyword">int</span> n = <span class="number">0</span>;  <span class="comment">/* optimal size for array part */</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>, twotoi = <span class="number">1</span>; twotoi/<span class="number">2</span> &lt; *narray; i++, twotoi *= <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums[i] &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      a += nums[i];</span><br><span class="line">      <span class="keyword">if</span> (a &gt; twotoi/<span class="number">2</span>) &#123;  <span class="comment">/* more than half elements present? */</span></span><br><span class="line">        n = twotoi;  <span class="comment">/* optimal size (till now) */</span></span><br><span class="line">        na = a;  <span class="comment">/* all elements smaller than n will go to array part */</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (a == *narray) <span class="keyword">break</span>;  <span class="comment">/* all elements already counted */</span></span><br><span class="line">  &#125;</span><br><span class="line">  *narray = n;</span><br><span class="line">  lua_assert(*narray/<span class="number">2</span> &lt;= na &amp;&amp; na &lt;= *narray);</span><br><span class="line">  <span class="keyword">return</span> na;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="迭代"><a href="#迭代" class="headerlink" title="迭代"></a>迭代</h2><p>在一般算法库的设计中，针对容器类的迭代，会提供一个迭代器的数据，这个数据主要用于维护当前迭代到容器的哪部分数据了，下次再根据这个位置查找下一部分数据。表迭代不是这样设计的，很大的原因是为了兼容数组部分和散列桶部分的访问 。 迭代操作传入的不是一个迭代器，而是key。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">luaH_next</span> <span class="params">(lua_State *L, Table *t, StkId key)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i = findindex(L, t, key);  <span class="comment">/* find original element */</span></span><br><span class="line">  <span class="keyword">for</span> (i++; i &lt; t-&gt;sizearray; i++) &#123;  <span class="comment">/* try first array part */</span></span><br><span class="line">    <span class="keyword">if</span> (!ttisnil(&amp;t-&gt;<span class="built_in">array</span>[i])) &#123;  <span class="comment">/* a non-nil value? */</span></span><br><span class="line">      setnvalue(key, cast_num(i+<span class="number">1</span>));</span><br><span class="line">      setobj2s(L, key+<span class="number">1</span>, &amp;t-&gt;<span class="built_in">array</span>[i]);</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (i -= t-&gt;sizearray; i &lt; sizenode(t); i++) &#123;  <span class="comment">/* then hash part */</span></span><br><span class="line">    <span class="keyword">if</span> (!ttisnil(gval(gnode(t, i)))) &#123;  <span class="comment">/* a non-nil value? */</span></span><br><span class="line">      setobj2s(L, key, key2tval(gnode(t, i)));</span><br><span class="line">      setobj2s(L, key+<span class="number">1</span>, gval(gnode(t, i)));</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* no more elements */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不管是在数组部分还是散列桶部分查找数据，查找成功都会返回该key的下一个数据。<br>这个函数一开始就进入findindex中进行查询，并区分数组和散列桶部分。findindex函数的返回结果是一个整数索引，如果这个索引在表的sizearray之内，则说明落入到数组部分，否则就落入到散列桶部分。在luaH_next函数中使用这个返回值时，看起来是两个循环，实际上已经根据这个值的范围进行了区分，不会同一个key走入两个循环中。而在返回散列桶部分时，这个索引值为”sizearray＋对应散列柏索引的值”。</p>
+<h2 id="取长度操作"><a href="#取长度操作" class="headerlink" title="取长度操作"></a>取长度操作</h2><p>在Lua中，可以使用#符号对表进行取长度操作。对Lua中的表进行取长度操作时，如果没有提供该表的元方法_len，那么该操作只针对该表的序列（ sequence ）部分进行。 “序列”指的是表的一个子集{1 … n}，其中 n是一个正整数，并且里面每个键对应的数据都不为nil。 </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Try to find a boundary in table `t&#x27;. A `boundary&#x27; is an integer index</span></span><br><span class="line"><span class="comment">** such that t[i] is non-nil and t[i+1] is nil (and 0 if t[1] is nil).</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">luaH_getn</span> <span class="params">(Table *t)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> j = t-&gt;sizearray;</span><br><span class="line">  <span class="keyword">if</span> (j &gt; <span class="number">0</span> &amp;&amp; ttisnil(&amp;t-&gt;<span class="built_in">array</span>[j - <span class="number">1</span>])) &#123;</span><br><span class="line">    <span class="comment">/* there is a boundary in the array part: (binary) search for it */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (j - i &gt; <span class="number">1</span>) &#123;</span><br><span class="line">      <span class="keyword">unsigned</span> <span class="keyword">int</span> m = (i+j)/<span class="number">2</span>;</span><br><span class="line">      <span class="keyword">if</span> (ttisnil(&amp;t-&gt;<span class="built_in">array</span>[m - <span class="number">1</span>])) j = m;</span><br><span class="line">      <span class="keyword">else</span> i = m;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> i;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/* else must find a boundary in hash part */</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (t-&gt;node == dummynode)  <span class="comment">/* hash part is empty? */</span></span><br><span class="line">    <span class="keyword">return</span> j;  <span class="comment">/* that is easy... */</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">return</span> unbound_search(t, j);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果表中混合了这两种风格的数据，那么优先取数组部分的长度。如果表存在数组部分，在数组部分二分查找返回位置。如果前面的数组部分查不到满足条件的数据，进入散列表部分查找。<br>所以，尽量不要将一个表混用数组和散列桶部分，即一个表最好只存放一类数据。Lua的实现上确实提供了两者统一表示的遍历，但是这不意味着使用者就应该混用这两种方式。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>《Lua设计与实现》</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/ba161a39.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/ba161a39.html" class="post-title-link" itemprop="url">lua gc</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-21 17:22:15" itemprop="dateCreated datePublished" datetime="2021-03-21T17:22:15+00:00">2021-03-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-25 00:50:31" itemprop="dateModified" datetime="2021-05-25T00:50:31+00:00">2021-05-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>对于内存的管理，是程序在应用的时候的必需知识点。而<code>lua</code>的垃圾回收机制十分优秀，值得一读。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/ba161a39.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/a563683a.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -189,14 +363,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-03-20 20:14:29" itemprop="dateCreated datePublished" datetime="2021-03-20T20:14:29+08:00">2021-03-20</time>
+              <time title="创建时间：2021-03-20 12:14:29" itemprop="dateCreated datePublished" datetime="2021-03-20T12:14:29+00:00">2021-03-20</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:10" itemprop="dateModified" datetime="2021-05-15T10:30:10+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:31" itemprop="dateModified" datetime="2021-05-25T00:50:31+00:00">2021-05-25</time>
               </span>
 
           
@@ -303,14 +477,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-03-20 15:50:49" itemprop="dateCreated datePublished" datetime="2021-03-20T15:50:49+08:00">2021-03-20</time>
+              <time title="创建时间：2021-03-20 07:50:49" itemprop="dateCreated datePublished" datetime="2021-03-20T07:50:49+00:00">2021-03-20</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:10" itemprop="dateModified" datetime="2021-05-15T10:30:10+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:31" itemprop="dateModified" datetime="2021-05-25T00:50:31+00:00">2021-05-25</time>
               </span>
 
           
@@ -401,14 +575,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-03-19 22:43:30" itemprop="dateCreated datePublished" datetime="2021-03-19T22:43:30+08:00">2021-03-19</time>
+              <time title="创建时间：2021-03-19 14:43:30" itemprop="dateCreated datePublished" datetime="2021-03-19T14:43:30+00:00">2021-03-19</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:10" itemprop="dateModified" datetime="2021-05-15T10:30:10+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:31" itemprop="dateModified" datetime="2021-05-25T00:50:31+00:00">2021-05-25</time>
               </span>
 
           
@@ -474,14 +648,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-03-09 15:46:18" itemprop="dateCreated datePublished" datetime="2021-03-09T15:46:18+08:00">2021-03-09</time>
+              <time title="创建时间：2021-03-09 07:46:18" itemprop="dateCreated datePublished" datetime="2021-03-09T07:46:18+00:00">2021-03-09</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:10" itemprop="dateModified" datetime="2021-05-15T10:30:10+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:31" itemprop="dateModified" datetime="2021-05-25T00:50:31+00:00">2021-05-25</time>
               </span>
 
           
@@ -546,14 +720,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-03-08 15:18:57" itemprop="dateCreated datePublished" datetime="2021-03-08T15:18:57+08:00">2021-03-08</time>
+              <time title="创建时间：2021-03-08 07:18:57" itemprop="dateCreated datePublished" datetime="2021-03-08T07:18:57+00:00">2021-03-08</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:10" itemprop="dateModified" datetime="2021-05-15T10:30:10+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:31" itemprop="dateModified" datetime="2021-05-25T00:50:31+00:00">2021-05-25</time>
               </span>
 
           
@@ -611,14 +785,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-03-03 16:07:51" itemprop="dateCreated datePublished" datetime="2021-03-03T16:07:51+08:00">2021-03-03</time>
+              <time title="创建时间：2021-03-03 08:07:51" itemprop="dateCreated datePublished" datetime="2021-03-03T08:07:51+00:00">2021-03-03</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:10" itemprop="dateModified" datetime="2021-05-15T10:30:10+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:31" itemprop="dateModified" datetime="2021-05-25T00:50:31+00:00">2021-05-25</time>
               </span>
 
           
@@ -683,14 +857,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-03-02 23:27:56" itemprop="dateCreated datePublished" datetime="2021-03-02T23:27:56+08:00">2021-03-02</time>
+              <time title="创建时间：2021-03-02 15:27:56" itemprop="dateCreated datePublished" datetime="2021-03-02T15:27:56+00:00">2021-03-02</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:10" itemprop="dateModified" datetime="2021-05-15T10:30:10+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:31" itemprop="dateModified" datetime="2021-05-25T00:50:31+00:00">2021-05-25</time>
               </span>
 
           
@@ -755,14 +929,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-03-01 19:28:16" itemprop="dateCreated datePublished" datetime="2021-03-01T19:28:16+08:00">2021-03-01</time>
+              <time title="创建时间：2021-03-01 11:28:16" itemprop="dateCreated datePublished" datetime="2021-03-01T11:28:16+00:00">2021-03-01</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:10" itemprop="dateModified" datetime="2021-05-15T10:30:10+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:31" itemprop="dateModified" datetime="2021-05-25T00:50:31+00:00">2021-05-25</time>
               </span>
 
           
@@ -793,147 +967,6 @@
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> a = &#123;<span class="number">1</span>，<span class="number">2</span>，<span class="number">3</span>&#125;</span><br><span class="line"><span class="keyword">for</span> i=l,<span class="number">3</span> <span class="keyword">do</span></span><br><span class="line">    a[i] = <span class="literal">true</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
 <h2 id="限制require到别的模块"><a href="#限制require到别的模块" class="headerlink" title="限制require到别的模块"></a>限制require到别的模块</h2><p>手工编写服务表，防止Require到别的服务的lua模块<br>REQUIRE_CHECK_LIST = {<br>    [“A”] = true,<br>    [“B”] = true,<br>}</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> realrequire = <span class="built_in">require</span></span><br><span class="line"><span class="keyword">local</span> <span class="built_in">loaded</span> = <span class="built_in">package</span>.<span class="built_in">loaded</span></span><br><span class="line"><span class="built_in">require</span> = <span class="function"><span class="keyword">function</span> <span class="params">( moduleName )</span></span></span><br><span class="line">	<span class="keyword">local</span> loadedModule = <span class="built_in">loaded</span>[moduleName]</span><br><span class="line">	<span class="keyword">if</span> loadedModule ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">		<span class="keyword">return</span> loadedModule</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="keyword">local</span> header = moduleName:<span class="built_in">match</span>(<span class="string">&quot;([^%.]*)%..*&quot;</span>)</span><br><span class="line">		<span class="keyword">if</span>  REQUIRE_CHECK_LIST[header] <span class="keyword">then</span></span><br><span class="line">			<span class="built_in">print</span>(try to <span class="built_in">require</span> others service)</span><br><span class="line">		<span class="keyword">end</span></span><br><span class="line">		<span class="keyword">return</span> realrequire(moduleName)</span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/8db4c595.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/8db4c595.html" class="post-title-link" itemprop="url">gdb调试</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-28 00:36:17" itemprop="dateCreated datePublished" datetime="2021-02-28T00:36:17+08:00">2021-02-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:10" itemprop="dateModified" datetime="2021-05-15T10:30:10+08:00">2021-05-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">cmd:gdb</span><br><span class="line">gdb$ file yourpram</span><br><span class="line"></span><br><span class="line">* 保存历史命令</span><br><span class="line">echo &#39;set history save on&#39; &gt;&gt; ~&#x2F;.gdbinit &amp;&amp; chmod 600 ~&#x2F;.gdbinit</span><br><span class="line">gdb$ show history</span><br><span class="line"></span><br><span class="line">* 设置参数</span><br><span class="line">gdb$ set args(e.g. set args 10 20 30 40 50)</span><br><span class="line">gdb$ show args</span><br><span class="line"></span><br><span class="line">* 执行程序至 main() 主函数的起始位置，即在 main() 函数的第一行语句处停止执行（该行代码尚未执行）。</span><br><span class="line">gdb$ start</span><br><span class="line"></span><br><span class="line">* 加断点</span><br><span class="line">gdb$ b gdb_test.c:3 </span><br><span class="line">gdb$ info b</span><br><span class="line"> </span><br><span class="line"> * 打印参数</span><br><span class="line">gdb$ p i</span><br><span class="line">gdb$ p&#x2F;x i</span><br><span class="line"></span><br><span class="line">* run 指令会执行程序至第一个断点处，没有指令就一直执行程序</span><br><span class="line">gdb$ run</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>UI interface(TUI mode)<br>ctrl+X+A</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/4b89e68.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/4b89e68.html" class="post-title-link" itemprop="url">linux调试core，解决段错误</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-28 00:30:23" itemprop="dateCreated datePublished" datetime="2021-02-28T00:30:23+08:00">2021-02-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:10" itemprop="dateModified" datetime="2021-05-15T10:30:10+08:00">2021-05-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>了解core文件，对查找程序崩溃有十分重要的意义。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/post/4b89e68.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
       
     </div>
 
@@ -1018,7 +1051,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">107</span>
+          <span class="site-state-item-count">109</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

@@ -165,6 +165,148 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/3e476df1.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/3e476df1.html" class="post-title-link" itemprop="url">lua面向对象</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-23 07:44:34" itemprop="dateCreated datePublished" datetime="2021-02-23T07:44:34+00:00">2021-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><code>lua</code>中的table就是一种对象。<br><code>lua</code>中可以通过修改<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/107">元表元方法</a>来实现面向对象。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/3e476df1.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/505cc6be.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/505cc6be.html" class="post-title-link" itemprop="url">把lua文本文件“编译”成二进制的文本</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-23 07:14:21" itemprop="dateCreated datePublished" datetime="2021-02-23T07:14:21+00:00">2021-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>当你发布lua时，你或许不想用户看到你的lua源码，更不想用户修改你的lua代码和系统内部的秘密，那就需要用别的方式来发布。</p>
+<p>最终的文本文件可以通过lua作者提供的标准发布版本中的程序来执行。这个程序称做luac.exe，把lua文本文件“编译”成二进制的文件。这样就可以让别人更难知道你的游戏是如何运行的，采用了什么技术。</p>
+<p>当写好一个lua文件后，可以通过一个典型的编译命令去“编译”这个文件：</p>
+<p>这一行代码会编译helloworld.lua脚本并在helloworld文件中生成二进制数据。<br>lua解析器并不关心你传给它的是文本文件还是二进制文件，也不关心扩展名是什么。</p>
+<p>用这个方法，就不用担心别人可以看到你的代码了。</p>
+<p>当require一个模块mod.sub时，require会用原始的模块名“mod.sub”作为key来查询table package.loaded和package.preload，其中，模块名中的点在搜索中没有任何意义。<br>当搜索一个定义子模块的文件时，require会将点转换为另一个字符，通常就是系统的目录分隔符。转换之后require就像搜索其他名称一样来搜索这个名称。<br>所以最好的方法是在编译完lua脚本后，也把二进制文件改成.lua后缀。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/f68e1d0f.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -189,14 +331,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 15:05:14" itemprop="dateCreated datePublished" datetime="2021-02-23T15:05:14+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 07:05:14" itemprop="dateCreated datePublished" datetime="2021-02-23T07:05:14+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:18" itemprop="dateModified" datetime="2021-05-15T10:30:18+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
               </span>
 
           
@@ -266,14 +408,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 14:41:02" itemprop="dateCreated datePublished" datetime="2021-02-23T14:41:02+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 06:41:02" itemprop="dateCreated datePublished" datetime="2021-02-23T06:41:02+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:18" itemprop="dateModified" datetime="2021-05-15T10:30:18+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
               </span>
 
           
@@ -355,14 +497,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 14:07:27" itemprop="dateCreated datePublished" datetime="2021-02-23T14:07:27+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 06:07:27" itemprop="dateCreated datePublished" datetime="2021-02-23T06:07:27+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:18" itemprop="dateModified" datetime="2021-05-15T10:30:18+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
               </span>
 
           
@@ -427,14 +569,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 13:55:15" itemprop="dateCreated datePublished" datetime="2021-02-23T13:55:15+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 05:55:15" itemprop="dateCreated datePublished" datetime="2021-02-23T05:55:15+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:18" itemprop="dateModified" datetime="2021-05-15T10:30:18+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
               </span>
 
           
@@ -511,14 +653,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 10:55:25" itemprop="dateCreated datePublished" datetime="2021-02-23T10:55:25+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 02:55:25" itemprop="dateCreated datePublished" datetime="2021-02-23T02:55:25+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:18" itemprop="dateModified" datetime="2021-05-15T10:30:18+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
               </span>
 
           
@@ -584,14 +726,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 10:32:51" itemprop="dateCreated datePublished" datetime="2021-02-23T10:32:51+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 02:32:51" itemprop="dateCreated datePublished" datetime="2021-02-23T02:32:51+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:18" itemprop="dateModified" datetime="2021-05-15T10:30:18+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
               </span>
 
           
@@ -656,14 +798,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 00:42:29" itemprop="dateCreated datePublished" datetime="2021-02-23T00:42:29+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-22 16:42:29" itemprop="dateCreated datePublished" datetime="2021-02-22T16:42:29+00:00">2021-02-22</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:18" itemprop="dateModified" datetime="2021-05-15T10:30:18+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
               </span>
 
           
@@ -728,14 +870,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 00:21:10" itemprop="dateCreated datePublished" datetime="2021-02-23T00:21:10+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-22 16:21:10" itemprop="dateCreated datePublished" datetime="2021-02-22T16:21:10+00:00">2021-02-22</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:18" itemprop="dateModified" datetime="2021-05-15T10:30:18+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
               </span>
 
           
@@ -753,150 +895,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/post/3d3705e1.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/750cd44d.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/750cd44d.html" class="post-title-link" itemprop="url">linux下的一些网络调试命令</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-22 22:55:06" itemprop="dateCreated datePublished" datetime="2021-02-22T22:55:06+08:00">2021-02-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:18" itemprop="dateModified" datetime="2021-05-15T10:30:18+08:00">2021-05-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这里记录一下，linux下的一些网络调试命令。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/post/750cd44d.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/71014c5a.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/71014c5a.html" class="post-title-link" itemprop="url">mysql索引</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-22 22:36:08" itemprop="dateCreated datePublished" datetime="2021-02-22T22:36:08+08:00">2021-02-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:18" itemprop="dateModified" datetime="2021-05-15T10:30:18+08:00">2021-05-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>聚集索引以及非聚集索引用的是<code>B+</code>树索引。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/post/71014c5a.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -986,7 +984,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">107</span>
+          <span class="site-state-item-count">109</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

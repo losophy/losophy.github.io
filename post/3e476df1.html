@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="lua中的table就是一种对象。lua中可以通过修改元表元方法来实现面向对象。 selftable中的self相当于this。首先，table与对象一样可以拥有状态。其次，table也与对象一样拥有一个独立于其值的标识（一个self）。最后，table与对象一样具有独立于创建者和创建地的生命周期。 123function Account:withdraw(v)    self.balance &#x3D;">
+  <meta name="description" content="lua中的table就是一种对象。lua中可以通过修改元表元方法来实现面向对象。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="lua面向对象">
 <meta property="og:url" content="http://example.com/post/3e476df1.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="lua中的table就是一种对象。lua中可以通过修改元表元方法来实现面向对象。 selftable中的self相当于this。首先，table与对象一样可以拥有状态。其次，table也与对象一样拥有一个独立于其值的标识（一个self）。最后，table与对象一样具有独立于创建者和创建地的生命周期。 123function Account:withdraw(v)    self.balance &#x3D;">
+<meta property="og:description" content="lua中的table就是一种对象。lua中可以通过修改元表元方法来实现面向对象。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/108814689-36622500-75ee-11eb-88a6-31a5d5bec388.png">
 <meta property="article:published_time" content="2021-02-23T07:44:34.000Z">
-<meta property="article:modified_time" content="2021-05-15T02:30:13.557Z">
+<meta property="article:modified_time" content="2021-05-25T00:50:36.956Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="lua">
 <meta name="twitter:card" content="summary">
@@ -196,14 +196,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 15:44:34" itemprop="dateCreated datePublished" datetime="2021-02-23T15:44:34+08:00">2021-02-23</time>
+              <time title="创建时间：2021-02-23 07:44:34" itemprop="dateCreated datePublished" datetime="2021-02-23T07:44:34+00:00">2021-02-23</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 10:30:13" itemprop="dateModified" datetime="2021-05-15T10:30:13+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-25 00:50:36" itemprop="dateModified" datetime="2021-05-25T00:50:36+00:00">2021-05-25</time>
               </span>
 
           
@@ -217,19 +217,36 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>lua中的table就是一种对象。<br>lua中可以通过修改<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/107">元表元方法</a>来实现面向对象。</p>
-<h2 id="self"><a href="#self" class="headerlink" title="self"></a>self</h2><p>table中的self相当于this。<br>首先，table与对象一样可以拥有状态。<br>其次，table也与对象一样拥有一个独立于其值的标识（一个self）。<br>最后，table与对象一样具有独立于创建者和创建地的生命周期。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Account:withdraw</span><span class="params">(v)</span></span></span><br><span class="line">    <span class="built_in">self</span>.balance = <span class="built_in">self</span>.balance - v</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>lua只需使用冒号，则能隐藏self参数。</p>
-<h2 id="类"><a href="#类" class="headerlink" title="类"></a>类</h2><p>一个类就像是一个创建对象的模具。我们可以利用__index元方法构造继承。<br>当访问一个table中不存在的字段时，得到的结果为nil。这是对的，但并非完全正确。实际上，这些访问会促使解释器去查找一个叫__index的元方法。如果没有这个元方法，那么访问结果如前述的为nil。否则，就由这个元方法来提供最终结果。<br>在lua中，将__index元方法用于继承很普遍，__index还可以是一个table。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">setmetatable</span>(a,&#123;<span class="comment">--index=b&#125;)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Account:new</span><span class="params">(o)</span></span></span><br><span class="line">    o = o <span class="keyword">or</span> &#123;&#125; <span class="comment">--如果用户没有提供table，则创建一个</span></span><br><span class="line">    <span class="built_in">setmetatable</span>(o,<span class="built_in">self</span>)</span><br><span class="line">    <span class="built_in">self</span>.<span class="built_in">__index</span> = <span class="built_in">self</span></span><br><span class="line">    <span class="keyword">return</span> o</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>之前写过一篇关于lua实现面向对象的文章，借助元表和元方法实现，感觉也是有点乱。<br>我们可以参考cocos2d-x自己给出的类的实现，也即在luaBinding目录下extern.lua的文件中给出的实现：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">class</span><span class="params">(classname, super)</span></span></span><br><span class="line">    <span class="comment">--superType获取父类类型，可以使nil、function以及table.</span></span><br><span class="line">    <span class="keyword">local</span> superType = <span class="built_in">type</span>(super)</span><br><span class="line">    <span class="keyword">local</span> cls</span><br><span class="line"></span><br><span class="line">    <span class="comment">--如果父类既不是函数也不是table则说明父类为空</span></span><br><span class="line">    <span class="keyword">if</span> superType ~= <span class="string">&quot;function&quot;</span> <span class="keyword">and</span> superType ~= <span class="string">&quot;table&quot;</span> <span class="keyword">then</span></span><br><span class="line">        superType = <span class="literal">nil</span></span><br><span class="line">        super = <span class="literal">nil</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">--如果父类的类型是函数或者是C对象</span></span><br><span class="line">    <span class="keyword">if</span> superType == <span class="string">&quot;function&quot;</span> <span class="keyword">or</span> (super <span class="keyword">and</span> super.__ctype == <span class="number">1</span>) <span class="keyword">then</span></span><br><span class="line">        <span class="comment">-- inherited from native C++ Object</span></span><br><span class="line">        cls = &#123;&#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">--如果父类是表则复制成员并且设置这个类的继承信息</span></span><br><span class="line">        <span class="keyword">if</span> superType == <span class="string">&quot;table&quot;</span> <span class="keyword">then</span></span><br><span class="line">            <span class="comment">-- 从父类copy 字段</span></span><br><span class="line">            <span class="built_in">print</span> (<span class="string">&quot;superTyper is table&quot;</span>);</span><br><span class="line">            <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="built_in">pairs</span>(super) <span class="keyword">do</span> cls[k] = v <span class="keyword">end</span></span><br><span class="line">            cls.__create = super.__create</span><br><span class="line">            cls.super    = super</span><br><span class="line">        <span class="keyword">else</span>  <span class="comment">--如果是函数类型则设置构造方法并且设置ctor函数</span></span><br><span class="line">            cls.__create = super</span><br><span class="line">            cls.ctor = <span class="function"><span class="keyword">function</span><span class="params">()</span></span> <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">--设置类型的名称</span></span><br><span class="line">        cls.__cname = classname</span><br><span class="line">        cls.__ctype = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">--定义该类型的创建实例的函数为基类的构造函数后复制到子类实例</span></span><br><span class="line">        <span class="comment">--并且调用子数的ctor方法</span></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">cls.new</span><span class="params">(...)</span></span></span><br><span class="line">            <span class="keyword">local</span> instance = cls.__create(...)</span><br><span class="line">            <span class="comment">-- copy fields from class to native object</span></span><br><span class="line">            <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="built_in">pairs</span>(cls) <span class="keyword">do</span> instance[k] = v <span class="keyword">end</span></span><br><span class="line">            instance.class = cls</span><br><span class="line">            instance:ctor(...)</span><br><span class="line">            <span class="keyword">return</span> instance</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment">--如果是继承自普通的lua表,则设置一下原型，并且构造实例后也会调用ctor方法</span></span><br><span class="line">        <span class="comment">-- inherited from Lua Object</span></span><br><span class="line">        <span class="keyword">if</span> super <span class="keyword">then</span></span><br><span class="line">            cls = &#123;&#125;</span><br><span class="line">            <span class="built_in">setmetatable</span>(cls, &#123;<span class="built_in">__index</span> = super&#125;)</span><br><span class="line">            cls.super = super</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            cls = &#123;ctor = <span class="function"><span class="keyword">function</span><span class="params">()</span></span> <span class="keyword">end</span>&#125;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        cls.__cname = classname</span><br><span class="line">        cls.__ctype = <span class="number">2</span> <span class="comment">-- lua</span></span><br><span class="line">        cls.<span class="built_in">__index</span> = cls</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">cls.new</span><span class="params">(...)</span></span></span><br><span class="line">            <span class="keyword">local</span> instance = <span class="built_in">setmetatable</span>(&#123;&#125;, cls)</span><br><span class="line">            instance.class = cls</span><br><span class="line">            instance:ctor(...)</span><br><span class="line">            <span class="keyword">return</span> instance</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> cls</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>创建对象时，可以通过className.new这种方式来创建，如</p>
+        <p><code>lua</code>中的table就是一种对象。<br><code>lua</code>中可以通过修改<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/107">元表元方法</a>来实现面向对象。</p>
+<a id="more"></a>
+
+<h2 id="self"><a href="#self" class="headerlink" title="self"></a>self</h2><p><code>table</code>中的<code>self</code>相当于<code>this</code>。</p>
+<blockquote>
+<ul>
+<li><code>table</code>与对象一样可以拥有状态</li>
+<li><code>table</code>也与对象一样拥有一个独立于其值的标识（一个<code>self</code>）</li>
+<li><code>table</code>与对象一样具有独立于创建者和创建地的生命周期</li>
+</ul>
+</blockquote>
+<p>lua只需使用冒号，则能隐藏self参数：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Account:withdraw</span><span class="params">(dollar)</span></span></span><br><span class="line">    <span class="built_in">self</span>.balance = <span class="built_in">self</span>.balance - dollar</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="index"><a href="#index" class="headerlink" title="__index"></a>__index</h2><p>一个类就像是一个创建对象的模具。我们可以利用<code>__index</code>元方法构造继承。<br>当访问一个<code>table</code>中不存在的字段时，得到的结果为<code>nil</code>。这是对的，但并非完全正确。实际上，这些访问会促使解释器去查找一个叫<code>__index</code>的元方法。如果没有这个元方法，那么访问结果如前述的为<code>nil</code>。否则，就由这个元方法来提供最终结果。</p>
+<div class="note info"><p>在lua中，将__index元方法用于继承很普遍，__index还可以是一个table。</p></div>
+
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Account:new</span><span class="params">(obj)</span></span></span><br><span class="line">    obj = obj <span class="keyword">or</span> &#123;&#125; <span class="comment">--如果用户没有提供table继承，则创建一个</span></span><br><span class="line">    <span class="built_in">setmetatable</span>(obj,<span class="built_in">self</span>)</span><br><span class="line">    <span class="built_in">self</span>.<span class="built_in">__index</span> = <span class="built_in">self</span></span><br><span class="line">    <span class="keyword">return</span> obj</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<div class="note info"><p>self.__index = self做这个操作是因为self作为元表返回了，也就是查找的时候会进入table创建时的3个步骤。</p></div>
+
+<h2 id="lua类的实现"><a href="#lua类的实现" class="headerlink" title="lua类的实现"></a>lua类的实现</h2><p>可以参考cocos2d-x自己给出的lua类的实现：<br><a target="_blank" rel="noopener" href="https://gist.github.com/losophy/e8c97ec76fd9100b576ff158714eb9f7">luaClass.lua</a></p>
+<p>创建对象时，可以通过<code>className.new</code>这种方式来创建，如：</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> MySpriteClass = class(<span class="string">&quot;MySpriteClass&quot;</span>,cc.Sprite)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">MySpriteClass:ctor</span><span class="params">()</span></span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> MySpriteClass</span><br></pre></td></tr></table></figure>
-<p>mySpriteClass 实例创建</p>
+<p><code>mySpriteClass</code>实例创建：</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> mySprite = MySpriteClass.new(xxx.png)</span><br></pre></td></tr></table></figure>
-<p><img src="https://user-images.githubusercontent.com/11263320/108814689-36622500-75ee-11eb-88a6-31a5d5bec388.png" alt="1425134-20190408154553314-1254158238"><br>classname.new()生成的instance包含一个class属性。class指向了类原型，并具有super,ctor,__cname和__ctype  4个属性<br>继承C++的类，new方法使用__create函数来创建实例<br>继承lua类，new方法使用{ }来创建实例。<br>继承Lua的类，new方法使用{ }来创建实例。</p>
+<p><img src="https://user-images.githubusercontent.com/11263320/108814689-36622500-75ee-11eb-88a6-31a5d5bec388.png" alt="1425134-20190408154553314-1254158238"><br><code>classname.new()</code>生成的<code>instance</code>包含一个<code>class</code>属性。<code>class</code>指向了类原型，并具有<code>super,ctor,__cname</code>和<code>__ctype</code>4个属性。</p>
+<blockquote>
+<p>继承<code>C++</code>的类，<code>new</code>方法使用<code>__create</code>函数来创建实例<br>继承<code>lua</code>类，<code>new</code>方法使用<code>&#123; &#125;</code>来创建实例。</p>
+</blockquote>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/67">Cada uno es hijo de sus obras.</a></p>
 
     </div>
 
@@ -240,19 +257,19 @@
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\6349ecd2.html" rel="bookmark">lua Table</a></div>
+      <div class="popular-posts-title"><a href="/post/6349ecd2.html" rel="bookmark">lua Table</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\d46217f.html" rel="bookmark">lua_state</a></div>
+      <div class="popular-posts-title"><a href="/post/d46217f.html" rel="bookmark">lua_state</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\b165dcb7.html" rel="bookmark">lua与C/C++程序的整合</a></div>
+      <div class="popular-posts-title"><a href="/post/b165dcb7.html" rel="bookmark">lua与C/C++程序的整合</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\fde3146b.html" rel="bookmark">lua与配置文件</a></div>
+      <div class="popular-posts-title"><a href="/post/fde3146b.html" rel="bookmark">lua与配置文件</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="\post\4d7ca723.html" rel="bookmark">lua使用优化</a></div>
+      <div class="popular-posts-title"><a href="/post/4d7ca723.html" rel="bookmark">lua使用优化</a></div>
     </li>
   </ul>
 
@@ -334,7 +351,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#self"><span class="nav-number">1.</span> <span class="nav-text">self</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB"><span class="nav-number">2.</span> <span class="nav-text">类</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#self"><span class="nav-number">1.</span> <span class="nav-text">self</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#index"><span class="nav-number">2.</span> <span class="nav-text">__index</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lua%E7%B1%BB%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">lua类的实现</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -349,7 +366,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">107</span>
+          <span class="site-state-item-count">109</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
