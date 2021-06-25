@@ -340,7 +340,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:04" itemprop="dateModified" datetime="2021-06-25T08:13:04+00:00">2021-06-25</time>
+                <time title="修改时间：2021-06-25 08:35:35" itemprop="dateModified" datetime="2021-06-25T08:35:35+00:00">2021-06-25</time>
               </span>
 
           
@@ -354,9 +354,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="前方"><a href="#前方" class="headerlink" title="前方"></a>前方</h2><p>vim是裸机linux，最顺手的编辑工具。用好vim，修改文件就会事半功倍。</p>
-<h2 id="跳转查看"><a href="#跳转查看" class="headerlink" title="跳转查看"></a>跳转查看</h2><p>跳到文本的最后一行：按“G”,即“shift+g”<br>跳到第一行的第一个字符：先按两次“g”</p>
-
+          <p>vim是裸机linux，最顺手的编辑工具。用好vim，修改文件就会事半功倍。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/e47927c.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -478,7 +484,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:04" itemprop="dateModified" datetime="2021-06-25T08:13:04+00:00">2021-06-25</time>
+                <time title="修改时间：2021-06-25 08:35:35" itemprop="dateModified" datetime="2021-06-25T08:35:35+00:00">2021-06-25</time>
               </span>
 
           
@@ -492,7 +498,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>服务端需要管理多个客户端连接，而<code>recv</code>只能监视单个<code>socket</code>，而且还不能阻塞。这种矛盾下，人们开始寻找监视多个<code>socket</code>的方法。<br>假如能够预先传入一个<code>socket</code>列表，如果列表中的<code>socket</code>都没有数据，挂起进程，直到有一个<code>socket</code>收到数据，唤醒进程。这种方法很直接，是<code>select</code>的设计思想。<br><code>poll</code>是<code>select</code>的一个小改进。底层实现为链表，不再限制最大链接数。<br><code>epoll</code>是<code>select</code>和<code>poll</code>的增强版本。但当处理大量的连接的读写，<code>select</code>是低效的。因为<code>kernel</code>每次都要对<code>select</code>传入的一组<code>socket</code>号做轮询。大量的<code>cpu</code>时间都耗了进去。而使用<code>epoll</code>这些，派一个文件描述符站岗，效率自然高了许多。</p>
+          <p>服务端需要管理多个客户端连接，而<code>recv</code>只能监视单个<code>socket</code>，而且还不能阻塞。这种矛盾下，人们开始寻找监视多个<code>socket</code>的方法。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/post/c352656a.html#more" rel="contents">
@@ -622,7 +628,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:04" itemprop="dateModified" datetime="2021-06-25T08:13:04+00:00">2021-06-25</time>
+                <time title="修改时间：2021-06-25 08:35:35" itemprop="dateModified" datetime="2021-06-25T08:35:35+00:00">2021-06-25</time>
               </span>
 
           
@@ -636,7 +642,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>堆排序与快速排序，归并排序一样都是时间复杂度为<code>O(N*logN)</code>的几种常见排序方法。<br>堆排序是就地排序，辅助空间为<code>O(1）</code>。<br>它是不稳定的排序方法（排序的稳定性是指如果在排序的序列中，存在前后相同的两个元素的话，排序前和排序后他们的相对位置不发生变化）。</p>
+          <p>堆排序与快速排序，归并排序一样都是时间复杂度为<code>O(N*logN)</code>的几种常见排序方法。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/post/d4ce124c.html#more" rel="contents">
