@@ -165,6 +165,78 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/4d7ca723.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/4d7ca723.html" class="post-title-link" itemprop="url">lua使用优化</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-01 11:28:16" itemprop="dateCreated datePublished" datetime="2021-03-01T11:28:16+00:00">2021-03-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这里记录下一些<code>lua</code>使用优化操作。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/4d7ca723.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/8db4c595.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -196,7 +268,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -210,12 +282,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">cmd:gdb</span><br><span class="line">gdb$ file yourpram</span><br><span class="line"></span><br><span class="line">* 保存历史命令</span><br><span class="line">echo &#39;set history save on&#39; &gt;&gt; ~&#x2F;.gdbinit &amp;&amp; chmod 600 ~&#x2F;.gdbinit</span><br><span class="line">gdb$ show history</span><br><span class="line"></span><br><span class="line">* 设置参数</span><br><span class="line">gdb$ set args(e.g. set args 10 20 30 40 50)</span><br><span class="line">gdb$ show args</span><br><span class="line"></span><br><span class="line">* 执行程序至 main() 主函数的起始位置，即在 main() 函数的第一行语句处停止执行（该行代码尚未执行）。</span><br><span class="line">gdb$ start</span><br><span class="line"></span><br><span class="line">* 加断点</span><br><span class="line">gdb$ b gdb_test.c:3 </span><br><span class="line">gdb$ info b</span><br><span class="line"> </span><br><span class="line"> * 打印参数</span><br><span class="line">gdb$ p i</span><br><span class="line">gdb$ p&#x2F;x i</span><br><span class="line"></span><br><span class="line">* run 指令会执行程序至第一个断点处，没有指令就一直执行程序</span><br><span class="line">gdb$ run</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>UI interface(TUI mode)<br>ctrl+X+A</li>
-</ul>
-
+          <p>这里记录下使用gdb调试python程序。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/8db4c595.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -265,7 +340,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -337,7 +412,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -351,23 +426,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>make是一条计算机指令，是在安装有GNU Make的计算机上的可执行指令。该指令是读入一个名为makefile的文件，然后执行这个文件中指定的指令。</p>
-<h2 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h2><p><img src="https://user-images.githubusercontent.com/11263320/109392605-069d7f00-7958-11eb-9e01-51d10239f93a.jpg" alt="makefile知识点"><br><img src="https://user-images.githubusercontent.com/11263320/109392606-07361580-7958-11eb-9c6b-04b1574b57d4.jpg" alt="makefile进阶"></p>
-<h2 id="使用autotools来进行Makefile的自动生成"><a href="#使用autotools来进行Makefile的自动生成" class="headerlink" title="使用autotools来进行Makefile的自动生成"></a>使用autotools来进行Makefile的自动生成</h2><ul>
-<li>运行 autoscan , 自动创建两个文件： autoscan.log configure.scan<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost main]# autoscan</span><br><span class="line">[root@localhost main]# ls</span><br><span class="line">autoscan.log configure.scan main.c</span><br></pre></td></tr></table></figure></li>
-<li>修改configure.scan的文件名为configure.in<br>修改configure.in:<br>  1.修改AC_INIT里面的参数: AC_INIT(main,1.0, <a href="mailto:&#112;&#x67;&#112;&#120;&#99;&#64;&#49;&#x36;&#51;&#x2e;&#x63;&#111;&#x6d;">&#112;&#x67;&#112;&#120;&#99;&#64;&#49;&#x36;&#51;&#x2e;&#x63;&#111;&#x6d;</a>)<br>  2.添加宏AM_INIT_AUTOMAKE, 它是automake所必备的宏，也同前面一样，PACKAGE是所要产生软件套件的名称，VERSION是版本编号。<br>  3.在AC_OUTPUT后添加输出文件Makefile</li>
-</ul>
-<p>修改后的结果:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#                                               -*- Autoconf -*-</span><br><span class="line"># Process this file with autoconf to produce a configure script.</span><br><span class="line"></span><br><span class="line">AC_PREREQ(2.61)</span><br><span class="line">AC_INIT(main, 1.0, pgpxc@163.com)</span><br><span class="line">AC_CONFIG_SRCDIR([main.c])</span><br><span class="line">AC_CONFIG_HEADER([config.h])</span><br><span class="line">AM_INIT_AUTOMAKE(main,1.0)</span><br><span class="line"></span><br><span class="line"># Checks for programs.</span><br><span class="line">AC_PROG_CC</span><br><span class="line"></span><br><span class="line"># Checks for libraries.</span><br><span class="line"></span><br><span class="line"># Checks for header files.</span><br><span class="line"></span><br><span class="line"># Checks for typedefs, structures, and compiler characteristics.</span><br><span class="line"></span><br><span class="line"># Checks for library functions.</span><br><span class="line"></span><br><span class="line">AC_OUTPUT([Makefile])</span><br></pre></td></tr></table></figure>
-<ul>
-<li>运行 aclocal, 生成一个“aclocal.m4”文件和一个缓冲文件夹autom4te.cache，该文件主要处理本地的宏定义。<br>此时的状态是：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost main]# aclocal</span><br><span class="line">[root@localhost main]# ls</span><br><span class="line">aclocal.m4 autom4te.cache autoscan.log configure.in configure.in~ main.c</span><br></pre></td></tr></table></figure></li>
-<li>运行 autoconf, 目的是生成 configure<br>此时的状态是：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost main]# autoconf</span><br><span class="line">[root@localhost main]# ls</span><br><span class="line">aclocal.m4      autoscan.log configure.in   main.c</span><br><span class="line">autom4te.cache configure     configure.in~</span><br></pre></td></tr></table></figure></li>
-<li>运行 autoheader，它负责生成config.h.in文件。该工具通常会从“acconfig.h”文件中复制用户附加的符号定义，因此此处没有附加符号定义，所以不需要创建“acconfig.h”文件。<br>此时的状态是：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost main]# autoheader</span><br><span class="line">[root@localhost main]# ls</span><br><span class="line">aclocal.m4      autoscan.log configure     configure.in~</span><br><span class="line">autom4te.cache config.h.in   configure.in main.c</span><br></pre></td></tr></table></figure></li>
-<li>下面即将运行 automake, 但在此之前应该做一下准备工作!<br>首先，创建一个 Makefile.am.这一步是创建Makefile很重要的一步，automake要用的脚本配置文件是Makefile.am，用户需要自己创建相应的文件。之后，automake工具转换成Makefile.in。<br>这个Makefile.am的内容如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AUTOMAKE_OPTIONS&#x3D;foreign</span><br><span class="line">bin_PROGRAMS&#x3D;main</span><br><span class="line">main_SOURCES&#x3D;main.c</span><br></pre></td></tr></table></figure>
-其次，使用automake对其生成“configure.in”文件，在这里使用选项“—adding-missing”可以让automake自动添加有一些必需的脚本文件。<br>运行后的状态是：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost main]# automake --add-missing</span><br><span class="line">configure.in:8: installing `./missing&#x27;</span><br><span class="line">configure.in:8: installing `./install-sh&#x27;</span><br><span class="line">Makefile.am: installing `./depcomp&#x27;</span><br><span class="line">[root@localhost main]# ls</span><br><span class="line">aclocal.m4      config.h.in   configure.in~ main.c        Makefile.in</span><br><span class="line">autom4te.cache configure     depcomp        Makefile.am missing</span><br><span class="line">autoscan.log    configure.in install-sh     Makefile.am~</span><br></pre></td></tr></table></figure></li>
-<li>到这里，就是我们熟悉的环节了。<br>运行configure，在这一步中，通过运行自动配置设置文件configure，把Makefile.in变成了最终的Makefile。<br>运行make，根据Makefile操作。<br>运行make install，安装到指定目录。</li>
-</ul>
-
+          <p>make是一条计算机指令，是在安装有GNU Make的计算机上的可执行指令。该指令是读入一个名为makefile的文件，然后执行这个文件中指定的指令。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/1acc766e.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -417,7 +484,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -432,11 +499,14 @@
 
       
           <p>配接器在STL组件的灵活组合运用功能上，扮演着轴承、转换器的角色。Adaper这个概念，事实上是一种设计模式。在《设计模式》中adapter定义如下：将一个class的接口转换为另一个class的接口，使原本因接口不兼容而不能合作的classes，可以一起运作。</p>
-<h2 id="adapter模式"><a href="#adapter模式" class="headerlink" title="adapter模式"></a>adapter模式</h2><p>如果你有一个存在的系统需要插入一个新的类库,但是新的类库并不能匹配你写的系统，这时候我们就需要写一个适配器了,用这个适配器来适配新类库的接口。</p>
-<p>adapter取自生活中的配接器<br><img src="https://user-images.githubusercontent.com/11263320/111445192-200b3d00-8746-11eb-9fc2-f2eb3b84b33a.jpg" alt="242dd42a2834349bcff8dd6ecbea15ce37d3be5b"><br>在软件中也就是<br><img src="https://user-images.githubusercontent.com/11263320/111445271-3618fd80-8746-11eb-9055-ab836b4a01a6.jpg" alt="902397dda144ad34bc5d346cd2a20cf430ad857f"></p>
-<p>实现Adapter的方式主要有两种：组合(composition)和继承(inheritance)。<br>stl主要是用组合这种方式<br>container adapters内藏了一个container member一样，reverse iterator底层内藏了iterator member，而functions 的底层内藏了一个functions， 每个配接器的底层都有封装了一个对象，既然是这个对象的主人，就有资格调用该对象，并在参数和返回值上动手脚。</p>
-<h2 id="stl配接器分类"><a href="#stl配接器分类" class="headerlink" title="stl配接器分类"></a>stl配接器分类</h2><p>function adapter（通过它们之间的绑定，组合，修饰能力，几乎可以无限制地创造出各种可能的表达式。如使用bind2nd）<br>container adapter（如queue和stack，这两者底层容器都是deque，修饰deque的接口而成就出另一种容器风貌）<br>iterator adapter（所谓对迭代器的修饰，只是一种观念上的改变（赋值操作变成插入操作、前进变成后退、绑定到特殊装置上）。如insert iterators，reverse iterators，iostream iterators）</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/20d016ff.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -486,7 +556,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -501,11 +571,14 @@
 
       
           <p>仿函数其实上就是一个“行为类似函数”的对象。仿函数可以让STL算法有更灵活的演出。<br>c++11中已经引入lamda表达式，相当于将这部分内容加入了语法。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>为实现仿函数，其类别定义中必须自定义（或说改写、重载）function call运算子（operator()）。拥有这样的运算子后，我们就可以在仿函数的对象后而加上一对小括号，以此调用仿函数所定义 的operator()。</p>
-<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><p>STL仿函数的分类，若以操作数的个数划分，可分为一元和二元仿函数，若以功能划分，可以为算术运算、关系运算、逻辑运算三在类。</p>
-<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><p>在我们写代码时有时会发现有些功能实现的代码，会不断的在不同的成员函数中用到，但是又不好将这些代码独立出来成为一个类的一个成员函数。但是又很想复用这些代码。写一个公共的函数，可以，这是一个解决方法，不过函数用到的一些变量，就可能成为公共的全局变量，再说为了复用这么一片代码，就要单立出一个函数，也不是很好维护。这时就可以用仿函数了，写一个简单类，除了那些维护一个类的成员函数外，就只是实现一个operator()，在类实例化时，就将要用的，非参数的元素传入类中。这样就免去了对一些公共变量的全局化的维护了。又可以使那些代码独立出来，以便下次复用。而且这些仿函数，还可以用关联，聚合，依赖的类之间的关系，与用到他们的类组合在一起，这样有利于资源的管理（这点可能是它相对于函数最显著的优点了）。</p>
-<p>有时仿函数的使用是为了函数拥有类的性质，以达到安全传递函数指针，依据函数生成对象，甚至是让函数之间有继承关系，对函数进行运算和操作的效果。</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/303d52cd.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -555,7 +628,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -569,15 +642,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>广义而言，我们所写的每个程序都是一个算法，其中的每个函数也都是一个算法，毕竟它们都用来解决或大或小的逻辑问题或数学问题。<br>STL算法包括排序、查找、排列组合算法，以及用于数据移动、复制、删除、比较、组合、运算等等。</p>
-<h2 id="质变与非质变"><a href="#质变与非质变" class="headerlink" title="质变与非质变"></a>质变与非质变</h2><p>如果以运算过程中会更改区间内的元素内容区分算法，可以分为质变算法与非质变算法。</p>
-<ul>
-<li>质变算法包括：拷贝、互换、替换、填写、删除、排列组合、分割、随机重排、排序等等。</li>
-<li>非质变算法包括：查找、匹配、计数、巡访、比较、寻找极值等等。</li>
-</ul>
-<h2 id="算法泛化"><a href="#算法泛化" class="headerlink" title="算法泛化"></a>算法泛化</h2><p>所有泛型算法的前两个参数都是一对迭代器，通常称为first和last，用以标示算法的操作区间。STL习惯采用前闭后开区间，写成[first,last)，表示区间涵盖first至last（不含last）之间的所有元素。当first==last时，上述所表现的便是一个空区间。</p>
-<p>只要把操作对象的型别加以抽象化，把操作对象的标示法和区间目标的移动行为抽象化，整个算法也就在一个抽象层面上工作了。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">Iterator</span>,<span class="keyword">class</span> <span class="title">T</span>&gt;</span></span><br><span class="line"><span class="function">Iterator <span class="title">find</span><span class="params">(Iterator begin, Iterator end, <span class="keyword">const</span> T&amp; value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(begin != end &amp;&amp; *begin != value)</span><br><span class="line">        ++begin;</span><br><span class="line">    <span class="keyword">return</span> begin;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <p>广义而言，我们所写的每个程序都是一个算法，其中的每个函数也都是一个算法，毕竟它们都用来解决或大或小的逻辑问题或数学问题。<br>STL算法包括排序、查找、排列组合算法，以及用于数据移动、复制、删除、比较、组合、运算等等。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/f5e61589.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -627,7 +700,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -641,32 +714,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="容器分类"><a href="#容器分类" class="headerlink" title="容器分类"></a>容器分类</h2><p>STL容器分两种：序列式容器，关联式容器。<br><img src="https://user-images.githubusercontent.com/11263320/111740539-e5c5ab00-88bf-11eb-9df6-00311a3ee53b.jpg" alt="未标题-1副本"><br>上图以内缩方式来表达基层与衍生层的关系。<br>heap内含一个vector，priority-queue内含一个heap、stack和queue都含一个deque，set/map/multiset/multimap都内含一个RB-tree，hash_x都内含一个hastable。</p>
-<h2 id="序列式容器"><a href="#序列式容器" class="headerlink" title="序列式容器"></a>序列式容器</h2><p>所谓序列式容器，其中的元素都可序(ordered)，但未必有序(sorted)。C++语言本身提供了一个序列式容器array。STL另外再提供 上列呈现的序列式容器。</p>
-<h3 id="vector"><a href="#vector" class="headerlink" title="vector"></a>vector</h3><p>vector的数据安排以及操作方式与array非常相似。两者唯一差别在于空间的运用的灵活性上。array是静态空间，设定要先定义空间。vector是动态空间，它的内部机制会自行扩充空间以容纳新元素。vector人运用对于内存的合理利用与运用的灵活性有很大的帮助。<br>vector的实现技术，关键在于其对大小的控制以及重新配置时的数据移动效率。这里具体要看空间配置的策略。</p>
-<h4 id="vector的数据结构"><a href="#vector的数据结构" class="headerlink" title="vector的数据结构"></a>vector的数据结构</h4><p>线性连续空间。它以两个迭代器start和finish分别指向配置得来的连续空间中目前已被使用的范围，并以迭代器end_of_storage指向整块连续空间（含备用空间）的尾端。为了降低空间配置时的速度成本，vector实际配置的大小可能比客户端需求量更大一些，以备将来可能的扩充。这便是容量（capacity）的观念。<br>它以两个迭代器start和finish分别指向配置得来的连续空间中目前已被使用的范围，并以迭代器end_of_storage指向整块连续空间（含备用空间）的尾端。<br><img src="https://user-images.githubusercontent.com/11263320/111742634-79e54180-88c3-11eb-82f0-394f0666b691.JPG" alt="捕获"></p>
-<h4 id="vector的迭代器"><a href="#vector的迭代器" class="headerlink" title="vector的迭代器"></a>vector的迭代器</h4><p>因为普通指针就可以满足vector的所有必要条件，而vector支持随机存取，所以vector提供的是Random Access Iterators。</p>
-<h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>list的好处是每次插入或删除一个元素，就配置或释放一个元素空间。list对于空间的运用有绝对的精准，一点也不浪费。而且对于任何位置的元素插入或无素移除，list永远是常数时间。<br>list和vector的选择最多视所元素的多寡、元素的构造复杂度、元素存取行为的特性而定。</p>
-<h4 id="list的数据结构"><a href="#list的数据结构" class="headerlink" title="list的数据结构"></a>list的数据结构</h4><p>从list的节点结构看，STL中的list是个双向链表。</p>
-<h4 id="list的迭代器"><a href="#list的迭代器" class="headerlink" title="list的迭代器"></a>list的迭代器</h4><p>所其操作上看，其迭代器是Bidirectional Itertors。</p>
-<h3 id="deque"><a href="#deque" class="headerlink" title="deque"></a>deque</h3><p>vector是单向开口的连续线性空间，deque则是一种双向开口的连续线性空间。<br>deque没有容量观念。不像vector那样“因旧空间不足而重新配置一块更大空间，然后复制元素，再释放旧空间”。<br>deque的数据结构：array无法成长，vector虽可成长，却只能向尾端成长，而且是个假象。deque采用一块空间作缓冲区，利用这个空间成长。<br><img src="https://user-images.githubusercontent.com/11263320/111743229-553d9980-88c4-11eb-8302-75aa7b6dc28e.JPG" alt="捕获"></p>
-<h4 id="deque的迭代器"><a href="#deque的迭代器" class="headerlink" title="deque的迭代器"></a>deque的迭代器</h4><p>和vector相似，是Random Access Iterators。</p>
-<h3 id="stack与queue"><a href="#stack与queue" class="headerlink" title="stack与queue"></a>stack与queue</h3><p>这两种都没有迭代器，数据结构是用deque实现的（其实用list也可以）。</p>
-<p>为什么选择deque作为stack、queue的底层默认容器？<br>stack是后进先出的特殊线性数据结构，只要具有push_back()和pop_back()操作的线性结构，都可以作为stack的底层容器，比如vector和list都可以；queue是先进先出的特殊线性数据结构，只要具有push_back和pop_front()操作的线性结构，都可以作为queue的底层容器，比如list<br>但是STL中对stack和queue选择deque作为其底层容器，主要是因为：<br>（1）stack和queue不需要遍历（stack和queue没有迭代器），只需要在固定的一端或者两端进行操作<br>（2）在stack中元素增长时，deque比vector的效率高<br>（3）在queue中的元素增长时，deque不仅效率高，而且内存使用率也高</p>
-<h3 id="heap"><a href="#heap" class="headerlink" title="heap"></a>heap</h3><p>heap不归属于stl容器组件，它是priority queue的助手。priority queue允许用户以任何次序将任何元素推入容器内，但取出时一定是从优先权最高（也就是数值最高）的元素开始取。binary max heap正是具有这样的特性，适合作为priority queue的底层机制。</p>
-<h4 id="heap底部容器"><a href="#heap底部容器" class="headerlink" title="heap底部容器"></a>heap底部容器</h4><p>以vector表现的完全二叉树。实现算法为最大堆。</p>
-<p>priority_queue<br>priority_queue是一个拥有权值观念的queue。<br>priority_queue没有迭代器。</p>
-<h3 id="slist"><a href="#slist" class="headerlink" title="slist"></a>slist</h3><p>这是个单向链表，所以迭代器变为Forward Iterator。</p>
-<h2 id="关联式容器"><a href="#关联式容器" class="headerlink" title="关联式容器"></a>关联式容器</h2><p>标准的STL关联式容器分为set（集合）和map（映射表）两大类，以及这两大类的衍生体mutiset（多键集合）和multimap（多键映射表）。由于RB-tree自动排序的效果很不错，所以这些容器的底层机制均以RB-tree（红黑树）完成。RB-tree也是一个独立容器，但并不开放给外界使用。<br>此外，STL还提供了一个关联式容器：hash_table（散列表），以及以此为底层机制而完成的hash_set（散列集合）、hash_map（散列映射表）、hash_multiset（散列多键集合）、hash_multimap（散列多键映射表）。</p>
-<p>所谓关联式容器，观念上类似关联式数据库（key-value）。当元素被插入到关联式容器中时，容器内部结构（可能是RB-tree，也可能是hash-table）便依照其键值大小，以某种特定规则将这个元素放置于适当位置。<br>关联式容器没有所谓头尾（只有最大元素与最小元素）。<br>一般而言，关联式容器的内部结构是一个balanced binary tree，以便获得良好的搜寻效率。</p>
-<h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>set的特性是所有元素都会根据元素的键值自动被排序。set元素的键值就是实值，实值就是健值。set不允许两个元素有相同的键值。</p>
-<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p>map的特性是，所有元素都会根据元素的键值自动被排序。map的所有元素都是pair。</p>
-<h3 id="multiset与multimap"><a href="#multiset与multimap" class="headerlink" title="multiset与multimap"></a>multiset与multimap</h3><p>特性以及用法和各自兄弟(set，map)完全相同，唯一的差别在于它们允许键值重复。</p>
-<h3 id="hashtable"><a href="#hashtable" class="headerlink" title="hashtable"></a>hashtable</h3><p>二叉搜索树表现的构造在一个假设上：输入数据有足够的随机性。而hash_table（散列表）的数据结构的操作表现是以统计为基础，不需仰赖输入元素的随机性。<br>hash_set、hash_map、hash_multiset、hash_multimap<br>都是以hash_table为底层机制。但其实元素不能自动排序。</p>
-<h2 id="Hash与RB树的区别"><a href="#Hash与RB树的区别" class="headerlink" title="Hash与RB树的区别"></a>Hash与RB树的区别</h2><p>权衡三个因素: 查找速度, 数据量, 内存使用，可扩展性，有序性。<br>总体来说，hash查找速度会比RB树快，而且查找速度基本和数据量大小无关，属于常数级别;而RB树的查找速度是log(n)级别。并不一定常数就比log(n) 小，hash还有hash函数的耗时，明白了吧，如果你考虑效率，特别是在元素达到一定数量级时，考虑考虑hash。但若你对内存使用特别严格， 希望程序尽可能少消耗内存，那么一定要小心，hash可能会让你陷入尴尬，特别是当你的hash对象特别多时，你就更无法控制了，而且 hash的构造速度较慢。</p>
-<p>红黑树并不适应所有应用树的领域。如果数据基本上是静态的，那么让他们待在他们能够插入，并且不影响平衡的地方会具有更好的性能。如果数据完全是静态的，例如，做一个哈希表，性能可能会更好一些。<br>在实际的系统中，例如，需要使用动态规则的防火墙系统，使用红黑树而不是散列表被实践证明具有更好的伸缩性。Linux内核在管理vm_area_struct时就是采用了红黑树来维护内存块的。<br>红黑树是有序的，Hash是无序的，根据需求来选择。</p>
-<p>拿红黑树实现的Map和Hash实现的HashMap相比：<br>如果只需要判断Map中某个值是否存在之类的操作，当然是Hash实现的要更加高效。<br>如果是需要将两个Map求并集交集差集等大量比较操作，就是红黑树实现的Map更加高效。</p>
-
+          <p>这里介绍下stl中的肉器。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/cd6c706d.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -716,7 +772,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -730,12 +786,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>提供一种方法，使之能够依序巡访某个聚合物（容器）所含的各个元素，而又无需暴露该聚合物的内部表述方式。</p>
-<h2 id="智能指针"><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h2><p>迭代器是一种行为类似指针人对象。而指针的各种行为中最常见也最重要的便是内容提领(*)和成员访问(-&gt;)，迭代器最重要的编程工作就是对这两个操作进行重载工作。</p>
-<h2 id="Traits编程技法（STL源代码门钥）"><a href="#Traits编程技法（STL源代码门钥）" class="headerlink" title="Traits编程技法（STL源代码门钥）"></a>Traits编程技法（STL源代码门钥）</h2><p>Traits就像一台“特性萃取机”，榨取各个迭代器的特性（相应型别）<br><img src="https://user-images.githubusercontent.com/11263320/109153358-c8f9f400-77a7-11eb-9fc2-f553290702c7.png" alt="20180320140804433"><br>迭代器相应有以上↑这五种型别。如果你希望你所开发的容器能与stl兼容，一定要为你的容器迭代器定义这五种相应型别。<br>value type：迭代器所指对象的型别。<br>difference type：两个迭代器之间的距离。<br>reference type：引用<br>pointer type：指针<br>iterator_category：这里就是移动特性与施行操作了。</p>
-<h2 id="按iterator-category区分迭代器的五类"><a href="#按iterator-category区分迭代器的五类" class="headerlink" title="按iterator_category区分迭代器的五类"></a>按iterator_category区分迭代器的五类</h2><p>Input Iterator<br>Output Iterator<br>Forward Iterator<br>Bidirectional Iterator<br>Random Access Iterator</p>
-<p>为了符合规范，任何迭代器都应该提供五个内嵌相应型别，以利于traits萃取。STL提供了一个iterators class，继承它，就可以保证符合stl所需之规范。</p>
-
+          <p>这里介绍下stl的Iterators。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/588cfd1.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -785,7 +844,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -799,99 +858,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。</p>
-<h2 id="设计哲学"><a href="#设计哲学" class="headerlink" title="设计哲学"></a>设计哲学</h2><ul>
-<li>向system heap要求空间</li>
-<li>考虑多线程状态</li>
-<li>考虑内存不足时的应变措施</li>
-<li>考虑过多“小型区块”可能造成的内存碎片问题</li>
-</ul>
-<p>考虚到小型区块所可能造成的内存破碎问题，SGI设计了双层级配置器，第一级配置器直接使用malloc()和free()，第二级配置器则视情况采用不同的策略：当配置区块超过128bytes时，视之为“足够大”，便调用第一级配置器；当配置区块小于128bytes时，视之为“过小”，为了降低额外负担，便采用复杂的内存池整理方式，而不再求助于第一级配置器。</p>
-<h2 id="内存池"><a href="#内存池" class="headerlink" title="内存池"></a>内存池</h2><p>内存池则是在真正使用内存之前，先申请分配一定数量的、大小相等(一般情况下)的内存块留作备用。当有新的内存需求时，就从内存池中分出一部分内存块，若内存块不够再继续申请新的内存。这样做的一个显著优点是，使得内存分配效率得到提升。</p>
-<h2 id="内存基本处理工具"><a href="#内存基本处理工具" class="headerlink" title="内存基本处理工具"></a>内存基本处理工具</h2><p>STL定义有五个全局函数，作用于未初始化空间上。这样的功能对于容器的实现很有帮助。<br>分别是用于构造的construct()和用于析构的destroy()，另三个函数是uninitialized_copy()，uninitialized_fill()，uninitialized_fill_n()，分别对应该于高层次函数copy()，fill()，fill_n()。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/21810799.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/21810799.html" class="post-title-link" itemprop="url">泛型编程与STL</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-25 11:50:26" itemprop="dateCreated datePublished" datetime="2021-02-25T11:50:26+00:00">2021-02-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="泛型编程"><a href="#泛型编程" class="headerlink" title="泛型编程"></a>泛型编程</h2><p>定义抽象的concepts，并根据抽象的concepts来撰写算法与数据结构，是泛型编程的本质。</p>
-<h3 id="运用STL时的几个最重要的观念"><a href="#运用STL时的几个最重要的观念" class="headerlink" title="运用STL时的几个最重要的观念"></a>运用STL时的几个最重要的观念</h3><ol>
-<li>所谓使用STL，就是去扩充它。</li>
-<li>STL的算法和容器是独立分离的。</li>
-<li>无须继承。</li>
-<li>抽象化并不意味效率低。</li>
-</ol>
-<p>STL所实现的，是依据泛型思维架设起来的一个概念结构。这个以抽象概念为主体而非以实际类为主体的结构，形成了一个严谨的接口标准。在此接口下，任何组件都有最大的独立性，并以所谓迭代器胶合起来，或以所谓配接器互相配接，或以所谓仿函数动态选择某种策略。</p>
-<h3 id="六大组件交互关系"><a href="#六大组件交互关系" class="headerlink" title="六大组件交互关系"></a>六大组件交互关系</h3><p>Container通过Allocator取得数据储存空间，Algorithm通过Iterator存取Container内容，Functor可以协助Algorithm完成不同的策略变化，Adapter可以修饰或套接Functor。</p>
-<h2 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h2><p>Iterator可说是STL最重要的一个创新发明，它使”将算法与其相关数据结构的关系切割分离“一事变得可能。</p>
-<p>何为Concept？<br>如果Concept既非class，也非function或template，那么它是什么？有三种方式可以了解Concepts，这些方式一开始似乎大不相同，但是最后证明都是相通的。这三种方式有助于了解泛型算法的一些重要观点。</p>
-<p>第一，Concept可以想象是一组型别条件。如果说型别Ｔ是Concept Ｃ的一个model，则Ｔ必 须满足Ｃ的所有条件。描述某个型别所必须具备的性质几乎是最容易具体指明Concept的方式了。<br>第二，Concept可以想成是型别的集合。举例来说，Concept input iterator可涵盖char<em>、int</em>、node* 等型别。如果型别Ｔ是Concept C 的model，意思便是说Ｔ隶属于Ｃ所代表的那个型别集合。由于集合中的所有型别都满足那一系列条件，其实是以不同的角度看待同一件事情。<br>第三，Concept可以想象成是一组合法程序。依次定义，那么像input iterator这样的Concept，其重要性在于find以及其他许多算法都会用到它。这个Concept自身包含iterator及那些算法共有的性质。这种定义似乎比前两者更加抽象，但是却很重要，因为就某种意义来说，这是三中方法中最实用的。这也是新的概念的发掘方法。是的，我们并非藉由写下一组需求条件来发掘和描述新 的概念，而是藉由定义特别的算法并研究模板参数如何运行于这些算法身上的过程来完成。我们研究find，过程中导出了 input iterator。本书其他各种概念同样是肇因与算法。 </p>
-<p>Iterator是指针的概括物，它们是”用来指向其他对象“的一种对象。<br>Iterator对于泛型编程之所以重要，原因是它是算法与数据结构之间的接口。<br>1、Input Iterator ：只允许作为输入，也就是只读（Read Only）<br>2、Output Iterator ：只允许作为输出，也就是只写（Write Only）<br>3、Forward Iterator ：允许读写，但只能做前向移动<br>4、Bidirectional Iterator ：允许读写，可以做双向移动<br>5、Random Access Iterator ：允许读写，可以任意移动，可作（P+N和P-N）、（P[n]）、（P1-P2）、（P1 &lt; P2）</p>
-<h2 id="Function-objects"><a href="#Function-objects" class="headerlink" title="Function objects"></a>Function objects</h2><p>Function objects是非常一般化的概念，它们可以将任何种类的行为参数化。几乎任何算法都能以“将其行为的某一部分抽象化为function object”的方式来加以一般化。</p>
-<h2 id="Containers"><a href="#Containers" class="headerlink" title="Containers"></a>Containers</h2><p>STL预定义的所有container classes都是一种Forward Container，其中大多数甚至是Bidirectional Container。有一些像block之类的container classes，则属于Random Access Container。</p>
-<h2 id="Allocators"><a href="#Allocators" class="headerlink" title="Allocators"></a>Allocators</h2><p>很多containers以动态方式分配内存（但非全部如此，例如block就不是）。配置器，它代表一种特定内存模型，并提供一种抽象概念，以便将对内存的申请最终转变为对内存的直接调用。<br>STL提供了很多泛型容器，如vector，list和map。程序员在使用这些容器时只需关心何时往容器内塞对象，而不用关心如何管理内存，需要用多少内存，这些STL容器极大地方便了C++程序的编写。</p>
-<h2 id="Algorithms"><a href="#Algorithms" class="headerlink" title="Algorithms"></a>Algorithms</h2><p>各种常用算法，如sort,search,copy,erase。从实现的角度讲，STL算法是一种function template。</p>
-<h2 id="Adapters"><a href="#Adapters" class="headerlink" title="Adapters"></a>Adapters</h2><p>一种用来修饰容器或仿函数或迭代器接口的东西。<br>改变functor接口者，称为function adapter;<br>改变contrainer接口者，称为contrainer adapter;<br>改变iterator接口者，称为iterator adapter。</p>
-
+          <p>Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/bec1f717.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -976,7 +951,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

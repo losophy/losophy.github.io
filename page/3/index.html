@@ -165,6 +165,83 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/fd55994a.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/fd55994a.html" class="post-title-link" itemprop="url">lua字符串</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-22 06:41:12" itemprop="dateCreated datePublished" datetime="2021-03-22T06:41:12+00:00">2021-03-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><code>c</code>语言没有自带字符串类型，这导致有非常多的用<code>c</code>写的软件都自己实现一个处理字符串的类型。<br>一般来说，要表示一个字符串，核心就是以下两个数据：</p>
+<ul>
+<li>字符串长度 </li>
+<li>指向存放字符串内存数据的指针</li>
+</ul>
+<p><code>Lua</code>自己的字符串类型的实现也没有绕过这两个核心内容。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/fd55994a.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/6349ecd2.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -196,7 +273,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
               </span>
 
           
@@ -210,45 +287,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>table实现了关联数组，即可以同时用数字和字符串索引的数组。<br>table是一种强大的语言构造。因为table的泛型特点，简化了使用lua编写程序所用的数据结构和算法。</p>
-<h2 id="哈希与数组"><a href="#哈希与数组" class="headerlink" title="哈希与数组"></a>哈希与数组</h2><p>直到Lua 4.0为止，table都是作为纯哈希表实现的，所有的键值对都是显式存储的。在Lua 5.0版本引入了table的混合表示：每个table包含了一个哈希部分和一个数组部分，两个部分都可以是空的。Lua检测一个table是不是作为一个数组来使用，并自动将数字索引的值移动到数组部分，而非原本的存储在哈希部分。这种分裂只在底层实现层次进行；访问table域是透明的，即使是对虚拟机来说。table会自动根据内容使用两个部分。<br>这个混合机制有两个优点。第一，访问整型key的操作会变得更快了，因为不再需要哈希。第二，更重要的是，数组部分只占原来哈希部分的一半大小，因为哈希部分需要同时存储key和value，而数组部分的key已经隐含在下标了。结果是，如果一个table是作为数组使用的，它的表现就像数组一样，只要它的整型key是密集分布的。而且，哈希部分没有内存或者时间的代价，因为作为数组使用时，哈希部分不存在。反过来说，如果table是作为记录使用而非数组，那么数组部分就是空的。这些节省下来的内存是重要的。</p>
-<h2 id="Lua核心突出角色"><a href="#Lua核心突出角色" class="headerlink" title="Lua核心突出角色"></a>Lua核心突出角色</h2><p>从Lua 4.0开始，全局变量就存储在普通的Lua table里，称为全局table。Lua 5.0用元表和元方法取代了tag和tag方法（Lua 3.0引入的）。元表是普通的Lua table，元方法是作为元表的域存储的。Lua 5.0也引入了环境table，可以附加到Lua函数上；它们就是Lua函数索引的全局环境。Lua 5.1将环境变量table扩展到C函数、userdata和协程，取代了全局的环境变量。这些改动简化了Lua的实现、Lua和C程序员所用的API，因为全局变量和元方法可以在Lua里操控，不再需要特殊函数了。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>先看看表的数据类型定义：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Table</span> &#123;</span></span><br><span class="line">  CommonHeader;</span><br><span class="line">  lu_byte flags;  <span class="comment">/* 1&lt;&lt;p means tagmethod(p) is not present */</span> </span><br><span class="line">  lu_byte lsizenode;  <span class="comment">/* log2 of size of `node&#x27; array */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Table</span> *<span class="title">metatable</span>;</span><span class="comment">//存放该表的元表</span></span><br><span class="line">  TValue *<span class="built_in">array</span>;  <span class="comment">//指向数组部分的指针</span></span><br><span class="line">  Node *node;  <span class="comment">//指向该表的散列桶数组起始位置的指针 </span></span><br><span class="line">  Node *lastfree;  <span class="comment">//指向该表散列桶数组的最后位置的指针</span></span><br><span class="line">  GCObject *gclist; <span class="comment">//GC相关的链表</span></span><br><span class="line">  <span class="keyword">int</span> sizearray;  <span class="comment">//数组部分的大小</span></span><br><span class="line">&#125; Table;</span><br></pre></td></tr></table></figure>
-<p>lu_byte_flags：这是一个byte类型的数据，用于表示这个表中提供了哪些元方法。最开始这个flags是空的，也就是0，当查找一次之后，如果该表中存在某个元方法，那么将该元方法对应的flag bit置为1，这样下一次查找时只需要比较这个bit就行了。每个元方法对应的bit定义在ltm. h文件中。<br>lu_byte_lsizenode：该表中以2为底的散列表大小的对数值。同时由此可知，散列表部分的大小一定是2的幕，即如果散列桶数组要扩展的话，也是以每次在原大小基础上乘以2的形式扩展。</p>
-<p>从Node类型来看，它包含两个成员，一个是key，另一个是value（TValue）。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">union</span> <span class="title">TKey</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    TValuefields;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Node</span> *<span class="title">next</span>;</span>  <span class="comment">/* for chaining */</span></span><br><span class="line">  &#125; nk;</span><br><span class="line">  TValue tvk;</span><br><span class="line">&#125; TKey;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Node</span> &#123;</span></span><br><span class="line">  TValue i_val;</span><br><span class="line">  TKey i_key;</span><br><span class="line">&#125; Node;</span><br></pre></td></tr></table></figure>
-<h2 id="表查找"><a href="#表查找" class="headerlink" title="表查找"></a>表查找</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** search function for integers</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">const</span> TValue *<span class="title">luaH_getnum</span> <span class="params">(Table *t, <span class="keyword">int</span> key)</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* (1 &lt;= key &amp;&amp; key &lt;= t-&gt;sizearray) */</span></span><br><span class="line">  <span class="keyword">if</span> (cast(<span class="keyword">unsigned</span> <span class="keyword">int</span>, key<span class="number">-1</span>) &lt; cast(<span class="keyword">unsigned</span> <span class="keyword">int</span>, t-&gt;sizearray))</span><br><span class="line">    <span class="keyword">return</span> &amp;t-&gt;<span class="built_in">array</span>[key<span class="number">-1</span>];</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    lua_Number nk = cast_num(key);</span><br><span class="line">    Node *n = hashnum(t, nk);</span><br><span class="line">    <span class="keyword">do</span> &#123;  <span class="comment">/* check whether `key&#x27; is somewhere in the chain */</span></span><br><span class="line">      <span class="keyword">if</span> (ttisnumber(gkey(n)) &amp;&amp; luai_numeq(nvalue(gkey(n)), nk))</span><br><span class="line">        <span class="keyword">return</span> gval(n);  <span class="comment">/* that&#x27;s it */</span></span><br><span class="line">      <span class="keyword">else</span> n = gnext(n);</span><br><span class="line">    &#125; <span class="keyword">while</span> (n);</span><br><span class="line">    <span class="keyword">return</span> luaO_nilobject;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>如采输入的Key是一个正坐数，并且它的位＞0 &amp;&amp; ＜= 数组且大小，尝试在数组部分查找。<br>如果不是，尝试在散列表部分查找，计算出该Key的散列值，根据此散列值访问Node数组得到散列桶所在的位置，遍历该散列桶下的所有链表元素，直到找到该Key为止。<br>可以看到，即使是一个正整数的key，其存储部分也不见得会一定落在数组部分，这完全取决于它的大小是再落在了当前数组可容纳的空间范围内。也解释了ipairs遍历断裂的问题。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> t = &#123;&#125;</span><br><span class="line">t[<span class="number">1</span>] = <span class="number">0</span> <span class="comment">-- 1作为数组部分存储下来</span></span><br><span class="line">t[<span class="number">100</span>] = <span class="number">0</span> <span class="comment">--100存储到散列表部分中</span></span><br></pre></td></tr></table></figure>
-<h2 id="新增元素"><a href="#新增元素" class="headerlink" title="新增元素"></a>新增元素</h2><p>当找不到对应的key时，最终都会调用内部的 newkey函数分配一个新的key来返回</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** inserts a new key into a hash table; first, check whether key&#x27;s main </span></span><br><span class="line"><span class="comment">** position is free. If not, check whether colliding node is in its main </span></span><br><span class="line"><span class="comment">** position or not: if it is not, move colliding node to an empty place and </span></span><br><span class="line"><span class="comment">** put new key in its main position; otherwise (colliding node is in its main </span></span><br><span class="line"><span class="comment">** position), new key goes to an empty position. </span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> TValue *<span class="title">newkey</span> <span class="params">(lua_State *L, Table *t, <span class="keyword">const</span> TValue *key)</span> </span>&#123;</span><br><span class="line">  Node *mp = mainposition(t, key);</span><br><span class="line">  <span class="keyword">if</span> (!ttisnil(gval(mp)) || mp == dummynode) &#123;</span><br><span class="line">    Node *othern;</span><br><span class="line">    Node *n = getfreepos(t);  <span class="comment">/* get a free place */</span></span><br><span class="line">    <span class="keyword">if</span> (n == <span class="literal">NULL</span>) &#123;  <span class="comment">/* cannot find a free place? */</span></span><br><span class="line">      rehash(L, t, key);  <span class="comment">/* grow table */</span></span><br><span class="line">      <span class="keyword">return</span> luaH_set(L, t, key);  <span class="comment">/* re-insert key into grown table */</span></span><br><span class="line">    &#125;</span><br><span class="line">    lua_assert(n != dummynode);</span><br><span class="line">    othern = mainposition(t, key2tval(mp));</span><br><span class="line">    <span class="keyword">if</span> (othern != mp) &#123;  <span class="comment">/* is colliding node out of its main position? */</span></span><br><span class="line">      <span class="comment">/* yes; move colliding node into free position */</span></span><br><span class="line">      <span class="keyword">while</span> (gnext(othern) != mp) othern = gnext(othern);  <span class="comment">/* find previous */</span></span><br><span class="line">      gnext(othern) = n;  <span class="comment">/* redo the chain with `n&#x27; in place of `mp&#x27; */</span></span><br><span class="line">      *n = *mp;  <span class="comment">/* copy colliding node into free pos. (mp-&gt;next also goes) */</span></span><br><span class="line">      gnext(mp) = <span class="literal">NULL</span>;  <span class="comment">/* now `mp&#x27; is free */</span></span><br><span class="line">      setnilvalue(gval(mp));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;  <span class="comment">/* colliding node is in its own main position */</span></span><br><span class="line">      <span class="comment">/* new node will go into free position */</span></span><br><span class="line">      gnext(n) = gnext(mp);  <span class="comment">/* chain new position */</span></span><br><span class="line">      gnext(mp) = n;</span><br><span class="line">      mp = n;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  gkey(mp)-&gt;value = key-&gt;value; gkey(mp)-&gt;tt = key-&gt;tt;</span><br><span class="line">  luaC_barriert(L, t, key);</span><br><span class="line">  lua_assert(ttisnil(gval(mp)));</span><br><span class="line">  <span class="keyword">return</span> gval(mp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>散列表部分的数据组织是，首先计算数据的key所在的桶数组位置，这个位置称为mainposition。相同mainposition的数据以链表形式组织<br>上述代码主要操作：</p>
-<ul>
-<li>根据key来查找其所在散列桶的mainposition，如果返回的结果中，该Node的值为nil，那么直接将key赋值并且返回Node的TValue指针就可以了。</li>
-<li>再则说明该mainposition上已经有其他数据了，需要重新分配空间给这个新的 key ，然后将这个新的Node串联到对应的散列桶上 。<br>可见，整个过程都是在散列桶部分进行的，理由是即使key是一个数字，也已经在调用 newkey函数之前进行了查找，结果却没有找到，所以这个key都会进入散列桶部分来查找。</li>
-</ul>
-<h3 id="rehash"><a href="#rehash" class="headerlink" title="rehash"></a>rehash</h3><p>以上操作涉及重新对表空间进行分配的情况。入口函数是rehash，顾名思义，这个两数的作用就是为了做重新散列操作。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">rehash</span> <span class="params">(lua_State *L, Table *t, <span class="keyword">const</span> TValue *ek)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> nasize, na;</span><br><span class="line">  <span class="keyword">int</span> nums[MAXBITS+<span class="number">1</span>];  <span class="comment">/* nums[i] = number of keys between 2^(i-1) and 2^i */</span></span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">int</span> totaluse;</span><br><span class="line">  <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;=MAXBITS; i++) nums[i] = <span class="number">0</span>;  <span class="comment">/* reset counts */</span></span><br><span class="line">  nasize = numusearray(t, nums);  <span class="comment">/* count keys in array part */</span></span><br><span class="line">  totaluse = nasize;  <span class="comment">/* all those keys are integer keys */</span></span><br><span class="line">  totaluse += numusehash(t, nums, &amp;nasize);  <span class="comment">/* count keys in hash part */</span></span><br><span class="line">  <span class="comment">/* count extra key */</span></span><br><span class="line">  nasize += countint(ek, nums);</span><br><span class="line">  totaluse++;</span><br><span class="line">  <span class="comment">/* compute new size for array part */</span></span><br><span class="line">  na = computesizes(nums, &amp;nasize);</span><br><span class="line">  <span class="comment">/* resize the table to new computed sizes */</span></span><br><span class="line">  resize(L, t, nasize, totaluse - na);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上述代码主要操作：</p>
-<ul>
-<li>分配一个位图nums，将其中的所有位置0。这个位图的意义在于：nums数组中第 i个元素存放的是key在2{i- l）和i之间的元素数量。</li>
-<li>遍历Lua表中的数组部分，计算其中的元素数量，更新对应的nums数组中的元素数量( numusearray函数）。</li>
-<li>遍历 lua表中的散列桶部分，因为其中也可能存放了正整数，需要根据这里的正整数数量更新对应的nums数组元素数量（numusehash函数）</li>
-<li>此时nums数组已经有了当前这个Table中所有正整数的分配统计，逐个遍历nums数组，获得其范围区间内所包含的整数数量大于50%的最大索引，作为重新散列之后的数组大小，超过这个范围的正整数，就分配到散列桶部分了（ computesizes函数）</li>
-<li>根据上面计算得到的调整后的数组和散列桶大小调整表（ resize 函数）。</li>
-</ul>
-<p>在重新散列的过程中，除了增大Lua表的大小以容纳新的数据之外，还希望能借此机会对原有的数组和散列桶部分进行调整，让两部分都尽可能发挥其存储的最高容纳效率。那么，这里的标准是什么呢？希望在调整过后，数组在每一个2次方位置容纳的元素数量都超过该范围的50%。 能达到这个目标的话，就认为这个数组范围发挥了最大的效率。</p>
-<p>当数字键值的统计跑完之后，得到了这个数组每个元素的数据，也就是得到了落在每个范围内的数据数量。接着会计算怎样才能最大限度地使用这部分空间 。这个算法由函数computesizes实现：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">computesizes</span> <span class="params">(<span class="keyword">int</span> nums[], <span class="keyword">int</span> *narray)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">int</span> twotoi;  <span class="comment">/* 2^i */</span></span><br><span class="line">  <span class="keyword">int</span> a = <span class="number">0</span>;  <span class="comment">/* number of elements smaller than 2^i */</span></span><br><span class="line">  <span class="keyword">int</span> na = <span class="number">0</span>;  <span class="comment">/* number of elements to go to array part */</span></span><br><span class="line">  <span class="keyword">int</span> n = <span class="number">0</span>;  <span class="comment">/* optimal size for array part */</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>, twotoi = <span class="number">1</span>; twotoi/<span class="number">2</span> &lt; *narray; i++, twotoi *= <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums[i] &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      a += nums[i];</span><br><span class="line">      <span class="keyword">if</span> (a &gt; twotoi/<span class="number">2</span>) &#123;  <span class="comment">/* more than half elements present? */</span></span><br><span class="line">        n = twotoi;  <span class="comment">/* optimal size (till now) */</span></span><br><span class="line">        na = a;  <span class="comment">/* all elements smaller than n will go to array part */</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (a == *narray) <span class="keyword">break</span>;  <span class="comment">/* all elements already counted */</span></span><br><span class="line">  &#125;</span><br><span class="line">  *narray = n;</span><br><span class="line">  lua_assert(*narray/<span class="number">2</span> &lt;= na &amp;&amp; na &lt;= *narray);</span><br><span class="line">  <span class="keyword">return</span> na;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="迭代"><a href="#迭代" class="headerlink" title="迭代"></a>迭代</h2><p>在一般算法库的设计中，针对容器类的迭代，会提供一个迭代器的数据，这个数据主要用于维护当前迭代到容器的哪部分数据了，下次再根据这个位置查找下一部分数据。表迭代不是这样设计的，很大的原因是为了兼容数组部分和散列桶部分的访问 。 迭代操作传入的不是一个迭代器，而是key。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">luaH_next</span> <span class="params">(lua_State *L, Table *t, StkId key)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i = findindex(L, t, key);  <span class="comment">/* find original element */</span></span><br><span class="line">  <span class="keyword">for</span> (i++; i &lt; t-&gt;sizearray; i++) &#123;  <span class="comment">/* try first array part */</span></span><br><span class="line">    <span class="keyword">if</span> (!ttisnil(&amp;t-&gt;<span class="built_in">array</span>[i])) &#123;  <span class="comment">/* a non-nil value? */</span></span><br><span class="line">      setnvalue(key, cast_num(i+<span class="number">1</span>));</span><br><span class="line">      setobj2s(L, key+<span class="number">1</span>, &amp;t-&gt;<span class="built_in">array</span>[i]);</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (i -= t-&gt;sizearray; i &lt; sizenode(t); i++) &#123;  <span class="comment">/* then hash part */</span></span><br><span class="line">    <span class="keyword">if</span> (!ttisnil(gval(gnode(t, i)))) &#123;  <span class="comment">/* a non-nil value? */</span></span><br><span class="line">      setobj2s(L, key, key2tval(gnode(t, i)));</span><br><span class="line">      setobj2s(L, key+<span class="number">1</span>, gval(gnode(t, i)));</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">/* no more elements */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>不管是在数组部分还是散列桶部分查找数据，查找成功都会返回该key的下一个数据。<br>这个函数一开始就进入findindex中进行查询，并区分数组和散列桶部分。findindex函数的返回结果是一个整数索引，如果这个索引在表的sizearray之内，则说明落入到数组部分，否则就落入到散列桶部分。在luaH_next函数中使用这个返回值时，看起来是两个循环，实际上已经根据这个值的范围进行了区分，不会同一个key走入两个循环中。而在返回散列桶部分时，这个索引值为”sizearray＋对应散列柏索引的值”。</p>
-<h2 id="取长度操作"><a href="#取长度操作" class="headerlink" title="取长度操作"></a>取长度操作</h2><p>在Lua中，可以使用#符号对表进行取长度操作。对Lua中的表进行取长度操作时，如果没有提供该表的元方法_len，那么该操作只针对该表的序列（ sequence ）部分进行。 “序列”指的是表的一个子集{1 … n}，其中 n是一个正整数，并且里面每个键对应的数据都不为nil。 </p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Try to find a boundary in table `t&#x27;. A `boundary&#x27; is an integer index</span></span><br><span class="line"><span class="comment">** such that t[i] is non-nil and t[i+1] is nil (and 0 if t[1] is nil).</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">luaH_getn</span> <span class="params">(Table *t)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> j = t-&gt;sizearray;</span><br><span class="line">  <span class="keyword">if</span> (j &gt; <span class="number">0</span> &amp;&amp; ttisnil(&amp;t-&gt;<span class="built_in">array</span>[j - <span class="number">1</span>])) &#123;</span><br><span class="line">    <span class="comment">/* there is a boundary in the array part: (binary) search for it */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (j - i &gt; <span class="number">1</span>) &#123;</span><br><span class="line">      <span class="keyword">unsigned</span> <span class="keyword">int</span> m = (i+j)/<span class="number">2</span>;</span><br><span class="line">      <span class="keyword">if</span> (ttisnil(&amp;t-&gt;<span class="built_in">array</span>[m - <span class="number">1</span>])) j = m;</span><br><span class="line">      <span class="keyword">else</span> i = m;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> i;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/* else must find a boundary in hash part */</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (t-&gt;node == dummynode)  <span class="comment">/* hash part is empty? */</span></span><br><span class="line">    <span class="keyword">return</span> j;  <span class="comment">/* that is easy... */</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">return</span> unbound_search(t, j);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>如果表中混合了这两种风格的数据，那么优先取数组部分的长度。如果表存在数组部分，在数组部分二分查找返回位置。如果前面的数组部分查不到满足条件的数据，进入散列表部分查找。<br>所以，尽量不要将一个表混用数组和散列桶部分，即一个表最好只存放一类数据。Lua的实现上确实提供了两者统一表示的遍历，但是这不意味着使用者就应该混用这两种方式。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>《Lua设计与实现》</p>
-
+          <p><code>table</code>实现了关联数组，即可以同时用数字和字符串索引的数组。<br><code>table</code>是一种强大的语言构造。因为<code>table</code>的泛型特点，简化了使用<code>lua</code>编写程序所用的数据结构和算法。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/6349ecd2.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -298,7 +345,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
               </span>
 
           
@@ -370,7 +417,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
               </span>
 
           
@@ -384,57 +431,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="黑盒子"><a href="#黑盒子" class="headerlink" title="黑盒子"></a>黑盒子</h2><p>Lua的虚拟机核心部分，没有任何的系统调用，是一个纯粹的黑盒子，正确的使用Lua，不会对系统造成任何干扰。这其中最关键的一点是，Lua让用户自行定义内存管理器，在创建Lua虚拟机时传入，这保证了Lua的整个运行状态是用户可控的。</p>
-<h2 id="基于寄存器的虚拟机"><a href="#基于寄存器的虚拟机" class="headerlink" title="基于寄存器的虚拟机"></a>基于寄存器的虚拟机</h2><p>lua从5.0开始，就把虚拟机改为基于寄存器的。<br>基于栈的虚拟机执行操作，要事先pop出数据，再将数据push入栈，字节码条数较多，但指令中不需要关心操作数的地址，在执行操作之前已经将操作数准备在楼顶上了。与基于梭的虚拟机不同，在基于寄存器的指令中，操作数是放在“CPU的寄存器”中（因为并不是物理意义上的寄存器，所以这里打了双引号）。因此，同样的操作不再需要PUSH、POP指令，取而代之的是在字节码中带上其体操作数所在的寄存器地址。 需要指令较少，但缺点是此时程序需要关注操作数所在的位置。</p>
-<p>Lua使用的是基于寄存器的虚拟机实现方式，其中很大的原因是它的设计目标之一就是尽可能高效。</p>
-<h2 id="lua虚拟机工作流程"><a href="#lua虚拟机工作流程" class="headerlink" title="lua虚拟机工作流程"></a>lua虚拟机工作流程</h2><p>lua代码是通过翻译成Lua虚拟机能识别的字节码运行的，以此它主要分为两大部分。</p>
-<h3 id="翻译代码以及编译为字节码"><a href="#翻译代码以及编译为字节码" class="headerlink" title="翻译代码以及编译为字节码"></a>翻译代码以及编译为字节码</h3><p>这部分代码负责将lua代码进行词法分析（llex.c）、语法分析等（lparser.c），最终生成字节码（lcode.c）。lopcodes.x则定义了lua虚拟机相关的字节码指令的格式以及相关的API。</p>
-<h3 id="lua虚拟机相关"><a href="#lua虚拟机相关" class="headerlink" title="lua虚拟机相关"></a>lua虚拟机相关</h3><p>在第一步中，经过分析阶段后，生成了对应的字节码，第二步就是将这些字节码装载到虚拟机中执行。Lua虚拟机相关的代码在 lvm.c中，虚拟机执行的主函数是luaV_execute ，不难想象这个函数是一个大的循环，依次从字节码中取出指令并执行。Lua虚拟机对外看到的数据结构是lua_State这个结构体将一直贯穿整个分析以及执行阶段 。 除了虚拟机的执行之外，Lua的核心部分还包括了进行函数调用和返回处理的相关代码，主要处理函数调用前后环境的准备和还原，这部分代码在 ldo.c中，垃圾回收部分的代码在 lgc.c中。Lua是一门嵌入式的脚本语言，这意味着它的设计目标之一必须满足能够与宿主系统进行交互，这部分代码在lapi.c中。</p>
-<p>总结一下，实现一个脚本语言的解释器，其核心问题有如下几个</p>
-<ul>
-<li>设计一套字节码，分析源代码文件生成字节码</li>
-<li>在虚拟机中执行字节码</li>
-<li>如何在整个执行过程中保存整个执行环境</li>
-</ul>
-<p>执行Lua文件调用的是luaL_dofile函数，它实际上是个宏，内部首先调用luaL_loadfile函数，再调用lua_pcall函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> luaL_dofile(L, fn) \</span></span><br><span class="line">	(luaL_loadfile(L, fn) || lua_pcall(L, <span class="number">0</span>, LUA_MULTRET, <span class="number">0</span>))</span><br></pre></td></tr></table></figure>
-<p>其中 lual_loadfile函数用于进行词法和语法分析，lua_pcall用于将第一步中分析的结果（也就是字节码）放到虚拟机中执行<br>lual_loadfile函数最终会调用于f_parser函数，这是对代码进行分析的人口函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">f_parser</span> <span class="params">(lua_State *L, <span class="keyword">void</span> *ud)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  Proto *tf;</span><br><span class="line">  Closure *cl;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">SParser</span> *<span class="title">p</span> =</span> cast(struct SParser *, ud);</span><br><span class="line">  <span class="keyword">int</span> c = luaZ_lookahead(p-&gt;z);</span><br><span class="line">  luaC_checkGC(L);</span><br><span class="line">  tf = ((c == LUA_SIGNATURE[<span class="number">0</span>]) ? luaU_undump : luaY_parser)(L, p-&gt;z,</span><br><span class="line">                                                             &amp;p-&gt;buff, p-&gt;name);</span><br><span class="line">  cl = luaF_newLclosure(L, tf-&gt;nups, hvalue(gt(L)));</span><br><span class="line">  cl-&gt;l.p = tf;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; tf-&gt;nups; i++)  <span class="comment">/* initialize eventual upvalues */</span></span><br><span class="line">    cl-&gt;l.upvals[i] = luaF_newupval(L);</span><br><span class="line">  setclvalue(L, L-&gt;top, cl);</span><br><span class="line">  incr_top(L);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>完成词法分析之后，返回了Proto类型的指针tf，然后将其绑定在新创建的Closure指针上，初始化UpValue，最后压入战中。不难想象，词法分析之后产生的字节码等相关数据都在这个Proto类型的结构体中，而这个数据又作为Closure保存了下来，留待下一步使用。<br>接着看看lua_pcall函数是如何将产生的字节码放入虚拟机中执行的：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LUA_API <span class="keyword">int</span> <span class="title">lua_pcall</span> <span class="params">(lua_State *L, <span class="keyword">int</span> nargs, <span class="keyword">int</span> nresults, <span class="keyword">int</span> errfunc)</span> </span>&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">CallS</span> <span class="title">c</span>;</span></span><br><span class="line">  <span class="keyword">int</span> status;</span><br><span class="line">  <span class="keyword">ptrdiff_t</span> func;</span><br><span class="line">  lua_lock(L);</span><br><span class="line">  api_checknelems(L, nargs+<span class="number">1</span>);</span><br><span class="line">  checkresults(L, nargs, nresults);</span><br><span class="line">  <span class="keyword">if</span> (errfunc == <span class="number">0</span>)</span><br><span class="line">    func = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    StkId o = index2adr(L, errfunc);</span><br><span class="line">    api_checkvalidindex(L, o);</span><br><span class="line">    func = savestack(L, o);</span><br><span class="line">  &#125;</span><br><span class="line">  c.func = L-&gt;top - (nargs+<span class="number">1</span>);  <span class="comment">//获取需要调用的函数指针</span></span><br><span class="line">  c.nresults = nresults;</span><br><span class="line">  status = luaD_pcall(L, f_call, &amp;c, savestack(L, c.func), func);</span><br><span class="line">  adjustresults(L, nresults);</span><br><span class="line">  lua_unlock(L);</span><br><span class="line">  <span class="keyword">return</span> status;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里的nargs是由函数参数传入的，在luaL_dofile中调用lua_pcall日才，这里传入的参数是0，换句话说，这里得到的函数对象指针就是前面f_parser函数中最后两句代码放入Lua梢的Closure指针：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setclvalue(L, L-&gt;top, cl);</span><br><span class="line">incr_top(L);</span><br></pre></td></tr></table></figure>
-<p>继续往下执行，在调用函数luaD_pcall时， 最终会执行到luaD_call函数，这其中有这么一段代码：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (luaD_precall(L, func, nResults) == PCRLUA)  <span class="comment">/* is a Lua function? */</span></span><br><span class="line">    luaV_execute(L, <span class="number">1</span>);  <span class="comment">/* call it */</span></span><br></pre></td></tr></table></figure>
-<p>首先，调用luaD_precall函数进行执行前的准备工作：</p>
-<ul>
-<li>从lua_State的CallInfo数组中得到一个新的CallInfo结构体，设置它的func、 base 、 top指针 。</li>
-<li>从前面分析阶段生成的 Closure指针中，取出保存下来的Proto结构体 。 前面提到过，这个结构体中保存的是分析过程完结之后生成的字节码等信息 。</li>
-<li>将这里创建的CallInfo指针的top/base指针赋值给lua_State结构体的top 、 base指针。 将Proto结构体的code成员赋值给 lua_State指针的 savedpc字段， code成员保留的就是字节码。</li>
-<li>把多余的函数参数赋值为nil；比如一个函数定义中需要的是两个参数，实际传入的只有一个，那么多出来的那个参数会被赋值为nil。</li>
-</ul>
-<p>调用完luaD_precall函数之后，接着会进入luaV_execute函数，这里是虚拟机执行代码的主函数：<br>这里的pc指针存放的是虚拟机OpCode代码，它最开始从L-&gt;savepc初始化而来，而L-&gt;savepc在luaD_precall中赋值：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">L-&gt;savedpc = p-&gt;code;  <span class="comment">/* starting point */</span></span><br></pre></td></tr></table></figure>
-<p>可以看到，luaV_execute函数最主要的作用就是一个大循环，将当前传人的指令依次执行。<br>最后，执行完毕后，还会调用luaD_poscall函数恢复到上一次函数调用的环境：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">luaD_poscall</span> <span class="params">(lua_State *L, StkId firstResult)</span> </span>&#123;</span><br><span class="line">  StkId res;</span><br><span class="line">  <span class="keyword">int</span> wanted, i;</span><br><span class="line">  CallInfo *ci;</span><br><span class="line">  <span class="keyword">if</span> (L-&gt;hookmask &amp; LUA_MASKRET)</span><br><span class="line">    firstResult = callrethooks(L, firstResult);</span><br><span class="line">  ci = L-&gt;ci--;</span><br><span class="line">  res = ci-&gt;func;  <span class="comment">/* res == final position of 1st result */</span></span><br><span class="line">  wanted = ci-&gt;nresults;</span><br><span class="line">  L-&gt;base = (ci - <span class="number">1</span>)-&gt;base;  <span class="comment">/* restore base */</span></span><br><span class="line">  L-&gt;savedpc = (ci - <span class="number">1</span>)-&gt;savedpc;  <span class="comment">/* restore savedpc */</span></span><br><span class="line">  <span class="comment">/* move results to correct place */</span></span><br><span class="line">  <span class="keyword">for</span> (i = wanted; i != <span class="number">0</span> &amp;&amp; firstResult &lt; L-&gt;top; i--)</span><br><span class="line">    setobjs2s(L, res++, firstResult++);</span><br><span class="line">  <span class="keyword">while</span> (i-- &gt; <span class="number">0</span>)</span><br><span class="line">    setnilvalue(res++);</span><br><span class="line">  L-&gt;top = res;</span><br><span class="line">  <span class="keyword">return</span> (wanted - LUA_MULTRET);  <span class="comment">/* 0 iff wanted == LUA_MULTRET */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>总结下，大致的流程如下<br>(1 ）在f_parser函数中，对代码文件的分析返回了Proto指针。 这个指针会保存在 Closure指针中，留待后续继续使用。<br>(2）在luaD_precall 函数中，将lua_state 的saved pc指针指向第1步中Proto结构体的code指针，同时准备好函数调用时的战信息。<br>(3）在luaV_execute函数中，pc指针指向第2步中的saved pc指针，紧眼着就是一个大的循环体，依次取出其中的OpCode执行。<br>执行完毕后，调用 luaD_poscall函数恢复到上一个函数的环境。<br>因此， Lua虚拟机指令执行的两大人口函数如下：</p>
-<ul>
-<li>词法、语法分析阶段的luaY_parser。为了提高效率，Lua一次遍历脚本文件不仅完成了词法分析，还完成了语法分析，生成的OpCode存放在Proto结构体的code数组中。</li>
-<li>luaV_execute。它是虚拟机执行指令阶段的人口函数，取出第一步生成的Proto结构体中的指令执行。</li>
-</ul>
-<p>Proto是分析阶段的产物，执行阶段将使用分析阶段生成的Proto来执行虚拟机指令，在分析阶段会有许多数据结构参与其中，可它们都是临时用于分析阶段的，或者说最终是用来辅助生成Proto结构体的。<br>可以看到，Proto结构体是分析阶段和执行阶段的纽带。<br>只要抓住了Proto结构体这一个数据的流向，就能对从分析到执行的整个流程有大体的了解了<br>luaY_parser-&gt;Proto-&gt;luaV_execute</p>
-<p>到了这里，可以大致看看 Proto结构体中都有哪些数据</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Function Prototypes</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Proto</span> &#123;</span></span><br><span class="line">  CommonHeader;</span><br><span class="line">  TValue *k;  <span class="comment">//函数的常盐数组</span></span><br><span class="line">  Instruction *code;<span class="comment">//编译生成的字节码信息，也就是前面提到的 code成员</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Proto</span> **<span class="title">p</span>;</span>  <span class="comment">/* functions defined inside the function */</span></span><br><span class="line">  <span class="keyword">int</span> *lineinfo;  <span class="comment">/* map from opcodes to source lines */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">LocVar</span> *<span class="title">locvars</span>;</span>  <span class="comment">/* information about local variables */</span></span><br><span class="line">  TString **upvalues;  <span class="comment">/* upvalue names */</span></span><br><span class="line">  ...</span><br><span class="line">&#125; Proto;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>函数的常量数组</li>
-<li>编译生成的字节码信息，也就是前面提到的code成员</li>
-<li>函数的局部变量信息</li>
-<li>保存upvalue的数组 </li>
-</ul>
-<h2 id="Lua虚拟机相关的数据结构与栈"><a href="#Lua虚拟机相关的数据结构与栈" class="headerlink" title="Lua虚拟机相关的数据结构与栈"></a>Lua虚拟机相关的数据结构与栈</h2><p>请看<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/60">lua_state</a>里的Lua虚拟机相关的数据结构与栈</p>
-<h2 id="指令相关"><a href="#指令相关" class="headerlink" title="指令相关"></a>指令相关</h2><p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/116">lua指令相关</a></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>《Lua设计与实现》</p>
-
+          <p><code>Lua</code>的虚拟机核心部分，没有任何的系统调用，是一个纯粹的黑盒子，正确的使用<code>Lua</code>，不会对系统造成任何干扰。这其中最关键的一点是，<code>Lua</code>让用户自行定义内存管理器，在创建<code>Lua</code>虚拟机时传入，这保证了<code>Lua</code>的整个运行状态是用户可控的。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/a563683a.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -484,7 +489,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
               </span>
 
           
@@ -498,41 +503,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="八种基本数据类型"><a href="#八种基本数据类型" class="headerlink" title="八种基本数据类型"></a>八种基本数据类型</h2><p>Lua的类型系统是相对稳定的。很长时间里，Lua只有6个基本类型：nil，number，string，table，function和userdata（实际上，直到Lua 3.0为止，之前的C函数和Lua函数有不同的内部类型，但是这个差异对于调用者是透明的）。唯一真正的改变来自于Lua 5.0，这个版本引入了两个新类型：thread和boolean。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** basic types</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TNONE	(-1)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TNIL	0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TBOOLEAN	1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TLIGHTUSERDATA	2        <span class="comment">//void *</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TNUMBER	3                        <span class="comment">//lua3后采用double精度表示数字整型</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TSTRING	4                        <span class="comment">//TString</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TTABLE	5                        <span class="comment">//Table</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TFUNCTION	6                <span class="comment">//CClosure、LClosure</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TUSERDATA	7                <span class="comment">//void *</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LUA_TTHREAD	8                        <span class="comment">//协程</span></span></span><br></pre></td></tr></table></figure>
-<p>变量第一次赋值之前，值为nil。</p>
-<h2 id="第一类值"><a href="#第一类值" class="headerlink" title="第一类值"></a>第一类值</h2><p>lua中所有值都是第一类值，他们可以存在变量中（无论全局变量还是局部变量）或table中，可以作为函数参数，可以作为返回值。</p>
-<h2 id="Lua通用数据结构的实现"><a href="#Lua通用数据结构的实现" class="headerlink" title="Lua通用数据结构的实现"></a>Lua通用数据结构的实现</h2><h3 id="C语言中实现通用数据结构的一般做法"><a href="#C语言中实现通用数据结构的一般做法" class="headerlink" title="C语言中实现通用数据结构的一般做法"></a>C语言中实现通用数据结构的一般做法</h3><p>如果要使用一个通用的数据结构来表示不同的数据类型，一般的做法是</p>
-<ul>
-<li>需要一个字段来存储数据的类型</li>
-<li>需要存储不同的数据类型的数据 </li>
-</ul>
-<p>这里有这两种<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/61200681/what-are-the-pros-and-cons-of-these-twoa-common-data-structure-to-represent-dif">实现方法</a></p>
-<ol>
-<li>定义一个公共的数据结构作为基础类型，里面存储的都是表达这个数据的基础信息，其他具体的类型是从这里派生出来的 。 这就是一般的面向对象的思路。</li>
-<li> 使用联舍（ union ）来将所有数据包进来</li>
-</ol>
-<h3 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h3><p>上面两种做法各有利弊 。 在Lua代码中，一般采用两种做法相结合的方式<br>Lua需要进行GC操作的数据类型都会有一个CommonHeader宏定义的成员，并且这个成员在结构体定义的最开始部分。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> CommoHeader GCObject *next; lu_byte tt; lu_byte marked</span></span><br></pre></td></tr></table></figure>
-<p>任何需要进行垃圾回收处理的Lua数据类型，必然以 CommonHeader作为该结构体定义的最开始部分。如果熟悉C++类的实现原理，可以将CommoHeader这个成员理解为一个基类的所有成员，而其他需要回收处理的数据类型均从这个基类继承下来，所以它们的结构体定义的开始部分就是这个成员。</p>
-<p>还有一个名为GCheader的结构体，其中的成员只有Common Header</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Common header in struct form</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">GCheader</span> &#123;</span></span><br><span class="line">    CommonHeader;</span><br><span class="line">&#125; GCheader;</span><br></pre></td></tr></table></figure>
-<p>于是，在Lua中就使用了GCObject联合体将所有需要进行垃圾回收的数据类型囊括了进来</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Union of all collectable objects</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="class"><span class="keyword">union</span> <span class="title">GCObject</span> &#123;</span></span><br><span class="line">  GCheader gch;</span><br><span class="line">  <span class="class"><span class="keyword">union</span> <span class="title">TString</span> <span class="title">ts</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">union</span> <span class="title">Udata</span> <span class="title">u</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">union</span> <span class="title">Closure</span> <span class="title">cl</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Table</span> <span class="title">h</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Proto</span> <span class="title">p</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">UpVal</span> <span class="title">uv</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">lua_State</span> <span class="title">th</span>;</span>  <span class="comment">/* thread */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>GCObject这个联合体，将所有需要进行垃圾回收的数据类型全部囊括其中，这样定位和查找不同类型的数据时就方便多了。</p>
-<p>还有几种数据类型是不需要进行垃圾回收的，Lua中将GCObject和它们一起放在了联合体Value中</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Union of all Lua values</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">  GCObject *gc;</span><br><span class="line">  <span class="keyword">void</span> *p;<span class="comment">//LUA_TLIGHTUSERDATA</span></span><br><span class="line">  lua_Number n;<span class="comment">//LUA_TNUMBER</span></span><br><span class="line">  <span class="keyword">int</span> b;<span class="comment">//LUA_TBOOLEAN</span></span><br><span class="line">&#125; Value;</span><br></pre></td></tr></table></figure>
-<p>到了这一步 ，差不多可以表示Lua中所有的数据类型了。但是还欠缺一点东西，那就是这些数据到底是什么类型的。于是Lua代码中又有了TValue，它用于将Value和类型结合在一起。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">** Tagged Values</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TValuefields	Value value; int tt</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">lua_TValue</span> &#123;</span></span><br><span class="line">  TValuefields;</span><br><span class="line">&#125; TValue;</span><br></pre></td></tr></table></figure>
-<p>前面提到过， Lua同时采用了两种方式来做到数据统一。根据前面的分析，这表现在以下两个方面。</p>
-<ul>
-<li>具体类型中有CommonHeader 用来存放所有数据类型都通用的字段</li>
-<li>TValue作为统一表示所有数据的数据结构，内部使用了联合体Value将所有数据都包起来</li>
-</ul>
-<p>在具体的代码中，TValue用于统一地表示数据，而一旦知道了具体的类型，就需要使用具体的类型了。因此，代码中有不少涉及TValue与具体类型之间转换的代码，其主要逻辑都是将TValue中的tt、value与具体类型的数据进行转换。<br>如将 lua Number转换为TValue的宏 setnvalue：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> setnvalue(obj,x) \</span></span><br><span class="line">  &#123; TValue *i_o=(obj); i_o-&gt;value.n=(x); i_o-&gt;tt=LUA_TNUMBER; &#125;</span><br></pre></td></tr></table></figure>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>《Lua设计与实现》</p>
-
+          <p><code>Lua</code>是动态类型语言,变量不要类型定义,只需要为变量赋值。 值可以存储在变量中,作为参数传递或结果返回。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/ac3dad1f.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -582,7 +561,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
               </span>
 
           
@@ -596,16 +575,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="元表的由来"><a href="#元表的由来" class="headerlink" title="元表的由来"></a>元表的由来</h2><p>Lua2.1灵活语义问世，极大的增加了Lua的表达能力，从此，灵活语义就变成了Lua的标志。</p>
-<p>灵活语义的一个目标是允许table作为对象和类的基础。为了实现这个目标，需要实现table的继承。另一个目标是将userdata变成应用数据的天然代理，可以作为函数参数而不只是一个句柄。userdata希望能够索引，就好像他们只是一个table，可供调用他们身上的方法。所以fallback机制的实现，让Lua把未定义行为交给程序员处理，而不是直接在语言本身实现这些特性。</p>
-<p>Lua2.1提供了fallback机制，支持以下行为：table索引，算术操作符，字符串拼接，顺序比较，函数调用。当这些操作应用到“错误”的类型上，对应的fallback就会被调用到，允许程序员决定Lua如何处理。table索引fallback允许userdata和其它值类型表现的跟表一样。定义当Key不在table时的fallback，从而实现多种形式的继承（通过委托）。为了完善面向对象编程，添加了两个语法糖：function a:foo(…)就好比function a.foo(self,…)一样，以及a:foo(…)作为a.foo(a, …)的语法糖。</p>
-<p>Lua2.1里引入的fallback机制，可以很好的支持灵活扩展的语义，但这个机制是全局的：每个事件只有一个钩子。这让共享或重用代码变的很艰难，因为同一事件的fallback在模块里只能定义一次，不能共存。Lua 3.0解决了fallback冲突问题。fallback替换为tag方法：钩子是以(event, tag)的形式挂在字典里的。Tags是在Lua2.1引入的整数标签，可以附在userdata上。最初的动机是希望同类的C对象，在Lua里都有相同的tag(不过，Lua没有强迫要对Tag提供解释)。Lua3.0里对所有值类型提供了tag支持，以支持对应的tag方法。</p>
-<p>标记方法机制工作的很好，一直存续到Lua 5.0为止。在Lua 5.0实现了元表和元方法来取代标记和标记方法。元表只是普通的Lua table，所以可以用Lua直接操作，不需要特殊函数。就像标记一样，元表可以用来表示userdata和table的用户定义类型：所有“同类”对象应该共享同一个元表。不像标记，元表和他们的内容会在所有引用消失后自动被回收掉。（相反，标记和标记方法会等到程序结束才会被回收。）元表的引入同时简化了实现：标记方法需要在Lua核心代码里添加特殊的私有表示方法，元表主要就是标准的table机制。<br>下面的代码展示了Lua 5.0里，继承是如何实现的。index元方法取代了index标记，元表里则是用__index域来表示。代码通过将b的元表里的__index域指向a，实现了b继承a。（一般情况下，index元方法都是函数，但允许它设为table，以直接支持简单的委托继承。）</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a=Window&#123;x=<span class="number">100</span>, y=<span class="number">200</span>, color=<span class="string">&quot;red&quot;</span>&#125;</span><br><span class="line">b=Window&#123;x=<span class="number">300</span>, y=<span class="number">400</span>&#125;</span><br><span class="line"><span class="built_in">setmetatable</span>(b, &#123;<span class="built_in">__index</span> = a&#125;)</span><br><span class="line"><span class="built_in">print</span>(b.color) —&gt;red</span><br></pre></td></tr></table></figure>
-<h2 id="元方法"><a href="#元方法" class="headerlink" title="元方法"></a>元方法</h2><p>在Lua中有一个元表，也就是上面说的metatable，我们可以通过元表来修改一个值得行为，使其在面对一个非预定义的操作时执行一个指定的操作。比如，现在有两个table类型的变量a和b，我们可以通过metatable定义如何计算表达式a+b<br>我们是使用getmetatable来获取一个table或userdata类型变量的元表，当创建新的table变量时，使用getmetatable去获得元表，将返回nil；同理，我们也可以使用setmetatable去设置一个table或userdata类型变量的元表<br>在table中，我可以重新定义的元方法有以下几个</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">__add</span>(a, b) <span class="comment">--加法</span></span><br><span class="line"><span class="built_in">__sub</span>(a, b) <span class="comment">--减法</span></span><br><span class="line"><span class="built_in">__mul</span>(a, b) <span class="comment">--乘法</span></span><br><span class="line"><span class="built_in">__div</span>(a, b) <span class="comment">--除法</span></span><br><span class="line"><span class="built_in">__mod</span>(a, b) <span class="comment">--取模</span></span><br><span class="line"><span class="built_in">__pow</span>(a, b) <span class="comment">--乘幂</span></span><br><span class="line"><span class="built_in">__unm</span>(a) <span class="comment">--相反数</span></span><br><span class="line"><span class="built_in">__concat</span>(a, b) <span class="comment">--连接</span></span><br><span class="line"><span class="built_in">__len</span>(a) <span class="comment">--长度</span></span><br><span class="line"><span class="built_in">__eq</span>(a, b) <span class="comment">--相等</span></span><br><span class="line"><span class="built_in">__lt</span>(a, b) <span class="comment">--小于</span></span><br><span class="line"><span class="built_in">__le</span>(a, b) <span class="comment">--小于等于</span></span><br><span class="line"><span class="built_in">__index</span>(a, b) <span class="comment">--索引查询</span></span><br><span class="line"><span class="built_in">__newindex</span>(a, b, c) <span class="comment">--索引更新（PS：不懂的话，后面会有讲）</span></span><br><span class="line"><span class="built_in">__call</span>(a, ...) <span class="comment">--执行方法调用</span></span><br><span class="line"><span class="built_in">__tostring</span>(a) <span class="comment">--字符串输出</span></span><br><span class="line"><span class="built_in">__metatable</span> <span class="comment">--保护元表</span></span><br></pre></td></tr></table></figure>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>《The evolution of Lua》</p>
-
+          <p><code>lua</code>中提供的元表<code>(metatable)</code>与元方法<code>(metamethod)</code>是一种非常重要的语法，<code>metatable</code>主要用于做一些类似于<code>C++</code>重载操作符式的功能。元表与元方法会影响<code>table</code>的访问行为。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/e141c56e.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -655,7 +633,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
               </span>
 
           
@@ -696,7 +674,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/4930f35c.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/ba3259ee.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -710,7 +688,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/4930f35c.html" class="post-title-link" itemprop="url">删除svn冲突</a>
+            <a href="/post/ba3259ee.html" class="post-title-link" itemprop="url">svn项目相关问题</a>
         </h2>
 
         <div class="post-meta">
@@ -727,7 +705,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
               </span>
 
           
@@ -741,8 +719,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>一般遇到svn冲突时，我们都下意识clean下。其实，有更加好的方法。</p>
+          <p>这里记录下使用svn时的问题</p>
+<h2 id="删除svn冲突"><a href="#删除svn冲突" class="headerlink" title="删除svn冲突"></a>删除svn冲突</h2><p>一般遇到svn冲突时，我们都下意识clean下。其实，有更加好的方法。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">G:\project\.svn<span class="operator">&gt;</span>sqlite3.exe wc.db</span><br><span class="line">SQLite version <span class="number">3.7</span><span class="number">.15</span><span class="number">.2</span> <span class="number">2013</span><span class="number">-01</span><span class="number">-09</span> <span class="number">11</span>:<span class="number">53</span>:<span class="number">05</span></span><br><span class="line">Enter &quot;.help&quot; <span class="keyword">for</span> instructions</span><br><span class="line">Enter <span class="keyword">SQL</span> statements terminated <span class="keyword">with</span> a &quot;;&quot;</span><br><span class="line">sqlite<span class="operator">&gt;</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> work_queue;</span><br><span class="line"><span class="number">5046</span><span class="operator">|</span>(file<span class="operator">-</span>install Resources<span class="operator">/</span>pc<span class="operator">/</span>base<span class="operator">/</span>effects<span class="operator">/</span><span class="number">500000001.</span>unity3d <span class="number">1</span> <span class="number">0</span> <span class="number">1</span> <span class="number">1</span>)</span><br><span class="line">sqlite<span class="operator">&gt;</span> <span class="keyword">delete</span> <span class="keyword">from</span> work_queue;</span><br></pre></td></tr></table></figure>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/104">Ahorra agua. No te duches solo.</a></p>
+
       
     </div>
 
@@ -792,7 +774,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
               </span>
 
           
@@ -864,7 +846,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
               </span>
 
           
@@ -878,95 +860,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="Lua版本的年表"><a href="#Lua版本的年表" class="headerlink" title="Lua版本的年表"></a>Lua版本的年表</h2><p><img src="https://user-images.githubusercontent.com/11263320/111862027-7c13d280-898d-11eb-9cab-ab361a8372b6.png" alt="timeline"></p>
-<p>Lua的<a target="_blank" rel="noopener" href="https://www.lua.org/versions.html">发行版</a>编号为x.y.z，其中x.y是版本，而z是发行版。<br>同一版本的不同发行版对应于错误修复。同一版本的不同发行版具有相同的参考手册，相同的虚拟机.<br><a target="_blank" rel="noopener" href="https://www.lua.org/doc/hopl.pdf">不同的版本</a>实际上是不同的。API可能略有不同。虚拟机在新版本中也很有可能会有所不同。</p>
-<p><img src="https://user-images.githubusercontent.com/11263320/111866533-1d5c5200-89a9-11eb-8a0b-66d34a0748b5.png" alt="table1"></p>
-<h2 id="Lua-1"><a href="#Lua-1" class="headerlink" title="Lua 1"></a>Lua 1</h2><p>1.1 这是Lua的第一个公开版本，已经具有强大的数据描述结构，简单的语法和字节码虚拟机。<br>Lua中的所有语句都在全局环境中执行。<br>这个版本已经具有垃圾回收功能（标记-清除垃圾回收算法）。</p>
-<h2 id="Lua-2"><a href="#Lua-2" class="headerlink" title="Lua 2"></a>Lua 2</h2><p>2.1 ：通过fallbacks扩展语义以及对面向对象编程的支持。<br>2.2 ：长字符串，调试接口，更好的堆栈回溯，扩展的函数定义语法，函数的垃圾回收以及对管道的支持。<br>2.4 ：实现外部编译器luac，带有钩子的扩展调试接口以及“ getglobal”后备功能。<br>2.5 ：实现模式匹配和vararg函数。</p>
-<h2 id="Lua-3"><a href="#Lua-3" class="headerlink" title="Lua 3"></a>Lua 3</h2><p>3.0 ：tag methods替代fallbacks，可以作为后备功能的有力替代。引入auxlib（一个用于帮助编写Lua库的库），并支持条件编译。<br>3.1 ：实现匿名函数和通过“ upvalues”关闭函数。支持多种全局环境。代码重组和清理，大大减少了module 之间的依赖性。采用double精度表示数字整型。<br>3.2 ：实现调试库和表的新功能。</p>
-<h2 id="Lua-4"><a href="#Lua-4" class="headerlink" title="Lua 4"></a>Lua 4</h2><p>4.0 ：实现多重状态，为那些需要多份Lua state的应用而设计的新API。设计了一个for循环，它有两种方式：一个数字式的循环以及一个表遍历的循环。对C API重新设计了，不再有任何内置函数，所有标准库都是基于C API实现，没有通过特别的后门去访问Lua内部结构。</p>
-<h2 id="Lua-5"><a href="#Lua-5" class="headerlink" title="Lua 5"></a>Lua 5</h2><p>5.0 ：实现协程，完善词法作用域（而不是upvalues）和元表（而不是tags and tag methods）。引入了布尔值，完善尾调用和弱表。对packages的更好支持，用于加载Lua块的新API，新的错误处理协议，更好的错误消息等等。vm改为基于寄存器。<br>5.1 ：实现新的module系统，实现增量垃圾回收系统，新的varargs机制，新的长字符串和注释语法，mod和length运算符，所有类型的元表，通过luaconf.h配置方案和一个完全可重入的解析器。<br>5.2 ：实现可调用的pcall和元方法，用于全局变量的词法方案，暂时表，位运算新库，轻量级C函数，紧急垃圾回收器，goto语句和表的终结器。<br>5.3 ：实现整数，按位运算符，基本的utf-8库以及对64位和32位平台的支持。<br>5.4 ：实现新的增量垃圾回收，const，将要关闭的变量。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/4d7ca723.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/4d7ca723.html" class="post-title-link" itemprop="url">lua使用优化</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-03-01 11:28:16" itemprop="dateCreated datePublished" datetime="2021-03-01T11:28:16+00:00">2021-03-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="堆栈溢出"><a href="#堆栈溢出" class="headerlink" title="堆栈溢出"></a>堆栈溢出</h2><p>我们在运行lua的时候，有可能遇到这样一种报错 “stack overflow”，先看看下面一段代码</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">func_r</span><span class="params">(a)</span></span></span><br><span class="line">    a = a + <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> a &gt; <span class="number">100000</span> <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">print</span>(a)</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        func_r(a)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> a</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"> </span><br><span class="line">x = <span class="number">1</span></span><br><span class="line">func_r(x)</span><br></pre></td></tr></table></figure>
-<p>语法上的确没有任何问题，但在执行的时候就会出现 stack overflow 的报错。是什么原因导致堆栈溢出呢？这个就要追究到Lua源码：Lua虚拟机会对堆栈进行一系列的检查（函数：luaL_checkstack），错误类型就有：<br>“too many arguments”，<br>“assume array is smaller than 2^40 “，<br>“string slice too long”，<br>“too many captures”，<br>“too many arguments to script”，<br>“too many nested functions”<br>例如，上面的代码就属于递归嵌套次数太多，默认限制20000。</p>
-<h2 id="不支持边遍历表边删除表中字段"><a href="#不支持边遍历表边删除表中字段" class="headerlink" title="不支持边遍历表边删除表中字段"></a>不支持边遍历表边删除表中字段</h2><p>当在遍历表的时候为不存在的字段赋值时，next的遍历顺序是未知的，然而，你可以在遍历时修改已有的字段，或者，你可以删除已经存在的字段。</p>
-<h2 id="使用局部变量local"><a href="#使用局部变量local" class="headerlink" title="使用局部变量local"></a>使用局部变量local</h2><p>这是最基础也是最有用的策略，虽然使用全局变量并不能完全避免，但还是应该尽量避免，取而代之使用局部变量即local。这里的局部变量也包括函数function，因为在Lua里函数也是一个变量。局部变量的存取会更快，而且在生命周期之外就会释放掉。</p>
-<h2 id="尾调用消除"><a href="#尾调用消除" class="headerlink" title="尾调用消除"></a>尾调用消除</h2><p>Lua中的函数调用有两种，一种是标准的函数调用，它会需要生成新的一层调用栈，执行函数流程，然后弹出调用栈返回。另一种叫做尾调用，它是对标准函数调用的优化。尾调用不生成新的调用栈，而不复用当前的。在大多数函数式编程语言中，都需要对尾调用做特别优化。因为函数式语言特别依赖函数的层层调用，甚至用尾调用的方式来做循环。传统方式每次函数调用都需要生成新的栈帧，容易造成栈溢出。 尾调用可以看作C中的goto。</p>
-<p>当一个函数调用是另一个函数的最后一个动作时，该调用才算是一条“尾调用”。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--尾调用</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f</span><span class="params">(x)</span></span> <span class="keyword">return</span> g(x) <span class="keyword">end</span></span><br><span class="line"><span class="comment">--不是尾调用</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f</span><span class="params">(x)</span></span> g(x) <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>也就是说，当f调用完g之后就再无其他事情可做了。因此在这种情况中，程序就不需要返回那个“尾调用”所在的函数了。所以在“尾调用”之后，程序也不需要保存任何关于该函数的栈信息了。当g返回时，执行控制权可以直接返回到调用f的那个点上。使得在进行“尾调用”时不耗费任何栈空间。将这种实现称为支持“尾调用消除”。</p>
-<h2 id="传参时，少用…"><a href="#传参时，少用…" class="headerlink" title="传参时，少用…"></a>传参时，少用…</h2><p>…用于可变参数。如果在传参数过多时，为了方便使用…，会降低代码可读性（寻找参数）。</p>
-<h2 id="少用字符串连接操作符"><a href="#少用字符串连接操作符" class="headerlink" title="少用字符串连接操作符"></a>少用字符串连接操作符</h2><p>从lua字符串的<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/112">实现</a>可知，运用字符串连接操作符每一次都会生成一个新的字符串。可使用table来模拟字符串缓冲区，避免了大量使用连接操作符。table.concat()。</p>
-<h2 id="table使用预填充技术"><a href="#table使用预填充技术" class="headerlink" title="table使用预填充技术"></a>table使用预填充技术</h2><p>Lua解释器背着我们会对表进行重新散列的动作， <a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/110">lua Table</a>新增元素有详细解释。一个整数的key在同一个表中不同的阶段可能被分配到数组或者散列桶部分。<br>而这个操作的代价是挺大的。<br>如下面的代码：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> a = &#123;&#125;</span><br><span class="line"><span class="keyword">for</span> i=l,<span class="number">3</span> <span class="keyword">do</span></span><br><span class="line">    a[i] = <span class="literal">true</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>最开始，Lua创建了一个空表a。在第一次迭代中，a[1]为 true触发了一次重新散列操作，Lua将数组部分的长度设置为2^0 ，即 1，散列表部分仍为空。在第二次迭代中，a[2]为true再次触发了重新散列操作，将数组部分长度设为 2^1，即2。最后一次迭代又触发了一次重新散列操作，将数组部分长度设为2^2 ，即4。<br>只有三个元素的表会执行三次重新散列操作，然而有 100万个元素的表仅仅只会执行20次重新散列操作而已，因为2”20 = 1048576 &gt; 1000000。 但是，如果创建了非常多的长度很小的表（比如坐标点： point = {x=0, y=0｝），这可能会造成巨大的影响。所以，当需要创建非常多的小表时，应预先填充好表的大小，减少解释器被动地进行重新散列操作的过程。<br>如果你有很多很小的表需要创建，就可以预先填充以避免重新散列操作。比如：｛true, true,true}，Lua知道这个表有3个元素，所以直接创建了3个元素的数组。 类似地，｛ X=l, y=2, z＝3，}，Lua会在其散列表部分中创建长度为3的数组。<br>所以，上述代码使用了预填充技术为：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> a = &#123;<span class="number">1</span>，<span class="number">2</span>，<span class="number">3</span>&#125;</span><br><span class="line"><span class="keyword">for</span> i=l,<span class="number">3</span> <span class="keyword">do</span></span><br><span class="line">    a[i] = <span class="literal">true</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<h2 id="限制require到别的模块"><a href="#限制require到别的模块" class="headerlink" title="限制require到别的模块"></a>限制require到别的模块</h2><p>手工编写服务表，防止Require到别的服务的lua模块<br>REQUIRE_CHECK_LIST = {<br>    [“A”] = true,<br>    [“B”] = true,<br>}</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> realrequire = <span class="built_in">require</span></span><br><span class="line"><span class="keyword">local</span> <span class="built_in">loaded</span> = <span class="built_in">package</span>.<span class="built_in">loaded</span></span><br><span class="line"><span class="built_in">require</span> = <span class="function"><span class="keyword">function</span> <span class="params">( moduleName )</span></span></span><br><span class="line">	<span class="keyword">local</span> loadedModule = <span class="built_in">loaded</span>[moduleName]</span><br><span class="line">	<span class="keyword">if</span> loadedModule ~= <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">		<span class="keyword">return</span> loadedModule</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="keyword">local</span> header = moduleName:<span class="built_in">match</span>(<span class="string">&quot;([^%.]*)%..*&quot;</span>)</span><br><span class="line">		<span class="keyword">if</span>  REQUIRE_CHECK_LIST[header] <span class="keyword">then</span></span><br><span class="line">			<span class="built_in">print</span>(try to <span class="built_in">require</span> others service)</span><br><span class="line">		<span class="keyword">end</span></span><br><span class="line">		<span class="keyword">return</span> realrequire(moduleName)</span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+          <p>这里记录下lua的进化历史。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/e3bb7f2d.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1051,7 +953,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

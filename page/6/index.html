@@ -196,7 +196,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -211,33 +211,14 @@
 
       
           <p>skynet跟mq扮演的角色类似，每个skynet进程维护了一个MQ，会dispatch msg到每个skynet_context的私有mq。有skynet就没必要再在自己项目里引入MQ了。<br>skynet 支持两种集群模式。</p>
-<h2 id="master-slave-模式（局域网）"><a href="#master-slave-模式（局域网）" class="headerlink" title="master/slave 模式（局域网）"></a>master/slave 模式（局域网）</h2><p>当单台机器的处理能力达到极限后，可以考虑通过内置的 master/slave 机制来扩展。具体的配置方法见 Config 。<br>集群服务用到的配置项：</p>
-<ul>
-<li>cluster 它决定了集群配置文件的路径。</li>
-<li>standalone 如果把这个 skynet 进程作为主进程启动（skynet 可以由分布在多台机器上的多个进程构成网络），那么需要配置standalone 这一项，表示这个进程是主节点，它需要开启一个控制中心，监听一个端口，让其它节点接入。</li>
-<li>master 指定 skynet 控制中心的地址和端口，如果你配置了 standalone 项，那么这一项通常和 standalone 相同。</li>
-</ul>
-<p>每个 skynet 进程都是一个 slave 节点。但其中一个 slave 节点可以通过配置 standalone 来多启动一个 cmaster 服务，用来协调 slave 组网。对于每个 slave 节点，都内置一个 harbor 服务用于和其它 slave 节点通讯。<br>每个 skynet 服务都有一个全网唯一的地址，这个地址是一个 32bit 数字，其高 8bit 标识着它所属 slave 的号码。即 harbor id 。在 master/slave 网络中，id 为 0 是保留的。所以最多可以有 255 个 slave 节点。<br>在 master/slave 模式中，节点内的消息通讯和节点间的通讯是透明的。skynet 核心会根据目的地址的 harbor id 来决定是直接投递消息，还是把消息转发给 harbor 服务。<br>不要把这个模式用于跨机房的组网。所有 slave 节点都应该在同一局域网内（最好在同一交换机下）。不应该把系统设计成可以任意上线或下线 slave 的模式。<br>slave 的组网机制也限制了这一点。如果一个 slave 意外退出网络，这个 harbor id 就被废弃，不可再使用。这样是为了防止网络中其它服务还持有这个断开的 slave 上的服务地址；而一个新的进程以相同的 harbor id 接入时，是无法保证旧地址和新地址不重复的。</p>
-<p>cluster 模式<br>cluster 模块，它大部分用 lua 编写，只有通讯协议处理的部分涉及一个很小的 C 模块。<br>它的工作原理是这样的：<br>在每个 skynet 节点（单个进程）内，启动一个叫 clusterd 的服务。所有需要跨进程的消息投递都先把消息投递到这个服务上，再由它来转发到网络。</p>
-<p>要使用它之前，你需要编写一个 cluster 配置文件，配置集群内所有节点的名字和对应的监听端口。并将这个文件事先部署到所有节点</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db = <span class="string">&quot;127.0.0.1:2528&quot;</span></span><br></pre></td></tr></table></figure>
-<p>接下来，你需要在 db 的启动脚本里写上 cluster.open “db”<br>有两种方式可以访问到这个节点</p>
-<ul>
-<li>可以通过 cluster.call(nodename, service, …) 提起请求。这里 nodename 就是在配置表中给出的节点名。service 可以是一个字符串，或者直接是一个数字地址（如果你能从其它渠道获得地址的话）。当 service 是一个字符串时，只需要是那个节点可以见到的服务别名，可以是全局名或本地名。但更推荐是 . 开头的本地名，因为使用 cluster 模式时，似乎没有特别的理由还需要在那个节点上使用 master/slave 的架构（全局名也就没有特别的意义）。cluster.call 有可能因为 cluster 间连接不稳定而抛出 error 。但一旦因为 cluster 间连接断开而抛出 error 后，下一次调用前 cluster 间会尝试重新建立连接。</li>
-<li>可以通过 cluster.proxy(nodename, service) 生成一个本地代理。之后，就可以像访问一个本地服务一样，和这个远程服务通讯。但向这个代理服务 send 消息，有可能因为 cluster 间的连接不稳定而丢失。详见 cluster.send 的说明。</li>
-<li>如果想单向推送消息，可以调用 cluster.send(nodename, service, …) 。但注意，跨越节点推送消息有丢失消息的风险。因为 cluster 基于 tcp 连接，当 cluster 间的连接断开，cluster.send 的消息就可能丢失。而这个函数会立刻返回，所以调用者没有机会知道发送出错。</li>
-</ul>
-<p>Cluster 是去中心化的，所以需要在每台机器上都放置一份配置文件（通常是相同的）。通过调用 cluster.reload 可以让本进程重新加载配置。如果你修改了每个节点名字对应的地址，那么 reload 之后的请求都会发到新的地址。而之前没有收到回应的请求还是会在老地址上等待。如果你老的地址已经无效（通常是主动关闭了进程）那么请求方会收到一个错误。</p>
-<h2 id="某个节点配置多个通道"><a href="#某个节点配置多个通道" class="headerlink" title="某个节点配置多个通道"></a>某个节点配置多个通道</h2><p>在skynet框架中使用cluster模式，经常有消息在节点之间传递。大部分情况，我们在节点A和节点B之间只需要建立一个连接通道，但是在有些时候我们希望让一些比较独立的业务能占用一条单独的通道进行处理，不希望跟到正常的业务逻辑去抢通道资源。这个时候，我们就需要为某个节点配置多个通道了。</p>
-<p>比如，我们要在节点A中再开辟一条连接连通节点B的通道，由于一条通道就是一条tcp连接，所以我们需要为节点B再配置一个端口。我们打开集群的cluster配置文件，添加一个节点B的记录，新分配一个端口：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nodea &#x3D; &quot;127.0.0.1:50653&quot;</span><br><span class="line">nodeb &#x3D; &quot;127.0.0.1:50654&quot;</span><br><span class="line">nodeb2&#x3D; &quot;127.0.0.1:50655&quot;</span><br></pre></td></tr></table></figure>
-<p>然后重新启动节点，在节点B的启动脚本中，我们也需要在集群中打开nodeb2：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster.open(&quot;nodeb2&quot;)</span><br></pre></td></tr></table></figure>
-<p>然后，在节点A中，我们就可以进行跨节点访问了，这个时候，我们可以分别用nodeb和nodeb2进行访问，框架将使用2条tcp通道进行分别处理。你也可以使用netsta命令，查看nodeb和nodeb2的连接情况。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cluster.call(&quot;nodeb&quot;,&quot;.main&quot;,&quot;xxxxxx&quot;)</span><br><span class="line">cluster.call(&quot;nodeb2&quot;,&quot;.main&quot;,&quot;xxxxxx&quot;)</span><br></pre></td></tr></table></figure>
-<h2 id="关于cluster的实现"><a href="#关于cluster的实现" class="headerlink" title="关于cluster的实现"></a>关于cluster的实现</h2><p>为什么要cluster：<br>除非你的业务本来就是偏重 IO 的，也就是你根本不打算利用单台硬件的多核心优势来增强计算力，抹平本机和网络的差异是没有意义的。无论硬件怎样发展，你都不可能看到主板上的总线带宽和 TCP 网络的带宽工作在同一数量级的那一天，因为这是物理基本规律决定的。<br>当你的业务需要高计算力，把 actor 放在一台机器上才可以正常的发挥 CPU 能力去合作；如果你的系统又需要分布式扩展，那么一定是有很多组独立无关的业务可以平行处理。这两类工作必须由构架系统的人自己想清楚，规划好怎么部署这些 actor ，而不可能随手把 actor 扔在分布式系统中，随便挑台硬件运行就够了。<br>恰巧网络游戏服务就是这种业务类型。多组服务器、多个游戏场景之间交互很弱，但其中的个体又需要很强的计算力。这就是 skynet 切合的应用场景。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>skynet 的核心层之上，设计了 cluster 模块。它大部分用 lua 编写，只有通讯协议处理的部分涉及一个很小的 C 模块。用 Lua 编写可以提高系统的可维护性，和网络通讯的带宽相比，Lua 相对 C 在处理数据包的性能降低是微不足道的。<br>在每个 skynet 节点（单个进程）内，启动一个叫 clusterd 的服务。所有需要跨进程的消息投递都先把消息投递到这个服务上，再由它来转发到网络。</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/e9005ae.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -287,7 +268,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -302,21 +283,14 @@
 
       
           <p>skynet有两种方法热更新lua代码，clearcache和inject，文章分别对这两种方法做说明。</p>
-<h2 id="clearcache热更新"><a href="#clearcache热更新" class="headerlink" title="clearcache热更新"></a>clearcache热更新</h2><p>讲这个前，先说明下skynet代码加载的事情。因为skynet的每个服务都是一个独立的lua虚拟机，对于同一份lua代码，N个服务就要加载lua文件N次，所以，skynet做了优化，代码文件只需要加载一次到内存，其他服务复制这份内存就可以了，省了读取lua文件和解析lua语法的过程。</p>
-<p>clearcache 使用很简单，启动skynet，连接到其控制台：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">clearcache</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
-<p>但clearcache有个不可忽视的问题，每次clearcache后，不管代码有没有用到，skynet不会清理旧的内存。这会导致了多次clearcache后，skynet内存使用会越来越大<br>这是为什么？因为clearcache后，只有新起的服务会用到新代码，旧的服务还引用着旧代码。而skynet没有做引用GC的复杂逻辑，在旧服务销毁时，没有清理用不到的旧代码。</p>
-<p>或许你会很好奇，clearcache 没清的内存到底是啥？<br>这要从skynet代码共享说起，skynet加载lua代码时，对于一个代码文件使用了一个新的vm加载，然后以文件名作为key将代码索引到全局的vm中。这样，当有服务需要代码了，就从全局vm找到代码，复制一份到服务。而clearcache，就是删除这个全局的vm，然后再重建一个。这么做的好处是，执行clearcache后，不影响已有服务的运行。问题是，全局vm删了，这个vm索引的所有代码没有清理，这样，那些加载代码用的vm没做清理。</p>
-<h2 id="inject热更新"><a href="#inject热更新" class="headerlink" title="inject热更新"></a>inject热更新</h2><p>inject命令相当于注入代码到服务中，原理就是让指定服务执行某个代码文件，通过修改模块及其函数的upvalue，完成对lua模块代码或变量的替换。这个命令我在前面的文章[1]有详细介绍。<br>inject用法很简单，启动skynet，连接到其控制台:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">list</span><br><span class="line">:00000004       snlua cmaster</span><br><span class="line">:00000005       snlua cslave</span><br><span class="line">:00000007       snlua datacenterd</span><br><span class="line">:00000008       snlua service_mgr</span><br><span class="line">:0000000a       snlua protoloader</span><br><span class="line">:0000000b       snlua console</span><br><span class="line">:0000000c       snlua debug_console 8000</span><br><span class="line">:0000000d       snlua simpledb</span><br><span class="line">OK</span><br><span class="line">inject :0000000d example/inject_simpledb.lua</span><br></pre></td></tr></table></figure>
-<p>inject命令的难点是，这个要注入的lua代码该怎么写。<br>下面直接改写skynet自带的example做说明：</p>
-<h1 id="cat-examples-simpledb-lua"><a href="#cat-examples-simpledb-lua" class="headerlink" title="cat examples/simpledb.lua"></a>cat examples/simpledb.lua</h1><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> skynet = <span class="built_in">require</span> <span class="string">&quot;skynet&quot;</span></span><br><span class="line"><span class="built_in">require</span> <span class="string">&quot;skynet.manager&quot;</span> </span><br><span class="line"><span class="keyword">local</span> db = &#123;&#125;</span><br><span class="line"><span class="keyword">local</span> command = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 增加了这里</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span><span class="params">(msg)</span></span></span><br><span class="line">        <span class="built_in">print</span>(msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment">-- 增加了这里</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">command.do_test</span><span class="params">(msg)</span></span></span><br><span class="line">        test(msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">skynet.start(<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">        skynet.dispatch(<span class="string">&quot;lua&quot;</span>, <span class="function"><span class="keyword">function</span><span class="params">(session, address, cmd, ...)</span></span></span><br><span class="line">                <span class="keyword">local</span> f = command[<span class="built_in">string</span>.<span class="built_in">upper</span>(cmd)]</span><br><span class="line">                <span class="keyword">if</span> f <span class="keyword">then</span></span><br><span class="line">                        skynet.ret(skynet.pack(f(...)))</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                        <span class="built_in">error</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;Unknown command %s&quot;</span>, <span class="built_in">tostring</span>(cmd)))</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line">        <span class="comment">-- 增加了这里</span></span><br><span class="line">        skynet.fork(<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">                <span class="keyword">while</span> <span class="literal">true</span> <span class="keyword">do</span></span><br><span class="line">                        skynet.sleep(<span class="number">100</span>)</span><br><span class="line">                        command.do_test(<span class="string">&quot;itest!&quot;</span>)</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line">        skynet.register <span class="string">&quot;SIMPLEDB&quot;</span></span><br><span class="line"><span class="keyword">end</span>)</span><br></pre></td></tr></table></figure>
-<p>假设以上的 command.do_test 就是我们要热更改掉的函数。那用于inject的lua代码如下：</p>
-<h1 id="cat-inject-test-lua"><a href="#cat-inject-test-lua" class="headerlink" title="cat inject_test.lua"></a>cat inject_test.lua</h1><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> _P <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;hotfix fail, no _P define&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;hotfix begin&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 用于获取函数变量</span></span><br><span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">get_up</span><span class="params">(f)</span></span></span><br><span class="line">        <span class="keyword">local</span> u = &#123;&#125;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> f <span class="keyword">then</span></span><br><span class="line">                <span class="keyword">return</span> u</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">local</span> i = <span class="number">1</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">true</span> <span class="keyword">do</span></span><br><span class="line">                <span class="keyword">local</span> name, value = <span class="built_in">debug</span>.<span class="built_in">getupvalue</span>(f, i)</span><br><span class="line">                <span class="keyword">if</span> name == <span class="literal">nil</span> <span class="keyword">then</span></span><br><span class="line">                        <span class="keyword">return</span> u</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">                u[name] = value</span><br><span class="line">                i = i + <span class="number">1</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">return</span> u</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 获取原来的函数地址，及函数变量</span></span><br><span class="line"><span class="keyword">local</span> command = _P.lua.command</span><br><span class="line"><span class="keyword">local</span> upvs = get_up(command.do_test)</span><br><span class="line"><span class="keyword">local</span> test = upvs.test</span><br><span class="line"></span><br><span class="line">command.do_test = <span class="function"><span class="keyword">function</span><span class="params">(msg)</span></span></span><br><span class="line">    test(<span class="string">&#x27;New &#x27;</span> .. msg)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;hotfix end&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>启动控制台，执行inject后，就会看到类似下面的skynet的日志：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ./skynet examples/config</span></span><br><span class="line">[:00000001] LAUNCH logger </span><br><span class="line">[:00000002] LAUNCH snlua bootstrap</span><br><span class="line">[:00000003] LAUNCH snlua launcher</span><br><span class="line">[:00000004] LAUNCH snlua cmaster</span><br><span class="line">[:00000005] LAUNCH snlua cslave</span><br><span class="line">[:00000006] LAUNCH harbor 1 16777221</span><br><span class="line">[:00000007] LAUNCH snlua datacenterd</span><br><span class="line">[:00000008] LAUNCH snlua service_mgr</span><br><span class="line">[:00000009] LAUNCH snlua main</span><br><span class="line">[:0000000a] LAUNCH snlua protoloader</span><br><span class="line">[:0000000b] LAUNCH snlua console</span><br><span class="line">[:0000000c] LAUNCH snlua debug_console 8000</span><br><span class="line">[:0000000d] LAUNCH snlua simpledb</span><br><span class="line">[:0000000e] LAUNCH snlua watchdog</span><br><span class="line">[:0000000f] LAUNCH snlua gate</span><br><span class="line">[:0000000f] Listen on 0.0.0.0:8888</span><br><span class="line">Watchdog listen on      8888</span><br><span class="line">[:00000009] KILL self</span><br><span class="line">[:00000002] KILL self</span><br><span class="line">itest!</span><br><span class="line">itest!</span><br><span class="line">itest!</span><br><span class="line">New itest!</span><br><span class="line">New itest!</span><br></pre></td></tr></table></figure>
-<p>通过前面的分析，我们知道了，clearcache和inject两种方法都可以热更代码。clearcache比较简单，但这种方法对于已有的服务是没有效果的，只有在新的服务才生效。而inject可以热更已有的服务，但不管是inject脚本的编写，还是inject命令的执行，都相对比较繁琐。所以要根据实际的需求，选择适合的方法热更lua代码。</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/eb9dcede.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -366,7 +340,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -381,37 +355,14 @@
 
       
           <p>skynet 自带了一个控制台服务，可以很方便获取和调试 skynet 运行数据，而且可以热更新代码，所以，弄明白skynet控制台管理可以让你更好地使用skynet，甚至改进这个控制台服务，以满足不同业务需求。</p>
-<p>这个服务默认不会启动，需要你手动启动它，如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">skynet.newservice(&quot;debug_console&quot;, 8000)</span><br></pre></td></tr></table></figure>
-<p>设计原因，调试控制台只监听本地地址 127.0.0.1 ，如果需要远程使用，需要先登录到本机，然后再连接。</p>
-<p>使用时，通过 telnet 或 nc 登录调试控制台，启动后显示：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br></pre></td></tr></table></figure>
-<p>表示连接成功。</p>
-<p>注：skynet控制台不能使用上下键回溯历史命令，退格键也不能使用（改用删除键）等等，这是由于 skynet 使用了自己的 IO 库，很难接入 libreadline （不能在 readline 的 hook 中 yield）。如果希望在控制台中使用 readline 的 history 等特性，可以自己使用 rlwrap 。</p>
-<p>这时，你可以输入调试指令，输入 help 可以列出目前支持的所有指令。（不同版本结果不同）</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">help</span><br><span class="line">clearcache      clear lua code cache</span><br><span class="line">cmem    Show C memory info</span><br><span class="line">debug   debug address : debug a lua service</span><br><span class="line">exit    exit address : kill a lua service</span><br><span class="line">gc      gc : force every lua service do garbage collect</span><br><span class="line">help    This help message</span><br><span class="line">info    Info address : get service infomation</span><br><span class="line">inject  inject address luascript.lua</span><br><span class="line">kill    kill address : kill service</span><br><span class="line">list    List all the service</span><br><span class="line">logoff  logoff address</span><br><span class="line">logon   logon address</span><br><span class="line">mem     mem : show memory status</span><br><span class="line">service List unique service</span><br><span class="line">signal  signal address sig</span><br><span class="line">snax    lanuch a new snax service</span><br><span class="line">start   lanuch a new lua service</span><br><span class="line">stat    Dump all stats</span><br><span class="line">task    task address : show service task detail</span><br></pre></td></tr></table></figure>
-<p>命令的一般格式是 命令 地址 ，有些命令不带地址，会针对所有的服务。当输入地址时，可以使用 :01000001 这样的格式指代一个服务地址：由冒号开头的 8 位 16 进制数字，也可以省略前面两个数字的 harbor id 以及接下来的连续 0 ，比如 :01000001 可以简写为 1 。所有活动的服务可以输入 list 列出。</p>
-<p>常用的通用指令：<br>list 列出所有服务，以及服务的启动参数。<br>gc 对所有 lua 服务执行gc，并列出gc后所有服务的内存情况。<br>mem 列出所有 lua 服务的内存占用情况。（注：只获取 lua 服务的 lua vm 内存占用情况，如果需要 C 模块中内存使用情况，使用cmem。）<br>stat 列出所有 lua 服务的消息队列长度，以及被挂起的请求（协程）数量。<br>service 列出所有的唯一 lua 服务。<br>注意，由于这些指令是逐个向每个服务发送消息并等待回应，所以当某个 lua 服务过载时，可能需要等待很长时间才有返回。</p>
-<p>针对单个 lua 服务的指令：<br>exit address 退出指定 lua 服务<br>kill address 强制中止指定 lua 服务。<br>info address 让指定 lua 服务输出自己的内部信息（数据通过回调服务内 skynet.info_func 生成）<br>signal address sig 向服务发送一个信号，sig 默认为 0 。当一个服务陷入死循环时，默认信号会打断正在执行的 lua 字节码，并抛出 error 显示调用栈。这是针对 endless loop 的 log 的有效调试方法。（注：这里的信号并非系统信号。）<br>task address 显示一个服务中所有被挂起的请求的调用栈。<br>debug address 针对一个 lua 服务启动内置的单步调试器。<br>logon/logoff address 记录一个服务所有的输入消息（source, type, session, data, size）到文件。（生成文件的路径地址取配置 logpath） 。<br>inject address script 将 script 对应的脚本插入到指定服务中运行（通常可用于热更新补丁）。</p>
-<p>这里重点说下 info address 和 inject address script，这两个命令很重要。</p>
-<h2 id="获取服务内部数据-info-address"><a href="#获取服务内部数据-info-address" class="headerlink" title="获取服务内部数据 - info address"></a>获取服务内部数据 - info address</h2><p>前面提到，这个命令让指定 lua 服务输出自己的内部信息，数据通过回调服务内 skynet.info_func 生成。<br>下面以 example/simpledb.lua做说明，这是个典型的skynet服务。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> skynet = <span class="built_in">require</span> <span class="string">&quot;skynet&quot;</span></span><br><span class="line"><span class="built_in">require</span> <span class="string">&quot;skynet.manager&quot;</span>    <span class="comment">-- import skynet.register</span></span><br><span class="line"><span class="keyword">local</span> db = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">local</span> command = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">command.GET</span><span class="params">(key)</span></span></span><br><span class="line">  <span class="keyword">return</span> db[key]</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">command.SET</span><span class="params">(key, value)</span></span></span><br><span class="line">  <span class="keyword">local</span> last = db[key]</span><br><span class="line">  db[key] = value</span><br><span class="line">  <span class="keyword">return</span> last</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 新增的代码 -- start</span></span><br><span class="line">skynet.info_func(<span class="function"><span class="keyword">function</span><span class="params">()</span></span> <span class="keyword">return</span> <span class="string">&quot;hello mycwq!&quot;</span> <span class="keyword">end</span>)</span><br><span class="line"><span class="comment">-- 新增的代码 -- end</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">skynet.start(<span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">  skynet.dispatch(<span class="string">&quot;lua&quot;</span>, <span class="function"><span class="keyword">function</span><span class="params">(session, address, cmd, ...)</span></span></span><br><span class="line">    <span class="keyword">local</span> f = command[<span class="built_in">string</span>.<span class="built_in">upper</span>(cmd)]</span><br><span class="line">    <span class="keyword">if</span> f <span class="keyword">then</span></span><br><span class="line">      skynet.ret(skynet.pack(f(...)))</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      <span class="built_in">error</span>(<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">&quot;Unknown command %s&quot;</span>, <span class="built_in">tostring</span>(cmd)))</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span>)</span><br><span class="line">  skynet.register <span class="string">&quot;SIMPLEDB&quot;</span></span><br><span class="line"><span class="keyword">end</span>)</span><br></pre></td></tr></table></figure>
-<p>启动example例子，连接控制台</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">list</span><br><span class="line">:00000004       snlua cmaster</span><br><span class="line">:00000005       snlua cslave</span><br><span class="line">:00000007       snlua datacenterd</span><br><span class="line">:00000008       snlua service_mgr</span><br><span class="line">:0000000a       snlua protoloader</span><br><span class="line">:0000000b       snlua console</span><br><span class="line">:0000000c       snlua debug_console 8000</span><br><span class="line">:0000000d       snlua simpledb</span><br><span class="line">:0000000e       snlua watchdog</span><br><span class="line">:0000000f       snlua gate</span><br><span class="line">OK</span><br><span class="line">info :0000000d</span><br><span class="line">hello mycwq!</span><br></pre></td></tr></table></figure>
-<h2 id="代码热更新-inject-address-script"><a href="#代码热更新-inject-address-script" class="headerlink" title="代码热更新 - inject address script"></a>代码热更新 - inject address script</h2><p>前面提到，这个命令将 script 对应的脚本插入到指定服务中运行<br>下面写个简单的inject例子，保存为 example/inject_simpledb.lua</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> _P <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">print</span> <span class="string">&quot;inject error!!&quot;</span></span><br><span class="line">  <span class="keyword">return</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">local</span> command = _P.lua.command</span><br><span class="line">command.TEST = <span class="function"><span class="keyword">function</span><span class="params">()</span></span> <span class="keyword">return</span> <span class="string">&quot;TEST&quot;</span> <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;inject ok!&quot;</span></span><br></pre></td></tr></table></figure>
-<p>启动example例子，连接控制台</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">list</span><br><span class="line">:00000004       snlua cmaster</span><br><span class="line">:00000005       snlua cslave</span><br><span class="line">:00000007       snlua datacenterd</span><br><span class="line">:00000008       snlua service_mgr</span><br><span class="line">:0000000a       snlua protoloader</span><br><span class="line">:0000000b       snlua console</span><br><span class="line">:0000000c       snlua debug_console 8000</span><br><span class="line">:0000000d       snlua simpledb</span><br><span class="line">:0000000e       snlua watchdog</span><br><span class="line">:0000000f       snlua gate</span><br><span class="line">OK</span><br><span class="line">inject :0000000d example/inject_simpledb.lua</span><br><span class="line">inject ok!</span><br></pre></td></tr></table></figure>
-<h2 id="使用-rlwrap-强化-skynet-控制台"><a href="#使用-rlwrap-强化-skynet-控制台" class="headerlink" title="使用 rlwrap 强化 skynet 控制台"></a>使用 rlwrap 强化 skynet 控制台</h2><p>前面提到了skynet控制台不能使用上下键回溯历史命令，退格键也不能使用等，为了弥补这个不足，可以使用 rlwrap<br>这里以 centos做说明， rlwrap依赖 readline，系统必须装有 readline ，在现有很多linux系统，readline都可自动化安装</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install readline-devel  </span><br></pre></td></tr></table></figure>
-<p>rlwrap则需要手动安装，如下</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tar -zxf rlwrap-0.37.tar.gz </span><br><span class="line">cd rlwrap-0.37</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
-<p>以后，skynet控制台的连接方式改成这样，就可以回溯命令了</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> rlwrap nc 127.0.0.1 8000</span></span><br><span class="line">Welcome to skynet console</span><br><span class="line">list</span><br><span class="line">:01000004       snlua cmaster</span><br><span class="line">:01000005       snlua cslave</span><br><span class="line">:01000007       snlua datacenterd</span><br><span class="line">:01000008       snlua service_mgr</span><br><span class="line">:0100000a       snlua protoloader</span><br><span class="line">:0100000b       snlua console</span><br><span class="line">:0100000c       snlua debug_console 8000</span><br><span class="line">:0100000d       snlua simpledb</span><br><span class="line">:0100000e       snlua watchdog</span><br><span class="line">:0100000f       snlua gate</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
-<p>最后，这里列举 rlwrap常用的快捷键：<br>Ctrl+L 清屏，实际是将当前行置顶<br>Ctrl+P 上一条命令<br>Ctrl+N 下一条命令<br>Ctrl+U 从光标处删除到行首<br>Ctrl+W 向前删除一个单词<br>Ctrl+B 光标向前移动一个位置<br>Ctrl+T 光标处字符与前一个字符交换位置<br>Ctrl+Z 后台运行，使用fg调出<br>Ctrl+H 相当于删除键<br>Ctrl+J 相当于回车键<br>Ctrl+O 相当于回车键<br>Ctrl+M 相当于回车键</p>
-<p>追踪业务逻辑<br>skynet.trace() </p>
-<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>目前在 skynet 的内存分配 API 预埋了调试接口。可以通过在 make 时加上预定义宏 MEMORY_CHECK 打开。<br>例如，在 linux 下，可以用 make linux SKYNET_DEFINES=-DMEMORY_CHECK 打开。<br>btw，还有一些同学用 C 编写 lua 扩展模块没有经验，导致 lua 堆栈溢出，最终致使程序崩溃。推荐在编译 lua 的时候加上宏定义：LUA_USE_APICHECK 。</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/7f9f1e3d.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -430,7 +381,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/82e16ca1.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/c4e8baa7.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -444,84 +395,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/82e16ca1.html" class="post-title-link" itemprop="url">skynet http</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-23 14:49:48" itemprop="dateCreated datePublished" datetime="2021-02-23T14:49:48+00:00">2021-02-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>skynet中有http server和http client的代码，用来支持http访问。在分析http之前，要先看一下url库。文件位于skyet/lualib/http/url.lua。<br>skynet 从 v0.5.0 开始提供了简单的 http 服务器的支持。skynet.httpd 是一个独立于 skynet 的，用于 http 协议解析的库，它本身依赖 socket api 的注入。使用它，你需要把读写 socket 的 API 封装好，注入到里面就可以工作。<br>skynet.sockethelper 模块将 skynet 的 Socket API 封装成 skynet.httpd 可以接受的形式：阻塞读写指定的字节数、网络错误以异常形式抛出。</p>
-<h2 id="httpc"><a href="#httpc" class="headerlink" title="httpc"></a>httpc</h2><p>skynet 提供了一个非常简单的 http 客户端模块。你可以用:</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">httpc.request(method, host, uri, recvheader, header, content)</span><br></pre></td></tr></table></figure>
-<p>来提交一个 http 请求，其中</p>
-<ul>
-<li>method 是 “GET” “POST” 等。</li>
-<li>host 为目标机的地址</li>
-<li>uri 为请求的 URI</li>
-<li>recvheader 可以是 nil 或一张空表，用于接收回应的 http 协议头。</li>
-<li>header 是自定义的 http 请求头。注：如果 header 中没有给出 host ，那么将用前面的 host 参数自动补上。</li>
-<li>content 为请求的内容。<br>它返回状态码和内容。如果网络出错，则抛出 error 。<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">httpc.dns(server, port)</span><br></pre></td></tr></table></figure>
-可以用来设置一个异步查询 dns 的服务器地址。如果你不给出地址，那么将从 /etc/resolv.conf查找地址。如果你没有调用它设置异步 dns 查询，那么 skynet 将在网络底层做同步查询。这很有可能阻塞住整个 skynet 的网络消息处理（不仅仅阻塞单个 skynet 服务）。<br>另外，httpc 还提供了简单的 httpc.get 以及 httpc.post 的封装，具体可以参考源代码。<br>如果有https的需求，可使用 lua-webclient 它是libcurl multi interface的简单封装，支持单线程，非阻塞的大量http、https请求。<br>httpc 可以通过设置 httpc.timeout 的值来控制超时时间。时间单位为 1/100 秒。</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/f7f65340.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/f7f65340.html" class="post-title-link" itemprop="url">skynet运行与主要线程worker</a>
+            <a href="/post/c4e8baa7.html" class="post-title-link" itemprop="url">skynet worker</a>
         </h2>
 
         <div class="post-meta">
@@ -538,7 +412,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -552,12 +426,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="skynet启动流程"><a href="#skynet启动流程" class="headerlink" title="skynet启动流程"></a>skynet启动流程</h2><p>skynet程序只有skynet-src目录，./skynet ./example/config启动<br>skynet_main.c读取配置文件，设置环境变量，调用skynet_start.c的skynet_start函数<br>skynet_start函数初始基础服务，调用_start函数启动_timer线程、socket线程、_monitor线程以及配置的多个_worker线程开始工作</p>
-<h2 id="skynet运行机制"><a href="#skynet运行机制" class="headerlink" title="skynet运行机制"></a>skynet运行机制</h2><p>skynet每个服务最重要的是设置一个callback函数，服务向另一个服务发消息都会压入这个服务的消息队列，等待_worker线程从全局队列取出一个服务的消息队列，然后再从这个消息队列取出一个消息使用这个服务的callback处理<br>游戏服务器一般会启动一个socket服务教给gate.so管理，socket服务可以接受外部msg传递到内部服务来处理。</p>
-<h2 id="monitor"><a href="#monitor" class="headerlink" title="monitor"></a>monitor</h2><p>skynet对服务的监控做得比较简陋，从设计原则上来说，这样做也是对的，因为框架层能做的，基本就是上报和打日志，上层的业务是变化万千的，不论怎么写，都可能满足不了上层的业务需求。skynet中对服务的监控实现在skynet_monitor.c和skynet_monitor.h中，当服务可能陷入死循环的时候，就打一条日志。<br>每次消息派发，都会调用skynet_monitor_trigger，一共调两次，第一次参数source和destination是真实的值，也就是不为0。第二次调是在消息派发完成的时候，source和destination都赋0。<br>如果第一次trigger调用以后，消息派发迟迟不完成，monitor线程第一次检查，会将check_version的值赋为version。然后monitor线程第二次检查，这个时候version和check_version就会相等，而且这时候destination也不为0，就会进入释放目标服务和打印报警的流程。</p>
-<h2 id="timer"><a href="#timer" class="headerlink" title="timer"></a>timer</h2><p>skynet的timer是做游戏用得比较频繁的一个功能，分析一下它的源码还是有意义的。而且核心的C源码除了timer和网络以外，已经基本分析得差不多了。其它都是跟lua c api相关，或者是跟lua交互比较多的。timer的源码在skynet-timer.c和skynet-timer.h中。<br>skynet的外部定时器是分为两部分存的，一部分存在叫near的数组里，另一部分存在一个二维数组里，分为四个级别。<br>skynet中有一个timer线程，每2.5毫秒就更新一下timer中的时间。每次更新都会对一个叫time的计数器做加1操作，所以这个计数器其实可以当作时间来看待，然后对near数组中的定时器进行触发。</p>
-<p>1.main函数<br>main函数是skynet进程的入口点，它需要一个配置文件的路径作为参数。main函数先做一些内存分配工作，然后加载配置文件里的内容。再把配置文件里的内容设置到lua环境变量_ENV。然后从_ENV里读取配置到c配置中。最后调用skynet_start。<br>2.skynet_start函数<br>skynet_start函数根据配置确定服务是不是以后台方式启动，然后初始化timer/socket/module/mq这些数据结构，给它们分配内存，填充一些必要的字段。下一步创建和注册日志logger服务，这个logger服务是C层实现的。然后创建注册snax服务，做bootstrap操作。最后调用start函数。<br>3.start函数<br>这个函数会启动timer/socket/monitor/worker线程，timer/socket/monitor线程都只有一个，唯独worker线程是多个，在配置文件中以thread=num来配置的。如果配置文件中没有配，就是8个。第个worker线程都有自己的权重值，权重值越大的，给单个服务的时间片越小。<br>线程都启动完以后，就进入pthread_join，等待线程的终止。所有线程终止以后，skynet就会退出。</p>
-
+          <p>这里介绍下skynet的线程。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/c4e8baa7.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -576,7 +453,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/351598c7.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/577e23ed.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -590,7 +467,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/351598c7.html" class="post-title-link" itemprop="url">skynet模块</a>
+            <a href="/post/577e23ed.html" class="post-title-link" itemprop="url">skynet module</a>
         </h2>
 
         <div class="post-meta">
@@ -607,7 +484,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -622,18 +499,14 @@
 
       
           <p>之前已经说过skynet的是做什么的，现在开始从模块上研究skynet的源码。</p>
-<h2 id="skynet各层表现"><a href="#skynet各层表现" class="headerlink" title="skynet各层表现"></a>skynet各层表现</h2><p><img src="https://user-images.githubusercontent.com/11263320/108858906-a5a83b00-7627-11eb-9ce1-223d08f02aa8.png" alt="20180315154138758"><br>从上大概就清楚skynet的“内部”<br>而skynet源码目录结构如下：<br>3rd：第三方代码，有lua和jemalloc等。<br>lualib：使用lua写的库<br>lualib-src：使用C写并封装给lua使用的库<br>service：使用lua写的skynet的服务模块<br>service-src：使用C写的skynet的服务模块<br>skynet-src：skynet核心代码</p>
-<h2 id="skynet重要模块"><a href="#skynet重要模块" class="headerlink" title="skynet重要模块"></a>skynet重要模块</h2><p>gate.so：为整个skynet提供socket功能（解决外部连接数据读取的问题）<br>snlua.so：启动多个lua服务，skynet自带的模块中有一个重要的模块是snlua.so模块，通过snlua.so和指定lua脚本文件可以启动多个lua编写的服务，不用每个服务都是用c来编写，而且大部分逻辑都是在 lua 脚本下开发，只有需要考虑性能的模块才用 C 语言开发成库，直接提供给 lua 调用。<br>logger.so：日志模块，一个简单的日志系统,可以用来记录服务的相关信息。<br>harbar.so：（集群模块）节点服务,每个Skynet运行都是一个节点</p>
-<h2 id="skynet重要服务"><a href="#skynet重要服务" class="headerlink" title="skynet重要服务"></a>skynet重要服务</h2><p>launcher.lua：在lua中启动服务<br>skynet.lua：lua常用功能封装<br>skynet.so：lua调用skynet功能</p>
-<h2 id="skynet重要文件"><a href="#skynet重要文件" class="headerlink" title="skynet重要文件"></a>skynet重要文件</h2><p>skynet_server.c：管理服务<br>skynet_handle.c：管理服务唯一的handle<br>skynet_module.c：启动c编写的so模块<br>skynet_monitor.c：监视服务死循环<br>skynet_mq.c：消息队列<br>skynet_timer.c：定时器<br>skynet_socket.c：Socket<br>skynet_master.c：不同skynet节点服务名字中心服务<br>skynet_harbor.c：不同skynet节点通讯</p>
-<p>skynet底层代码位于skynet/skynet-src下,模块加载相关在skynet-module.c skynet-module.h这两个文件里。这里的模块在linux下指的是so，在windows下指的是dll，在skynet中指的是config中配置的cpath下的文件。</p>
-<p>每个模块需要实现四个最基本的函数，create/init/release/signal。create做内存分配。init做初始化，它可能会做一些其它的事情，比如打开网络，打开文件，函数回调挂载等等。relase做资源回收，包括内存资源，文件资源，网络资源等等，signal是发信号，比如kill信号，告诉模块该停了。</p>
-<h2 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h2><p>网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。skynet的网络库是自己实现的。<br>实际上云风只实现了epoll和kqueue，windows上的变种请自行搜索吧。</p>
-<p>epoll和kqueue的实现分别在skynet_epoll.h和epoll_kqueue.h当中。epoll的函数其实就是epoll_create/epoll_ctl/epoll_del/epoll_wait这几个，要注意的是skynet中的epoll_create的参数是1024。所以连接数上不去的话很可能就是这里限制了。<br>skynet在skynet_poll.h中根据平台的不同包含了不同的头文件，屏蔽了平台相关性。然后在socket_server.c中实现了网络服务的逻辑。<br>然后skynet在skynet_socket.c中对socket_server.c中的逻辑再次做了一个封装，还添加了socket客户端相关的函数，就是connect/send/close之类的函数。<br>为了方便lua层使用socket，在lua-socket.c中再将对skynet_socket.c进行了一次封装。这个封装就是c语言层和lua语言层的相互转换。目前只支持tcp和udp，基于tcp上的http/websocket之类统统是不支持的。</p>
-<p>为什么操作一个网络要费这么大的劲呢，绕来绕去非常的不直观。因为skynet是基于消息的，而且每个服务都有一个monitor,每个消息处理的时候要尽可能的短，这样才不会阻塞服务里其它的请求。而connect这种明显是阻塞的，当然也可以写成非阻塞的，但是非阻塞的话，你需要不断地挂起，因为非阻塞实际上是基于select技术来实现的。而不断地挂起，这个就很麻烦，写起来很痛苦而且很容易出错。因此云风把这些都放到网络线程中来做，这样就不会影响工作线程。但是这样做也有它的缺点，那就是网络线程可能会被阻塞，网络线程被阻塞就会导致服务无响应。或者导致大量的数据包积累，引起波峰。</p>
-<h2 id="skynet的配置加载"><a href="#skynet的配置加载" class="headerlink" title="skynet的配置加载"></a>skynet的配置加载</h2><p>skynet的配置文件是以lua格式来写的。使用过skynet的都清楚skynet的启动命令是skynet config_file_name。配置文件名是作为命令行参数传给skynet进程的。<br>skynet进程启动以后，会读取config文件，然后解析这个lua文件。然后把相关的配置信息设置到lua的环境变量里。<br>C层读取配置的话是要从lua环境变量里去取的。</p>
-<p>skynet一共有4种线程，monitor线程用于检测节点内的消息是否堵住，timer线程运行定时器，socket线程进行网络数据的收发，worker线程则负责对消息队列进行调度（worker线程的数量，可以通过配置表指定）。消息调度规则是，每条worker线程，每次从全局消息队列中pop出一个次级消息队列，并从次级消息队列中pop出一条消息，并找到该次级消息队列的所属服务，将消息传给该服务的callback函数，执行指定业务，当逻辑执行完毕时，再将次级消息队列push回全局消息队列中。因为每个服务只有一个次级消息队列，每当一条worker线程，从全局消息队列中pop出一个次级消息队列时，其他线程是拿不到同一个服务，并调用callback函数，因此不用担心一个服务同时在多条线程内消费不同的消息，一个服务执行，不存在并发，线程是安全的<br>socket线程、timer线程甚至是worker线程，都有可能会往指定服务的次级消息队列中push消息，push函数内有加一个自旋锁，避免同时多条线程同时向一个次级消息队列push消息的惨局。</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/577e23ed.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -652,7 +525,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/fbcc0a0a.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/933b71d7.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -666,7 +539,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/fbcc0a0a.html" class="post-title-link" itemprop="url">skynet消息</a>
+            <a href="/post/933b71d7.html" class="post-title-link" itemprop="url">skynet mq</a>
         </h2>
 
         <div class="post-meta">
@@ -683,7 +556,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -697,18 +570,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="消息队列mq"><a href="#消息队列mq" class="headerlink" title="消息队列mq"></a>消息队列mq</h2><p>消息队列是skynet的核心功能之一，它的功能说白了就是入队出队，先进先出，这个数据结构都有讲过。源码实现在skynet_mq.h和skynet_mq.c中。</p>
-<p>skynet的消息队列实际上是有两种，一种是全局消息队列，一种是服务消息队列。每个服务都有自己的消息队列，每个服务消息队列中都有服务的handle标识。这个涉及到消息的派发，这里就不展开了。每个服务消息队列被全局消息队列引用。<br>全局消息队列用的是经典的链表来实现的，而服务的消息队列用的是比较不直观，可能对有些人来说理解起来特别困难的循环数组来实现的。而且数组空间不够的时候，会动态扩展，容量扩展为当前容量的2倍。<br>消息队列的出队入队函数名都比较简单而且明了，push/pop。这个名字可能会带来一定的误解，如果改成enqueue/dequeue的话，就更符合它的实际功能。</p>
-<h2 id="消息机制之消息处理"><a href="#消息机制之消息处理" class="headerlink" title="消息机制之消息处理"></a>消息机制之消息处理</h2><p>kynet的消息机制准备拆成三个部分来讲，第一部分是接收处理，第二部分是分发，第三部分是消息注册。</p>
-<p>skynet是单进程多线程的，线程的种类有monitor/timer/socket/worker，monitor就是监控服务是不是陷入死循环了。timer是skynet自己实现的定时器。socket是负责网络的，这个应该是最容易被理解的。worker就是工作线程了，monitor/timer/socket都只有一个线程，唯独worker有多个线程，是可配的，不配的话是8个线程。每个工作线程有个叫worker_parm的参数。</p>
-<p>在开始讲线程之前还需要回顾一下消息队列，在第2篇中讲过全局消息队列是链表，里面链了工作消息队列，而工作消息队列内部使用的是循环数组。<br>另外还要回顾一下消息的handle，每个服务都有运行时一个独一无二的handle，这个handle可以跟名字绑定。</p>
-<h2 id="接收处理"><a href="#接收处理" class="headerlink" title="接收处理"></a>接收处理</h2><p>先总结一下，skynet_context_message_dispatch这个函数实际上就是不停地从全局消息队列里取工作队列，取到了以后呢，就一直处理这个队列里的消息。为了避免某个队列占用太多cpu，当前队列处理到一定的量，就把机会让给全局消息队列里的其它工作队列，把自己又放回全局消息队列。而这个处理的量是根据创建线程时thread_param里的weight权重来判定的，权重越大，流转的就越快，也就是说处理某个队列的消息数量就越少。这就是消息处理的主流程机制。<br>在主流程之外，还有monitor的触发和取消，每次处理前，触发monitor的检查。处理完了，取消monitor的检查。</p>
-<h2 id="分发"><a href="#分发" class="headerlink" title="分发"></a>分发</h2><p>消息的处理实际上就是对工作队列里的消息不停地调回调函数。那么消息是怎么放进消息队列的呢。带着这个疑问，让我们从lua层开始追根溯源。<br>在lua层有两个api，一个是skynet.send，这个是非阻塞发消息。另一个是skynet.call，这个是阻塞式发完消息等回应。skynet.call使用一个session来实现等待，这个session实际就是一个自增的数字，溢出了以后又从1开始。<br>skynet.send实际上就是往目标服务的消息队列里增加一条消息。</p>
-<h2 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h2><p>skynet的消息注册，C服务和lua服务设置回调走的函数是不同的。C的回调可以直接调，但是lua的回调不行，它需要一个默认的回调C函数，将返回参数转换为lua能理解的格式，遵循lua的api协议，传递到lua层。<br>当服务是lua实现的时候，skynet底层核心框架在处理完消息以后，回调lua层服务的回调函数时，要先经过一次lua api协议的处理，将参数准备好以后，然后调用lua服务中的回调函数。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">skynet.dispatch(callback)----------------------&gt;proto[typename].dispach &#x3D; callback</span><br><span class="line">                                                                                                                    |</span><br><span class="line">skynet.core.call(skynet.dispatch_message)----&gt;tbl[k] &#x3D; skynet.dispatch_message</span><br><span class="line">                                                                                                                    |</span><br><span class="line">                                                                                                                    |</span><br><span class="line">C dispatch_message-&gt;_cb---------------------------------------------------|</span><br></pre></td></tr></table></figure>
-<h2 id="消息"><a href="#消息" class="headerlink" title="消息"></a>消息</h2><p>每条 skynet 消息由 6 部分构成：消息类型、session 、发起服务地址 、接收服务地址 、消息 C 指针、消息长度。<br>每个 skynet 服务都可以处理多类消息。在 skynet 中，是用 type 这个词来区分消息的。但与其说消息类型不同，不如说更接近网络端口 (port) 这个概念。每个 skynet 服务都支持 255 个不同的 port 。消息分发函数可以根据不同的 port 来为不同的消息定制不同的消息处理流程。</p>
-<h2 id="消息队列结构分析"><a href="#消息队列结构分析" class="headerlink" title="消息队列结构分析"></a>消息队列结构分析</h2><p>队列一般可以用链表来模拟，用两个指针，分别指向头节点和尾节点。尾节点指向插入数据的方向，头节点指向消耗数据的方向。skynet全局消息队列也用到了上面的数据结构</p>
-
+          <p>这里介绍下skynet的消息队列。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/933b71d7.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -758,7 +628,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -772,29 +642,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>skynet刚开始是单进程多线程的，它是由一个一个的服务组成的。在skynet上做开发，实际上就是在写服务。服务与服务之间通过消息队列进行通信。</p>
-<p>做为核心功能，Skynet 仅解决一个问题：<br>把一个符合规范的 C 模块，从动态库（so 文件）中启动起来，绑定一个永不重复（即使模块退出）的数字 id 做为其 handle 。模块被称为服务（Service），服务间可以自由发送消息。每个模块可以向 Skynet 框架注册一个 callback 函数，用来接收发给它的消息。每个服务都是被一个个消息包驱动，当没有包到来的时候，它们就会处于挂起状态，对 CPU 资源零消耗。如果需要自主逻辑，则可以利用 Skynet 系统提供的 timeout 消息，定期触发。</p>
-<p>一个服务，默认不会执行任何逻辑，需要别人向它发出请求时，才会执行对应的逻辑（定时器也是通过消息队列，告诉指定服务，要执行定时事件），并在需要时返回结果给请求者。请求者往往也是其他服务。服务间的请求、响应和推送，并不是直接调用对方的api来执行，而是通过一个消息队列，也就是说，不论是请求、回应还是推送，都需要通过这个消息队列转发到另一个服务中。skynet的消息队列，分为两级，一个全局消息队列，他包含一个头尾指针，分别指向两个隶属于指定服务的次级消息队列。skynet中的每一个服务，都有一个唯一的、专属的次级消息队列。</p>
-<h2 id="skynet服务的本质"><a href="#skynet服务的本质" class="headerlink" title="skynet服务的本质"></a>skynet服务的本质</h2><p>每个skynet服务都是一个lua state，也就是一个lua虚拟机实例。而且，每个服务都是隔离的，各自使用自己独立的内存空间，服务之间通过发消息来完成数据交换。</p>
-<p>lua state本身没有多线程支持的，为了实现cpu的摊分，skynet实现上在一个线程运行多个lua state实例。而同一时间下，调度线程只运行一个服务实例。为了提高系统的并发性，skynet会启动一定数量的调度线程。同时，为了提高服务的并发性，就利用lua协程并发处理。</p>
-<p>所以，skynet的并发性有3点：<br>1、多个调度线程并发<br>2、lua协程并发处理<br>3、服务调度的切换</p>
-<p>skynet服务的设计基于Actor模型。有两个特点：</p>
-<ol>
-<li>每个Actor依次处理收到的消息</li>
-<li>不同的Actor可同时处理各自的消息<br>实现上，cpu会按照一定规则分摊给每个Actor，每个Actor不会独占cpu，在处理一定数量消息后主动让出cpu，给其他进程处理消息。</li>
-</ol>
-<h2 id="skynet的例子是怎么调用的"><a href="#skynet的例子是怎么调用的" class="headerlink" title="skynet的例子是怎么调用的"></a>skynet的例子是怎么调用的</h2><p>服务器：<br>simpledb.lua： skynet.register “SIMPLEDB” 向skynet里注册一个服务<br>agent.lua： skynet.call(“SIMPLEDB”, “text”, text) 调用相应的服务<br>main.lua： skynet.newservice(“simpledb”) 启动一个服务<br>以上函数都在\lualib\skynet.lua 文件内</p>
-<h2 id="以下是几个写服务时经常要用到的函数"><a href="#以下是几个写服务时经常要用到的函数" class="headerlink" title="以下是几个写服务时经常要用到的函数"></a>以下是几个写服务时经常要用到的函数</h2><p>newservice(name, …) 启动一个名为 name 的新服务。<br>uniqueservice(name, …) 启动一个唯一服务，如果服务该服务已经启动，则返回已启动的服务地址。<br>queryservice(name) 查询一个由 uniqueservice 启动的唯一服务的地址，若该服务尚未启动则等待。<br>localname(name) 返回同一进程内，用 register 注册的具名服务的地址。</p>
-<p>newservice可以在一个进程里启动多个服务，这适用于无状态的服务。<br>uniqueservice则是类似于设计模式中的单件(singleton)，这适用于需要唯一性的服务。举个例子，比如写日志，只想写一份。或者是全局共享的数据。</p>
-<h2 id="消息机制"><a href="#消息机制" class="headerlink" title="消息机制"></a>消息机制</h2><p>SKYNET设计综述讲到模块被称为服务。“服务间可以自由发送消息。每个模块可以向 Skynet 框架注册一个 callback 函数，用来接收发给它的消息。”还提到“把一个符合规范的 C 模块，从动态库（so 文件）中启动起来，绑定一个永不重复（即使模块退出）的数字 id 做为其 handle 。Skynet 提供了名字服务，还可以给特定的服务起一个易读的名字，而不是用 id 来指代它。id 和运行时态相关，无法保证每次启动服务，都有一致的 id ，但名字可以。”今天要分析的两个文件skynet_handle.c和skynet_handle.h就是实现名字服务的。</p>
-<p>skynet_handle.c实际上就做了两个核心的事情，一是给服务分配一个handle，二是把handle和name关联起来。<br>把handle和name关联起来比较容易懂，实际上使用一个数组，关联的时候使用二分查找到数组里查名字，如果名字不存在，就插入一个元素，然后把名字和handle关联起来。插入元素的时候，如果数组空间不足了，就扩容为原来的2倍。<br>而给服务分配handle稍复杂一些，实际上也是使用一个slot数组，数组下标使用的是一个hash，数组元素指向服务的上下文。这个hash的算法是比较简单粗暴的，就是看从handle_indx开始累计到slot_size，看中间有没有空闲的下标（也就是下标指向为null的），如果遍历完了还是没有，就把slot扩大一倍，还是没有就再扩大一倍，直到找到空位为止，或者是slot长度超出限制为止。<br>取到了handle以后呢，还要将harbor id附到handle的高8位。</p>
-<h2 id="每个服务分三个运行阶段"><a href="#每个服务分三个运行阶段" class="headerlink" title="每个服务分三个运行阶段"></a>每个服务分三个运行阶段</h2><p>首先是服务加载阶段，当服务的源文件被加载时，就会按 lua 的运行规则被执行到。这个阶段不可以调用任何有可能阻塞住该服务的 skynet api 。因为，在这个阶段中，和服务配套的 skynet 设置并没有初始化完毕。<br>然后是服务初始化阶段，由 skynet.start 这个 api 注册的初始化函数执行。这个初始化函数理论上可以调用任何 skynet api 了，但启动该服务的 skynet.newservice 这个 api 会一直等待到初始化函数结束才会返回。<br>最后是服务工作阶段，当你在初始化阶段注册了消息处理函数的话，只要有消息输入，就会触发注册的消息处理函数。这些消息都是 skynet 内部消息，外部的网络数据，定时器也会通过内部消息的形式表达出来。</p>
-<p>从 skynet 底层框架来看，每个服务就是一个消息处理器。但在应用层看来并非如此。它是利用 lua 的 coroutine 工作的。当你的服务向另一个服务发送一个请求（即一个带 session 的消息）后，可以认为当前的消息已经处理完毕，服务会被 skynet 挂起。待对应服务收到请求并做出回应（发送一个回应类型的消息）后，服务会找到挂起的 coroutine ，把回应信息传入，延续之前未完的业务流程。从使用者角度看，更像是一个独立线程在处理这个业务流程，每个业务流程有自己独立的上下文，而不像 nodejs 等其它框架中使用的 callback 模式。</p>
-<p>但框架已经提供了一个叫做 snlua 的用 C 开发的服务模块，它可以用来解析一段 Lua 脚本来实现业务逻辑。也就是说，你可以在 skynet 启动任意份 snlua 服务，只是它们承载的 Lua 脚本不同。这样，我们只使用 Lua 来进行开发就足够了。</p>
-<h2 id="ShareData"><a href="#ShareData" class="headerlink" title="ShareData"></a>ShareData</h2><p>当你把业务拆分到多个服务中去后，数据如何共享，可能是最易面临的问题。<br>最简单粗暴的方法是通过消息传递数据。如果 A 服务需要 B 服务中的数据，可以由 B 服务发送一个消息，将数据打包携带过去。如果是一份数据，很多地方都需要获得它，那么用一个服务装下这组数据，提供一组查询接口即可。DataCenter 模块对此做了简单的封装。<br>datacenter 可用来在整个 skynet 网络做跨节点的数据共享。<br>如果你仅仅需要一组只读的结构信息分享给很多服务（比如一些配置数据），你可以把数据写到一个 lua 文件中，让不同的服务加载它。Cluster 的配置文件就是这样做的。注意：默认 skynet 使用自带的修改版 lua ，会缓存 lua 源文件。当一个 lua 文件通过 loadfile 加载后，磁盘上的修改不会影响下一次加载。所以你需要直接用 io.open 打开文件，再用 load 加载内存中的 string 。</p>
-<p>另一个更好的方法是使用 sharedata 模块。<br>当大量的服务可能需要共享一大块并不太需要更新的结构化数据，每个服务却只使用其中一小部分。你可以设想成，这些数据在开发时就放在一个数据仓库中，各个服务按需要检索出需要的部分。<br>整个工程需要的数据仓库可能规模庞大，每个服务却只需要使用其中一小部分数据，如果每个服务都把所有数据加载进内存，服务数量很多时，就因为重复加载了大量不会触碰的数据而浪费了大量内存。在开发期，却很难把数据切分成更小的粒度，因为很难时刻根据需求的变化重新切分。<br>如果使用 DataCenter 这种中心式管理方案，却无法避免每次在检索数据时都要进行一次 RPC 调用，性能或许无法承受。<br>sharedata 模块正是为了解决这种需求而设计出来的。sharedata 只支持在同一节点内（同一进程下）共享数据，如果需要跨节点，需要自行同步处理。</p>
-<h2 id="skynet-call的实现–服务与服务的交互"><a href="#skynet-call的实现–服务与服务的交互" class="headerlink" title="skynet call的实现–服务与服务的交互"></a>skynet call的实现–服务与服务的交互</h2><p>如果一个服务生产了大量数据，想传给您一个服务消费，在同一进程下，是不必经过序列化过程，而只需要通过消息传递内存地址指针即可。这个优化存在 O(1) 和 O(n) 的性能差别，不可以无视。<br>架构图<br><img src="https://user-images.githubusercontent.com/11263320/108848571-1e08ff00-761c-11eb-9b28-77f3bdbe92c0.jpg" alt="1425134-20190308091754983-2095526062"></p>
-
+          <p>首先，要了解 skynet 内的一个非常重要的概念 ———『服务』。所谓的服务，本质就是一个接收消息然后处理消息的过程，它跟我们日常生活中所说的服务（例如：外卖服务、快递服务等等）是一样的，它不是一个真实可见的物体，而是一个抽象的逻辑过程，它需要一个执行者来执行并完成它。这其实就是<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/78">skynet实现的Actor</a>模型。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/41698708.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -844,7 +700,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -859,47 +715,14 @@
 
       
           <p>协同程序与线程差不多，也就是一条执行序列，拥有自己独立的栈、局部变量和指令指针，同时又与其他协同程序共享全局变量和其他大部分东西。<br>一个具有多个协同程序的程序在任意时刻只能运行一个协同程序。</p>
-<p>lua将所有关于协同程序的函数放置在一个名为“coroutine”的table中。</p>
-<p>一个协同程序可以处于4种不同的状态：挂起、运行、死亡和正常。<br>程序初创建：挂起<br>程序运行：运行<br>程序结束：死亡<br>程序被其实程序唤醒：正常</p>
-<p>co_create 传一个函数参数，用来创建协程。返回一个“thread”对象</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">co = <span class="built_in">coroutine</span>.<span class="built_in">create</span>(<span class="function"><span class="keyword">function</span> <span class="params">(a,b)</span></span></span><br><span class="line">        <span class="built_in">coroutine</span>.<span class="built_in">yield</span>(a+b,a-b)</span><br><span class="line">        <span class="keyword">end</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">coroutine</span>.<span class="built_in">resume</span>(co,<span class="number">20</span>,<span class="number">10</span>))</span><br></pre></td></tr></table></figure>
-<p>与协同程序之间的对称性区别相比，协同程序与generator（Python所提供的）之间的区别很大。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>协程实现的两个关键点在于：</p>
-<ul>
-<li>协程状态的保存</li>
-<li>不同协程之间的数据通信机制 </li>
-</ul>
-<p>在Lua1-t码中，使用的是lua State结构体来表示协程，这与Lua虚拟机用的是同一个数据结构 。 这一点可以从创建协程的函数lua newthread中看出来，唯一有区别的是， Lua协程的类型是LUA TTHREAD 。 换言之，在Lua源码的处理中， Lua协程与Lua虚拟机的表现形式并没有太大差异，也许这样做是为了实现方便。 前面提到过，一个协程有自己私有的环境，不会因为协程的切换而发生改变 。</p>
-<p>接下来，我们来看看如何在不同协程之间通信，或者说Lua协程间数据的交换。 前面提到过resume和 yield 函数的参数就是用来做协程数据交换的，现在来看看里面的实现 。 奥秘就在函数lua_xmove 中</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LUA_API <span class="keyword">void</span> <span class="title">lua_xmove</span> <span class="params">(lua_State *from, lua_State *to, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">if</span> (from == to) <span class="keyword">return</span>;</span><br><span class="line">  lua_lock(to);</span><br><span class="line">  api_checknelems(from, n);</span><br><span class="line">  api_check(from, G(from) == G(to));</span><br><span class="line">  api_check(from, to-&gt;ci-&gt;top - to-&gt;top &gt;= n);</span><br><span class="line">  from-&gt;top -= n;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">    setobj2s(to, to-&gt;top++, from-&gt;top + i);</span><br><span class="line">  &#125;</span><br><span class="line">  lua_unlock(to);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这段代码做的事情就是，从from协程中移动n个数据到 to协程中 。 当然在移动之前，数据要在from协程的战顶上准备好。<br>创建协程在函数luaB cocreate中进行．</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">luaB_cocreate</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  lua_State *NL = lua_newthread(L);</span><br><span class="line">  luaL_argcheck(L, lua_isfunction(L, <span class="number">1</span>) &amp;&amp; !lua_iscfunction(L, <span class="number">1</span>), <span class="number">1</span>,</span><br><span class="line">    <span class="string">&quot;Lua function expected&quot;</span>);</span><br><span class="line">  lua_pushvalue(L, <span class="number">1</span>);  <span class="comment">/* move function to top */</span></span><br><span class="line">  lua_xmove(L, NL, <span class="number">1</span>);  <span class="comment">/* move function from L to NL */</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>明白了前面的内容，理解创建协程的过程就不难了，这里主要做了以下几件事情。</p>
-<ul>
-<li>调用lua newthread创建lua State结构体。</li>
-<li>检查当前楼顶的元素是不是一个函数对象，因为需要一个函数作为协程开始运行时的主函数。 这个主函数必须是Lua函数， C函数将会报错。</li>
-<li>将协程主函数压人当前 lua State 的楼中，然后调用 lua xmove 将该函数从当前的lua State移动到新创建的协程的 lua State战中 。</li>
-</ul>
-<p>了解了Lua协程实现相关的数据结构，接下来看看最核心的两个操作resume和yield是如何实现的 。<br>resume操作在函数 luaB_coresume 中实现：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">luaB_coresume</span> <span class="params">(lua_State *L)</span> </span>&#123;</span><br><span class="line">  lua_State *co = lua_tothread(L, <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">int</span> r;</span><br><span class="line">  luaL_argcheck(L, co, <span class="number">1</span>, <span class="string">&quot;coroutine expected&quot;</span>);</span><br><span class="line">  r = auxresume(L, co, lua_gettop(L) - <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    lua_pushboolean(L, <span class="number">0</span>);</span><br><span class="line">    lua_insert(L, <span class="number">-2</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span>;  <span class="comment">/* return false + error message */</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    lua_pushboolean(L, <span class="number">1</span>);</span><br><span class="line">    lua_insert(L, -(r + <span class="number">1</span>));</span><br><span class="line">    <span class="keyword">return</span> r + <span class="number">1</span>;  <span class="comment">/* return true + `resume&#x27; returns */</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到，这里主要做几件事情：</p>
-<ul>
-<li>检查当前枝顶元素是不是协程指针。</li>
-<li>调用辅助函数auxresume进行实际的resume操作。</li>
-<li>根据auxresume的返回值来做不同的处理。 当返回值小于0时，说明 resume操作出错，并且此时出错信息在樵顶，因此压入false以及出错消息；否则， auxresume的返回值表示执行resume操作时返回的参数数量，这种情况下压人true以及这些返回参数。<br>auxresume 函数的实现如下：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">auxresume</span> <span class="params">(lua_State *L, lua_State *co, <span class="keyword">int</span> narg)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> status;</span><br><span class="line">  <span class="keyword">if</span> (!lua_checkstack(co, narg))</span><br><span class="line">    luaL_error(L, <span class="string">&quot;too many arguments to resume&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (lua_status(co) == <span class="number">0</span> &amp;&amp; lua_gettop(co) == <span class="number">0</span>) &#123;</span><br><span class="line">    lua_pushliteral(L, <span class="string">&quot;cannot resume dead coroutine&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* error flag */</span></span><br><span class="line">  &#125;</span><br><span class="line">  lua_xmove(L, co, narg);</span><br><span class="line">  status = lua_resume(co, narg);</span><br><span class="line">  <span class="keyword">if</span> (status == <span class="number">0</span> || status == LUA_YIELD) &#123;</span><br><span class="line">    <span class="keyword">int</span> nres = lua_gettop(co);</span><br><span class="line">    <span class="keyword">if</span> (!lua_checkstack(L, nres))</span><br><span class="line">      luaL_error(L, <span class="string">&quot;too many results to resume&quot;</span>);</span><br><span class="line">    lua_xmove(co, L, nres);  <span class="comment">/* move yielded values */</span></span><br><span class="line">    <span class="keyword">return</span> nres;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    lua_xmove(co, L, <span class="number">1</span>);  <span class="comment">/* move error message */</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;  <span class="comment">/* error flag */</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-它主要做如下操作 。</li>
-<li>检查数据的合法性 。</li>
-<li>将参数通过lua xmove函数传递到待启动的协程中，调用 lua resume函数执行协程代码 。</li>
-<li>当 lua_resume函数返回时，说明该协程已经执行完毕，通过lua_xmove函数将yield传入的参数传递回启动该协程的协程。<br>auxresume函数会调用 lua resume 函数，在 lua resume 函数中进行一些检查，比如当前的状态是否合理，调用层次是否过多，最终使用 luaD_rawrunprotected 函数来保护调用 resume 函数 。resume 函数的代码如下所示：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">resume</span> <span class="params">(lua_State *L, <span class="keyword">void</span> *ud)</span> </span>&#123;</span><br><span class="line">  StkId firstArg = cast(StkId, ud);</span><br><span class="line">  CallInfo *ci = L-&gt;ci;</span><br><span class="line">  <span class="keyword">if</span> (L-&gt;status == <span class="number">0</span>) &#123;  <span class="comment">/* start coroutine? */</span></span><br><span class="line">    lua_assert(ci == L-&gt;base_ci &amp;&amp; firstArg &gt; L-&gt;base);</span><br><span class="line">    <span class="keyword">if</span> (luaD_precall(L, firstArg - <span class="number">1</span>, LUA_MULTRET) != PCRLUA)</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;  <span class="comment">/* resuming from previous yield */</span></span><br><span class="line">    lua_assert(L-&gt;status == LUA_YIELD);</span><br><span class="line">    L-&gt;status = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!f_isLua(ci)) &#123;  <span class="comment">/* `common&#x27; yield? */</span></span><br><span class="line">      <span class="comment">/* finish interrupted execution of `OP_CALL&#x27; */</span></span><br><span class="line">      lua_assert(GET_OPCODE(*((ci<span class="number">-1</span>)-&gt;savedpc - <span class="number">1</span>)) == OP_CALL ||</span><br><span class="line">                 GET_OPCODE(*((ci<span class="number">-1</span>)-&gt;savedpc - <span class="number">1</span>)) == OP_TAILCALL);</span><br><span class="line">      <span class="keyword">if</span> (luaD_poscall(L, firstArg))  <span class="comment">/* complete it... */</span></span><br><span class="line">        L-&gt;top = L-&gt;ci-&gt;top;  <span class="comment">/* and correct top if not multiple results */</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>  <span class="comment">/* yielded inside a hook: just continue its execution */</span></span><br><span class="line">      L-&gt;base = L-&gt;ci-&gt;base;</span><br><span class="line">  &#125;</span><br><span class="line">  luaV_execute(L, cast_int(L-&gt;ci - L-&gt;base_ci));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-这个函数做了以下的事情</li>
-<li>如果当前协程的状态是0 ，那么说明它是第一次执行 resume操作，此时调用 luaD_precall做函数调用前的准备工作。 如果luaD_precall函数的返回值不是PCRLUA ，说明是在C函数中进行resume操作的，此时并不需要后面的 luaV execute函数，就直接返回了 。</li>
-<li>否则就从之前的 YIELD状态中继续执行，首先将协程的状态置为0 ，其次判断此时口的类型，如果不是Lua函数，说明之前是被中断的函数调用，此时调用luaD_poscall函数继续完成未完的函数操作；否则只需要调整 base指针指向之前的ci的base指针即可 。</li>
-<li>以上的几种情况最终都会调用 luaV_execute 函数来进入 Lua虚拟机中执行 。 这里可以看到，由于使用了同样的结构lua State来表示Lua虚拟机和Lua协程，在表达Lua虚拟机的执行和协程的执行上，两者都是统一使用 luaV execute函数，方便了实现。</li>
-</ul>
-<p>yield操作在函数lua_yield 中进行：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LUA_API <span class="keyword">int</span> <span class="title">lua_yield</span> <span class="params">(lua_State *L, <span class="keyword">int</span> nresults)</span> </span>&#123;</span><br><span class="line">  luai_userstateyield(L, nresults);</span><br><span class="line">  lua_lock(L);</span><br><span class="line">  <span class="keyword">if</span> (L-&gt;nCcalls &gt; <span class="number">0</span>)</span><br><span class="line">    luaG_runerror(L, <span class="string">&quot;attempt to yield across metamethod/C-call boundary&quot;</span>);</span><br><span class="line">  L-&gt;base = L-&gt;top - nresults;  <span class="comment">/* protect stack slots below */</span></span><br><span class="line">  L-&gt;status = LUA_YIELD;</span><br><span class="line">  lua_unlock(L);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这个函数做的事情相比起来就简单多了，就是将协程执行状态至为YIELD ，这样可以终止luaV_execute函数的循环。<br><img src="https://user-images.githubusercontent.com/11263320/113825795-fdec6400-97b3-11eb-8f8f-40a19ca2088f.JPG" alt="捕获"></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/9ff34ca8.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -949,7 +772,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -963,17 +786,87 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>在lua中，函数是一种第一类值，它们具有特定的词法域。<br>lua当中函数是一个值，他可以存在变量中（无论全局变量还是局部变量）或table中，可以作为函数参数，可以作为返回值。</p>
-<h2 id="upvalue"><a href="#upvalue" class="headerlink" title="upvalue"></a>upvalue</h2><p>词法域：当一个函数内嵌套另一个函数的时候，内函数可以访问外部函数的局部变量。这也意味着lua完全可以包含“λ演算（Lambda Calculus）”。<br>这个特性在以下场景特别有用：匿名函数作为高阶函数的参数，用于table遍历和模式匹配。</p>
-<p>在lua中，函数可以看作一个“值”，由一些表达式创建的。</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">foo = <span class="function"><span class="keyword">function</span> <span class="params">(x)</span></span> <span class="keyword">return</span> <span class="number">2</span>*x <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p>举个例子：</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">network = &#123;</span><br><span class="line">    &#123;name = <span class="string">&quot;grauna&quot;</span>, IP = <span class="string">&quot;210.26.30.34&quot;</span>&#125;</span><br><span class="line">    &#123;name = <span class="string">&quot;arraial&quot;</span>, IP = <span class="string">&quot;210.26.30.23&quot;</span>&#125;</span><br><span class="line">    &#123;name = <span class="string">&quot;lua&quot;</span>, IP = <span class="string">&quot;210.26.23.12&quot;</span>&#125;</span><br><span class="line">    &#123;name = <span class="string">&quot;derain&quot;</span>, IP = <span class="string">&quot;210.26.23.20&quot;</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">table</span>.<span class="built_in">sort</span>(network, <span class="function"><span class="keyword">function</span><span class="params">(a,b)</span></span> <span class="keyword">return</span>(a.name&gt;b.name) <span class="keyword">end</span>)</span><br></pre></td></tr></table></figure>
-<p>这种用法叫匿名函数，在语句中显示出了极好的便捷性。</p>
-<h2 id="闭包-closure"><a href="#闭包-closure" class="headerlink" title="闭包(closure)"></a>闭包(closure)</h2><p>如果说C++式的面向对象编程是把一组函数绑定到特定数据类型上的话，那么闭包可以说是把一组数据绑定到特定函数上。<br>闭包通过调用含有一个内部函数加上该外部函数持有的外部局部变量（upvalue）的外部函数（就是工厂）产生的一个实例函数<br>闭包组成：外部函数+外部函数创建的upvalue+内部函数（闭包函数）</p>
-<p>Lua中只有闭包，函数是闭包一种特殊情况。</p>
-<h2 id="…"><a href="#…" class="headerlink" title="…"></a>…</h2><p>当一个变参函数被调用，对应…的参数将会收集到一个叫arg的table里。这种方式虽然很简单便捷，但是要把这些参数传给另一个函数，就需要解包这个table。因为程序员经常将参数传递给另一个函数，Lua 5.1允许…用于参数列表和赋值表达式的右值。这避免了没必要的创建arg table。</p>
+          <p>在<code>lua</code>中，函数是一种第一类值，它们具有特定的词法域。<br><code>lua</code>当中函数是一个值，他可以存在变量中（无论全局变量还是局部变量）或<code>table</code>中，可以作为函数参数，可以作为返回值。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/d1fa9805.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
 
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/3e476df1.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/3e476df1.html" class="post-title-link" itemprop="url">lua面向对象</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-23 07:44:34" itemprop="dateCreated datePublished" datetime="2021-02-23T07:44:34+00:00">2021-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><code>lua</code>中的table就是一种对象。<br><code>lua</code>中可以通过修改<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/107">元表元方法</a>来实现面向对象。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/3e476df1.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1058,7 +951,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="前言Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。 设计哲学 向system heap要求空间 考虑多线程状态 考虑内存不足时的应变措施 考虑过多“小型区块”可能造成的内存碎片问题  考虚到小型区块所可能造成的内存破碎问题，SGI设计了双层级配置器，第一级配置器直接使用malloc()和free()，第二级配置器则视情况采用不同的策略：当配置区块超过128">
+  <meta name="description" content="Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="STL Allocator">
 <meta property="og:url" content="http://example.com/post/bec1f717.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="前言Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。 设计哲学 向system heap要求空间 考虑多线程状态 考虑内存不足时的应变措施 考虑过多“小型区块”可能造成的内存碎片问题  考虚到小型区块所可能造成的内存破碎问题，SGI设计了双层级配置器，第一级配置器直接使用malloc()和free()，第二级配置器则视情况采用不同的策略：当配置区块超过128">
+<meta property="og:description" content="Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-02-25T12:03:44.000Z">
-<meta property="article:modified_time" content="2021-05-25T01:15:22.948Z">
+<meta property="article:modified_time" content="2021-06-25T08:13:01.475Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -215,7 +215,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。</p>
+        <p>Allocator译为空间配置器而不是内存配置器，是因为空间也可以是磁盘或其它辅助介质。</p>
+<a id="more"></a>
+
 <h2 id="设计哲学"><a href="#设计哲学" class="headerlink" title="设计哲学"></a>设计哲学</h2><ul>
 <li>向system heap要求空间</li>
 <li>考虑多线程状态</li>
@@ -225,6 +227,8 @@
 <p>考虚到小型区块所可能造成的内存破碎问题，SGI设计了双层级配置器，第一级配置器直接使用malloc()和free()，第二级配置器则视情况采用不同的策略：当配置区块超过128bytes时，视之为“足够大”，便调用第一级配置器；当配置区块小于128bytes时，视之为“过小”，为了降低额外负担，便采用复杂的内存池整理方式，而不再求助于第一级配置器。</p>
 <h2 id="内存池"><a href="#内存池" class="headerlink" title="内存池"></a>内存池</h2><p>内存池则是在真正使用内存之前，先申请分配一定数量的、大小相等(一般情况下)的内存块留作备用。当有新的内存需求时，就从内存池中分出一部分内存块，若内存块不够再继续申请新的内存。这样做的一个显著优点是，使得内存分配效率得到提升。</p>
 <h2 id="内存基本处理工具"><a href="#内存基本处理工具" class="headerlink" title="内存基本处理工具"></a>内存基本处理工具</h2><p>STL定义有五个全局函数，作用于未初始化空间上。这样的功能对于容器的实现很有帮助。<br>分别是用于构造的construct()和用于析构的destroy()，另三个函数是uninitialized_copy()，uninitialized_fill()，uninitialized_fill_n()，分别对应该于高层次函数copy()，fill()，fill_n()。</p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/93">La prueba más clara de que existe vida inteligente en el universo es que nadie ha intentado contactar con nosotros.</a></p>
 
     </div>
 
@@ -329,7 +333,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6"><span class="nav-number">2.</span> <span class="nav-text">设计哲学</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%B1%A0"><span class="nav-number">3.</span> <span class="nav-text">内存池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%9F%BA%E6%9C%AC%E5%A4%84%E7%90%86%E5%B7%A5%E5%85%B7"><span class="nav-number">4.</span> <span class="nav-text">内存基本处理工具</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6"><span class="nav-number">1.</span> <span class="nav-text">设计哲学</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%B1%A0"><span class="nav-number">2.</span> <span class="nav-text">内存池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%9F%BA%E6%9C%AC%E5%A4%84%E7%90%86%E5%B7%A5%E5%85%B7"><span class="nav-number">3.</span> <span class="nav-text">内存基本处理工具</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -344,7 +348,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

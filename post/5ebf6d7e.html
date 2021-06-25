@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。skynet的网络库是自己实现的。skynet 网络层的设计目的是，把操作系统层面的 socket 数据从系统内核复制到用户空间，然后再把用户空间的数据地址交给各个不同的服务使用，同时也把用户空间需要发送的数据转移到系统内核中。只不过一个优秀的网络框架会提供更多的功能和细节优化，例如：s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="skynet socket">
+<meta property="og:url" content="http://example.com/post/5ebf6d7e.html">
+<meta property="og:site_name" content="losophy">
+<meta property="og:description" content="网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。skynet的网络库是自己实现的。skynet 网络层的设计目的是，把操作系统层面的 socket 数据从系统内核复制到用户空间，然后再把用户空间的数据地址交给各个不同的服务使用，同时也把用户空间需要发送的数据转移到系统内核中。只不过一个优秀的网络框架会提供更多的功能和细节优化，例如：s">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/108930911-b4bbd700-7681-11eb-8dcd-ffad5e00237f.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/120341663-a7ba1e00-c329-11eb-9c17-8344a3958e37.JPG">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/120348568-e18e2300-c32f-11eb-94c5-83fcb19f95df.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/120358666-54e86280-c339-11eb-9d98-673121d6761a.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/120581931-34fe8f00-c45e-11eb-91d1-c487071d7570.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/120582027-58c1d500-c45e-11eb-8bbb-1bb258a4acfd.jpg">
+<meta property="article:published_time" content="2021-02-24T01:22:30.000Z">
+<meta property="article:modified_time" content="2021-06-25T08:13:01.475Z">
+<meta property="article:author" content="losophy">
+<meta property="article:tag" content="skynet">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/108930911-b4bbd700-7681-11eb-8dcd-ffad5e00237f.png">
+
+<link rel="canonical" href="http://example.com/post/5ebf6d7e.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>skynet socket | losophy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/losophy" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">losophy</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/5ebf6d7e.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          skynet socket
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-24 01:22:30" itemprop="dateCreated datePublished" datetime="2021-02-24T01:22:30+00:00">2021-02-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。skynet的网络库是自己实现的。<br>skynet 网络层的设计目的是，把操作系统层面的 socket 数据从系统内核复制到用户空间，然后再把用户空间的数据地址交给各个不同的服务使用，同时也把用户空间需要发送的数据转移到系统内核中。<br>只不过一个优秀的网络框架会提供更多的功能和细节优化，例如：socket 的管理、网络读写分离、读写数据缓存等等。</p>
+<p>还需要特别注意一点的是，因为 skynet 是一个消息驱动的模型，所以 skynet 的网络模块使用了一种叫 self pipe trick 1的技巧来唤醒异步调用，实现细节是利用了 pipe() 的“半双工”管道 + select，为了解决可在网络线程在即时处理网络事件的同时，也能即时处理来自非网络（比如内部消息队列）的其它消息。</p>
+<a id="more"></a>
+
+<h2 id="epoll和kqueue"><a href="#epoll和kqueue" class="headerlink" title="epoll和kqueue"></a>epoll和kqueue</h2><p>实际上云风只实现了epoll和kqueue，windows上的变种请自行搜索吧。</p>
+<p>epoll和kqueue的实现分别在socket_epoll.h和socket_kqueue.h当中。epoll的函数其实就是epoll_create/epoll_ctl/epoll_del/epoll_wait这几个，要注意的是skynet中的epoll_create的参数是1024。所以连接数上不去的话很可能就是这里限制了。<br>skynet在socket_poll.h中根据平台的不同包含了不同的头文件，屏蔽了平台相关性。然后在socket_server.c中实现了网络服务的逻辑。<br>然后skynet在skynet_socket.c中对socket_server.c中的逻辑再次做了一个封装，还添加了socket客户端相关的函数，就是connect/send/close之类的函数。<br>为了方便lua层使用socket，在lua-socket.c中再将对skynet_socket.c进行了一次封装。这个封装就是c语言层和lua语言层的相互转换。目前只支持tcp和udp，基于tcp上的http/websocket之类统统是不支持的。</p>
+<p>为什么操作一个网络要费这么大的劲呢，绕来绕去非常的不直观。因为skynet是基于消息的，而且每个服务都有一个monitor,每个消息处理的时候要尽可能的短，这样才不会阻塞服务里其它的请求。而connect这种明显是阻塞的，当然也可以写成非阻塞的，但是非阻塞的话，你需要不断地挂起，因为非阻塞实际上是基于select技术来实现的。而不断地挂起，这个就很麻烦，写起来很痛苦而且很容易出错。因此云风把这些都放到网络线程中来做，这样就不会影响工作线程。但是这样做也有它的缺点，那就是网络线程可能会被阻塞，网络线程被阻塞就会导致服务无响应。或者导致大量的数据包积累，引起波峰。</p>
+<h2 id="epoll封装层"><a href="#epoll封装层" class="headerlink" title="epoll封装层"></a>epoll封装层</h2><p> ./skynet-src/socket_poll.h<br>网络服务模块通常会有一个大的循环来读取网络消息，skynet也不例外，socket_server_poll函数就是来干这事的。在这个循环中将会有两个不同来源的消息系统，一个是管道消息，另一个则是网络消息了。管道消息后面会提到。网络消息是通过epoll模型的epoll_wait来读取的，采用默认的<strong>水平触发模式</strong>，这样连续读取数据较为简单。</p>
+<h2 id="运行流程："><a href="#运行流程：" class="headerlink" title="运行流程："></a>运行流程：</h2><p>1.在skynet_start（） 中 调用 skynet_socket_init() 初始化socket服务<br>2.每个socket 服务都有 写缓存队列，所以框架会异步的实现读写。<br>3.socket 的open close listen apect 等操作是通过给 socket_server 的管道写入请求信息，在server_poll循环中再去处理他。<br>4.socket 在发送数据时 会尝试的直接发送数据！如果不能直接发送数据 才会把数据写入 socket 对应的写缓存 。<br><img src="https://user-images.githubusercontent.com/11263320/108930911-b4bbd700-7681-11eb-8dcd-ffad5e00237f.png" alt="1425134-20190404141706446-2018988792"></p>
+<h2 id="以-PTYPE-SOCKET-类型的消息发送给发起请求服务"><a href="#以-PTYPE-SOCKET-类型的消息发送给发起请求服务" class="headerlink" title="以 PTYPE_SOCKET 类型的消息发送给发起请求服务"></a>以 PTYPE_SOCKET 类型的消息发送给发起请求服务</h2><p>skynet 的 C API 采用异步读写，你可以使用 C 调用，监听一个端口，或发起一个 TCP 连接。但具体的操作结果要等待 skynet 的事件回调。skynet 会把结果以 PTYPE_SOCKET 类型的消息发送给发起请求的服务。（参考skynet_socket.h）<br>在处理实际业务中，这样的 API 很难使用，所以又提供了一组阻塞模式的 lua API 用于 TCP socket 的读写。它是对 C API 的封装。<br>所谓阻塞模式，实际上是利用了 lua 的 coroutine 机制。当你调用 socket api 时，服务有可能被挂起（时间片被让给其他业务处理)，待结果通过 socket 消息返回，coroutine 将延续执行。</p>
+<h2 id="网络管理器"><a href="#网络管理器" class="headerlink" title="网络管理器"></a>网络管理器</h2><p>管理器对应了网络库中的 socket_server 实例（或称对象），这里只简单阐述下它的作用，我会在后面分别做详细的剖析。</p>
+<p>它主要作用大致可分为两个部分：</p>
+<ul>
+<li>socket 的管理，包括 socket的存储、socket 的id分配以及socket 状态的维护等等</li>
+<li>网络事件的处理，包括 efd 的创建、管道的创建与读写处理（用于内部命令）、外部网络事件的捕获与读写处理等。关于网络（内部和外部）的读写处理封装在 socket_server_poll 接口中，供网络线程调用</li>
+</ul>
+<h2 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h2><p>在 skynet 中，管道配合 select 使用，管道为“服务”操控网络模块提供了支持。那我们要思考一下，为什么在已经有了 epoll/kqueue 后，还需要配置使用 pipe + select？</p>
+<p>这里就涉及到了我之前文章提到的 self pipe trick 技巧，也就是 pipe 的异步使用场景。以 epoll 举例（本文后面都以epoll为例），一般我们使用 epoll 做网络开发时，基本遵循以下套路：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">events = epoll_wait(efd, timeout);</span><br><span class="line"><span class="keyword">for</span> fd, event in events &#123;</span><br><span class="line">    <span class="keyword">if</span> event &amp; EPOLLIN &#123;</span><br><span class="line">        读取数据</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> event &amp; EPOLLOUT &#123;</span><br><span class="line">        写入数据</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> event &amp; EPOLLERR &#123;</span><br><span class="line">        错误处理</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在单线程模式下，以上的处理流程是完全没有问题的，但是在多线程的模式下，问题就出现了。就拿 skynet 来说，当一个工作线程中的 lua 服务需要对网络模块执行一些操作时，例如关闭某个socket，在工作线程发出请求后，网络线程却正处于 epoll wait 状态，也就是网络线程阻塞了，epoll 没有网络事件的话，只能等待 wait 超时后，才能有机会处理工作线程发来的请求，而且若 timeout = -1 时，则会导致 epoll_wait 无限期阻塞，这显然很有可能会导致工作线程的请求长时间不被处理，“不幸的是”，skynet 就是将 timeout 设为 -1。<br>为了解决上面的问题，管道就派上用场，它是半双工的，一端写入，另一端读取，我们只需要把读端 fd 注册到 epoll 中，这就解决了内部请求的唤醒问题，倘如外部网络连接一直没有收据到达，epoll 则会阻塞 wait，此时工作线程写入数据到管道中，就可以“激活” epoll 并处理内部命令。</p>
+<h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2><p>一般来说，在使用多路复用IO模型时，会对事件进行二次封装或者二次处理。例如 skynet 中 epoll wait 流程如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> </span><br><span class="line">sp_wait(<span class="keyword">int</span> efd, struct event *e, <span class="keyword">int</span> max) &#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">ev</span>[<span class="title">max</span>];</span></span><br><span class="line">	<span class="keyword">int</span> n = epoll_wait(efd , ev, max, <span class="number">-1</span>);</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="keyword">for</span> (i=<span class="number">0</span>;i&lt;n;i++) &#123;</span><br><span class="line">		e[i].s = ev[i].data.ptr;</span><br><span class="line">		<span class="keyword">unsigned</span> flag = ev[i].events;</span><br><span class="line">		e[i].write = (flag &amp; EPOLLOUT) != <span class="number">0</span>;</span><br><span class="line">		e[i].read = (flag &amp; (EPOLLIN | EPOLLHUP)) != <span class="number">0</span>; <span class="comment">// 需关注EPOLLHUP</span></span><br><span class="line">		e[i].error = (flag &amp; EPOLLERR) != <span class="number">0</span>;</span><br><span class="line">		e[i].eof = <span class="literal">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由 epoll 捕获的事件，会被封装成 struct event，然后把这些封装过的事件交由网络线程处理。它的结构体定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">event</span> &#123;</span></span><br><span class="line">	<span class="keyword">void</span> * s; 		<span class="comment">// socket 实例指针，若s为null，表示是管道事件</span></span><br><span class="line">	<span class="keyword">bool</span> read;		<span class="comment">// 可读事件标识</span></span><br><span class="line">	<span class="keyword">bool</span> write;		<span class="comment">// 可写事件标识</span></span><br><span class="line">	<span class="keyword">bool</span> error;		<span class="comment">// 错误事件标识</span></span><br><span class="line">	<span class="keyword">bool</span> eof;		<span class="comment">// 文件尾(end-of-file)标识，kqueue专用</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这里需注意两个小细节：</p>
+<ul>
+<li>事件的用户数据指针*s。当把一个 fd 注册到 event poll 中时，若该 fd 是一个外部网络连接则 *s 指向一个 socket 实例；若该 fd 是管道的读端则 *s 为null，这样在线程调用socket_server_poll时就能根据 *s 的值把内部消息流程和外部消息流程分隔，即管道的内部命令处理都使用 select，而外部网络消息使用 epoll/kqueue。</li>
+<li>read 标识需要关注 EPOLLHUP。该事件是一个“不可标记的事件”，也就是说不需要手动注册事件，该事件被触发的核心原则是收到了对端发送过来的 RST 包，例如：向一个对端已经close的 fd 写入数据。实验代码贴在了gist。</li>
+</ul>
+<h2 id="socket"><a href="#socket" class="headerlink" title="socket"></a>socket</h2><p>skynet 把网络连接都封装成 struct socket，其结构体定义如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">socket</span> &#123;</span></span><br><span class="line">	<span class="comment">// 基础信息</span></span><br><span class="line">	<span class="keyword">int</span> fd;					<span class="comment">// 网络 fd</span></span><br><span class="line">	<span class="keyword">int</span> id;					<span class="comment">// 自增，范围在 0x01 ~ 0x7fffffff</span></span><br><span class="line">	<span class="keyword">uint8_t</span> protocol;		<span class="comment">// 协议类型，支持TCP和UDP</span></span><br><span class="line">	<span class="keyword">uint8_t</span> type;			<span class="comment">// socket类型(称为“状态”更合适)</span></span><br><span class="line">	<span class="keyword">uintptr_t</span> opaque;		<span class="comment">// 与之关联的服务id</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">		<span class="keyword">int</span> size;</span><br><span class="line">		<span class="keyword">uint8_t</span> udp_address[UDP_ADDRESS_SIZE];</span><br><span class="line">	&#125; p; <span class="comment">// 联合体，tcp使用size表示每次读取数据的字节数；udp使用udp_address表示远端地址信息</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 写入队列</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">wb_list</span> <span class="title">high</span>;</span>	<span class="comment">// 高优先级写入队列</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">wb_list</span> <span class="title">low</span>;</span>		<span class="comment">// 低优先级写入队列</span></span><br><span class="line">	<span class="keyword">int64_t</span> wb_size;		<span class="comment">// 待写入的字节数，0表示没有数据需要写入，过大则会发出报警</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 统计和警告</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">socket_stat</span> <span class="title">stat</span>;</span>	<span class="comment">// 读写统计信息(读写的字节总数、最后读写时间)</span></span><br><span class="line">	<span class="keyword">int64_t</span> warn_size;			<span class="comment">// 待写入数据过大时报警的阈值</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 直接写入</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">spinlock</span> <span class="title">dw_lock</span>;</span>	<span class="comment">// 直接写入的锁（后面会详细解释）</span></span><br><span class="line">	<span class="keyword">int</span> dw_offset;				<span class="comment">// 已经直接写入的数据大小</span></span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">void</span> * dw_buffer; 	<span class="comment">// 直接写入的数据指针</span></span><br><span class="line">	<span class="keyword">size_t</span> dw_size;				<span class="comment">// 直接写入的数据总量</span></span><br><span class="line">	<span class="keyword">volatile</span> <span class="keyword">uint32_t</span> sending;	<span class="comment">// 是否正在发送数据</span></span><br><span class="line">	<span class="keyword">uint16_t</span> udpconnecting; 	<span class="comment">// udp 正在连接标识</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>可以看到一个 socket 携带了很多信息，这些字段整理后可以分为四部分：</p>
+<ul>
+<li>基础信息，例如 socket fd、socket id、协议类型等信息</li>
+<li>写入队列相关，包括高优先级和低优先级两种写入队列</li>
+<li>直接写入(direct write)，包括锁(dw_lock)、直接写入的数据指针、大小和偏移量等等</li>
+<li>统计和警告，包括读写数据、读写时间的统计以及待写入数据过载时的警告</li>
+</ul>
+<p>每当 accept 函数获得一个新的 socket id 后，并不会立即收到这个 socket 上的数据。这是因为，我们有时会希望把这个 socket 的操作权转让给别的服务去处理。<br>socket 的 id 对于整个 skynet 节点都是公开的。也就是说，你可以把 id 这个数字通过消息发送给其它服务，其他服务也可以去操作它。任何一个服务只有在调用 socket.start(id) 之后，才可以收到这个 socket 上的数据。skynet 框架是根据调用 start 这个 api 的位置来决定把对应 socket 上的数据转发到哪里去的。<br>向一个 socket id 写数据也需要先调用 start ，但写数据不限制在调用 start 的同一个服务中。也就是说，你可以在一个服务中调用 start ，然后在另一个服务中向其写入数据。skynet 可以保证一次 write 调用的原子性。即，如果你有多个服务同时向一个 socket id 写数据，每个写操作的串不会被分割开。</p>
+<p>接下来我会对我认为需要深入的部分做更仔细的剖析，它们包括：socket id 的生成规则、socket 的状态以及状态的切换、socket 数据发送（直接发送和队列发送）。</p>
+<h2 id="ID-生成"><a href="#ID-生成" class="headerlink" title="ID 生成"></a>ID 生成</h2><p>通常，应用层不会直接使用内核返回的 fd 作为一个 socket 连接的唯一id，因为内核会复用 fd，因此内核的 fd 并不具有唯一性，例如服务器收到两个了连接，fd 分别是 1 和 2，当连接 2 被关闭后，此时新的连接到来，内核可能复用 fd = 2 分配给新的连接，这就引发一个问题，若应用层还需要对之前关闭的连接 2 做一些收尾操作，而新的连接又复用的连接 2 的 fd，新旧连接的冲突就发生了。<br>为了解决以上问题，一般服务器都有一套自己的 socket id 生成规则，大部分都是自增 id 作为一个连接的唯一 id。skynet 采用的也是类似方式，且 skynet 把 socket 实例的 id 与 socket 实例所在的数组下标做了哈希映射，其哈希算法也非常简单，就是对 id 做取模运算，取模后的值即为 socket 实例的数组下标。具体代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 哈希映射</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> HASH_ID(id) (((unsigned)id) % MAX_SOCKET)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 生成socket id</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span></span><br><span class="line">reserve_id(struct socket_server *ss) &#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="keyword">for</span> (i=<span class="number">0</span>;i&lt;MAX_SOCKET;i++) &#123;</span><br><span class="line">		<span class="keyword">int</span> id = ATOM_INC(&amp;(ss-&gt;alloc_id));</span><br><span class="line">		<span class="keyword">if</span> (id &lt; <span class="number">0</span>) &#123;</span><br><span class="line">			id = ATOM_AND(&amp;(ss-&gt;alloc_id), <span class="number">0x7fffffff</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">socket</span> *<span class="title">s</span> =</span> &amp;ss-&gt;slot[HASH_ID(id)];</span><br><span class="line">		<span class="keyword">if</span> (s-&gt;type == SOCKET_TYPE_INVALID) &#123;</span><br><span class="line">			<span class="keyword">if</span> (ATOM_CAS(&amp;s-&gt;type, SOCKET_TYPE_INVALID, SOCKET_TYPE_RESERVE)) &#123;</span><br><span class="line">				s-&gt;id = id;</span><br><span class="line">				s-&gt;protocol = PROTOCOL_UNKNOWN;</span><br><span class="line">				<span class="comment">// socket_server_udp_connect may inc s-&gt;udpconncting directly (from other thread, before new_fd), </span></span><br><span class="line">				<span class="comment">// so reset it to 0 here rather than in new_fd.</span></span><br><span class="line">				s-&gt;udpconnecting = <span class="number">0</span>;</span><br><span class="line">				s-&gt;fd = <span class="number">-1</span>;</span><br><span class="line">				<span class="keyword">return</span> id;</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				<span class="comment">// retry</span></span><br><span class="line">				--i;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码很简单易懂，其核心逻辑：循环查找 slot 数组中的 socket 实例，同时自增 alloc_id 并通过 HASH_ID 计算得到 slot 数组下标，直到找到一个处于空闲状态的的 socket 实例。该算法计算得到的 id 分部如下图所示：<br><img src="https://user-images.githubusercontent.com/11263320/120341663-a7ba1e00-c329-11eb-9c17-8344a3958e37.JPG" alt="捕获"></p>
+<h2 id="socket状态"><a href="#socket状态" class="headerlink" title="socket状态"></a>socket状态</h2><p>socket 的状态目前一共有 9 种，其宏定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_TYPE_INVALID 0		<span class="comment">// 初始状态</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_TYPE_RESERVE 1		<span class="comment">// 保留状态</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_TYPE_PLISTEN 2		<span class="comment">// 监听前状态</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_TYPE_LISTEN 3		<span class="comment">// 监听中状态</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_TYPE_CONNECTING 4	<span class="comment">// 连接中状态</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_TYPE_CONNECTED 5		<span class="comment">// 已连接状态</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_TYPE_HALFCLOSE 6		<span class="comment">// 半关闭状态（能写入但会丢弃读取的数据）</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_TYPE_PACCEPT 7 		<span class="comment">// 已接收，但是未添加到epoll（需要start）</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_TYPE_BIND 8			<span class="comment">// 绑定系统fd(stdin、stdout、stderr)</span></span></span><br></pre></td></tr></table></figure>
+<p>这些状态有的属于公共状态，每个 socket 实例都能适用，例如 INVALID 和 RESERVE；有的状态则只适用于与之对应的网络操作，例如 PLISTEN 和 LISTEN 属于与监听(listen)关联的状态。<br>首先介绍下两个公共状态的作用和意义：</p>
+<ul>
+<li>INVALID 是一个 socket 的初始状态，表示这个 socket 实例暂时未被使用，即可用状态，可用参考上面的 ID 生成 那一节内容</li>
+<li>RESERVE 保留状态，它表示一个 socket 实例正处于某些网络操作(例如listen、connect)的开始和正式结束的“中间”状态</li>
+</ul>
+<p>这里我们思考一个问题，为什么需要 RESERVE 中间状态呢？<br>这是因为 skynet 是一个多线程框架，为了保证工作线程尽量少的出现阻塞调用（服务都是由工作线程驱动），就需要把网络操作中的阻塞部分交由网络线程处理，当网络线程处理完阻塞逻辑后，抛出消息异步通知给服务，而 RESERVE 状态则确保了工作线程在发起网络调用后能立即返回一个可用的 socket 实例并保留住，以便异步消息的回调。正如云风所说：</p>
+<blockquote>
+<p>目前的设计是，所有网络请求，都通过把指令写到一个进程内的 pipe ，串行化到网络处理线程，依次处理，然后再把结果投&gt; 递到 skynet 的其它服务中。</p>
+</blockquote>
+<p>除了公共状态，其余的状态与网络调用相对应，这些网络调用包括：监听连接、被动连接、主动连接、关闭连接。</p>
+<ul>
+<li>监听，skynet 把监听操作分成两个步骤：建立监听socket、绑定并监听(有阻塞，如 getaddrinfo)；手动将监听 fd 注册到 epoll/kqueue 中<br><img src="https://user-images.githubusercontent.com/11263320/120348568-e18e2300-c32f-11eb-94c5-83fcb19f95df.jpg" alt="adc3x-9j2im"></li>
+<li>被动连接，同样分为两个步骤：发起主动连接请求；注册连接 fd 到 epoll/kqueue 中<br><img src="https://user-images.githubusercontent.com/11263320/120358666-54e86280-c339-11eb-9d98-673121d6761a.jpg" alt="a2gj4-3mpt0"></li>
+<li>主动连接，同样分为两个步骤：发起主动连接请求；注册连接 fd 到 epoll/kqueue 中。<br><img src="https://user-images.githubusercontent.com/11263320/120581931-34fe8f00-c45e-11eb-91d1-c487071d7570.jpg" alt="aky9g-917zw"></li>
+<li>关闭连接，分为正常关闭(close)和强制停止(shutdown)<br><img src="https://user-images.githubusercontent.com/11263320/120582027-58c1d500-c45e-11eb-8bbb-1bb258a4acfd.jpg" alt="ajhg1-e8j3q"><br>从上面这些网络操作的时序图中，我们可以看到它们都采用了异步消息通知的机制，网络调用由服务发起，通过内部命令管道转发给网络库，最终由网络线程执行具体的逻辑。这也印证了RESERVE状态的必要性。</li>
+</ul>
+<p>需要注意的是，skynet 网络库使用的系统网络 API 基本都是非阻塞的，除了 getaddrinfo，它是一个阻塞 API，linux 提供的各DNS API函数都是阻塞式的，无法设置超时时间等（关于此 api，官方的wiki也有说明）；另外，由 socket() 创建的 fd 也基本会设置成非阻塞(nonblocking)模式，包括 connect 的 fd，只有 listen fd 为阻塞。</p>
+<h2 id="写入队列"><a href="#写入队列" class="headerlink" title="写入队列"></a>写入队列</h2><p>一个 socket 实例有两个发送队列：高优先级队列、低优先级队列。它们的结构相同，只是在网络线程发送数据时有优先顺序，高优先级队列中的数据会优先发送。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">write_buffer</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">write_buffer</span> * <span class="title">next</span>;</span></span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">void</span> *buffer;</span><br><span class="line">	<span class="keyword">char</span> *ptr;</span><br><span class="line">	<span class="keyword">size_t</span> sz;</span><br><span class="line">	<span class="keyword">bool</span> userobject;</span><br><span class="line">	<span class="keyword">uint8_t</span> udp_address[UDP_ADDRESS_SIZE];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 发送队列</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">wb_list</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">write_buffer</span> * <span class="title">head</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">write_buffer</span> * <span class="title">tail</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>关于这两个队列的处理规则，可参考云风《对 skynet 的 gate 服务的重构》文中所述：<br>socket 发送规则如下：</p>
+<blockquote>
+<p>如果 socket 可写，且两个队列都为空，立即发送。<br>如果上一次有一个数据包没有发送完，无论它在哪个队列里，都确保先将其发送完。<br>如果高优先级队列有数据包，先保证发送高优先级队列上的数据。<br>如果高优先级队列为空，且低优先级队列不为空，发送一个低优先级队列上的数据包。</p>
+</blockquote>
+<h2 id="reference"><a href="#reference" class="headerlink" title="reference"></a>reference</h2><p>深入理解skynet —— 网络库(一)  详见：<a target="_blank" rel="noopener" href="https://domicat.me/_posts/2020-05-20-learn-skynet-network1/">https://domicat.me/_posts/2020-05-20-learn-skynet-network1/</a><br>pipe异步使用场景 详见：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/39752285/answer/82906915">https://www.zhihu.com/question/39752285/answer/82906915</a></p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/79">En la vida hay dos palabras que te abrirán muchas puertas…?? ???TIRE y EMPUJE!!!</a></p>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/post/e9005ae.html" rel="bookmark">skynet cluster</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/post/577e23ed.html" rel="bookmark">skynet module</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/post/a40f5bf.html" rel="bookmark">skynet monitor</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/post/933b71d7.html" rel="bookmark">skynet mq</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/post/ee7b06a5.html" rel="bookmark">skynet timer</a></div>
+    </li>
+  </ul>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/skynet/" rel="tag"><i class="fa fa-tag"></i> skynet</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/post/3da22f02.html" rel="prev" title="skynet与actor">
+      <i class="fa fa-chevron-left"></i> skynet与actor
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/post/ee7b06a5.html" rel="next" title="skynet timer">
+      skynet timer <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#epoll%E5%92%8Ckqueue"><span class="nav-number">1.</span> <span class="nav-text">epoll和kqueue</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#epoll%E5%B0%81%E8%A3%85%E5%B1%82"><span class="nav-number">2.</span> <span class="nav-text">epoll封装层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">运行流程：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A5-PTYPE-SOCKET-%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E7%BB%99%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82%E6%9C%8D%E5%8A%A1"><span class="nav-number">4.</span> <span class="nav-text">以 PTYPE_SOCKET 类型的消息发送给发起请求服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">网络管理器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E9%81%93"><span class="nav-number">6.</span> <span class="nav-text">管道</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6"><span class="nav-number">7.</span> <span class="nav-text">事件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#socket"><span class="nav-number">8.</span> <span class="nav-text">socket</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ID-%E7%94%9F%E6%88%90"><span class="nav-number">9.</span> <span class="nav-text">ID 生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#socket%E7%8A%B6%E6%80%81"><span class="nav-number">10.</span> <span class="nav-text">socket状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%85%A5%E9%98%9F%E5%88%97"><span class="nav-number">11.</span> <span class="nav-text">写入队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">12.</span> <span class="nav-text">reference</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <!--
+  <p class="site-author-name" itemprop="name">losophy</p>
+  -->
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">losophy</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '305836da6c4a706f6fb7',
+      clientSecret: '69be853985a105119444ad9dd25d60ac7ee03f3d',
+      repo        : 'blog.comments',
+      owner       : 'losophy',
+      admin       : ['losophy'],
+      id          : 'badc8c080c03c5b0d83518491346c0f4',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

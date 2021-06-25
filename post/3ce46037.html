@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="开始前先看看 1234class X &amp;#123;&amp;#125;;class Y:public virtual X &amp;#123;&amp;#125;;class Z:public virtual X &amp;#123;&amp;#125;;class A:public Y,public Z &amp;#123;&amp;#125;; 上述X，Y，Z，A中没有任何一个class内含明显的数据，其间只表示了继承关系。按照书上的例子 1234">
+  <meta name="description" content="这里看看，c++的数据是怎样存储的。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="c++对象模型研究之数据">
-<meta property="og:url" content="http://example.com/post/e3f0f84a.html">
+<meta property="og:title" content="c++数据">
+<meta property="og:url" content="http://example.com/post/3ce46037.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="开始前先看看 1234class X &amp;#123;&amp;#125;;class Y:public virtual X &amp;#123;&amp;#125;;class Z:public virtual X &amp;#123;&amp;#125;;class A:public Y,public Z &amp;#123;&amp;#125;; 上述X，Y，Z，A中没有任何一个class内含明显的数据，其间只表示了继承关系。按照书上的例子 1234">
+<meta property="og:description" content="这里看看，c++的数据是怎样存储的。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-02-25T08:30:20.000Z">
-<meta property="article:modified_time" content="2021-05-25T01:15:22.949Z">
+<meta property="article:modified_time" content="2021-06-25T08:13:01.475Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/post/e3f0f84a.html">
+<link rel="canonical" href="http://example.com/post/3ce46037.html">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>c++对象模型研究之数据 | losophy</title>
+  <title>c++数据 | losophy</title>
   
 
 
@@ -171,7 +171,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/e3f0f84a.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/3ce46037.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -184,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          c++对象模型研究之数据
+          c++数据
         </h1>
 
         <div class="post-meta">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -215,7 +215,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>开始前先看看</p>
+        <p>这里看看，c++的数据是怎样存储的。</p>
+<a id="more"></a>
+
+<p>开始前先看看</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> &#123;</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Y</span>:</span><span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Z</span>:</span><span class="keyword">public</span> <span class="keyword">virtual</span> X &#123;&#125;;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span><span class="keyword">public</span> Y,<span class="keyword">public</span> Z &#123;&#125;;</span><br></pre></td></tr></table></figure>
 <p>上述X，Y，Z，A中没有任何一个class内含明显的数据，其间只表示了继承关系。<br>按照书上的例子</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span> X = <span class="number">1</span></span><br><span class="line"><span class="keyword">sizeof</span> Y = <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> Z = <span class="number">8</span></span><br><span class="line"><span class="keyword">sizeof</span> A = <span class="number">12</span></span><br></pre></td></tr></table></figure>
@@ -239,6 +242,9 @@
 <p>虚拟继承<br>如果一个class 内含一个或多个virtual based class subobjects，那它将会被分成两个部分：不变的部分和共享的部分。不变的部分不论后继如何衍化，总是拥有固定的offset（从object头算起），所以这部分数据可以被直接存取。共享部分表现出来的就是virtual base class（虚基类） subobject（因为虚基类被多个class继承，也会被多个子object 更改，为了保证虚基类的 object 的统一性，就需要单独把虚基类的 object 给拎出来了），这一部分其位置会因为派生对象操作而发生变化，所以只能被间接存取（引入一个新的指针，指向共享的内容）。<br>当然只是单纯的引入指针指向共享的virtual base class subobject的话会存在两个缺点：1是随着虚基类的增加，指针的个数也会增加；2是虚基类之间如果也存在虚继承的话，间接存取的层数也会增加（子对象-&gt;父虚基类对象-&gt;祖父虚基类对象···）。<br>对于第一个问题，有两种解决方案：1是设一个指针指向一张虚基类表，虚基类表中存放虚基类对象访问地址；2是在虚基类表中存放每一个虚基类的offset，而不是地址。</p>
 <h2 id="对象成员的访问效率"><a href="#对象成员的访问效率" class="headerlink" title="对象成员的访问效率"></a>对象成员的访问效率</h2><p>指向数据成员的指针，是一个有点神秘又颇有用处的语言特性，特别是如果你需要详细调查类成员的底层布局的话。这样的调查可以用于决定vptr是放在class的起始处或者尾端。另外一个用途是可以用来决定类中的access sections的次序。</p>
 <p>指向成员数据的指针的效率问题<br>具体要看编译器怎样优化了</p>
+<h2 id="reference"><a href="#reference" class="headerlink" title="reference"></a>reference</h2><p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/88">https://github.com/losophy/losophy.github.io/issues/91</a></p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/88">El mejor amigo del perro es otro perro.</a></p>
 
     </div>
 
@@ -252,10 +258,10 @@
       <div class="popular-posts-title"><a href="/post/20d016ff.html" rel="bookmark">STL Adapters</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/bec1f717.html" rel="bookmark">STL Allocator</a></div>
+      <div class="popular-posts-title"><a href="/post/f5e61589.html" rel="bookmark">STL Algorithms</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/f5e61589.html" rel="bookmark">STL Algorithms</a></div>
+      <div class="popular-posts-title"><a href="/post/bec1f717.html" rel="bookmark">STL Allocator</a></div>
     </li>
     <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="/post/cd6c706d.html" rel="bookmark">STL Containers</a></div>
@@ -277,12 +283,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/dc52fe05.html" rel="prev" title="c++对象模型研究之构造函数">
-      <i class="fa fa-chevron-left"></i> c++对象模型研究之构造函数
+    <a href="/post/d3363e0e.html" rel="prev" title="c++构造函数">
+      <i class="fa fa-chevron-left"></i> c++构造函数
     </a></div>
       <div class="post-nav-item">
-    <a href="/post/336d1b21.html" rel="next" title="c++对象模型研究之构造、解构、拷贝">
-      c++对象模型研究之构造、解构、拷贝 <i class="fa fa-chevron-right"></i>
+    <a href="/post/e4e3f884.html" rel="next" title="c++构造、解构、拷贝">
+      c++构造、解构、拷贝 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -343,7 +349,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%90%E5%91%98%E6%95%B0%E6%8D%AE%E7%9A%84%E7%BB%91%E5%AE%9A"><span class="nav-number">1.</span> <span class="nav-text">成员数据的绑定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%90%E5%91%98%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B8%83%E5%B1%80"><span class="nav-number">2.</span> <span class="nav-text">成员数据的布局</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%90%E5%91%98%E6%95%B0%E6%8D%AE%E7%9A%84%E5%AD%98%E5%8F%96"><span class="nav-number">3.</span> <span class="nav-text">成员数据的存取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%A7%E6%89%BF%E4%B8%8E%E6%88%90%E5%91%98%E6%95%B0%E6%8D%AE"><span class="nav-number">4.</span> <span class="nav-text">继承与成员数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E6%88%90%E5%91%98%E7%9A%84%E8%AE%BF%E9%97%AE%E6%95%88%E7%8E%87"><span class="nav-number">5.</span> <span class="nav-text">对象成员的访问效率</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%90%E5%91%98%E6%95%B0%E6%8D%AE%E7%9A%84%E7%BB%91%E5%AE%9A"><span class="nav-number">1.</span> <span class="nav-text">成员数据的绑定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%90%E5%91%98%E6%95%B0%E6%8D%AE%E7%9A%84%E5%B8%83%E5%B1%80"><span class="nav-number">2.</span> <span class="nav-text">成员数据的布局</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%90%E5%91%98%E6%95%B0%E6%8D%AE%E7%9A%84%E5%AD%98%E5%8F%96"><span class="nav-number">3.</span> <span class="nav-text">成员数据的存取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%A7%E6%89%BF%E4%B8%8E%E6%88%90%E5%91%98%E6%95%B0%E6%8D%AE"><span class="nav-number">4.</span> <span class="nav-text">继承与成员数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E6%88%90%E5%91%98%E7%9A%84%E8%AE%BF%E9%97%AE%E6%95%88%E7%8E%87"><span class="nav-number">5.</span> <span class="nav-text">对象成员的访问效率</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">6.</span> <span class="nav-text">reference</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -358,7 +364,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -473,7 +479,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blog.comments',
       owner       : 'losophy',
       admin       : ['losophy'],
-      id          : '4de222867f4f46ac329f4ad5341322f4',
+      id          : '95914bbb5e6bbede5d25c8ce6a0e62e3',
         language: 'zh-CN',
       distractionFreeMode: true
     });

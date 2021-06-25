@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="元表的由来Lua2.1灵活语义问世，极大的增加了Lua的表达能力，从此，灵活语义就变成了Lua的标志。 灵活语义的一个目标是允许table作为对象和类的基础。为了实现这个目标，需要实现table的继承。另一个目标是将userdata变成应用数据的天然代理，可以作为函数参数而不只是一个句柄。userdata希望能够索引，就好像他们只是一个table，可供调用他们身上的方法。所以fallback机制的">
+  <meta name="description" content="lua中提供的元表(metatable)与元方法(metamethod)是一种非常重要的语法，metatable主要用于做一些类似于C++重载操作符式的功能。元表与元方法会影响table的访问行为。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="lua元表和元方法">
 <meta property="og:url" content="http://example.com/post/e141c56e.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="元表的由来Lua2.1灵活语义问世，极大的增加了Lua的表达能力，从此，灵活语义就变成了Lua的标志。 灵活语义的一个目标是允许table作为对象和类的基础。为了实现这个目标，需要实现table的继承。另一个目标是将userdata变成应用数据的天然代理，可以作为函数参数而不只是一个句柄。userdata希望能够索引，就好像他们只是一个table，可供调用他们身上的方法。所以fallback机制的">
+<meta property="og:description" content="lua中提供的元表(metatable)与元方法(metamethod)是一种非常重要的语法，metatable主要用于做一些类似于C++重载操作符式的功能。元表与元方法会影响table的访问行为。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-03-19T14:43:30.000Z">
-<meta property="article:modified_time" content="2021-05-25T01:15:20.069Z">
+<meta property="article:modified_time" content="2021-06-25T08:12:59.709Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="lua">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:20" itemprop="dateModified" datetime="2021-05-25T01:15:20+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
               </span>
 
           
@@ -215,15 +215,20 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="元表的由来"><a href="#元表的由来" class="headerlink" title="元表的由来"></a>元表的由来</h2><p>Lua2.1灵活语义问世，极大的增加了Lua的表达能力，从此，灵活语义就变成了Lua的标志。</p>
-<p>灵活语义的一个目标是允许table作为对象和类的基础。为了实现这个目标，需要实现table的继承。另一个目标是将userdata变成应用数据的天然代理，可以作为函数参数而不只是一个句柄。userdata希望能够索引，就好像他们只是一个table，可供调用他们身上的方法。所以fallback机制的实现，让Lua把未定义行为交给程序员处理，而不是直接在语言本身实现这些特性。</p>
-<p>Lua2.1提供了fallback机制，支持以下行为：table索引，算术操作符，字符串拼接，顺序比较，函数调用。当这些操作应用到“错误”的类型上，对应的fallback就会被调用到，允许程序员决定Lua如何处理。table索引fallback允许userdata和其它值类型表现的跟表一样。定义当Key不在table时的fallback，从而实现多种形式的继承（通过委托）。为了完善面向对象编程，添加了两个语法糖：function a:foo(…)就好比function a.foo(self,…)一样，以及a:foo(…)作为a.foo(a, …)的语法糖。</p>
-<p>Lua2.1里引入的fallback机制，可以很好的支持灵活扩展的语义，但这个机制是全局的：每个事件只有一个钩子。这让共享或重用代码变的很艰难，因为同一事件的fallback在模块里只能定义一次，不能共存。Lua 3.0解决了fallback冲突问题。fallback替换为tag方法：钩子是以(event, tag)的形式挂在字典里的。Tags是在Lua2.1引入的整数标签，可以附在userdata上。最初的动机是希望同类的C对象，在Lua里都有相同的tag(不过，Lua没有强迫要对Tag提供解释)。Lua3.0里对所有值类型提供了tag支持，以支持对应的tag方法。</p>
-<p>标记方法机制工作的很好，一直存续到Lua 5.0为止。在Lua 5.0实现了元表和元方法来取代标记和标记方法。元表只是普通的Lua table，所以可以用Lua直接操作，不需要特殊函数。就像标记一样，元表可以用来表示userdata和table的用户定义类型：所有“同类”对象应该共享同一个元表。不像标记，元表和他们的内容会在所有引用消失后自动被回收掉。（相反，标记和标记方法会等到程序结束才会被回收。）元表的引入同时简化了实现：标记方法需要在Lua核心代码里添加特殊的私有表示方法，元表主要就是标准的table机制。<br>下面的代码展示了Lua 5.0里，继承是如何实现的。index元方法取代了index标记，元表里则是用__index域来表示。代码通过将b的元表里的__index域指向a，实现了b继承a。（一般情况下，index元方法都是函数，但允许它设为table，以直接支持简单的委托继承。）</p>
+        <p><code>lua</code>中提供的元表<code>(metatable)</code>与元方法<code>(metamethod)</code>是一种非常重要的语法，<code>metatable</code>主要用于做一些类似于<code>C++</code>重载操作符式的功能。元表与元方法会影响<code>table</code>的访问行为。</p>
+<a id="more"></a>
+
+<h2 id="元表的由来"><a href="#元表的由来" class="headerlink" title="元表的由来"></a>元表的由来</h2><p><code>Lua2.1</code>灵活语义问世，极大的增加了<code>Lua</code>的表达能力，从此，灵活语义就变成了<code>Lua</code>的标志。</p>
+<p>灵活语义的一个目标是允许<code>table</code>作为对象和类的基础。为了实现这个目标，需要实现<code>table</code>的继承。另一个目标是将<code>userdata</code>变成应用数据的天然代理，可以作为函数参数而不只是一个句柄。<code>userdata</code>希望能够索引，就好像他们只是一个<code>table</code>，可供调用他们身上的方法。所以<code>fallback</code>机制的实现，让<code>Lua</code>把未定义行为交给程序员处理，而不是直接在语言本身实现这些特性。</p>
+<p><code>Lua2.1</code>提供了<code>fallback</code>机制，支持以下行为：<code>table</code>索引，算术操作符，字符串拼接，顺序比较，函数调用。当这些操作应用到“错误”的类型上，对应的<code>fallback</code>就会被调用到，允许程序员决定<code>Lua</code>如何处理。<code>table</code>索引<code>fallback</code>允许<code>userdata</code>和其它值类型表现的跟表一样。定义当<code>Key</code>不在<code>table</code>时的<code>fallback</code>，从而实现多种形式的继承（通过委托）。为了完善面向对象编程，添加了两个语法糖：<code>function a:foo(…)</code>就好比<code>function a.foo(self,…)</code>一样，以及<code>a:foo(…)</code>作为<code>a.foo(a, …)</code>的语法糖。</p>
+<p><code>Lua2.1</code>里引入的<code>fallback</code>机制，可以很好的支持灵活扩展的语义，但这个机制是全局的：每个事件只有一个钩子。这让共享或重用代码变的很艰难，因为同一事件的<code>fallback</code>在模块里只能定义一次，不能共存。<code>Lua 3.0</code>解决了<code>fallback</code>冲突问题。<code>fallback</code>替换为<code>tag</code>方法：钩子是以<code>(event, tag)</code>的形式挂在字典里的。<code>Tags</code>是在<code>Lua2.1</code>引入的整数标签，可以附在<code>userdata</code>上。最初的动机是希望同类的<code>C</code>对象，在<code>Lua</code>里都有相同的<code>tag</code>(不过，<code>Lua</code>没有强迫要对<code>Tag</code>提供解释)。<code>Lua3.0</code>里对所有值类型提供了<code>tag</code>支持，以支持对应的<code>tag</code>方法。</p>
+<p>标记方法机制工作的很好，一直存续到<code>Lua 5.0</code>为止。在<code>Lua 5.0</code>实现了元表和元方法来取代标记和标记方法。元表只是普通的<code>Lua table</code>，所以可以用<code>Lua</code>直接操作，不需要特殊函数。就像标记一样，元表可以用来表示<code>userdata</code>和<code>table</code>的用户定义类型：所有“同类”对象应该共享同一个元表。不像标记，元表和他们的内容会在所有引用消失后自动被回收掉。（相反，标记和标记方法会等到程序结束才会被回收。）元表的引入同时简化了实现：标记方法需要在<code>Lua</code>核心代码里添加特殊的私有表示方法，元表主要就是标准的<code>table</code>机制。<br>下面的代码展示了<code>Lua 5.0</code>里，继承是如何实现的。<code>index</code>元方法取代了<code>index</code>标记，元表里则是用<code>__index</code>域来表示。代码通过将<code>b</code>的元表里的<code>__index</code>域指向<code>a</code>，实现了<code>b</code>继承<code>a</code>。（一般情况下，<code>index</code>元方法都是函数，但允许它设为<code>table</code>，以直接支持简单的委托继承。）</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a=Window&#123;x=<span class="number">100</span>, y=<span class="number">200</span>, color=<span class="string">&quot;red&quot;</span>&#125;</span><br><span class="line">b=Window&#123;x=<span class="number">300</span>, y=<span class="number">400</span>&#125;</span><br><span class="line"><span class="built_in">setmetatable</span>(b, &#123;<span class="built_in">__index</span> = a&#125;)</span><br><span class="line"><span class="built_in">print</span>(b.color) —&gt;red</span><br></pre></td></tr></table></figure>
-<h2 id="元方法"><a href="#元方法" class="headerlink" title="元方法"></a>元方法</h2><p>在Lua中有一个元表，也就是上面说的metatable，我们可以通过元表来修改一个值得行为，使其在面对一个非预定义的操作时执行一个指定的操作。比如，现在有两个table类型的变量a和b，我们可以通过metatable定义如何计算表达式a+b<br>我们是使用getmetatable来获取一个table或userdata类型变量的元表，当创建新的table变量时，使用getmetatable去获得元表，将返回nil；同理，我们也可以使用setmetatable去设置一个table或userdata类型变量的元表<br>在table中，我可以重新定义的元方法有以下几个</p>
+<h2 id="元方法"><a href="#元方法" class="headerlink" title="元方法"></a>元方法</h2><p>在<code>Lua</code>中有一个元表，也就是上面说的<code>metatable</code>，我们可以通过元表来修改一个值得行为，使其在面对一个非预定义的操作时执行一个指定的操作。比如，现在有两个<code>table</code>类型的变量<code>a</code>和<code>b</code>，我们可以通过<code>metatable</code>定义如何计算表达式<code>a+b</code>。<br>我们是使用<code>getmetatable</code>来获取一个<code>table</code>或<code>userdata</code>类型变量的元表，当创建新的<code>table</code>变量时，使用<code>getmetatable</code>去获得元表，将返回<code>nil</code>；同理，我们也可以使用<code>setmetatable</code>去设置一个<code>table</code>或<code>userdata</code>类型变量的元表。<br>在<code>table</code>中，我可以重新定义的元方法有以下几个：</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">__add</span>(a, b) <span class="comment">--加法</span></span><br><span class="line"><span class="built_in">__sub</span>(a, b) <span class="comment">--减法</span></span><br><span class="line"><span class="built_in">__mul</span>(a, b) <span class="comment">--乘法</span></span><br><span class="line"><span class="built_in">__div</span>(a, b) <span class="comment">--除法</span></span><br><span class="line"><span class="built_in">__mod</span>(a, b) <span class="comment">--取模</span></span><br><span class="line"><span class="built_in">__pow</span>(a, b) <span class="comment">--乘幂</span></span><br><span class="line"><span class="built_in">__unm</span>(a) <span class="comment">--相反数</span></span><br><span class="line"><span class="built_in">__concat</span>(a, b) <span class="comment">--连接</span></span><br><span class="line"><span class="built_in">__len</span>(a) <span class="comment">--长度</span></span><br><span class="line"><span class="built_in">__eq</span>(a, b) <span class="comment">--相等</span></span><br><span class="line"><span class="built_in">__lt</span>(a, b) <span class="comment">--小于</span></span><br><span class="line"><span class="built_in">__le</span>(a, b) <span class="comment">--小于等于</span></span><br><span class="line"><span class="built_in">__index</span>(a, b) <span class="comment">--索引查询</span></span><br><span class="line"><span class="built_in">__newindex</span>(a, b, c) <span class="comment">--索引更新（PS：不懂的话，后面会有讲）</span></span><br><span class="line"><span class="built_in">__call</span>(a, ...) <span class="comment">--执行方法调用</span></span><br><span class="line"><span class="built_in">__tostring</span>(a) <span class="comment">--字符串输出</span></span><br><span class="line"><span class="built_in">__metatable</span> <span class="comment">--保护元表</span></span><br></pre></td></tr></table></figure>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>《The evolution of Lua》</p>
+<h2 id="元表的实现"><a href="#元表的实现" class="headerlink" title="元表的实现"></a>元表的实现</h2><h2 id="reference"><a href="#reference" class="headerlink" title="reference"></a>reference</h2><p>《The evolution of Lua》</p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/107">Tierra tan rica en belleza, que incontables héroes la ho.</a></p>
 
     </div>
 
@@ -237,16 +242,16 @@
       <div class="popular-posts-title"><a href="/post/6349ecd2.html" rel="bookmark">lua Table</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/d46217f.html" rel="bookmark">lua_state</a></div>
+      <div class="popular-posts-title"><a href="/post/ba161a39.html" rel="bookmark">lua gc</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/post/f7329e6b.html" rel="bookmark">lua state</a></div>
     </li>
     <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="/post/b165dcb7.html" rel="bookmark">lua与C/C++程序的整合</a></div>
     </li>
     <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="/post/fde3146b.html" rel="bookmark">lua与配置文件</a></div>
-    </li>
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/4d7ca723.html" rel="bookmark">lua使用优化</a></div>
     </li>
   </ul>
 
@@ -328,7 +333,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%83%E8%A1%A8%E7%9A%84%E7%94%B1%E6%9D%A5"><span class="nav-number">1.</span> <span class="nav-text">元表的由来</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%83%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">元方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%83%E8%A1%A8%E7%9A%84%E7%94%B1%E6%9D%A5"><span class="nav-number">1.</span> <span class="nav-text">元表的由来</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%83%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">元方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%83%E8%A1%A8%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">元表的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">4.</span> <span class="nav-text">reference</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -343,7 +348,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

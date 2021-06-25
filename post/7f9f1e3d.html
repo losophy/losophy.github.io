@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="skynet 自带了一个控制台服务，可以很方便获取和调试 skynet 运行数据，而且可以热更新代码，所以，弄明白skynet控制台管理可以让你更好地使用skynet，甚至改进这个控制台服务，以满足不同业务需求。 这个服务默认不会启动，需要你手动启动它，如下： 1skynet.newservice(&quot;debug_console&quot;, 8000) 设计原因，调试控制台只监听本地地址">
+  <meta name="description" content="skynet 自带了一个控制台服务，可以很方便获取和调试 skynet 运行数据，而且可以热更新代码，所以，弄明白skynet控制台管理可以让你更好地使用skynet，甚至改进这个控制台服务，以满足不同业务需求。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="skynet控制台管理">
 <meta property="og:url" content="http://example.com/post/7f9f1e3d.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="skynet 自带了一个控制台服务，可以很方便获取和调试 skynet 运行数据，而且可以热更新代码，所以，弄明白skynet控制台管理可以让你更好地使用skynet，甚至改进这个控制台服务，以满足不同业务需求。 这个服务默认不会启动，需要你手动启动它，如下： 1skynet.newservice(&quot;debug_console&quot;, 8000) 设计原因，调试控制台只监听本地地址">
+<meta property="og:description" content="skynet 自带了一个控制台服务，可以很方便获取和调试 skynet 运行数据，而且可以热更新代码，所以，弄明白skynet控制台管理可以让你更好地使用skynet，甚至改进这个控制台服务，以满足不同业务需求。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-02-23T14:57:48.000Z">
-<meta property="article:modified_time" content="2021-05-25T01:15:22.949Z">
+<meta property="article:modified_time" content="2021-06-25T08:13:01.476Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="skynet">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-25 01:15:22" itemprop="dateModified" datetime="2021-05-25T01:15:22+00:00">2021-05-25</time>
+                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
               </span>
 
           
@@ -216,6 +216,8 @@
 
       
         <p>skynet 自带了一个控制台服务，可以很方便获取和调试 skynet 运行数据，而且可以热更新代码，所以，弄明白skynet控制台管理可以让你更好地使用skynet，甚至改进这个控制台服务，以满足不同业务需求。</p>
+<a id="more"></a>
+
 <p>这个服务默认不会启动，需要你手动启动它，如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">skynet.newservice(&quot;debug_console&quot;, 8000)</span><br></pre></td></tr></table></figure>
 <p>设计原因，调试控制台只监听本地地址 127.0.0.1 ，如果需要远程使用，需要先登录到本机，然后再连接。</p>
@@ -246,6 +248,8 @@
 <p>最后，这里列举 rlwrap常用的快捷键：<br>Ctrl+L 清屏，实际是将当前行置顶<br>Ctrl+P 上一条命令<br>Ctrl+N 下一条命令<br>Ctrl+U 从光标处删除到行首<br>Ctrl+W 向前删除一个单词<br>Ctrl+B 光标向前移动一个位置<br>Ctrl+T 光标处字符与前一个字符交换位置<br>Ctrl+Z 后台运行，使用fg调出<br>Ctrl+H 相当于删除键<br>Ctrl+J 相当于回车键<br>Ctrl+O 相当于回车键<br>Ctrl+M 相当于回车键</p>
 <p>追踪业务逻辑<br>skynet.trace() </p>
 <h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>目前在 skynet 的内存分配 API 预埋了调试接口。可以通过在 make 时加上预定义宏 MEMORY_CHECK 打开。<br>例如，在 linux 下，可以用 make linux SKYNET_DEFINES=-DMEMORY_CHECK 打开。<br>btw，还有一些同学用 C 编写 lua 扩展模块没有经验，导致 lua 堆栈溢出，最终致使程序崩溃。推荐在编译 lua 的时候加上宏定义：LUA_USE_APICHECK 。</p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/75">Se está muriendo gente que antes no se moría.</a></p>
 
     </div>
 
@@ -256,19 +260,19 @@
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/59136848.html" rel="bookmark">skynet Socket</a></div>
-    </li>
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/82e16ca1.html" rel="bookmark">skynet http</a></div>
-    </li>
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/ee7b06a5.html" rel="bookmark">skynet timer</a></div>
-    </li>
-    <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/71eac7b6.html" rel="bookmark">skynet启动</a></div>
-    </li>
-    <li class="popular-posts-item">
       <div class="popular-posts-title"><a href="/post/e9005ae.html" rel="bookmark">skynet cluster</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/post/577e23ed.html" rel="bookmark">skynet module</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/post/a40f5bf.html" rel="bookmark">skynet monitor</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/post/933b71d7.html" rel="bookmark">skynet mq</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/post/5ebf6d7e.html" rel="bookmark">skynet socket</a></div>
     </li>
   </ul>
 
@@ -284,8 +288,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/82e16ca1.html" rel="prev" title="skynet http">
-      <i class="fa fa-chevron-left"></i> skynet http
+    <a href="/post/c4e8baa7.html" rel="prev" title="skynet worker">
+      <i class="fa fa-chevron-left"></i> skynet worker
     </a></div>
       <div class="post-nav-item">
     <a href="/post/eb9dcede.html" rel="next" title="skynet热更新lua代码">
@@ -365,7 +369,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
