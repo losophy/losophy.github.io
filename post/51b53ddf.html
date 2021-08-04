@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="锁机制用于管理对共享资源的并发访问。">
+  <meta name="description" content="这里记录下软件设计的那些事。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="mysql：锁">
-<meta property="og:url" content="http://example.com/post/d620d60b.html">
+<meta property="og:title" content="软件设计那些事">
+<meta property="og:url" content="http://example.com/post/51b53ddf.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="锁机制用于管理对共享资源的并发访问。">
+<meta property="og:description" content="这里记录下软件设计的那些事。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-02-22T16:42:29.000Z">
-<meta property="article:modified_time" content="2021-06-21T09:02:34.037Z">
+<meta property="article:published_time" content="2021-02-04T12:25:13.000Z">
+<meta property="article:modified_time" content="2021-08-04T08:23:06.479Z">
 <meta property="article:author" content="losophy">
-<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="design">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/post/d620d60b.html">
+<link rel="canonical" href="http://example.com/post/51b53ddf.html">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>mysql：锁 | losophy</title>
+  <title>软件设计那些事 | losophy</title>
   
 
 
@@ -171,7 +171,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/d620d60b.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/51b53ddf.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -184,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          mysql：锁
+          软件设计那些事
         </h1>
 
         <div class="post-meta">
@@ -194,14 +194,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-22 16:42:29" itemprop="dateCreated datePublished" datetime="2021-02-22T16:42:29+00:00">2021-02-22</time>
+              <time title="创建时间：2021-02-04 12:25:13" itemprop="dateCreated datePublished" datetime="2021-02-04T12:25:13+00:00">2021-02-04</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-21 09:02:34" itemprop="dateModified" datetime="2021-06-21T09:02:34+00:00">2021-06-21</time>
+                <time title="修改时间：2021-08-04 08:23:06" itemprop="dateModified" datetime="2021-08-04T08:23:06+00:00">2021-08-04</time>
               </span>
 
           
@@ -215,16 +215,18 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>锁机制用于管理对共享资源的并发访问。</p>
+        <p>这里记录下软件设计的那些事。</p>
 <a id="more"></a>
 
-<h2 id="行级锁"><a href="#行级锁" class="headerlink" title="行级锁"></a>行级锁</h2><p>行级锁只在存储引擎层实现，在服务器层没有实现。</p>
-<h2 id="mysql乐观锁、悲观锁"><a href="#mysql乐观锁、悲观锁" class="headerlink" title="mysql乐观锁、悲观锁"></a>mysql乐观锁、悲观锁</h2><p><code>latch</code>门闩，因为其要求锁定的时间必须非常短。若持续的时间长，则应用的性能会非常差。在<code>InnoDB</code>存储引擎中，<code>latch</code>又可以分为<code>mutex</code>（互斥量）和<code>rwlock</code>（读写锁）。其目的是用来保证并发线程操作临界资源的正确性，并且通常没有死锁检测的机制。</p>
-<p><code>lock</code>的对象是事务，用来锁定的是数据库中的对象，如表、页、行。并且一般lock的对象仅在事务<code>commt</code>或<code>rollback</code>后进行释放（不同事务隔离级别释放的时间可能不同）。此外，<code>lock</code>，正如在大多数数据库中一样，是有死锁机制的。</p>
-<h2 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h2><p>死锁是指两个或两个以上的事务在执行过程中，因争夺锁资源而造成的一种互相等待的现象。</p>
-<h2 id="锁升级"><a href="#锁升级" class="headerlink" title="锁升级"></a>锁升级</h2><p>锁升级是指将当前锁的粒度降低。比如，数据库可以把一个表的1000个行锁升级为一个页锁，或者将页锁升级为表负。如果在数据库的设计中认为锁是一种稀有资源，而且想避免锁的开销，那数据库中会频繁出现锁升级现象。</p>
+<h2 id="软件生命周期-Systems-Development-Life-Cycle"><a href="#软件生命周期-Systems-Development-Life-Cycle" class="headerlink" title="软件生命周期(Systems Development Life Cycle )"></a>软件生命周期(Systems Development Life Cycle )</h2><p>需求分析-&gt;设计-&gt;编码-&gt;测试-&gt;发布-&gt;维护</p>
+<h3 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h3><p>这阶段是软件开发的最初阶段，也是最重要的阶段。明确的需求，可以在之后的开发中，少走弯路。<br>这个阶段也要和需求方共同讨论，有时候也需要开会，集中各参与者的意见。</p>
+<h3 id="设计"><a href="#设计" class="headerlink" title="设计"></a>设计</h3><p>这阶段要对整个软件系统进行设计，确定要用什么技术，什么方法，怎样的设计模式。</p>
+<h3 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h3><p>将软件设计的结果转换成计算机可运行的程序代码。</p>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>对软件进行测试，黑白盒测试。</p>
+<h3 id="发布"><a href="#发布" class="headerlink" title="发布"></a>发布</h3><p>测试没有问题后，就可以上线发布。是一些新功能，或者是一些bug补丁。</p>
+<h3 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h3><p>软件维护是软件生命周期中持续时间最长的阶段。软件的维护包括纠错性维护和改进性维护两个方面。</p>
 <hr>
-<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/53">Donde no hay harina, todo es mohina.</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/14">Querer es poder.</a></p>
 
     </div>
 
@@ -235,26 +237,26 @@
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/3d3705e1.html" rel="bookmark">mysql事务</a></div>
+      <div class="popular-posts-title"><a href="/post/d6fe94a3.html" rel="bookmark">Actor模型</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/4bb2a065.html" rel="bookmark">mysql备份、复制</a></div>
+      <div class="popular-posts-title"><a href="/post/9a7f448e.html" rel="bookmark">Jenkins</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/22e29991.html" rel="bookmark">mysql数据结构</a></div>
+      <div class="popular-posts-title"><a href="/post/efed7d66.html" rel="bookmark">事件驱动模型与观察者模式</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/2113b019.html" rel="bookmark">mysql架构</a></div>
+      <div class="popular-posts-title"><a href="/post/2f4d2249.html" rel="bookmark">代码整洁之道</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/71014c5a.html" rel="bookmark">mysql索引</a></div>
+      <div class="popular-posts-title"><a href="/post/f1601c3e.html" rel="bookmark">单例模式</a></div>
     </li>
   </ul>
 
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/mysql/" rel="tag"><i class="fa fa-tag"></i> mysql</a>
+              <a href="/tags/design/" rel="tag"><i class="fa fa-tag"></i> design</a>
           </div>
 
         
@@ -263,12 +265,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/3d3705e1.html" rel="prev" title="mysql事务">
-      <i class="fa fa-chevron-left"></i> mysql事务
+    <a href="/post/f2066cc0.html" rel="prev" title="redis多机数据库的实现">
+      <i class="fa fa-chevron-left"></i> redis多机数据库的实现
     </a></div>
       <div class="post-nav-item">
-    <a href="/post/ceeb0073.html" rel="next" title="lua环境与模块">
-      lua环境与模块 <i class="fa fa-chevron-right"></i>
+    <a href="/post/ab453ce.html" rel="next" title="虚拟文件系统">
+      虚拟文件系统 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -329,7 +331,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%8C%E7%BA%A7%E9%94%81"><span class="nav-number">1.</span> <span class="nav-text">行级锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql%E4%B9%90%E8%A7%82%E9%94%81%E3%80%81%E6%82%B2%E8%A7%82%E9%94%81"><span class="nav-number">2.</span> <span class="nav-text">mysql乐观锁、悲观锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%BB%E9%94%81"><span class="nav-number">3.</span> <span class="nav-text">死锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%81%E5%8D%87%E7%BA%A7"><span class="nav-number">4.</span> <span class="nav-text">锁升级</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-Systems-Development-Life-Cycle"><span class="nav-number">1.</span> <span class="nav-text">软件生命周期(Systems Development Life Cycle )</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">需求分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.2.</span> <span class="nav-text">设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E7%A0%81"><span class="nav-number">1.3.</span> <span class="nav-text">编码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">1.4.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B8%83"><span class="nav-number">1.5.</span> <span class="nav-text">发布</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%B4%E6%8A%A4"><span class="nav-number">1.6.</span> <span class="nav-text">维护</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -344,7 +346,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">110</span>
+          <span class="site-state-item-count">98</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -459,7 +461,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blog.comments',
       owner       : 'losophy',
       admin       : ['losophy'],
-      id          : '28443a28c271b2be76ac19ed23bebc47',
+      id          : '8a9c4cc3ad60b65dad326c473a8e928c',
         language: 'zh-CN',
       distractionFreeMode: true
     });

@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="软件生命周期(Systems Development Life Cycle )需求分析-&gt;设计-&gt;编码-&gt;测试-&gt;发布-&gt;维护 需求分析这阶段是软件开发的最初阶段，也是最重要的阶段。明确的需求，可以在之后的开发中，少走弯路。这个阶段也要和需求方共同讨论，有时候也需要开会，集中各参与者的意见。 设计这阶段要对整个软件系统进行设计，确定要用什么技术，什么方法，怎样的设计模">
+  <meta name="description" content="C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="软件设计那么事">
-<meta property="og:url" content="http://example.com/post/54b9bf7e.html">
+<meta property="og:title" content="c++执行期">
+<meta property="og:url" content="http://example.com/post/b1b9c2c8.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="软件生命周期(Systems Development Life Cycle )需求分析-&gt;设计-&gt;编码-&gt;测试-&gt;发布-&gt;维护 需求分析这阶段是软件开发的最初阶段，也是最重要的阶段。明确的需求，可以在之后的开发中，少走弯路。这个阶段也要和需求方共同讨论，有时候也需要开会，集中各参与者的意见。 设计这阶段要对整个软件系统进行设计，确定要用什么技术，什么方法，怎样的设计模">
+<meta property="og:description" content="C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-02-04T12:25:13.000Z">
-<meta property="article:modified_time" content="2021-06-21T09:02:35.715Z">
+<meta property="article:published_time" content="2021-02-25T11:19:57.000Z">
+<meta property="article:modified_time" content="2021-08-04T08:23:03.821Z">
 <meta property="article:author" content="losophy">
-<meta property="article:tag" content="design">
+<meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/post/54b9bf7e.html">
+<link rel="canonical" href="http://example.com/post/b1b9c2c8.html">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>软件设计那么事 | losophy</title>
+  <title>c++执行期 | losophy</title>
   
 
 
@@ -171,7 +171,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/54b9bf7e.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/b1b9c2c8.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -184,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          软件设计那么事
+          c++执行期
         </h1>
 
         <div class="post-meta">
@@ -194,14 +194,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-04 12:25:13" itemprop="dateCreated datePublished" datetime="2021-02-04T12:25:13+00:00">2021-02-04</time>
+              <time title="创建时间：2021-02-25 11:19:57" itemprop="dateCreated datePublished" datetime="2021-02-25T11:19:57+00:00">2021-02-25</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-21 09:02:35" itemprop="dateModified" datetime="2021-06-21T09:02:35+00:00">2021-06-21</time>
+                <time title="修改时间：2021-08-04 08:23:03" itemprop="dateModified" datetime="2021-08-04T08:23:03+00:00">2021-08-04</time>
               </span>
 
           
@@ -215,13 +215,30 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="软件生命周期-Systems-Development-Life-Cycle"><a href="#软件生命周期-Systems-Development-Life-Cycle" class="headerlink" title="软件生命周期(Systems Development Life Cycle )"></a>软件生命周期(Systems Development Life Cycle )</h2><p>需求分析-&gt;设计-&gt;编码-&gt;测试-&gt;发布-&gt;维护</p>
-<h3 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h3><p>这阶段是软件开发的最初阶段，也是最重要的阶段。明确的需求，可以在之后的开发中，少走弯路。<br>这个阶段也要和需求方共同讨论，有时候也需要开会，集中各参与者的意见。</p>
-<h3 id="设计"><a href="#设计" class="headerlink" title="设计"></a>设计</h3><p>这阶段要对整个软件系统进行设计，确定要用什么技术，什么方法，怎样的设计模式。</p>
-<h3 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h3><p>将软件设计的结果转换成计算机可运行的程序代码。</p>
-<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>对软件进行测试，黑白盒测试。</p>
-<h3 id="发布"><a href="#发布" class="headerlink" title="发布"></a>发布</h3><p>测试没有问题后，就可以上线发布。是一些新功能，或者是一些bug补丁。</p>
-<h3 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h3><p>软件维护是软件生命周期中持续时间最长的阶段。软件的维护包括纠错性维护和改进性维护两个方面。</p>
+        <p>C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。</p>
+<a id="more"></a>
+
+<p>执行期语意学，即在程序执行时，编译器产生而外的指令调用，确保对象的构造，内存的释放，以及类型转换与临时对象的生成的安全进行。</p>
+<h2 id="对象的构造和析构"><a href="#对象的构造和析构" class="headerlink" title="对象的构造和析构"></a>对象的构造和析构</h2><p>一般而言，我们会把对象尽可能放置在使用它的那个程序区段附近，这样做可以节省不必要的对象产生操作和摧毁操作（主要是析构）。不建议把所有的对象放在函数或某个区段的起始处。</p>
+<p>全局对象<br>对于全局变量，C++会保证在调用全局变量之前，将全局变量构造出来。<br>而所有的全局变量都被放置在程序的数据段中（data segment），并且为没有显示指定值的变量初始化为0。<br>同时对于全局的类对象，在编译时期被放置于data segment中并且内容也为0.只有在程序启动时其对应的constructor才会实施。因此object需要静态初始化。<br>静态初始化的munch策略：<br>1.为每个需要静态初始化的文件产生一个_sti()函数，内含必要的constructor调用操作和inline expansions。<br>2.为每一个需要静态的内存释放操作的文件，产生一个_std()函数。<br>3.提供一个_main()函数调用所有的_sti()函数，一个_exit()函数调用所有的_std()函数</p>
+<p>局部静态对象<br>局部静态对象的构造函数只能被施行一次，析构函数也只有一次。<br>所以对于局部静态对象，一个很简单的思路就是导入一个临时性对象，当第一次传入时，设置为true，之后则不再进行处理。<br>条件式析构也是所有编译器所必须的，而局部静态对象需以构造的相反的顺序被析构。</p>
+<p>对象数组<br>对于以下数组定义，我们一般使用vec_new()函数来构造数组(这是在cfront中的方式), 对于VS等，则提供一个用来处理没有”virtual base class”的class，另一个用来处理”内含virtual base class”的class。后一个函数通常称为 vec_vnew()。<br>函数的原型一般如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*constructor)(<span class="keyword">void</span> *)        <span class="comment">//类的constructor函数指针</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
+<p>所以对上述的Point对象的初始化，对应的vec_new()的实例化如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vec_new( &amp;knots, <span class="keyword">sizeof</span>(Point), <span class="number">10</span>, &amp;Point::Point, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>同理，对于对象的删除，也有类似的vec_delete()来进行操作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
+<h2 id="new和delete运算符"><a href="#new和delete运算符" class="headerlink" title="new和delete运算符"></a>new和delete运算符</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *pi = <span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+<p>其实是通过两个步骤完成的，第一步通过适当的new运算符函数实例，配置所需的内存，然后将配置来的内存设定初值。</p>
+<p>使用pi，和使用pi所指的对象，其差别在于哪一个生命已经结束了。因为即使对象不合法，但是指针所指的对象也是合法的。<br>new其实是通过标准的c malloc完成的，每一次对new的调用必须传回一个独一无二的指针，指向默认1byte的内存地址。</p>
+<p>针对数组的new语意<br>如果类对象数组没定义constructor和destructor，则不会调用vec_new。<br>对于delete[] p_array, 只有中括号出现时，编译器才会寻找数组的维度，否则他只会假设单独的一个object要被删除。<br>那么如何记录数组的元素个数呢？一个明显的方法是为vec_new()所传回的每一个内存区域块设置一个额外的word，然后把元素个数包藏在那个word之中。而包藏的数值通常称为cookie。<br>在原始编译器中，有两个主要函数用来存取cookie</p>
+<p>注意，避免一个base class指针指向一个derived class object所组成的数组。</p>
+<p>如果一定要这样做，默认情况下只会交给施行vec_delete()函数的”被删除之指针类型的destructor“，也就是Point destructor。<br>所以，需要程序员如下显著的进行释放内存。</p>
+<p>placement Operator new语意</p>
+<h2 id="临时性对象"><a href="#临时性对象" class="headerlink" title="临时性对象"></a>临时性对象</h2><p>临时性对象的摧毁，应该是对完整表达式求值过程中最后一个步骤。该完整表达式造成临时对象的产生。<br>凡持有表达式执行结果的临时对象，应该保留到object的初始化操作完成为止。<br>如果一个临时对象被绑定于一个reference，对象将残留，直到初始化之reference生命结束，或直到临时对象的什么范畴结束。</p>
+<h2 id="reference"><a href="#reference" class="headerlink" title="reference"></a>reference</h2><p>《深度探索C++对象模型》</p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/90">Un pesado es alguien que cuando le preguntas cómo está, va y te contesta.</a></p>
 
     </div>
 
@@ -232,26 +249,26 @@
   <div class="popular-posts-header">相关文章</div>
   <ul class="popular-posts">
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/d6fe94a3.html" rel="bookmark">Actor模型</a></div>
+      <div class="popular-posts-title"><a href="/post/20d016ff.html" rel="bookmark">STL Adapters</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/9a7f448e.html" rel="bookmark">Jenkins</a></div>
+      <div class="popular-posts-title"><a href="/post/f5e61589.html" rel="bookmark">STL Algorithms</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/efed7d66.html" rel="bookmark">事件驱动模型与观察者模式</a></div>
+      <div class="popular-posts-title"><a href="/post/bec1f717.html" rel="bookmark">STL Allocator</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/2f4d2249.html" rel="bookmark">代码整洁之道</a></div>
+      <div class="popular-posts-title"><a href="/post/cd6c706d.html" rel="bookmark">STL Containers</a></div>
     </li>
     <li class="popular-posts-item">
-      <div class="popular-posts-title"><a href="/post/f1601c3e.html" rel="bookmark">单例模式</a></div>
+      <div class="popular-posts-title"><a href="/post/303d52cd.html" rel="bookmark">STL Functors</a></div>
     </li>
   </ul>
 
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/design/" rel="tag"><i class="fa fa-tag"></i> design</a>
+              <a href="/tags/cpp/" rel="tag"><i class="fa fa-tag"></i> cpp</a>
           </div>
 
         
@@ -260,12 +277,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/f2066cc0.html" rel="prev" title="redis多机数据库的实现">
-      <i class="fa fa-chevron-left"></i> redis多机数据库的实现
+    <a href="/post/e4e3f884.html" rel="prev" title="c++构造、解构、拷贝">
+      <i class="fa fa-chevron-left"></i> c++构造、解构、拷贝
     </a></div>
       <div class="post-nav-item">
-    <a href="/post/d4ce124c.html" rel="next" title="堆与堆排序">
-      堆与堆排序 <i class="fa fa-chevron-right"></i>
+    <a href="/post/e7a54727.html" rel="next" title="c++对象模型的顶端">
+      c++对象模型的顶端 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -326,7 +343,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-Systems-Development-Life-Cycle"><span class="nav-number">1.</span> <span class="nav-text">软件生命周期(Systems Development Life Cycle )</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">需求分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.2.</span> <span class="nav-text">设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E7%A0%81"><span class="nav-number">1.3.</span> <span class="nav-text">编码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">1.4.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B8%83"><span class="nav-number">1.5.</span> <span class="nav-text">发布</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%B4%E6%8A%A4"><span class="nav-number">1.6.</span> <span class="nav-text">维护</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%9E%84%E9%80%A0%E5%92%8C%E6%9E%90%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">对象的构造和析构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#new%E5%92%8Cdelete%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="nav-number">2.</span> <span class="nav-text">new和delete运算符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%B4%E6%97%B6%E6%80%A7%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.</span> <span class="nav-text">临时性对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">4.</span> <span class="nav-text">reference</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -341,7 +358,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">110</span>
+          <span class="site-state-item-count">98</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -456,7 +473,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blog.comments',
       owner       : 'losophy',
       admin       : ['losophy'],
-      id          : 'd15b8d9f0215331b8c800e58a00bde21',
+      id          : '01cc9082c76c1af46b951a11684c44f0',
         language: 'zh-CN',
       distractionFreeMode: true
     });

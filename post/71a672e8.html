@@ -28,7 +28,7 @@
 <meta property="og:description" content="这里记录下网络游戏服务器开发中，要注意的事项。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-03-09T07:46:18.000Z">
-<meta property="article:modified_time" content="2021-06-21T09:02:30.496Z">
+<meta property="article:modified_time" content="2021-08-04T08:23:00.239Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="design">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-21 09:02:30" itemprop="dateModified" datetime="2021-06-21T09:02:30+00:00">2021-06-21</time>
+                <time title="修改时间：2021-08-04 08:23:00" itemprop="dateModified" datetime="2021-08-04T08:23:00+00:00">2021-08-04</time>
               </span>
 
           
@@ -221,7 +221,7 @@
 <h2 id="逻辑问题"><a href="#逻辑问题" class="headerlink" title="逻辑问题"></a>逻辑问题</h2><p>==判断限制太死了，少用点<br>使用while true时，可能造成死循环，应该添加保险措施，必现因为逻辑问题导致的死循环</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> weaponType ~= sword <span class="keyword">do</span></span><br><span class="line">    check = check + <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span> <span class="number">1000</span> &lt; check <span class="keyword">then</span></span><br><span class="line">          <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
 <p>递归调用也有可能会出现堆栈溢出，也需要加上保险措施</p>
-<p>local不能热更，用local时，要考虑会不会有热更的情况<br>因为不同语言的版本会共用一套代码，不同时区发时间会有问题，同步会有问题，改用发时间戳<br>禁止广泛采用param arg等表示某一类参数，统一加上对应的模块或功能特性声明，比如：CreateRole(roleParam)</p>
+<p>local不能热更，用local时，要考虑会不会有热更的情况<br>禁止广泛采用param arg等表示某一类参数，统一加上对应的模块或功能特性声明，比如：CreateRole(roleParam)</p>
 <h2 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h2><p>协议字段要小，省宽带<br>协议接口目录统一，方便热更新</p>
 <h2 id="检查验收"><a href="#检查验收" class="headerlink" title="检查验收"></a>检查验收</h2><p>查看传入参数判空，长命名，默认值，参数检测，snsaerro中断会发生的问题<br>用户登录时，不要有中断发生<br>用户登录时，所有下推合成一个包发送</p>
 <p>所有的物品接口是遵循这个规律的（物品先扣再发）：<br>1.检测<br>2.扣钱、资源<br>3.发物品,修改数据</p>
@@ -229,7 +229,7 @@
 <h3 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h3><p>数据库用cache，定时存入<br>因为mysql写入的数据都是冷数据（只增，部分读），所以处理比较简单<br>（核查记录，邮件）这些业务交给网页部门，服务器拿网页接口</p>
 <h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p>配置文件转换时，不要出现值为2.0这种错误</p>
 <h3 id="编写validate-lua"><a href="#编写validate-lua" class="headerlink" title="编写validate.lua"></a>编写validate.lua</h3><p>每新增配置表，策划有可能会配置错误的项目都需要添加检测。确保跑validate时，不会因配置错误，而出现程序出错。</p>
-<h2 id="时间戳"><a href="#时间戳" class="headerlink" title="时间戳"></a>时间戳</h2><p>传时间戳，不要传时间字符，跨时间，会影响不同语言版本的逻辑</p>
+<h2 id="时间戳"><a href="#时间戳" class="headerlink" title="时间戳"></a>时间戳</h2><p>因为不同语言的版本会共用一套代码，不同时区发时间会有问题(linux时区)，同步会有问题，改用发时间戳</p>
 <h2 id="计量"><a href="#计量" class="headerlink" title="计量"></a>计量</h2><p>尽是用‱，少用%</p>
 <hr>
 <p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/102">A falta de pan, tortillas.Lack of bread, tortillas. </a></p>
@@ -271,12 +271,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/4930f35c.html" rel="prev" title="删除svn冲突">
-      <i class="fa fa-chevron-left"></i> 删除svn冲突
+    <a href="/post/ba3259ee.html" rel="prev" title="svn项目相关问题">
+      <i class="fa fa-chevron-left"></i> svn项目相关问题
     </a></div>
       <div class="post-nav-item">
-    <a href="/post/e141c56e.html" rel="next" title="lua元表和元方法">
-      lua元表和元方法 <i class="fa fa-chevron-right"></i>
+    <a href="/post/ac3dad1f.html" rel="next" title="lua数据类型">
+      lua数据类型 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -352,7 +352,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">110</span>
+          <span class="site-state-item-count">98</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
