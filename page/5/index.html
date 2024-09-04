@@ -165,7 +165,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/21810799.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/e3bb7f2d.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -179,7 +179,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/21810799.html" class="post-title-link" itemprop="url">泛型编程与STL</a>
+            <a href="/post/e3bb7f2d.html" class="post-title-link" itemprop="url">lua考古</a>
         </h2>
 
         <div class="post-meta">
@@ -189,14 +189,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-25 11:50:26" itemprop="dateCreated datePublished" datetime="2021-02-25T11:50:26+00:00">2021-02-25</time>
+              <time title="创建时间：2021-03-02 15:27:56" itemprop="dateCreated datePublished" datetime="2021-03-02T15:27:56+00:00">2021-03-02</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -210,10 +210,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>这里记录下泛型编程与STL。</p>
+          <p>这里记录下lua的进化历史。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/post/21810799.html#more" rel="contents">
+              <a class="btn" href="/post/e3bb7f2d.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -237,7 +237,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/e7a54727.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/ee040603.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -251,7 +251,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/e7a54727.html" class="post-title-link" itemprop="url">c++对象模型的顶端</a>
+            <a href="/post/ee040603.html" class="post-title-link" itemprop="url">图</a>
         </h2>
 
         <div class="post-meta">
@@ -261,14 +261,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-25 11:27:23" itemprop="dateCreated datePublished" datetime="2021-02-25T11:27:23+00:00">2021-02-25</time>
+              <time title="创建时间：2021-03-02 11:59:46" itemprop="dateCreated datePublished" datetime="2021-03-02T11:59:46+00:00">2021-03-02</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -282,10 +282,82 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>这里探讨下c++的一些关键字。</p>
+          <p>图是由结点的有穷集合V和边的集合E组成。其中，为了与树形结构加以区别，在图结构中常常将结点称为顶点，边是顶点的有序偶对，若两个顶点之间存在一条边，就表示这两个顶点具有相邻关系。</p>
+<p><img src="https://user-images.githubusercontent.com/11263320/141945849-091c4e00-9f62-4d03-9045-4d14c58af414.gif" alt="0_12849822668MW5"><br>在上面两个图结构中，一个是有向图，即每条边都有方向，另一个是无向图，即每条边都没有方向。<br>在有向图中，通常将边称作弧，含箭头的一端称为弧头，另一端称为弧尾，记作&lt;vi,vj&gt;，它表示从顶点vi到顶点vj有一条边。</p>
+<h2 id="稀疏图与稠密图"><a href="#稀疏图与稠密图" class="headerlink" title="稀疏图与稠密图"></a>稀疏图与稠密图</h2><p>有很少条边或弧（如e&lt;nlogn，n是图的顶点数，e是弧数）的图称为稀疏图（sparse graph），反之成为稠密图（dense graph）。</p>
+<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>要表示一个图G＝（V，E）,有两种标准的方法，即邻接表和邻接矩阵。</p>
+<h3 id="邻接矩阵"><a href="#邻接矩阵" class="headerlink" title="邻接矩阵"></a>邻接矩阵</h3><p>邻接矩阵（Adjacency Matrix)存储方式是用两个数组来表示图。一个一维的数组存储图中顶点信息，一个二维数组（称为邻接矩阵）存储图中的边或弧的信息。<br>我们来看一个实例，下图就是一个无向图<br><img src="https://user-images.githubusercontent.com/11263320/141948214-881286bb-6699-487a-95ab-cc02a83cb8b1.jpg" alt="Dingtalk_20211116162342"><br>有向网图<br><img src="https://user-images.githubusercontent.com/11263320/141948633-ff97c954-9f74-4446-8aed-11efb2d976eb.jpg" alt="Dingtalk_20211116162342"></p>
+<h3 id="邻接表"><a href="#邻接表" class="headerlink" title="邻接表"></a>邻接表</h3><p>邻接表作为图的一种存储方式，在存储稀疏图上相对于邻接矩阵有相当大的空间节省。如一个稀疏图的顶点个个数为n，边数为e。用邻接矩阵存储需要n^2空间，而真正进行存储的只有2e个空间， 剩下的n^2-2e都浪费了。但是对于邻接表来讲，存储空间只需要n+2e个，相对于邻接矩阵减少了很多。邻接表虽然在空间上有很大的优势，但是对于一个有向图，如果需要查找每个顶点的入度就需要遍历整个邻接表，在效率上很低下的。因此才有了逆邻接表的诞生。<br>邻接表：反映的是顶点出度的情况。<br>逆邻接表：反映的是顶点的入度情况。</p>
+<p>下面举一个例子：<br><img src="https://user-images.githubusercontent.com/11263320/141949452-aed2f38e-b52f-497c-be81-eb3453ee6e6a.png" alt="20191122211916187"><br>邻接表：<br><img src="https://user-images.githubusercontent.com/11263320/141950896-edd84f87-faf3-4672-b092-74f3b7039970.png" alt="20191122211916187"></p>
+<p>逆邻接表：<br><img src="https://user-images.githubusercontent.com/11263320/141950647-7539e72e-989e-46f6-a0d3-295797f1b980.png" alt="20191122211916187"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/4d7ca723.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/4d7ca723.html" class="post-title-link" itemprop="url">lua使用优化</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-01 11:28:16" itemprop="dateCreated datePublished" datetime="2021-03-01T11:28:16+00:00">2021-03-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这里记录下一些<code>lua</code>使用优化操作。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/post/e7a54727.html#more" rel="contents">
+              <a class="btn" href="/post/4d7ca723.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -309,7 +381,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/b1b9c2c8.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/8db4c595.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -323,7 +395,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/b1b9c2c8.html" class="post-title-link" itemprop="url">c++执行期</a>
+            <a href="/post/8db4c595.html" class="post-title-link" itemprop="url">gdb调试</a>
         </h2>
 
         <div class="post-meta">
@@ -333,14 +405,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-25 11:19:57" itemprop="dateCreated datePublished" datetime="2021-02-25T11:19:57+00:00">2021-02-25</time>
+              <time title="创建时间：2021-02-27 16:36:17" itemprop="dateCreated datePublished" datetime="2021-02-27T16:36:17+00:00">2021-02-27</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -354,95 +426,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>C++的一件困难事情：不太容易从程序代码看出表达式的复杂度。<br>执行期语意学，即在程序执行时，编译器产生而外的指令调用，确保对象的构造，内存的释放，以及类型转换与临时对象的生成的安全进行。</p>
-<h2 id="对象的构造和析构"><a href="#对象的构造和析构" class="headerlink" title="对象的构造和析构"></a>对象的构造和析构</h2><p>一般而言，我们会把对象尽可能放置在使用它的那个程序区段附近，这样做可以节省不必要的对象产生操作和摧毁操作（主要是析构）。不建议把所有的对象放在函数或某个区段的起始处。</p>
-<p>全局对象<br>对于全局变量，C++会保证在调用全局变量之前，将全局变量构造出来。<br>而所有的全局变量都被放置在程序的数据段中（data segment），并且为没有显示指定值的变量初始化为0。<br>同时对于全局的类对象，在编译时期被放置于data segment中并且内容也为0.只有在程序启动时其对应的constructor才会实施。因此object需要静态初始化。<br>静态初始化的munch策略：<br>1.为每个需要静态初始化的文件产生一个_sti()函数，内含必要的constructor调用操作和inline expansions。<br>2.为每一个需要静态的内存释放操作的文件，产生一个_std()函数。<br>3.提供一个_main()函数调用所有的_sti()函数，一个_exit()函数调用所有的_std()函数</p>
-<p>局部静态对象<br>局部静态对象的构造函数只能被施行一次，析构函数也只有一次。<br>所以对于局部静态对象，一个很简单的思路就是导入一个临时性对象，当第一次传入时，设置为true，之后则不再进行处理。<br>条件式析构也是所有编译器所必须的，而局部静态对象需以构造的相反的顺序被析构。</p>
-<p>对象数组<br>对于以下数组定义，我们一般使用vec_new()函数来构造数组(这是在cfront中的方式), 对于VS等，则提供一个用来处理没有”virtual base class”的class，另一个用来处理”内含virtual base class”的class。后一个函数通常称为 vec_vnew()。<br>函数的原型一般如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*constructor)(<span class="keyword">void</span> *)        <span class="comment">//类的constructor函数指针</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
-<p>所以对上述的Point对象的初始化，对应的vec_new()的实例化如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vec_new( &amp;knots, <span class="keyword">sizeof</span>(Point), <span class="number">10</span>, &amp;Point::Point, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
-<p>同理，对于对象的删除，也有类似的vec_delete()来进行操作。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *</span><br><span class="line">vec_new( </span><br><span class="line">    <span class="keyword">void</span> *<span class="built_in">array</span>,                       <span class="comment">// 数组的起始地址</span></span><br><span class="line">    <span class="keyword">size_t</span> elem_size,                  <span class="comment">//每一个class object大小</span></span><br><span class="line">    <span class="keyword">int</span> elem_count,                    <span class="comment">//数组中的元素个数</span></span><br><span class="line">    <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">char</span>)   <span class="comment">//类的destructor函数指针</span></span><br></pre></td></tr></table></figure>
-<h2 id="new和delete运算符"><a href="#new和delete运算符" class="headerlink" title="new和delete运算符"></a>new和delete运算符</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *pi = <span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
-<p>其实是通过两个步骤完成的，第一步通过适当的new运算符函数实例，配置所需的内存，然后将配置来的内存设定初值。</p>
-<p>使用pi，和使用pi所指的对象，其差别在于哪一个生命已经结束了。因为即使对象不合法，但是指针所指的对象也是合法的。<br>new其实是通过标准的c malloc完成的，每一次对new的调用必须传回一个独一无二的指针，指向默认1byte的内存地址。</p>
-<p>针对数组的new语意<br>如果类对象数组没定义constructor和destructor，则不会调用vec_new。<br>对于delete[] p_array, 只有中括号出现时，编译器才会寻找数组的维度，否则他只会假设单独的一个object要被删除。<br>那么如何记录数组的元素个数呢？一个明显的方法是为vec_new()所传回的每一个内存区域块设置一个额外的word，然后把元素个数包藏在那个word之中。而包藏的数值通常称为cookie。<br>在原始编译器中，有两个主要函数用来存取cookie</p>
-<p>注意，避免一个base class指针指向一个derived class object所组成的数组。</p>
-<p>如果一定要这样做，默认情况下只会交给施行vec_delete()函数的”被删除之指针类型的destructor“，也就是Point destructor。<br>所以，需要程序员如下显著的进行释放内存。</p>
-<p>placement Operator new语意</p>
-<h2 id="临时性对象"><a href="#临时性对象" class="headerlink" title="临时性对象"></a>临时性对象</h2><p>临时性对象的摧毁，应该是对完整表达式求值过程中最后一个步骤。该完整表达式造成临时对象的产生。<br>凡持有表达式执行结果的临时对象，应该保留到object的初始化操作完成为止。<br>如果一个临时对象被绑定于一个reference，对象将残留，直到初始化之reference生命结束，或直到临时对象的什么范畴结束。</p>
-<h2 id="reference"><a href="#reference" class="headerlink" title="reference"></a>reference</h2><p>《深度探索C++对象模型》</p>
-<hr>
-<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/90">Un pesado es alguien que cuando le preguntas cómo está, va y te contesta.</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/e4e3f884.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/e4e3f884.html" class="post-title-link" itemprop="url">c++构造、解构、拷贝</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-25 09:33:18" itemprop="dateCreated datePublished" datetime="2021-02-25T09:33:18+00:00">2021-02-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这里记录下c++构造、解构、拷贝。</p>
+          <p>这里记录下使用gdb调试python程序。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/post/e4e3f884.html#more" rel="contents">
+              <a class="btn" href="/post/8db4c595.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -466,7 +453,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/3ce46037.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/4b89e68.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -480,7 +467,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/3ce46037.html" class="post-title-link" itemprop="url">c++数据</a>
+            <a href="/post/4b89e68.html" class="post-title-link" itemprop="url">linux调试core，解决段错误</a>
         </h2>
 
         <div class="post-meta">
@@ -490,14 +477,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-25 08:30:20" itemprop="dateCreated datePublished" datetime="2021-02-25T08:30:20+00:00">2021-02-25</time>
+              <time title="创建时间：2021-02-27 16:30:23" itemprop="dateCreated datePublished" datetime="2021-02-27T16:30:23+00:00">2021-02-27</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -511,10 +498,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>这里看看，c++的数据是怎样存储的。</p>
+          <p>了解core文件，对查找程序崩溃有十分重要的意义。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/post/3ce46037.html#more" rel="contents">
+              <a class="btn" href="/post/4b89e68.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -538,7 +525,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/d3363e0e.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/1acc766e.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -552,7 +539,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/d3363e0e.html" class="post-title-link" itemprop="url">c++构造函数</a>
+            <a href="/post/1acc766e.html" class="post-title-link" itemprop="url">make</a>
         </h2>
 
         <div class="post-meta">
@@ -562,14 +549,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-25 07:50:00" itemprop="dateCreated datePublished" datetime="2021-02-25T07:50:00+00:00">2021-02-25</time>
+              <time title="创建时间：2021-02-27 16:01:10" itemprop="dateCreated datePublished" datetime="2021-02-27T16:01:10+00:00">2021-02-27</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -583,10 +570,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>关键词explicit之所以被导入这个语言，就是为了提供给程序员一种方法，使他们能够制止“单一参数的构造函数”被当做一个转换运算符。</p>
+          <p>make是一条计算机指令，是在安装有GNU Make的计算机上的可执行指令。该指令是读入一个名为makefile的文件，然后执行这个文件中指定的指令。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/post/d3363e0e.html#more" rel="contents">
+              <a class="btn" href="/post/1acc766e.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -610,7 +597,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/c53bb450.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/20d016ff.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -624,7 +611,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/c53bb450.html" class="post-title-link" itemprop="url">c++对象</a>
+            <a href="/post/20d016ff.html" class="post-title-link" itemprop="url">STL Adapters</a>
         </h2>
 
         <div class="post-meta">
@@ -634,14 +621,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-25 07:16:50" itemprop="dateCreated datePublished" datetime="2021-02-25T07:16:50+00:00">2021-02-25</time>
+              <time title="创建时间：2021-02-25 13:51:02" itemprop="dateCreated datePublished" datetime="2021-02-25T13:51:02+00:00">2021-02-25</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -655,10 +642,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>这里探讨下c++对象的实现。</p>
+          <p>配接器在STL组件的灵活组合运用功能上，扮演着轴承、转换器的角色。Adaper这个概念，事实上是一种设计模式。在《设计模式》中adapter定义如下：将一个class的接口转换为另一个class的接口，使原本因接口不兼容而不能合作的classes，可以一起运作。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/post/c53bb450.html#more" rel="contents">
+              <a class="btn" href="/post/20d016ff.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -682,7 +669,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/ee7b06a5.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/303d52cd.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -696,7 +683,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/ee7b06a5.html" class="post-title-link" itemprop="url">skynet timer</a>
+            <a href="/post/303d52cd.html" class="post-title-link" itemprop="url">STL Functors</a>
         </h2>
 
         <div class="post-meta">
@@ -706,14 +693,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-24 08:30:18" itemprop="dateCreated datePublished" datetime="2021-02-24T08:30:18+00:00">2021-02-24</time>
+              <time title="创建时间：2021-02-25 13:49:07" itemprop="dateCreated datePublished" datetime="2021-02-25T13:49:07+00:00">2021-02-25</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -727,10 +714,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>定时器模块提供了服务定时消息的支持，实现算法为时间轮算法。它提供的功能包括两点：定时消息的添加和定时消息的派发。</p>
+          <p>仿函数其实上就是一个“行为类似函数”的对象。仿函数可以让STL算法有更灵活的演出。<br>c++11中已经引入lamda表达式，相当于将这部分内容加入了语法。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/post/ee7b06a5.html#more" rel="contents">
+              <a class="btn" href="/post/303d52cd.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -754,7 +741,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/5ebf6d7e.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/f5e61589.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -768,7 +755,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/5ebf6d7e.html" class="post-title-link" itemprop="url">skynet socket</a>
+            <a href="/post/f5e61589.html" class="post-title-link" itemprop="url">STL Algorithms</a>
         </h2>
 
         <div class="post-meta">
@@ -778,14 +765,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-24 01:22:30" itemprop="dateCreated datePublished" datetime="2021-02-24T01:22:30+00:00">2021-02-24</time>
+              <time title="创建时间：2021-02-25 13:41:37" itemprop="dateCreated datePublished" datetime="2021-02-25T13:41:37+00:00">2021-02-25</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -799,11 +786,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。skynet的网络库是自己实现的。<br>skynet 网络层的设计目的是，把操作系统层面的 socket 数据从系统内核复制到用户空间，然后再把用户空间的数据地址交给各个不同的服务使用，同时也把用户空间需要发送的数据转移到系统内核中。<br>只不过一个优秀的网络框架会提供更多的功能和细节优化，例如：socket 的管理、网络读写分离、读写数据缓存等等。</p>
-<p>还需要特别注意一点的是，因为 skynet 是一个消息驱动的模型，所以 skynet 的网络模块使用了一种叫 self pipe trick 1的技巧来唤醒异步调用，实现细节是利用了 pipe() 的“半双工”管道 + select，为了解决可在网络线程在即时处理网络事件的同时，也能即时处理来自非网络（比如内部消息队列）的其它消息。</p>
+          <p>广义而言，我们所写的每个程序都是一个算法，其中的每个函数也都是一个算法，毕竟它们都用来解决或大或小的逻辑问题或数学问题。<br>STL算法包括排序、查找、排列组合算法，以及用于数据移动、复制、删除、比较、组合、运算等等。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/post/5ebf6d7e.html#more" rel="contents">
+              <a class="btn" href="/post/f5e61589.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -827,7 +813,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/3da22f02.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/cd6c706d.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -841,7 +827,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/3da22f02.html" class="post-title-link" itemprop="url">skynet与actor</a>
+            <a href="/post/cd6c706d.html" class="post-title-link" itemprop="url">STL Containers</a>
         </h2>
 
         <div class="post-meta">
@@ -851,14 +837,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-02-23 16:07:17" itemprop="dateCreated datePublished" datetime="2021-02-23T16:07:17+00:00">2021-02-23</time>
+              <time title="创建时间：2021-02-25 12:24:49" itemprop="dateCreated datePublished" datetime="2021-02-25T12:24:49+00:00">2021-02-25</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -872,10 +858,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><code>skynet</code>是一个为网络游戏服务器设计的轻量框架，采用单进程，多线程架构。底层是<code>c</code>，中间层和上层都是<code>lua</code>。基于<code>actor</code>模型，使用消息队列进行内部通信。</p>
+          <p>这里介绍下stl中的肉器。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/post/3da22f02.html#more" rel="contents">
+              <a class="btn" href="/post/cd6c706d.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -898,7 +884,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -965,7 +951,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">121</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1002,7 +988,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

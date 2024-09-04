@@ -29,7 +29,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/121575990-8d372180-ca5a-11eb-88ce-6125a229cfff.jpg">
 <meta property="article:published_time" content="2021-02-23T14:44:29.000Z">
-<meta property="article:modified_time" content="2021-06-25T08:13:01.476Z">
+<meta property="article:modified_time" content="2024-09-04T12:27:12.517Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="skynet">
 <meta name="twitter:card" content="summary">
@@ -203,7 +203,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:12" itemprop="dateModified" datetime="2024-09-04T12:27:12+00:00">2024-09-04</time>
               </span>
 
           
@@ -220,7 +220,7 @@
         <p>这里介绍下skynet的线程。</p>
 <a id="more"></a>
 
-<h2 id="4种线程"><a href="#4种线程" class="headerlink" title="4种线程"></a>4种线程</h2><p>skynet一共有4种线程，monitor线程用于检测节点内的消息是否堵住，timer线程运行定时器，socket线程进行网络数据的收发，worker线程则负责对消息队列进行调度（worker线程的数量，可以通过配置表指定）。消息调度规则是，每条worker线程，每次从全局消息队列中pop出一个次级消息队列，并从次级消息队列中pop出一条消息，并找到该次级消息队列的所属服务，将消息传给该服务的callback函数，执行指定业务，当逻辑执行完毕时，再将次级消息队列push回全局消息队列中。因为每个服务只有一个次级消息队列，每当一条worker线程，从全局消息队列中pop出一个次级消息队列时，其他线程是拿不到同一个服务，并调用callback函数，因此不用担心一个服务同时在多条线程内消费不同的消息，一个服务执行，不存在并发，线程是安全的<br>socket线程、timer线程甚至是worker线程，都有可能会往指定服务的次级消息队列中push消息，push函数内有加一个自旋锁，避免同时多条线程同时向一个次级消息队列push消息的惨局。</p>
+<h2 id="4种线程"><a href="#4种线程" class="headerlink" title="4种线程"></a>4种线程</h2><p>skynet一共有4种线程，monitor线程用于检测节点内的消息是否堵住，timer线程运行定时器，socket线程进行网络数据的收发，worker线程则负责对消息队列进行调度（worker线程的数量，可以通过配置表指定）。消息调度规则是，每条worker线程，每次从全局消息队列中pop出一个次级消息队列，并从次级消息队列中pop出一条消息，并找到该次级消息队列的所属服务，将消息传给该服务的callback函数，执行指定业务，当逻辑执行完毕时，再将次级消息队列push回全局消息队列中。因为每个服务只有一个次级消息队列，每当一条worker线程，从全局消息队列中pop出一个次级消息队列时，其他线程是拿不到同一个服务，并调用callback函数，因此不用担心一个服务同时在多条线程内消费不同的消息，一个服务执行，不存在并发，线程是安全的<br>socket线程、timer线程甚至是worker线程，都有可能会往指定服务的次级消息队列中push消息，<strong>push函数内有加一个自旋锁，避免同时多条线程同时向一个次级消息队列push消息的惨局</strong>。</p>
 <p><img src="https://user-images.githubusercontent.com/11263320/121575990-8d372180-ca5a-11eb-88ce-6125a229cfff.jpg" alt="a0bsd-b804l"></p>
 <h2 id="skynet运行机制"><a href="#skynet运行机制" class="headerlink" title="skynet运行机制"></a>skynet运行机制</h2><p>skynet每个服务最重要的是设置一个callback函数，服务向另一个服务发消息都会压入这个服务的消息队列，等待_worker线程从全局队列取出一个服务的消息队列，然后再从这个消息队列取出一个消息使用这个服务的callback处理<br>游戏服务器一般会启动一个socket服务教给gate.so管理，socket服务可以接受外部msg传递到内部服务来处理。</p>
 <p>1.main函数<br>main函数是skynet进程的入口点，它需要一个配置文件的路径作为参数。main函数先做一些内存分配工作，然后加载配置文件里的内容。再把配置文件里的内容设置到lua环境变量_ENV。然后从_ENV里读取配置到c配置中。最后调用skynet_start。<br>2.skynet_start函数<br>skynet_start函数根据配置确定服务是不是以后台方式启动，然后初始化timer/socket/module/mq这些数据结构，给它们分配内存，填充一些必要的字段。下一步创建和注册日志logger服务，这个logger服务是C层实现的。然后创建注册snax服务，做bootstrap操作。最后调用start函数。<br>3.start函数<br>这个函数会启动timer/socket/monitor/worker线程，timer/socket/monitor线程都只有一个，唯独worker线程是多个，在配置文件中以thread=num来配置的。如果配置文件中没有配，就是8个。第个worker线程都有自己的权重值，权重值越大的，给单个服务的时间片越小。<br>线程都启动完以后，就进入pthread_join，等待线程的终止。所有线程终止以后，skynet就会退出。</p>
@@ -346,7 +346,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">121</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -383,7 +383,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

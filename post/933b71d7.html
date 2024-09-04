@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="这里介绍下skynet的消息队列。">
+  <meta name="description" content="skynet跟mq扮演的角色类似，每个skynet进程维护了一个MQ，会dispatch msg到每个skynet_context的私有mq。有skynet就没必要再在自己项目里引入MQ了。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="skynet mq">
 <meta property="og:url" content="http://example.com/post/933b71d7.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="这里介绍下skynet的消息队列。">
+<meta property="og:description" content="skynet跟mq扮演的角色类似，每个skynet进程维护了一个MQ，会dispatch msg到每个skynet_context的私有mq。有skynet就没必要再在自己项目里引入MQ了。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/121925171-376ebc00-cd6f-11eb-8113-8079b7af0653.jpg">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/121925470-89174680-cd6f-11eb-9169-7b7fb1b8f672.jpg">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/121983190-7fb7c980-cdc3-11eb-9524-4b09b9295607.jpg">
 <meta property="article:published_time" content="2021-02-23T13:26:42.000Z">
-<meta property="article:modified_time" content="2021-06-25T08:13:01.476Z">
+<meta property="article:modified_time" content="2024-09-04T12:27:12.517Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="skynet">
 <meta name="twitter:card" content="summary">
@@ -205,7 +205,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:12" itemprop="dateModified" datetime="2024-09-04T12:27:12+00:00">2024-09-04</time>
               </span>
 
           
@@ -219,11 +219,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>这里介绍下skynet的消息队列。</p>
+        <p>skynet跟mq扮演的角色类似，每个skynet进程维护了一个MQ，会dispatch msg到每个skynet_context的私有mq。有skynet就没必要再在自己项目里引入MQ了。</p>
 <a id="more"></a>
 
 <h2 id="消息队列mq"><a href="#消息队列mq" class="headerlink" title="消息队列mq"></a>消息队列mq</h2><p>消息队列是skynet的核心功能之一，它的功能说白了就是入队出队，先进先出，这个数据结构都有讲过。源码实现在skynet_mq.h和skynet_mq.c中。</p>
-<p>skynet的消息队列实际上是有两种，一种是全局消息队列，一种是服务消息队列。每个服务都有自己的消息队列，每个服务消息队列中都有服务的handle标识。这个涉及到消息的派发，这里就不展开了。每个服务消息队列被全局消息队列引用。<br>全局消息队列用的是经典的链表来实现的，而服务的消息队列用的是比较不直观，可能对有些人来说理解起来特别困难的循环数组来实现的。而且数组空间不够的时候，会动态扩展，容量扩展为当前容量的2倍。<br>消息队列的出队入队函数名都比较简单而且明了，push/pop。这个名字可能会带来一定的误解，如果改成enqueue/dequeue的话，就更符合它的实际功能。</p>
+<p>skynet的消息队列实际上是有两种，一种是全局消息队列，一种是服务消息队列。每个服务都有自己的消息队列，每个服务消息队列中都有服务的handle标识。这个涉及到消息的派发，这里就不展开了。每个服务消息队列被全局消息队列引用。<br><strong>全局消息队列用的是经典的链表来实现的，而服务的消息队列用的是比较不直观，可能对有些人来说理解起来特别困难的循环数组来实现的</strong>。而且数组空间不够的时候，会动态扩展，容量扩展为当前容量的2倍。<br>消息队列的出队入队函数名都比较简单而且明了，push/pop。这个名字可能会带来一定的误解，如果改成enqueue/dequeue的话，就更符合它的实际功能。</p>
 <h2 id="消息的封装"><a href="#消息的封装" class="headerlink" title="消息的封装"></a>消息的封装</h2><p>网络库的一个核心功能就是收发网络消息(内部命令也可以看成是一类网络消息)，且收发流程都会对原始数据做封装处理，对于收包流程来说，需要网络库把收到的数据封装成服务能够处理的数据结构，同时还需要附加一些额外的数据；而对于发包流程而言，同样需要进行数据封装处理。</p>
 <h2 id="消息注册"><a href="#消息注册" class="headerlink" title="消息注册"></a>消息注册</h2><p>skynet的消息注册，C服务和lua服务设置回调走的函数是不同的。C的回调可以直接调，但是lua的回调不行，它需要一个默认的回调C函数，将返回参数转换为lua能理解的格式，遵循lua的api协议，传递到lua层。<br>当服务是lua实现的时候，skynet底层核心框架在处理完消息以后，回调lua层服务的回调函数时，要先经过一次lua api协议的处理，将参数准备好以后，然后调用lua服务中的回调函数。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">skynet.dispatch(callback)----------------------&gt;proto[typename].dispach &#x3D; callback</span><br><span class="line">                                                                                                                    |</span><br><span class="line">skynet.core.call(skynet.dispatch_message)----&gt;tbl[k] &#x3D; skynet.dispatch_message</span><br><span class="line">                                                                                                                    |</span><br><span class="line">                                                                                                                    |</span><br><span class="line">C dispatch_message-&gt;_cb---------------------------------------------------|</span><br></pre></td></tr></table></figure>
@@ -231,7 +231,7 @@
 <h3 id="收包"><a href="#收包" class="headerlink" title="收包"></a>收包</h3><p>先总结一下，skynet_context_message_dispatch这个函数实际上就是不停地从全局消息队列里取工作队列，取到了以后呢，就一直处理这个队列里的消息。为了避免某个队列占用太多cpu，当前队列处理到一定的量，就把机会让给全局消息队列里的其它工作队列，把自己又放回全局消息队列。而这个处理的量是根据创建线程时thread_param里的weight权重来判定的，权重越大，流转的就越快，也就是说处理某个队列的消息数量就越少。这就是消息处理的主流程机制。<br>在主流程之外，还有monitor的触发和取消，每次处理前，触发monitor的检查。处理完了，取消monitor的检查。</p>
 <p>我们知道，skynet 是一个 actor 模型的框架，actor 之间使用“消息”进行通讯，且“消息”遵循一个统一的格式，就像信封一样，大家都用一套统一通用的格式，才能相互顺畅通信。<br>在 skynet 服务间流通的消息被封装为 skynet_message，其结构体定义如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">skynet_message</span> &#123;</span></span><br><span class="line">	<span class="keyword">uint32_t</span> source; 		<span class="comment">// 消息源的服务id</span></span><br><span class="line">	<span class="keyword">int</span> session;			<span class="comment">// 消息的session id</span></span><br><span class="line">	<span class="keyword">void</span> * data;			<span class="comment">// 消息的payload（指针）</span></span><br><span class="line">	<span class="keyword">size_t</span> sz;				<span class="comment">// payload 大小</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>skynet_message 是 skynet 服务能处理消息的唯一格式，即其他模块派发给服务的通知都需要封装成 skynet_message，以便服务能够处理，例如：定时器模块的定时消息、网络模块的内部命令结果和外部网络消息，都转换成 skynet_message，然后发送给对应的服务，可谓“殊途同归”。</p>
+<p>skynet_message 是 skynet 服务能处理消息的唯一格式，即其他模块派发给服务的通知都需要封装成 skynet_message，以便服务能够处理，例如：<strong>定时器模块的定时消息、网络模块的内部命令结果和外部网络消息，都转换成 skynet_message，然后发送给对应的服务</strong>，可谓“殊途同归”。</p>
 <p>在转换过程中，我们需要关注很多细节，包括消息负载数据是否需要拷贝，确定消息类型等等。下图展示了收包过程中数据的封装及数据的流向：<br><img src="https://user-images.githubusercontent.com/11263320/121925171-376ebc00-cd6f-11eb-8113-8079b7af0653.jpg" alt="ay1aq-inlky"></p>
 <h3 id="发包"><a href="#发包" class="headerlink" title="发包"></a>发包</h3><p>消息的处理实际上就是对工作队列里的消息不停地调回调函数。那么消息是怎么放进消息队列的呢。带着这个疑问，让我们从lua层开始追根溯源。<br>在lua层有两个api，一个是skynet.send，这个是非阻塞发消息。另一个是skynet.call，这个是阻塞式发完消息等回应。skynet.call使用一个session来实现等待，这个session实际就是一个自增的数字，溢出了以后又从1开始。<br>skynet.send实际上就是往目标服务的消息队列里增加一条消息。</p>
 <p>这里所说的发包是指向一个外部网络连接发送数据，需要注意的是，发包可能需要依赖内部命令，因为需要把在工作线程无法直接发送的数据，透过内部管道，将这部分数据转交给网络线程发送（发送流程我在下面会有更加详细的描述）。<br>任何需要交由网络模块发送的数据，都会封装为 socket_sendbuffer，其结构体定义如下：</p>
@@ -249,9 +249,9 @@
 <p>关于返回值 type 的宏定义如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_DATA 0   		<span class="comment">// socket 接收到了数据</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_CLOSE 1			<span class="comment">// socket 被关闭</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_OPEN 2			<span class="comment">// socket 连接成功（主动连接、被动连接等），返回此值也就表示连接已经真正可用</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_ACCEPT 3			<span class="comment">// 接收到新的连接（需要后续 start 才能使用）</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_ERR 4			<span class="comment">// socket 错误，需要关闭</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_EXIT 5			<span class="comment">// 退出网络线程</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_UDP 6			<span class="comment">// 收到 UDP 包</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SOCKET_WARNING 7 		<span class="comment">// socket 报警（待发送的数据过大）</span></span></span><br></pre></td></tr></table></figure>
 <p>此外，当 type 为SOCKET_CLOSE或SOCKET_ERR(向一个已关闭的fd发送数据)时，表示连接已经关闭，则需要回收这个 socket 。</p>
-<p>事件捕获部分就较为简单，对于 epoll 就是 epoll_wait，对于 kqueue 就是 kenvet，唯一需要注意的点是 wait api 使用的无限期阻塞，即没有事件则一直阻塞，具体可以参考上一篇博文关于 epoll_wait 的讲解，此处不再赘述。</p>
+<p>事件捕获部分就较为简单，对于 epoll 就是 epoll_wait，对于 kqueue 就是 kenvet，唯一需要注意的点是 wait api 使用的无限期阻塞，即没有事件则一直阻塞。</p>
 <p>事件处理主要负责网络连接的处理，包括对外的主动连接和外部的被动连接。有事件的 socket 依据其状态有不同的事件处理流程，如对于 CONNECTING 的 socket 连接，则会完成之前发起的主动连接请求并上报给服务；对于 LISTEN 的 socket，则接收新连接（未start）并上报给服务；对于其他已经建立好连接，则对其进行读、写以及错误处理。</p>
-<h2 id="内部命令"><a href="#内部命令" class="headerlink" title="内部命令"></a>内部命令</h2><p>内部命令是指进程内服务发送给网络库有关网络操作的消息，这些消息经由管道透传到网络库，这里主要介绍各个内部命令的功能及其封装结构。<br>我们知道，在一个通道上要实现信息通信，那么在这个通道上流通的消息就需要遵循统一格式的消息封装。就像 skynet 中两个服务之间进行通讯，就需要把消息封装成 skynet_message; 再如当和 mysql 数据库进行交互时，就需要消息包遵循 mysql 数据包格式；同样，内部命令也会封装成统一的格式在管道上传递，其封装结构体定义如下：</p>
+<h2 id="内部命令"><a href="#内部命令" class="headerlink" title="内部命令"></a>内部命令</h2><p><strong>内部命令是指进程内服务发送给网络库有关网络操作的消息</strong>，这些消息经由管道透传到网络库，这里主要介绍各个内部命令的功能及其封装结构。<br>我们知道，在一个通道上要实现信息通信，那么在这个通道上流通的消息就需要遵循统一格式的消息封装。就像 skynet 中两个服务之间进行通讯，就需要把消息封装成 skynet_message; 再如当和 mysql 数据库进行交互时，就需要消息包遵循 mysql 数据包格式；同样，内部命令也会封装成统一的格式在管道上传递，其封装结构体定义如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">request_package</span> &#123;</span></span><br><span class="line">	<span class="keyword">uint8_t</span> header[<span class="number">8</span>];	<span class="comment">// 6 bytes dummy，头部，前6个字节预留，第7个字节表示命令类型，第8个字节表示命令内容的长度</span></span><br><span class="line">	<span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">		<span class="keyword">char</span> buffer[<span class="number">256</span>];</span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">request_open</span> <span class="title">open</span>;</span></span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">request_send</span> <span class="title">send</span>;</span></span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">request_send_udp</span> <span class="title">send_udp</span>;</span></span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">request_close</span> <span class="title">close</span>;</span></span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">request_listen</span> <span class="title">listen</span>;</span></span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">request_bind</span> <span class="title">bind</span>;</span></span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">request_start</span> <span class="title">start</span>;</span></span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">request_setopt</span> <span class="title">setopt</span>;</span></span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">request_udp</span> <span class="title">udp</span>;</span></span><br><span class="line">		<span class="class"><span class="keyword">struct</span> <span class="title">request_setudp</span> <span class="title">set_udp</span>;</span></span><br><span class="line">	&#125; u;</span><br><span class="line">	<span class="keyword">uint8_t</span> dummy[<span class="number">256</span>];	<span class="comment">// 预留256字节</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>所有的命令内容都封装在一个大小为 256 字节的联合体 u 内，具体的消息长度由 char header[7] 控制，这就是为什么联合体需要一个 char buffer[256] 的字符数组；命令类型由 char header[6] 控制，一个大写字母代表一种内部命令。下面列出了目前支持的命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">S Start socket</span><br><span class="line">B Bind socket</span><br><span class="line">L Listen socket</span><br><span class="line">K Close socket</span><br><span class="line">O Connect to (Open)</span><br><span class="line">X Exit</span><br><span class="line">D Send package (high)</span><br><span class="line">P Send package (low)</span><br><span class="line">A Send UDP package</span><br><span class="line">T Set opt</span><br><span class="line">U Create UDP socket</span><br><span class="line">C set udp address</span><br></pre></td></tr></table></figure>
@@ -391,7 +391,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">121</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -428,7 +428,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

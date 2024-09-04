@@ -165,6 +165,872 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/19604296.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/19604296.html" class="post-title-link" itemprop="url">虚幻五从零开始做一个动作类游戏（纯蓝图）</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-09-04 06:06:11 / 修改时间：12:27:10" itemprop="dateCreated datePublished" datetime="2024-09-04T06:06:11+00:00">2024-09-04</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>今天，我们开始做一个动作类游戏。</p>
+<h1 id="美术资源"><a href="#美术资源" class="headerlink" title="美术资源"></a>美术资源</h1><p>我们先下载今天要用到的美术资源。</p>
+<p>链接：<a href="https://link.zhihu.com/?target=https://pan.baidu.com/s/1Vci83yoTRvViXIXElZ4k0g?pwd=tynm">https://pan.baidu.com/s/1Vci83yoTRvViXIXElZ4k0g?pwd=tynm</a></p>
+<p>提取码：tynm<br><img src="https://github.com/user-attachments/assets/9f3ea942-dee5-45ac-8cd8-4b7fede16cdb" alt="image"></p>
+<p>新建项目。<br><img src="https://github.com/user-attachments/assets/d6873037-4bcb-42d8-92d1-44cfa6b5d559" alt="image"></p>
+<p>把美术资源拖进项目。<br><img src="https://github.com/user-attachments/assets/961328cc-6e2c-455a-a4f2-f29b7b4aa971" alt="image"></p>
+<h1 id="创建角色"><a href="#创建角色" class="headerlink" title="创建角色"></a>创建角色</h1><p>我们创建个文件夹，就叫Player。<br><img src="https://github.com/user-attachments/assets/1c2d9af5-6176-4cb5-8a4a-14b43b8a8dc8" alt="image"></p>
+<p>创建角色蓝图。<br><img src="https://github.com/user-attachments/assets/d5af8d95-bf28-4ce2-adc6-dff2d57191e3" alt="image"></p>
+<p>我们再创建一个玩家控制器。<br><img src="https://github.com/user-attachments/assets/9650c7b5-7af5-4c09-98e7-e41d4a690d07" alt="image"><br><img src="https://github.com/user-attachments/assets/498fe4ee-1312-4116-956f-95553fa6e649" alt="image"></p>
+<p>这时候我们再添加一个游戏模式。<br><img src="https://github.com/user-attachments/assets/fe081ca9-fb7b-44aa-8716-3fbb4bb468cf" alt="image"><br><img src="https://github.com/user-attachments/assets/ed3fa57c-65b1-4318-b465-a1e421fcc90e" alt="image"></p>
+<p>然后我们改下GameMode的类默认值细节的设置。<br><img src="https://github.com/user-attachments/assets/4c22a644-7b74-4d3f-b2fa-04f2bbdfce8c" alt="image"></p>
+<p>编译保存。然后改一下默认游戏模式。改成我们刚建的。<br><img src="https://github.com/user-attachments/assets/70374fb0-f05d-41bc-9f67-89210b2c5a79" alt="image"><br><img src="https://github.com/user-attachments/assets/240ffbb0-7ca2-4615-8882-8f98c4fefa0a" alt="image"></p>
+<p>返回资源浏览器。编辑PlayerChar。给它添加个模型。<br><img src="https://github.com/user-attachments/assets/7819ce98-fedb-4660-afcb-a6a940778f8a" alt="image"></p>
+<p>调整下位置，旋转。<br><img src="https://github.com/user-attachments/assets/f2c0de30-be41-49b2-9130-cc3d0f3e91a9" alt="image"></p>
+<p>选中胶囊体组件，把胶囊体半高改成92。<br><img src="https://github.com/user-attachments/assets/3addbd6d-15f3-453c-ba68-35fef9eb670f" alt="image"></p>
+<p>然后添加摄像机。<br><img src="https://github.com/user-attachments/assets/990a0745-a27e-4613-be5c-8f4dc3dbddfd" alt="image"></p>
+<p>然后调整下弹簧臂的位置。<br><img src="https://github.com/user-attachments/assets/57cc65ac-ddbb-4248-baa0-602f3e069cfc" alt="image"></p>
+<p>编译保存运行。<br><img src="https://github.com/user-attachments/assets/f18734cc-8349-412c-8c8f-5c3ed408dac9" alt="image"></p>
+<h1 id="移动"><a href="#移动" class="headerlink" title="移动"></a>移动</h1><p>编辑PlayerChar。添加自定义事件。<br><img src="https://github.com/user-attachments/assets/b59fa409-e0f5-49b7-98e1-d3e04e883a6d" alt="image"><br><img src="https://github.com/user-attachments/assets/9bedb5aa-e237-48b5-95c6-21d9c8255416" alt="image"><br><img src="https://github.com/user-attachments/assets/32b73dd0-9fb4-4d09-b4fe-a4e2c2a8e811" alt="image"></p>
+<p>增加ScaleValue变量编译。<br><img src="https://github.com/user-attachments/assets/a6d54df9-d35c-4d39-9fd4-30c49c5a1fbd" alt="image"></p>
+<p>保存编译。返回项目设置。<br><img src="https://github.com/user-attachments/assets/fd8bc74a-1f96-4034-a6e9-792287533b23" alt="image"></p>
+<p>添加轴映射。<br><img src="https://github.com/user-attachments/assets/659c1467-79db-44c2-9b5a-d85e113cfa19" alt="image"><br><img src="https://github.com/user-attachments/assets/d5c57cc8-9171-4101-a2f3-ba1427470334" alt="image"></p>
+<p>然后我们打开Controller。<br><img src="https://github.com/user-attachments/assets/0dfe567c-1678-4cc0-baf2-b166adb30421" alt="image"></p>
+<p>编辑。<br><img src="https://github.com/user-attachments/assets/9e4359b1-6bee-468a-b1b0-6e0fd0139cd1" alt="image"></p>
+<p>编译保存。现在角色可以向前向后移动了。左右也是。<br><img src="https://github.com/user-attachments/assets/18833bee-cedc-4712-9072-9709eacd8cbc" alt="image"></p>
+<p>然后再在项目设置里加一个轴。<br><img src="https://github.com/user-attachments/assets/61f3c2c3-bbce-457f-8a9e-6214bf84a248" alt="image"></p>
+<p>然后控制器也加上左右。<br><img src="https://github.com/user-attachments/assets/7bb5154f-b929-467b-8122-f330a75a36cb" alt="image"></p>
+<p>前后左右都没有问题。现在回到项目设置添加视角。<br><img src="https://github.com/user-attachments/assets/a85147a3-a8e8-4943-9b90-f0d93b6e467b" alt="image"><br><img src="https://github.com/user-attachments/assets/2a0f7354-4b24-40f0-920e-3bb9d57b52f5" alt="image"></p>
+<p>返回playerchar。<br><img src="https://github.com/user-attachments/assets/4a77a983-397e-4d0c-af27-9e0f00de4ced" alt="image"><br><img src="https://github.com/user-attachments/assets/8469ebf1-a2e3-400d-8fb3-064a2ba48490" alt="image"><br><img src="https://github.com/user-attachments/assets/757c49e9-2896-480e-8cfd-86c205b9cd5d" alt="image"><br><img src="https://github.com/user-attachments/assets/22fed050-8f64-4341-8f0a-9fece8b166bb" alt="image"><br><img src="https://github.com/user-attachments/assets/0cda10b7-de25-4f86-86f9-70f2ab6e8ec8" alt="image"></p>
+<p>编译保存运行。ok行走没问题了。</p>
+<h1 id="移动动画"><a href="#移动动画" class="headerlink" title="移动动画"></a>移动动画</h1><p>现在要创建动画蓝图了。<br><img src="https://github.com/user-attachments/assets/9c108ce2-1620-4675-b577-a901a5bba0e2" alt="image"><br><img src="https://github.com/user-attachments/assets/da2874d8-3c10-4aca-b5c0-47e896e60a07" alt="image"></p>
+<p>打开动画蓝图编辑。保存。<br><img src="https://github.com/user-attachments/assets/78a8c831-b4ed-4c43-ae1c-0f4cb75ed5d2" alt="image"></p>
+<p>新建一个混合空间。<br><img src="https://github.com/user-attachments/assets/3f18904f-ccfb-4c88-9e2a-82582887cd66" alt="image"><br><img src="https://github.com/user-attachments/assets/24f8ae8b-6d94-4c8e-bdcc-eebd405eccaf" alt="image"><br><img src="https://github.com/user-attachments/assets/09678330-957c-4fac-a67b-cb276717d879" alt="image"></p>
+<p>点击编辑混合空间。在资产详情里修改水平坐标。<br><img src="https://github.com/user-attachments/assets/49f27cca-ae4f-4779-ac51-eeed6e108e66" alt="image"><br><img src="https://github.com/user-attachments/assets/695f9268-2677-4395-a3a3-f6db8825bb4b" alt="image"></p>
+<p>拖动idle_eqip_01到最左。<br><img src="https://github.com/user-attachments/assets/9bac41b2-6f55-4984-958e-09902e4495c9" alt="image"></p>
+<p>然后把walk_eqip_front拖到速度为1时的地方。<br><img src="https://github.com/user-attachments/assets/c895131d-eaff-450f-9bbd-8f98d55eafa8" alt="image"></p>
+<p>让速度到3时跑。<br><img src="https://github.com/user-attachments/assets/4a6c143d-1286-4c8f-ba07-5e5a127c7acd" alt="image"></p>
+<p>保存。等于走有三种状态。</p>
+<p>然后再打开动画蓝图。<br><img src="https://github.com/user-attachments/assets/82b9a962-2edd-42bc-b25a-ae19e56fd64c" alt="image"></p>
+<p>点开状态机。<br><img src="https://github.com/user-attachments/assets/497e6f62-da27-4d73-94d6-161fbef3cdb5" alt="image"></p>
+<p>添加状态。<br><img src="https://github.com/user-attachments/assets/595c897c-99b7-48f6-b575-f13580af9985" alt="image"><br><img src="https://github.com/user-attachments/assets/4b9f88ab-3474-4473-8c4a-21848da20438" alt="image"></p>
+<p>进去Idle/Run状态。<br><img src="https://github.com/user-attachments/assets/9df15e01-3a26-4b6a-bd21-2f68372b7b95" alt="image"></p>
+<p>把Speed提升为变量。<br><img src="https://github.com/user-attachments/assets/a8fb6fed-8c74-4b3f-bab8-cda464a90786" alt="image"></p>
+<p>然后点击事件图表。<br><img src="https://github.com/user-attachments/assets/d89e934d-6576-4343-b62e-db52fcb9b827" alt="image"><br><img src="https://github.com/user-attachments/assets/2636ac66-1141-4650-b151-0c311783c16e" alt="image"><br><img src="https://github.com/user-attachments/assets/5530c255-dade-4165-9d34-2f21629b7535" alt="image"><br><img src="https://github.com/user-attachments/assets/8272a871-1241-4206-89c1-575b4136eb8d" alt="image"><br><img src="https://github.com/user-attachments/assets/15ab7d19-e9b2-41d6-9752-3c37da690ebd" alt="image"></p>
+<p>保存，打开playerchat。点网格体。设置动画类。<br><img src="https://github.com/user-attachments/assets/ecc9e60d-a805-40d5-94bd-1c7c8fe3cc7e" alt="image"></p>
+<p>编译保存，运行。现在可以跑了。</p>
+<p>现在输入我们加一个慢走。<br><img src="https://github.com/user-attachments/assets/606a6040-7495-4aa3-90c8-15a1e5fe5a4c" alt="image"></p>
+<p>打开玩家PlayerCharController。编写走路。<br><img src="https://github.com/user-attachments/assets/9707cb49-0fdf-43c2-82e9-ac8564fcae68" alt="image"><br><img src="https://github.com/user-attachments/assets/e2423583-60b8-4b6a-ae0b-4be1fac4a316" alt="image"><br><img src="https://github.com/user-attachments/assets/9707cb49-0fdf-43c2-82e9-ac8564fcae68" alt="image"></p>
+<p>编译保存运行。现在可以慢慢地走了。</p>
+<p>武器<br>现在我们加一下武器。在playerChar中加一个骨骼网格体。<br><img src="https://github.com/user-attachments/assets/f308233a-ae8f-4be5-9f54-d1e73adfc4c7" alt="image"></p>
+<p>然后父项插槽选Sword_1。资产也选一下。<br><img src="https://github.com/user-attachments/assets/bba79a0f-a4b4-4eac-a61d-e804315aa164" alt="image"><br><img src="https://github.com/user-attachments/assets/d1609393-3d6b-4404-a714-539e859e2424" alt="image"><br><img src="https://github.com/user-attachments/assets/58c2fd63-5b91-4e91-91ea-9c1387899a95" alt="image"></p>
+<p>编译保存运行。<br><img src="https://github.com/user-attachments/assets/aa0d5f74-e2b6-4f7c-80d2-6226d6d4c7f9" alt="image"></p>
+<h1 id="连招系统"><a href="#连招系统" class="headerlink" title="连招系统"></a>连招系统</h1><h2 id="攻击"><a href="#攻击" class="headerlink" title="攻击"></a>攻击</h2><p>找到这个动作。<br><img src="https://github.com/user-attachments/assets/2a303454-31a0-4217-9664-5c928b8d7fcd" alt="image"></p>
+<p>然后创建动画蒙太奇。<br><img src="https://github.com/user-attachments/assets/f1783d12-3771-432c-b0e8-ac4bc783bc5d" alt="image"><br><img src="https://github.com/user-attachments/assets/66bdc622-3750-4dbb-902f-29125869b5d5" alt="image"></p>
+<p>然后绑定下按键。<br><img src="https://github.com/user-attachments/assets/f128a767-fcdb-4029-9c81-6923eceee408" alt="image"></p>
+<p>然后打开PlayerChat。添加自定义事件。<br><img src="https://github.com/user-attachments/assets/9011b90d-b094-45a0-a5d4-719238a6e19c" alt="image"><br><img src="https://github.com/user-attachments/assets/0aaba138-281f-4954-9977-4e6f8aac4b26" alt="image"></p>
+<p>然后我们找到角色的控制器。加上攻击。<br><img src="https://github.com/user-attachments/assets/c0f1f8a2-0165-4c56-944b-34416f6fa3dc" alt="image"></p>
+<p>运行发现胶囊体没有跟角色移动。找到动画，启动根运动。<br><img src="https://github.com/user-attachments/assets/e891827d-9779-435a-a5ce-974e91060f1b" alt="image"></p>
+<p>现在胶囊体会跟角色移动了。角色会跟着攻击动画移动。打开PlayerChar。让角色每次攻击都能连续。不会因双次按下攻击按键而抽搐。增加一个变量，用来判断是否在攻击中。<br><img src="https://github.com/user-attachments/assets/4430713c-5956-4973-8309-b43f417f3e4b" alt="image"><br><img src="https://github.com/user-attachments/assets/8c45ac92-afef-4f1b-a5b0-9eb4e60f3157" alt="image"><br><img src="https://github.com/user-attachments/assets/fb43a9e1-b88f-41b1-8aa8-eed469c54658" alt="image"><br><img src="https://github.com/user-attachments/assets/3c117730-5ff8-4256-9a35-890a63343476" alt="image"></p>
+<p>完整蓝图。<br><img src="https://github.com/user-attachments/assets/6a945287-460a-4ae4-a3f7-7901bdedcb76" alt="image"></p>
+<p>现在连点不会抽搐了。</p>
+<h2 id="连招"><a href="#连招" class="headerlink" title="连招"></a>连招</h2><p>删掉攻击的逻辑，开始编写连招逻辑。<br><img src="https://github.com/user-attachments/assets/03f7a5ba-edfc-491c-935d-22f1a971e499" alt="image"></p>
+<p>增加变量。并使用数组。<br><img src="https://github.com/user-attachments/assets/71a85a88-b641-46e7-8f58-11a70ff90d9a" alt="image"><br><img src="https://github.com/user-attachments/assets/6fb787ca-1d1d-49c9-8085-f497fa4e0261" alt="image"></p>
+<p>这里要多少个连击动作，就加多少个数组就可以了。<br><img src="https://github.com/user-attachments/assets/64b73094-5859-40d0-ae4b-48002baca662" alt="image"></p>
+<p>接着，我们找到连击动作。<br><img src="https://github.com/user-attachments/assets/8767d43f-3fa0-4f71-acef-5d43f0e4d805" alt="image"></p>
+<p>创建动画蒙太奇。<br><img src="https://github.com/user-attachments/assets/0d180b97-dee1-49b5-b684-d3198c6ba9ce" alt="image"></p>
+<p>然后找到Combo_01动画。<br><img src="https://github.com/user-attachments/assets/2df260aa-176a-42ed-b2d6-a1329c967aad" alt="image"></p>
+<p>我们分解下连招动画。找到第一下下剑时的结束时间。调整结束时间。<br><img src="https://github.com/user-attachments/assets/0bf794a2-50ec-4a61-a535-06ee8d5c1ff8" alt="image"></p>
+<p>然后做连招第二下的动画。<br><img src="https://github.com/user-attachments/assets/23192d08-d4f7-41b5-810e-73d92b384d2a" alt="image"><br><img src="https://github.com/user-attachments/assets/56ae4681-15b6-4c68-9ae6-48a5d13141ff" alt="image"></p>
+<p>然后做连招第三下的动画。<br><img src="https://github.com/user-attachments/assets/789d51dc-9470-42a5-9cc9-f51b0a69b1d5" alt="image"><br><img src="https://github.com/user-attachments/assets/fc18c643-c836-41b8-b351-3fc720a47273" alt="image"></p>
+<p>然后做连招第四下的动画。<br><img src="https://github.com/user-attachments/assets/eca68f6f-100e-4e11-b0b9-3907bb8662ba" alt="image"><br><img src="https://github.com/user-attachments/assets/639e8cc0-459c-4bc9-abe7-cc7091474740" alt="image"></p>
+<p>所有分解的招式。<br><img src="https://github.com/user-attachments/assets/7d91685e-c92f-4c5a-9ea5-cacdb6ee5257" alt="image"></p>
+<p>然后返回PlayerChar。编辑连招逻辑。</p>
+<p>然后找到刚创建的数组变量。<br><img src="https://github.com/user-attachments/assets/7a5a2cf8-fa7b-47e5-866e-01a98fda8069" alt="image"></p>
+<p>把四个连招动作按顺序赋予数组。<br><img src="https://github.com/user-attachments/assets/6d486066-12b5-4c84-9a85-018395a6061b" alt="image"></p>
+<p>然后我们添加一个变量，用来计数攻击次数。<br><img src="https://github.com/user-attachments/assets/b35ab0fe-57ee-48c3-9c13-2b674b2d3bc8" alt="image"></p>
+<p>初始值设为-1。<br><img src="https://github.com/user-attachments/assets/703fae67-04fb-4baf-bca3-56a35975e6be" alt="image"></p>
+<p>然后编译下蓝图。<br><img src="https://github.com/user-attachments/assets/21bd3a37-4a71-45e4-8d25-42bb8a08a548" alt="image"></p>
+<p>攻击先判断是否在攻击。</p>
+<p>然后攻击次数加1。<br><img src="https://github.com/user-attachments/assets/de6a6441-fa2e-4f0c-bbef-5a61ca1217a0" alt="image"></p>
+<p>然后判断攻击次数是否大于招式动画的长度。<br><img src="https://github.com/user-attachments/assets/9d0e0f45-a6a4-4a9d-9917-2b28be11d220" alt="image"></p>
+<p>如果小于招式动画的长度就获取一下招式。<br><img src="https://github.com/user-attachments/assets/f0065873-ebab-46c2-81ae-55c00c19f52c" alt="image"></p>
+<p>如果大于招式动画的长度就把，Attack count归零。<br><img src="https://github.com/user-attachments/assets/c3686a87-c482-473f-9f0e-22338a0bbda4" alt="image"><br><img src="https://github.com/user-attachments/assets/076ecc2a-cce7-4f9d-8876-230e12aa9c40" alt="image"></p>
+<p>然后设置一下ComboReset。<br><img src="https://github.com/user-attachments/assets/5783687d-53bd-4fdb-9932-d03e673bdeb9" alt="image"></p>
+<p>接着找到动画Combo_01_1_Montage，然后在攻击后摇前，大概在8后，右键加一下动画通知。<br><img src="https://github.com/user-attachments/assets/8b407b60-3c42-4d55-bee3-535a930f45e6" alt="image"></p>
+<p>在动画结束时也加一下动画通知。<br><img src="https://github.com/user-attachments/assets/a5abf03e-192d-4e6e-9339-f72aad85bb6f" alt="image"></p>
+<p>动画234也一样。<br><img src="https://github.com/user-attachments/assets/758c0aed-3a29-4969-a14a-28cc1eacf2f6" alt="image"><br><img src="https://github.com/user-attachments/assets/36639cce-0f8f-4d17-9428-6b05ef9cbe54" alt="image"><br><img src="https://github.com/user-attachments/assets/b984c24a-f5d4-426f-acb6-2c3b7cb6a989" alt="image"></p>
+<p>加完通知后，接着我们使用下通知。 打开PlayerCharABP。<br><img src="https://github.com/user-attachments/assets/f6e8a2aa-ad39-42ac-8241-63cd4e9ec13d" alt="image"></p>
+<p>在ComoStart通知时去做Do Attack。<br><img src="https://github.com/user-attachments/assets/6860d775-e070-4285-a6b4-7ab358e25772" alt="image"></p>
+<p>然后再动画播放结束时，把所有的状态设置为初始值。<br><img src="https://github.com/user-attachments/assets/01fe304e-1bff-4f44-b76d-68a8e56ce51d" alt="image"></p>
+<p>然后在动画蒙太奇里设置下混出混入时间。让混出混入时间远小于本身动画的时间。<br><img src="https://github.com/user-attachments/assets/7935fae1-e01d-4d48-a225-b52d34aa99c6" alt="image"><br><img src="https://github.com/user-attachments/assets/51096613-4f8d-41b5-883d-1627b58bb1d5" alt="image"><br><img src="https://github.com/user-attachments/assets/ef63fa91-ac32-4bb1-975f-5ad2575fe2e1" alt="image"><br><img src="https://github.com/user-attachments/assets/8b058de4-beea-469c-bef8-ca9772e01634" alt="image"></p>
+<p>然后创建一个保存攻击的状态。<br><img src="https://github.com/user-attachments/assets/425339ea-65ce-4ecf-b7c6-b62b180ea268" alt="image"><br><img src="https://github.com/user-attachments/assets/c3599336-bdfc-4081-ae71-770b56a0b083" alt="image"></p>
+<p>SaveAttack开始时也要保存下。<br><img src="https://github.com/user-attachments/assets/cf210f25-c69c-4ec3-89a3-d7b35230e6c0" alt="image"></p>
+<p>然后把动画蓝图里的DoAttack改成AttackSave就可以连击出连招了。<br><img src="https://github.com/user-attachments/assets/c6f6dcb3-3dde-4245-8324-ce1009555231" alt="image"><br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/801d8e67-cbcd-4e1b-846b-c73e4299567a">https://github.com/user-attachments/assets/801d8e67-cbcd-4e1b-846b-c73e4299567a</a></p>
+<h1 id="更好的打击感"><a href="#更好的打击感" class="headerlink" title="更好的打击感"></a>更好的打击感</h1><p>上面已经把攻击连招讲完了，但是攻击的时候不能转向，他只能朝着一个方向走，手感不是很好。下面完善一下攻击。然后做出攻击时可转向，添加闪避以及伤害通知。</p>
+<h2 id="攻击时可转向"><a href="#攻击时可转向" class="headerlink" title="攻击时可转向"></a>攻击时可转向</h2><p>一个流畅的动作类游戏，他必须得是非常跟手的。随时都跟着你的操作。在你攻击的时候，他应该也能跟着转向。这样才是一个好的动作游戏的手感。</p>
+<p>打开playerchar。</p>
+<p>新建一个函数。<br><img src="https://github.com/user-attachments/assets/4a6288ed-d2ef-4b94-b848-dc99f679efe9" alt="image"></p>
+<p>用这个函数计算最后一次输入。就是要用这个函数获取最后一次键盘是按的哪个方向。这个函数不能单独使用，得配合其它函数使用。</p>
+<p>新建一个变量，用来保存我们的输入movement。<br><img src="https://github.com/user-attachments/assets/9036e3c0-024a-48d0-ac58-2da19c92dd5b" alt="image"></p>
+<p>还要新建一个变量，用来保存我们最后一次输入的角度。<br><img src="https://github.com/user-attachments/assets/0278751e-9b45-4d33-9d9c-40513c1aa0f1" alt="image"></p>
+<p>我们把角色移动拖进来。<br><img src="https://github.com/user-attachments/assets/c414784c-1131-49ae-aeec-55f8f4b0a8f7" alt="image"></p>
+<p>把角色最后输入的向量存到Movement Input。<br><img src="https://github.com/user-attachments/assets/9aa6bbf5-fe40-44bc-867c-24fd911f4180" alt="image"></p>
+<p>我们还需要加一个变量，用来检测砍一刀时，有没有输入向量。<br><img src="https://github.com/user-attachments/assets/0c4e68a4-ce7b-4df3-afd3-cc96a07067aa" alt="image"><br><img src="https://github.com/user-attachments/assets/0436e4c8-567d-432c-95ec-136fa91a493a" alt="image"><br><img src="https://github.com/user-attachments/assets/d0b7f6b8-253b-46cf-be63-8e3f69160eb9" alt="image"></p>
+<p>输入角度也保存一下。<br><img src="https://github.com/user-attachments/assets/d747cb78-6bd2-460e-8083-237881fdcf03" alt="image"></p>
+<p>这样这个函数是算写完了。</p>
+<p>然后我们返回事件图表，让每帧都执行一下。<br><img src="https://github.com/user-attachments/assets/d1865a31-e973-48d1-8fa1-8ec585c90913" alt="image"></p>
+<p>然后我们再创建一个函数。用这个函数改变角度。就是要让攻击动画改变角度。<br><img src="https://github.com/user-attachments/assets/24a06105-22ab-413f-aa2d-fe28b930fccd" alt="image"></p>
+<p>添加两个输入。<br><img src="https://github.com/user-attachments/assets/ef48c198-51b1-4e3d-bb44-26f4c107c80b" alt="image"></p>
+<p>先判断下输入的两个值。<br><img src="https://github.com/user-attachments/assets/ed6be0bf-b182-46e8-a135-16681a299eef" alt="image"></p>
+<p>然后就可以对角度设置渐变推进。<br><img src="https://github.com/user-attachments/assets/99a6e54c-dcd2-4f0b-91bc-a52cbe144518" alt="image"><br><img src="https://github.com/user-attachments/assets/1ae3b1bd-d152-471c-b5fd-5c815766df3a" alt="image"></p>
+<p>也设置下没有速度的时候的情况。<br><img src="https://github.com/user-attachments/assets/b3ecf038-72f9-4f86-9c62-7fc3e6452e7c" alt="image"></p>
+<p>然后我们做下动画通知。新建一个文件夹。<br><img src="https://github.com/user-attachments/assets/380784a7-a35a-4bee-bffa-e7c7e8b96d1e" alt="image"></p>
+<p>创建一个AnimNotifyState蓝图。<br><img src="https://github.com/user-attachments/assets/2b20fed6-ae14-43a4-9e81-5f74eb2e392c" alt="image"><br><img src="https://github.com/user-attachments/assets/0cf35830-994f-49bf-821b-d4f92865fc41" alt="image"></p>
+<p>打开编辑。新建变量。<br><img src="https://github.com/user-attachments/assets/0e138e0d-85b1-43cf-8d74-712b8a78bdfc" alt="image"></p>
+<p>然后重载一下函数。<br><img src="https://github.com/user-attachments/assets/a8e4adda-947b-4b31-aba9-9f78f62d364b" alt="image"><br><img src="https://github.com/user-attachments/assets/0e206ea6-a179-4263-a96c-6980ec01fb40" alt="image"></p>
+<p>然后找个动画试试。找到攻击这个蒙太奇。<br><img src="https://github.com/user-attachments/assets/2d013e61-8bdd-44c0-ba2c-c41bd8d7d31a" alt="image"></p>
+<p>添加状态通知。<br><img src="https://github.com/user-attachments/assets/f7919d84-e851-47fe-8578-5e16c87b365c" alt="image"><br><img src="https://github.com/user-attachments/assets/978b2249-b88e-4307-9414-14525bc4bdd8" alt="image"></p>
+<p>表于在这段区间之间都可以转向。就是攻击前摇时可以选择方向。</p>
+<p>然后回到RotationByAnim，把InterpSpeed变量小眼睛点开。<br><img src="https://github.com/user-attachments/assets/79686d7d-ae73-4616-b648-e7ab24764c64" alt="image"></p>
+<p>编译。回到动作就可以看到这个变量了。<br><img src="https://github.com/user-attachments/assets/9532603e-b1fc-4ede-997d-1ee05c5bf306" alt="image"></p>
+<p>然后设置这个渐变速度为10。<br><img src="https://github.com/user-attachments/assets/0cd6ca7e-28ce-4b74-93f9-ef468274b83c" alt="image"></p>
+<p>然后把其它的动画也设置下。<br><img src="https://github.com/user-attachments/assets/641d6428-6686-4c5e-ae71-fa0c4faea7a7" alt="image"><br><img src="https://github.com/user-attachments/assets/39c525bd-01b1-4cda-851f-2cab0b4b81eb" alt="image"><br><img src="https://github.com/user-attachments/assets/8444bd70-4172-41cd-9fd9-f0779b0d798c" alt="image"></p>
+<p>然后接下来我们开始写这个动画通知的函数。<br><img src="https://github.com/user-attachments/assets/92524503-3377-410e-959d-5ecd782ffb61" alt="image"></p>
+<p>我们再重载下两个函数。<br><img src="https://github.com/user-attachments/assets/61e82b9f-faad-4ccc-a6f2-6e4d2a4e3f6c" alt="image"><br><img src="https://github.com/user-attachments/assets/0ebde729-e6d0-40ab-b68c-a0e57a087ff0" alt="image"><br><img src="https://github.com/user-attachments/assets/a6a8c95c-79d0-404e-ac12-90196deb8fc3" alt="image"></p>
+<p>现在攻击时可以转向了。<br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/f2124445-7383-46ad-b3cc-a05e40cee7fb">https://github.com/user-attachments/assets/f2124445-7383-46ad-b3cc-a05e40cee7fb</a></p>
+<h1 id="伤害通知"><a href="#伤害通知" class="headerlink" title="伤害通知"></a>伤害通知</h1><p>直接在动画序列中加通知。<br><img src="https://github.com/user-attachments/assets/ace26a8e-1eaf-4ffb-8f12-d2f59313b651" alt="image"></p>
+<p>接着我们回到playerchar写伤害逻辑。<br><img src="https://github.com/user-attachments/assets/ae4bb258-13d2-41c1-9e34-6a4d47523e2a" alt="image"><br><img src="https://github.com/user-attachments/assets/baef7631-9a6d-4777-9c2a-593468c87832" alt="image"><br><img src="https://github.com/user-attachments/assets/b1cdbd5d-902e-432f-ab09-bd514143ef62" alt="image"><br><img src="https://github.com/user-attachments/assets/4d72a763-5781-4b6d-9167-7bf78dfb7ec4" alt="image"></p>
+<p>然后我们返回动画蓝图。<br><img src="https://github.com/user-attachments/assets/147c63c7-dea0-482c-a4b6-ceecb10b31b0" alt="image"><br><img src="https://github.com/user-attachments/assets/05271849-a737-4302-ad95-d2f71ba6a779" alt="image"></p>
+<p>运行可以看到攻击的范围。<br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/d1f9993d-0546-469f-a9c4-45f4dbdc1316">https://github.com/user-attachments/assets/d1f9993d-0546-469f-a9c4-45f4dbdc1316</a></p>
+<h1 id="闪避"><a href="#闪避" class="headerlink" title="闪避"></a>闪避</h1><p>我们先加一下按键。<br><img src="https://github.com/user-attachments/assets/decb48f6-03fd-47f4-8f2b-75b8f6d3c245" alt="image"></p>
+<p>然后我们找个动画。创建动画蒙太奇。<br><img src="https://github.com/user-attachments/assets/212daa59-c148-4326-a63e-3f2847290c54" alt="image"><br><img src="https://github.com/user-attachments/assets/959fe89f-ff6d-410d-837e-f99e0e038c18" alt="image"></p>
+<p>然后回到动画。把启动根运动勾上。<br><img src="https://github.com/user-attachments/assets/e1f84ff8-0f0a-43d6-83cc-b2706fea5811" alt="image"></p>
+<p>角色就能跟着胶囊体动了。</p>
+<p>然后我们写一下闪避的逻辑。<br><img src="https://github.com/user-attachments/assets/fdc1016a-882d-40a8-af6e-93146933addb" alt="image"><br><img src="https://github.com/user-attachments/assets/629b54bd-7aab-45ed-a342-749ebb3df4a5" alt="image"></p>
+<p>在控制里也加一下。<br><img src="https://github.com/user-attachments/assets/d8569f09-32d5-49ba-886e-05af77f61777" alt="image"></p>
+<p>编译保存运行。<br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/6e411bef-0ddc-465b-b158-d4b264e40361">https://github.com/user-attachments/assets/6e411bef-0ddc-465b-b158-d4b264e40361</a></p>
+<p>但反复按会鬼畜。这里改一下。<br><img src="https://github.com/user-attachments/assets/1a839d4c-618d-4cd1-adb7-205a198bac06" alt="image"></p>
+<p>然后在动画播放完后状态设置为不翻滚。<br><img src="https://github.com/user-attachments/assets/02483ca6-92e5-42f8-a3cc-ce7e866f1cfd" alt="image"></p>
+<p>编译保存运行。</p>
+<p>现在反复按不会鬼畜了。</p>
+<p>这里可以加速动画播放让翻滚快点。<br><img src="https://github.com/user-attachments/assets/a85ff490-3a3b-4a6f-98ef-405c7afd3c75" alt="image"></p>
+<h2 id="闪避时可转向"><a href="#闪避时可转向" class="headerlink" title="闪避时可转向"></a>闪避时可转向</h2><p><img src="https://github.com/user-attachments/assets/4b78300c-abd5-489b-8cbd-a5b22f27ec25" alt="image"><br>直接给这个通知拉满，只要在翻滚的过程就能改变方向。</p>
+<h2 id="修复攻击时闪避后不能再攻击的Bug"><a href="#修复攻击时闪避后不能再攻击的Bug" class="headerlink" title="修复攻击时闪避后不能再攻击的Bug"></a>修复攻击时闪避后不能再攻击的Bug</h2><p>因为攻击中闪避而没有走ComboReset。所以IsAttack永远为真。所以在闪避后再做一下ComboReset就可以了。<br><img src="https://github.com/user-attachments/assets/55919daa-5f86-4a61-874d-ddc6dde8144c" alt="image"></p>
+<h2 id="闪避时不能攻击"><a href="#闪避时不能攻击" class="headerlink" title="闪避时不能攻击"></a>闪避时不能攻击</h2><p>如果在闪避中，就不要给角色攻击了。<br><img src="https://github.com/user-attachments/assets/14805986-0c57-475e-8747-59ea86249464" alt="image"></p>
+<h1 id="创建敌人"><a href="#创建敌人" class="headerlink" title="创建敌人"></a>创建敌人</h1><p>按照惯例，先创建一个文件夹。<br><img src="https://github.com/user-attachments/assets/66545018-5140-430a-baf6-57e0eba58f0a" alt="image"></p>
+<h2 id="创建模型"><a href="#创建模型" class="headerlink" title="创建模型"></a>创建模型</h2><p>然后创建一个蓝图。<br><img src="https://github.com/user-attachments/assets/82b4ef15-613c-4ff8-bb95-86bfd201b9c1" alt="image"><br><img src="https://github.com/user-attachments/assets/043d70a2-8913-4cc2-946d-f8ccc1185e99" alt="image"></p>
+<p>然后打开它。给它加个模型。<br><img src="https://github.com/user-attachments/assets/8c805fcc-34b7-4ab2-9a0c-8f251beb302e" alt="image"></p>
+<p>调下参数。<br><img src="https://github.com/user-attachments/assets/05da5778-8ed3-479c-b022-e96243f94b1c" alt="image"><br><img src="https://github.com/user-attachments/assets/3bcf1d66-5a2b-480a-91ee-352c1d9c3932" alt="image"></p>
+<p>然后改一下这个模型的颜色。<br><img src="https://github.com/user-attachments/assets/b8bb0b83-c7bc-4501-ba03-6a46b923ec1b" alt="image"></p>
+<p>再原来的材质上复制多一份。<br><img src="https://github.com/user-attachments/assets/c98ae2e6-baa1-418c-b66c-eaf53a58de63" alt="image"></p>
+<p>双击新的材质，我们改下颜色。<br><img src="https://github.com/user-attachments/assets/0f32c809-c657-40db-8044-4529fdbf3de8" alt="image"><br><img src="https://github.com/user-attachments/assets/4aedcb06-83f7-41c9-a900-aab1ec0ad434" alt="image"></p>
+<p>点应用，保存。回来看，白色的材质球就做好了。<br><img src="https://github.com/user-attachments/assets/4fd7459b-3e23-40c6-82b6-449027807531" alt="image"></p>
+<p>然后回到AIChar，模型换个颜色。<br><img src="https://github.com/user-attachments/assets/26819ff3-d67c-4d9a-a417-328df0283880" alt="image"></p>
+<h2 id="敌人AI"><a href="#敌人AI" class="headerlink" title="敌人AI"></a>敌人AI</h2><p>然后我们创建一个AIController。<br><img src="https://github.com/user-attachments/assets/ca1ea923-691c-4406-8ae8-a2605a4c4afb" alt="image"><br><img src="https://github.com/user-attachments/assets/6142ce79-a7d7-47ad-bb52-853a968ffb97" alt="image"></p>
+<p>然后还要一个行为树。<br><img src="https://github.com/user-attachments/assets/8a2997c0-c965-4cf8-8def-c95980bde21e" alt="image"><br><img src="https://github.com/user-attachments/assets/cae9b9a6-05fb-4d6f-af34-f65307fe115a" alt="image"></p>
+<p>打开AICharController。在事件开始时运行行为树。<br><img src="https://github.com/user-attachments/assets/cbbe8f52-e13b-4f2d-a2d3-c03fb258aaa6" alt="image"></p>
+<p>然后在AIChar里关联上AICharController。<br><img src="https://github.com/user-attachments/assets/82b37ce7-943c-4c72-9228-586691b3aee8" alt="image"></p>
+<p>编译保存。然后我们打开行为树，新建一个黑板。<br><img src="https://github.com/user-attachments/assets/87f5f7f6-8aa1-41e8-bcc2-00e39c8a6f49" alt="image"></p>
+<p>给AI也创建下动画蓝图。<br><img src="https://github.com/user-attachments/assets/d4ae34fe-0497-4b96-8f4a-8f32be06de45" alt="image"><br><img src="https://github.com/user-attachments/assets/353c2213-71a3-4643-8ab8-81fe456faf4f" alt="image"><br><img src="https://github.com/user-attachments/assets/3726f82b-6edd-4505-b141-f4e93bdad4d6" alt="image"></p>
+<p>然后打开它。<br><img src="https://github.com/user-attachments/assets/67a68fc9-0068-4ec4-86b5-c3a583d7b1d9" alt="image"></p>
+<p>双击状态机添加状态。<br><img src="https://github.com/user-attachments/assets/362b54cd-10ab-4904-a7ce-efa55e78568c" alt="image"></p>
+<p>因为都是小白人，所以AI也可以用之前创建的混合空间。<br><img src="https://github.com/user-attachments/assets/36a6e05f-c548-4db8-8e2b-208a0a72dc85" alt="image"></p>
+<p>speed提升为变量。<br><img src="https://github.com/user-attachments/assets/ac0bb2cd-72a2-4ca0-80a3-43b84bee80ea" alt="image"></p>
+<p>编译保存。<br><img src="https://github.com/user-attachments/assets/d9d93f67-29ff-4f8c-befb-bbdfe581e070" alt="image"></p>
+<p>然后回到AIChar。使用刚才的动画蓝图。<br><img src="https://github.com/user-attachments/assets/ea8db878-043b-42eb-8936-330e2c5d048e" alt="image"></p>
+<p>然后给敌人加下武器。加下骨骼网格体。<br><img src="https://github.com/user-attachments/assets/76c6adae-251e-4d14-96be-b82e293b6a9e" alt="image"><br><img src="https://github.com/user-attachments/assets/1130ad52-7785-4931-9312-91fbf1c4cf1d" alt="image"><br><img src="https://github.com/user-attachments/assets/234fa00b-4cd9-4d80-8be5-d58ac0900013" alt="image"><br><img src="https://github.com/user-attachments/assets/6f318a91-327a-48b0-8a28-158336dab2a2" alt="image"></p>
+<p>然后加一下盾。<br><img src="https://github.com/user-attachments/assets/180eef07-6249-4739-ac7a-a4e2994a7511" alt="image"></p>
+<p>然后我们返回动画蓝图。<br><img src="https://github.com/user-attachments/assets/d50c8b23-e749-4657-9c2d-16bf50677047" alt="image"><br><img src="https://github.com/user-attachments/assets/6aee8920-6cdc-46be-93df-82858d1d17cc" alt="image"><br><img src="https://github.com/user-attachments/assets/13e49e0d-cb89-4202-b618-d391f84e0a0f" alt="image"><br><img src="https://github.com/user-attachments/assets/d88c102b-bebf-4c52-9cc0-e79d818ba4d1" alt="image"><br><img src="https://github.com/user-attachments/assets/2f6cb08f-9d80-410c-b528-b2576d347862" alt="image"></p>
+<p>我们动画蓝图算是写完了。AI也会根据它移动的速度来决定它动画是走是跑还是站立。这些都是和主角一样的。然后我们写下行为树。<br><img src="https://github.com/user-attachments/assets/4e7dc377-9747-4c00-917f-7d1023990d1b" alt="image"><br><img src="https://github.com/user-attachments/assets/1202b687-ea9a-4b89-ae81-bdb00773687b" alt="image"></p>
+<p>然后新建一个装饰器。<br><img src="https://github.com/user-attachments/assets/bfbc3bee-59d4-4abd-9823-94f0bb229410" alt="image"><br><img src="https://github.com/user-attachments/assets/7789d7df-4865-4efd-ba0c-4fc8be63b293" alt="image"></p>
+<p>用来检测有没有玩家。<br><img src="https://github.com/user-attachments/assets/7434c5be-fca0-45f4-83b9-ba3fd1df28c4" alt="image"></p>
+<p>然后取一下位置。<br><img src="https://github.com/user-attachments/assets/7740ec9f-dba1-4191-a9cb-0f5ca09d57de" alt="image"></p>
+<p>然后需要加一下球形检测。<br><img src="https://github.com/user-attachments/assets/beb4b409-3f79-405a-9237-f24fc95cd669" alt="image"><br><img src="https://github.com/user-attachments/assets/1154a98f-368a-47cb-bd3d-4b276a3a6291" alt="image"></p>
+<p>Object Types提升为变量。<br><img src="https://github.com/user-attachments/assets/08b38a85-4b63-4cfa-8836-991dcc527a00" alt="image"></p>
+<p>半径给1000。<br><img src="https://github.com/user-attachments/assets/6d87d7c8-5a04-4a62-8135-a7bf7107c398" alt="image"></p>
+<p>然后Draw Debug Type改成持久。<br><img src="https://github.com/user-attachments/assets/fbd8e918-a7ed-47c3-a5a8-6a3a98fd0d13" alt="image"></p>
+<p>最后连上。<br><img src="https://github.com/user-attachments/assets/93bd8211-11f5-4190-b6d0-8703e1fdb9a4" alt="image"></p>
+<p>输出会Out Hits打开。<br><img src="https://github.com/user-attachments/assets/e3d14855-7217-4f45-bff3-aa3720303b1e" alt="image"><br><img src="https://github.com/user-attachments/assets/2745b143-8870-4e6c-8e2a-25debb69af17" alt="image"></p>
+<p>然后把每个数组再break一下。<br><img src="https://github.com/user-attachments/assets/5ebc42d8-1a31-49a4-9c39-2b096357b57b" alt="image"></p>
+<p>如果这个球体检测到玩家，那就转化为玩家。检测不到就什么都不干。<br><img src="https://github.com/user-attachments/assets/09471e45-65d3-4a2d-bd82-5df1a67a9426" alt="image"><br><img src="https://github.com/user-attachments/assets/0a507935-2258-48cf-8946-4b99e14222df" alt="image"></p>
+<p>然后as player char给他设置黑板值。<br><img src="https://github.com/user-attachments/assets/ed1493fa-e09b-45a1-b52f-4c49256f4579" alt="image"><br><img src="https://github.com/user-attachments/assets/3cdcc036-34fd-49dc-9c5f-a3d2b017a6da" alt="image"></p>
+<p>然后把Key提升为变量。<br><img src="https://github.com/user-attachments/assets/89623cc9-dab7-4d09-899b-372d1d1c02ff" alt="image"></p>
+<p>把小眼睛点亮，这样你在行为树上才能看到这个变量。<br><img src="https://github.com/user-attachments/assets/c2244e2b-bbc2-4039-8cb1-ca8150336da6" alt="image"></p>
+<p>然后返回节点也连上。在循环结束之后返回为真。<br><img src="https://github.com/user-attachments/assets/a616f6ee-2b2e-4fb1-8247-c0424f4f884e" alt="image"></p>
+<p>编译保存。返回行为树。添加装饰器。<br><img src="https://github.com/user-attachments/assets/d019a563-e881-48e0-8515-aa4fc73077c2" alt="image"></p>
+<p>然后点击黑板，在黑板上新建一个值。<br><img src="https://github.com/user-attachments/assets/2e4f07d8-feea-4c40-9bc9-7454292e5e56" alt="image"><br><img src="https://github.com/user-attachments/assets/174988a1-a7ec-4921-87ee-9c1a5bdac27f" alt="image"></p>
+<p>改下基类。<br><img src="https://github.com/user-attachments/assets/86569bc7-4b95-4975-b031-67b58def24df" alt="image"></p>
+<p>保存。<br><img src="https://github.com/user-attachments/assets/98dddf20-b80e-4197-bf30-9eb4f7f0fd2a" alt="image"></p>
+<p>把顺序换成选择。<br><img src="https://github.com/user-attachments/assets/06b3aa9f-1276-4cfa-8635-f0ce44a48994" alt="image"><br><img src="https://github.com/user-attachments/assets/5a94f3f3-8e4f-44b7-8b02-1489184b7181" alt="image"></p>
+<p>然后再来个顺序。再加个装饰器。<br><img src="https://github.com/user-attachments/assets/7d931a30-fc9c-4880-9757-3c56ad88af0b" alt="image"><br><img src="https://github.com/user-attachments/assets/c1c0aac2-2ed4-458d-bce5-638629957965" alt="image"></p>
+<p>再来个顺序。<br><img src="https://github.com/user-attachments/assets/212147ac-2301-4c4c-a663-f32f3b5bc7d5" alt="image"><br><img src="https://github.com/user-attachments/assets/a9a367ba-a9e0-45fb-8b9b-f1d3a1280559" alt="image"></p>
+<p>设置未设置。用于没检测到玩家的操作。<br><img src="https://github.com/user-attachments/assets/d04af495-7b46-465e-9e8d-c27d9afd3767" alt="image"></p>
+<p>检测到玩家就走向玩家。<br><img src="https://github.com/user-attachments/assets/24347503-0e46-4a65-9a47-5b8096bf4683" alt="image"><br><img src="https://github.com/user-attachments/assets/13a5f6b8-c5c7-4155-9d3a-162d91ee3530" alt="image"></p>
+<p>保存。给场景添加一个导航网格体边界体积。<br><img src="https://github.com/user-attachments/assets/f24d1ce7-1c1b-4711-abc4-85ffe3e557b4" alt="image"><br><img src="https://github.com/user-attachments/assets/20ee04bc-be93-4bd7-88d3-4d172bb441cb" alt="image"></p>
+<p>调整导航网格体边界体积，让它覆盖整个场景。保存运行。现在可以看到敌人走过来了。<br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/b852159c-7af5-4355-939e-5cbf04939564">https://github.com/user-attachments/assets/b852159c-7af5-4355-939e-5cbf04939564</a></p>
+<h1 id="参数调整"><a href="#参数调整" class="headerlink" title="参数调整"></a>参数调整</h1><p>AI追到你后的等待时间可以自行调整。<br><img src="https://github.com/user-attachments/assets/fcba9118-7c70-4098-a1a0-c9179f369d63" alt="image"></p>
+<p>敌人的速度也可以调整下。<br><img src="https://github.com/user-attachments/assets/4d14a7f8-d3e6-478a-9b1e-c6a79ad2fd1a" alt="image"></p>
+<h1 id="添加巡逻"><a href="#添加巡逻" class="headerlink" title="添加巡逻"></a>添加巡逻</h1><p>新建一个服务。<br><img src="https://github.com/user-attachments/assets/6d9b22b3-3b70-4cf5-9200-1e7ecb759cb0" alt="image"><br><img src="https://github.com/user-attachments/assets/7826cc0b-20a0-4920-b223-106825196f2c" alt="image"></p>
+<p>打开，重载下接收Tick AI。<br><img src="https://github.com/user-attachments/assets/4f4815c6-b2a7-49cb-9b79-ed5e3a5fa077" alt="image"><br><img src="https://github.com/user-attachments/assets/9ca00b89-9d68-4390-8bf5-f9a63e575c86" alt="image"></p>
+<p>然后先取一下位置。<br><img src="https://github.com/user-attachments/assets/42bb346d-ba2d-450e-854d-9a549124d1d8" alt="image"></p>
+<p>然后得到一个随机可以到达的位置。<br><img src="https://github.com/user-attachments/assets/bf370ea4-3f26-46a2-8df8-6a62c7815796" alt="image"></p>
+<p>设置半径为500。<br><img src="https://github.com/user-attachments/assets/fe9e4284-c70c-4f8a-87a8-567d551f3ad4" alt="image"></p>
+<p>然后把得到的位置设置为黑板键。<br><img src="https://github.com/user-attachments/assets/a5bec732-a837-4875-b696-c7690adea388" alt="image"></p>
+<p>把Key提升为变量。改一名。<br><img src="https://github.com/user-attachments/assets/3c83a91c-bfcd-4f57-9dfd-bcfbce9e58cc" alt="image"></p>
+<p>小眼睛打开。<br><img src="https://github.com/user-attachments/assets/3ddae1e8-188e-4a9d-a10b-cb3c95f55896" alt="image"></p>
+<p>最后把线连上。<br><img src="https://github.com/user-attachments/assets/df24f285-4130-4843-8346-465866d29d16" alt="image"></p>
+<p>编译保存。</p>
+<p>返回行为树。添加服务。<br><img src="https://github.com/user-attachments/assets/8d0e7025-8d16-45fa-89cc-f698ee09f75e" alt="image"><br><img src="https://github.com/user-attachments/assets/34f276ee-746e-44f2-b1bb-faaff368a21b" alt="image"></p>
+<p>返回黑板。增加一个向量变量。<br><img src="https://github.com/user-attachments/assets/75355dc6-7c7a-4556-9ae4-f6ee6011255d" alt="image"></p>
+<p>返回行为树，把Target Location改为目的地。<br><img src="https://github.com/user-attachments/assets/e1f64468-1f56-497f-95e1-953fa33a155f" alt="image"></p>
+<p>移动到目的点。<br><img src="https://github.com/user-attachments/assets/f45fbc61-aeb5-464e-9ee0-51949851d8af" alt="image"></p>
+<p>保存。运行。现在AI能随机走动了。</p>
+<h1 id="攻击-1"><a href="#攻击-1" class="headerlink" title="攻击"></a>攻击</h1><p>然后在行为树新加一个任务，让敌人攻击。<br><img src="https://github.com/user-attachments/assets/21a18234-ea06-4923-8b43-cfdb11d9d685" alt="image"><br><img src="https://github.com/user-attachments/assets/32aeff91-334a-47fd-9657-045ff1fac6c6" alt="image"></p>
+<p>打开，重载下接收执行AI函数。<br><img src="https://github.com/user-attachments/assets/f2566b25-5b3b-45c0-9555-04b301db8aa2" alt="image"><br><img src="https://github.com/user-attachments/assets/447bc837-7608-4a9c-a161-53670f74a35c" alt="image"></p>
+<p>转化为AIChar，直接播放蒙大奇。<br><img src="https://github.com/user-attachments/assets/3c09d789-0314-4f1f-a616-e2e85595837d" alt="image"></p>
+<p>给AI找个攻击动画。<br><img src="https://github.com/user-attachments/assets/7fba2a81-e5be-41c4-ac82-9903aa212c43" alt="image"></p>
+<p>创建一个动画蒙太奇。<br><img src="https://github.com/user-attachments/assets/d881adea-72fe-40c1-8fc8-9245f2ec4686" alt="image"><br><img src="https://github.com/user-attachments/assets/13d49b0a-caa4-46f2-9417-68118e020362" alt="image"></p>
+<p>打开动画，启动下根运动。让他播放这个动画时有位移。<br><img src="https://github.com/user-attachments/assets/00d9ba67-0f8f-4b78-ad67-d4620ff36c08" alt="image"></p>
+<p>返回任务，指定动画资产为Attack_08_Montage。<br><img src="https://github.com/user-attachments/assets/14a4c53b-41a6-4458-9901-10583600a58c" alt="image"></p>
+<p>最后返回执行结果。<br><img src="https://github.com/user-attachments/assets/d94dcdd0-128d-4973-bc94-75238e223cdb" alt="image"></p>
+<p>然后返回行为树。添加攻击。<br><img src="https://github.com/user-attachments/assets/1cb244fe-5c72-489b-9a33-867eb291b57c" alt="image"></p>
+<p>编译保存运行。现在敌人会先过来再攻击，等待两秒再攻击。<br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/7590acab-f16d-413a-9b09-176d8f08e8de">https://github.com/user-attachments/assets/7590acab-f16d-413a-9b09-176d8f08e8de</a></p>
+<h1 id="添加伤害"><a href="#添加伤害" class="headerlink" title="添加伤害"></a>添加伤害</h1><h2 id="玩家打AI"><a href="#玩家打AI" class="headerlink" title="玩家打AI"></a>玩家打AI</h2><p>先给AI加点变量。<br><img src="https://github.com/user-attachments/assets/e18656d2-e52d-49fb-b01a-d2a8d6e55bef" alt="image"><br><img src="https://github.com/user-attachments/assets/2ecb1439-a4bf-4ec2-951f-d1a410049fb5" alt="image"></p>
+<p>接着回到主角这里，编辑攻击逻辑。<br><img src="https://github.com/user-attachments/assets/859f260f-2f1c-47b5-a299-48f757f2a715" alt="image"><br><img src="https://github.com/user-attachments/assets/9dda0063-e06d-4c78-af7b-0b8684947e64" alt="image"><br><img src="https://github.com/user-attachments/assets/e2229a81-18a5-417e-b9d7-d6f71da507b5" alt="image"><br><img src="https://github.com/user-attachments/assets/06839999-1235-4e38-9ffb-b1781f7b67fd" alt="image"><br><img src="https://github.com/user-attachments/assets/3c4dc47a-01de-4d1f-a25e-7e44d4861d18" alt="image"></p>
+<p>基础伤害给到10。<br><img src="https://github.com/user-attachments/assets/71ce7575-8069-4c08-89bb-87ddb81bfd65" alt="image"></p>
+<p>主角这边的攻击伤害算写完了。<br><img src="https://github.com/user-attachments/assets/a37e64ab-b14d-4b72-9056-50cf7f31df10" alt="image"></p>
+<p>返回AIChar，继续写敌人被打的逻辑。<br><img src="https://github.com/user-attachments/assets/70c83268-78c4-443d-b67b-fc5d36c53c69" alt="image"><br><img src="https://github.com/user-attachments/assets/aee29057-e22b-44cb-979b-cfc7e8c0b862" alt="image"></p>
+<p>保存编译运行。<br><img src="https://github.com/user-attachments/assets/9c1d00f4-2c3b-4ef1-9456-1831a88e5bb1" alt="image"></p>
+<p>打印了很多。需要关掉一些没必要的碰撞。<br><img src="https://github.com/user-attachments/assets/2df51470-4145-403a-84b3-d21b326e56a9" alt="image"></p>
+<p>主角这边也改一下。<br><img src="https://github.com/user-attachments/assets/4213bec2-c58a-4056-95fe-ef2f7dc77d01" alt="image"></p>
+<p>现在的攻击输出就正常了。<br><img src="https://github.com/user-attachments/assets/2b893408-ce33-4fe9-9d80-7ca626dcc997" alt="image"></p>
+<p>因为AI会档主角的摄像机，所以AI的胶囊机碰撞的自定义下。<br><img src="https://github.com/user-attachments/assets/3389da54-6eda-459b-9f2e-10a71e804525" alt="image"></p>
+<h2 id="死亡"><a href="#死亡" class="headerlink" title="死亡"></a>死亡</h2><p>先加个变量判断是否死亡。<br><img src="https://github.com/user-attachments/assets/fccb6abb-2bf4-4e7e-9842-3ab867a38a25" alt="image"><br><img src="https://github.com/user-attachments/assets/af07e16b-b6bd-4208-9f1c-883d2f292b96" alt="image"><br><img src="https://github.com/user-attachments/assets/2a9de655-0cc2-459d-94c6-1147112920c4" alt="image"><br><img src="https://github.com/user-attachments/assets/edde0898-0ae7-4273-b933-d6d9e2a0e38c" alt="image"></p>
+<h1 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h1><h2 id="敌人血条"><a href="#敌人血条" class="headerlink" title="敌人血条"></a>敌人血条</h2><p>新建UI文件夹。<br><img src="https://github.com/user-attachments/assets/1fa79399-80e6-4380-8f21-0f8178060568" alt="image"></p>
+<p>我们做一下血条。新建UI控件蓝图。<br><img src="https://github.com/user-attachments/assets/c2099d7a-4005-4955-bd2b-d4cfcb37ebd1" alt="image"><br><img src="https://github.com/user-attachments/assets/c3fd59f4-7d0c-49dd-85db-ffec77a567de" alt="image"><br><img src="https://github.com/user-attachments/assets/78f9adbc-eea5-4660-8ef3-e9e365a8c589" alt="image"></p>
+<p>然后打开它。新加画布。<br><img src="https://github.com/user-attachments/assets/e96e5f5e-a9c9-4308-be55-bebd2f57779b" alt="image"></p>
+<p>然后加个进度条。<br><img src="https://github.com/user-attachments/assets/125bf8e1-9a32-448d-8b47-2a0764340fc7" alt="image"></p>
+<p>锚点改成中间。<br><img src="https://github.com/user-attachments/assets/f2c53b34-4da2-408a-a456-688c00c93ead" alt="image"></p>
+<p>然后把位置设置回来。<br><img src="https://github.com/user-attachments/assets/2312d81c-218f-40d8-bbd5-fe6c48627d54" alt="image"></p>
+<p>对齐都改成0.5。<br><img src="https://github.com/user-attachments/assets/1f4c108a-04dd-48c5-96d6-398203fbf2eb" alt="image"></p>
+<p>尺寸y改成15。<br><img src="https://github.com/user-attachments/assets/a3edc8b1-0621-4e78-8d30-6984311355f3" alt="image"></p>
+<p>填充颜色改成红色。<br><img src="https://github.com/user-attachments/assets/da0c3187-48e9-4da6-bec5-c1d037e0a4ba" alt="image"></p>
+<p>然后创建绑定。<br><img src="https://github.com/user-attachments/assets/2f2c752a-8a2d-4b3c-bab7-696adb408e00" alt="image"><br><img src="https://github.com/user-attachments/assets/ad5e8fde-a1e7-47cf-ac0d-9ceb1b5bd1d6" alt="image"></p>
+<p>添加对象变量。<br><img src="https://github.com/user-attachments/assets/fbc5f798-e214-4ccb-907f-aa108af84477" alt="image"></p>
+<p>用现血量除以总血量得到血条的百分比。<br><img src="https://github.com/user-attachments/assets/7c73de96-f1dc-4e19-9644-fb7f94f73fa4" alt="image"></p>
+<p>编译保存。回到AIChar。</p>
+<p>添加控件组件。<br><img src="https://github.com/user-attachments/assets/3eccbaf8-e288-4ef3-88f7-12d8b5d02e1c" alt="image"></p>
+<p>改名为血条。</p>
+<p>控件类是AIHPBar。</p>
+<p>血条放到头顶上。</p>
+<p>给它空间设为屏幕。</p>
+<p>编译保存。回到事件图表。</p>
+<p>把HPBar拖进来。</p>
+<p>这样血条就加上了。</p>
+<p>玩家血条<br>接着我们做一下玩家的血条。</p>
+<p>新建个控件蓝图。</p>
+<p>编译保存。然后在PlayerChar里加点变量。</p>
+<p>然后回到PlayerHPBar创建绑定。</p>
+<p>然后我们回到PlayerChar。</p>
+<p>编译保存运行。</p>
+<p>让玩家受伤<br>直接在动画Attack08里新建一个通知。</p>
+<p>新建通知后，需要一个球形检测。</p>
+<p>基本和之前写的玩家攻击逻辑一样。</p>
+<p>然后返回PlayerChar。先加个变量。</p>
+<p>然后回到AIChar_ABP。</p>
+<p>保存编译，运行。现在敌人打玩家，玩家会扣血了。</p>
+<p>AI被打动画<br>找到这个被打动画。</p>
+<p>然后创建动画蒙太奇。</p>
+<p>打开AIChar。</p>
+<p>AI死亡动画<br>找到这个动画。</p>
+<p>创建动画蒙太奇。</p>
+<p>返回AIChar编写死亡动画逻辑。</p>
+<p>动画要设置根运动。</p>
+<p>在动画蒙太奇中不设置启动自动混出。敌人死亡倒地就结束了。</p>
+<p>然后找到AI攻击。</p>
+<p>让AI攻击前加个判断 ，判断是否正在播动画。</p>
+<p>接着回到AIChar。在死亡后删除胶囊体。</p>
+<p>编译保存运行。</p>
+<p>把AI的攻击动画换成原地的<br>现在AI攻击会向前，对于游戏来说，玩家不容易闪避。我们给AI换个原地攻击的动画。敌人呆一点比较好。选一个腿没有动的。</p>
+<p>然后创建蒙太奇。</p>
+<p>动作启动根运动。</p>
+<p>在AI攻击蓝图中改用这个动画。</p>
+<p>当然，也要加上动画通知。</p>
+<p>增加AI攻击前摇时间<br>打开攻击的动画蒙太奇，再拉一个动作。</p>
+<p>把第一段做成0.138。</p>
+<p>把前摇速率放慢。</p>
+<p>现在敌人的攻击前摇时间加长了，玩家容易闪避了。</p>
+<p>玩家被攻击动画<br>找到玩家被打动画。</p>
+<p>然后启用根运动。</p>
+<p>创建动画蒙太奇。</p>
+<p>然后回到PlayerChar。增加被攻击动画。</p>
+<p>每次受到伤害重置下玩家的攻击，防止玩家攻击时被攻击而不能再攻击。</p>
+<p>玩家被死亡动画</p>
+<p>把红框去掉<br><img src="https://github.com/user-attachments/assets/f531a06f-644a-44b7-8d66-71fac249c4a6" alt="image"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/cdcc4eae.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/cdcc4eae.html" class="post-title-link" itemprop="url">分布式事务</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-08-28 06:55:55" itemprop="dateCreated datePublished" datetime="2022-08-28T06:55:55+00:00">2022-08-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-04 12:27:10" itemprop="dateModified" datetime="2024-09-04T12:27:10+00:00">2024-09-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="事务的特性"><a href="#事务的特性" class="headerlink" title="事务的特性"></a>事务的特性</h2><p>原子性<br>要么全部执行成功，要么全部执行失败。</p>
+<p>一致性<br>执行前后，数据始终处于一致的状态。</p>
+<p>隔离性<br>两个事务之间互不干扰，事务a完成前，事务b不会读取事务a操作时的变化。</p>
+<p>持久性<br>事务的操作会被持久化到数据库，并且不会被回滚。</p>
+<h2 id="事务的类型"><a href="#事务的类型" class="headerlink" title="事务的类型"></a>事务的类型</h2><p>扁平事务，带有保存点的扁平事务，链式事务，嵌套事务，</p>
+<h2 id="并发事务带来的问题"><a href="#并发事务带来的问题" class="headerlink" title="并发事务带来的问题"></a>并发事务带来的问题</h2><p>更新丢失（脏写），后者覆盖前者</p>
+<p>脏读，一个事务读取了另一个事务未提交的数据</p>
+<p>不可重复读，一个事务读取了某些数据，在一段时间后，这个事务再次读取之前读过的数据，此时数据被更改或删除了</p>
+<p>幻读，一个事务按照相同的查询条件重新读取之前读过的数据，此时发现其他事务插入了满足当前事务查询条件的新数据。这是针对数据的插入。</p>
+<p>##mysql中锁的分类<br>按性能：悲观锁、乐观锁（乐观锁是通过版本对比来实现的）<br>按操作类型：读锁，写锁（这两都是悲观锁）<br>读锁又称为共享锁或S锁（shared Lock）<br>写锁又锁为排他锁或L锁（Exclusive Lock）<br>按数据粒度：表锁，行锁，页面锁<br>按更细粒度：间隙锁、临键锁</p>
+<h2 id="死锁的必要条件（4个都满足，才会发生死锁）"><a href="#死锁的必要条件（4个都满足，才会发生死锁）" class="headerlink" title="死锁的必要条件（4个都满足，才会发生死锁）"></a>死锁的必要条件（4个都满足，才会发生死锁）</h2><p>1互拆条件<br>2不可剥夺条件<br>3请求与保持条件<br>4循环等待条件</p>
+<h2 id="处理死锁的方法"><a href="#处理死锁的方法" class="headerlink" title="处理死锁的方法"></a>处理死锁的方法</h2><p>1预防死锁，破坏造成死锁的4个必要条件中的一个或多个，以防止死锁的发生。<br>2避免死锁，在资源分配中，使用策略防止系统进入不安全状态，从而避免死锁的发生。<br>3检测死锁<br>4解除死锁<br>在实际工作中，，通常采用有序资源分配法和银行家算法来避免死锁。<br>在mysql中，通常通过以下几种方式来避免死锁<br>1尽量让数据表中的数据检索都通过索引来完成，避免无效索引导致锁升级为表锁<br>2合理设计索引，尽量缩小锁的范围<br>3尽量减少查询条件的范围，尽量避免间隙锁或缩小间隙锁的范围<br>4尽量控制事务的大小，减少一次事务锁定的资源数量，缩短锁定资源的时间<br>5如果一条sql语句涉及事务加锁操作，则尽量将其放在整个事务的最后执行<br>6尽可能使用低级别的事务隔离机制</p>
+<h2 id="mysql事务的实现原理"><a href="#mysql事务的实现原理" class="headerlink" title="mysql事务的实现原理"></a>mysql事务的实现原理</h2><p>mysql中事务的隔离性是由锁和MVCC机制实现的，原子性和持久性是由redo log实现的，一致性是由undo log实现的。<br>redo log是重做日志，提供前滚操作(binlog中有数据,commit)，undo log是回滚日志，提供回滚操作。<br>redo log与binlog的区别<br>1binlog是mysql本身就拥有，而redolog是innodb特有的。<br>2两种日志记录的内容形式不同。MySQL的binlog是逻辑日志，其记录是对应的SQL语句。而innodb存储引擎层面的redolog日志是物理日志，保存了数据库中的值。<br>3两种日志记录写入磁盘的时间点不同，二进制日志只在事务提交完成后进行一次写入。而InnoDB 存储引擎的重做日志在事务进行中不断地被写入（不断地写入redo log buffer，不断地刷新）<br>4binlog不是循环使用，在写满或者重启之后，会生成新的binlog文件，redo log是循环使用。<br>5binlog可以作为恢复数据使用，主从复制搭建，redo log作为异常宕机或者介质故障后的数据恢复使用。<br><img src="https://user-images.githubusercontent.com/11263320/187072247-3c03ce72-c882-4865-a702-f4f0ce595a69.JPG" alt="IMG_1421"></p>
+<h2 id="xa"><a href="#xa" class="headerlink" title="xa"></a>xa</h2><p>xa事务是一种基于两阶段提交和分布式事务。prepare，commit。</p>
+<h2 id="数据一致性问题"><a href="#数据一致性问题" class="headerlink" title="数据一致性问题"></a>数据一致性问题</h2><p>1.数据多副本场景<br>2.调用超时场景<br>3.缓存与数据库不一致场景<br>4.多个缓存节点数据不一致场景</p>
+<h2 id="分布式事务的理论知识"><a href="#分布式事务的理论知识" class="headerlink" title="分布式事务的理论知识"></a>分布式事务的理论知识</h2>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/9fe164cc.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/9fe164cc.html" class="post-title-link" itemprop="url">桶排序</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-13 01:27:50" itemprop="dateCreated datePublished" datetime="2021-10-13T01:27:50+00:00">2021-10-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-04 12:27:10" itemprop="dateModified" datetime="2024-09-04T12:27:10+00:00">2024-09-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="桶排序（Bucket-Sort）"><a href="#桶排序（Bucket-Sort）" class="headerlink" title="桶排序（Bucket Sort）"></a>桶排序（Bucket Sort）</h2><p>桶排序是<a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/149">计数排序</a>的升级版。顾名思义，会使用「桶」，核心思想就是 把要排序的的数据分到几个有序的桶里，每个桶里面的数据在单独进行排序，所有的桶内数据排序完成后，再按照桶的顺序依次取出，组成的序列就是有序的。</p>
+<p>为了桶排序的高效，我们需要做到以下两点：<br>1.在额外空间充足的情况下，尽量增加桶的数量。<br>2.使用的映射函数能够把输入的 n 个数据均匀的分配到 k 个桶中。</p>
+<p>同时，对于桶内元素的排序，选择哪一种排序算法对于性能的影响也至关重要。</p>
+<h2 id="如何把百万级别的订单根据金额排序"><a href="#如何把百万级别的订单根据金额排序" class="headerlink" title="如何把百万级别的订单根据金额排序"></a>如何把百万级别的订单根据金额排序</h2><p><img src="https://user-images.githubusercontent.com/11263320/137052679-06293673-6b43-42d4-890b-3a06e9eeeac8.png" alt="aHR0cHM6Ly91cGxvYWQtaW1hZ2VzLmppYW5zaHUuaW8vdXBsb2FkX2ltYWdlcy8xNzk4Nzc4Mi03M2VjMzkwZTZjODU0MTNlLnBuZw"></p>
+<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2><p>比较适合用在<strong>外部排序</strong>中。所谓的外部排序就是数据存储在外部磁盘中，数据量比较大而内存有限，无法一次性全部加载到内存中。</p>
+<p>比如说我们有 10GB 的订单数据，我们希望按订单金额（假设金额都是正整数）进行排序，但是我们的内存有限，只有几百 MB，没办法一次性把 10GB 的数据都加载到内存中。这个时候该怎么办呢？</p>
+<p>订单金额最小是 1 元，最大是 10 万元。我们将所有订单根据金额划分到 100 个桶里，第一个桶我们存储金额在 1 元到 1000 元之内的订单，第二桶存储金额在 1001 元到 2000 元之内的订单，以此类推。每一个桶对应一个文件，并且按照金额范围的大小顺序编号命名（00，01，02…99）。<br>理想的情况下，如果订单金额在 1 到 10 万之间均匀分布，那订单会被均匀划分到 100 个文件中，每个小文件中存储大约 100MB 的订单数据，我们就可以将这 100 个小文件依次放到内存中，用快排来排序。等所有文件都排好序之后，我们只需要按照文件编号，从小到大依次读取每个小文件中的订单数据，并将其写入到一个文件中，那这个文件中存储的就是按照金额从小到大排序的订单数据了。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> len=<span class="keyword">sizeof</span>(a)/<span class="keyword">sizeof</span>(<span class="keyword">int</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bucketSort</span><span class="params">(<span class="keyword">int</span> a[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> b[<span class="number">10</span>][len+<span class="number">1</span>]=&#123;<span class="number">0</span>&#125;;<span class="comment">//将b全部置0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> digits=numOfDigits(a);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=digits;i++)</span><br><span class="line">    &#123;</span><br><span class="line">        distributeElments(a,b,i);</span><br><span class="line">        collectElments(a,b);</span><br><span class="line">        <span class="keyword">if</span>(i!=digits)</span><br><span class="line">            zeroBucket(b);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">numOfDigits</span><span class="params">(<span class="keyword">int</span> a[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> largest=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;len;i++)<span class="comment">//获取最大值</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(a[i]&gt;largest)</span><br><span class="line">            largest=a[i];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> digits=<span class="number">0</span>;<span class="comment">//digits为最大值的位数</span></span><br><span class="line">        <span class="keyword">while</span>(largest)</span><br><span class="line">        &#123;</span><br><span class="line">            digits++;</span><br><span class="line">            largest/=<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> digits;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">distributeElments</span><span class="params">(<span class="keyword">int</span> a[],<span class="keyword">int</span> b[<span class="number">10</span>][len+<span class="number">1</span>],<span class="keyword">int</span> digits)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> divisor=<span class="number">10</span>;<span class="comment">//除数</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;digits;i++)</span><br><span class="line">        divisor*=<span class="number">10</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;len;j++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> numOfDigist=(a[j]%divisor-a[j]%(divisor/<span class="number">10</span>))/(divisor/<span class="number">10</span>);</span><br><span class="line">        <span class="comment">//numOfDigits为相应的(divisor/10)位的值,如当divisor=10时,求的是个位数</span></span><br><span class="line">        <span class="keyword">int</span> num=++b[numOfDigist][<span class="number">0</span>];<span class="comment">//用b中第一列的元素来储存每行中元素的个数</span></span><br><span class="line">        b[numOfDigist][num]=a[j];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">collectElments</span><span class="params">(<span class="keyword">int</span> a[],<span class="keyword">int</span> b[<span class="number">10</span>][len+<span class="number">1</span>])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> k=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)</span><br><span class="line">        (<span class="keyword">int</span> j=<span class="number">1</span>;j&lt;=b[i][<span class="number">0</span>];j++)</span><br><span class="line">            a[k++]=b[i][j];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">zeroBucket</span><span class="params">(<span class="keyword">int</span> b[][len+<span class="number">1</span>])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;len+<span class="number">1</span>;j++)</span><br><span class="line">            b[i][j]=<span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>快排、归并是经济实用型小轿车。而桶排序、计数排序、基数排序则是赛道上的跑车竞速。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/44bf3fa0.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/44bf3fa0.html" class="post-title-link" itemprop="url">线上出问题，我们应该如何快速解决</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-12 06:19:57" itemprop="dateCreated datePublished" datetime="2021-10-12T06:19:57+00:00">2021-10-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-04 12:27:10" itemprop="dateModified" datetime="2024-09-04T12:27:10+00:00">2024-09-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="查日志"><a href="#查日志" class="headerlink" title="查日志"></a>查日志</h2><p>找到日志的位置，<code>grep Exception backend.log</code> 一把梭。</p>
+<p><img src="https://user-images.githubusercontent.com/11263320/136902110-04669e00-d9ca-40a5-b30b-2cf72017290e.png" alt="v2-bde8961612504ec5f9266194a01642fa_720w"><br><img src="https://user-images.githubusercontent.com/11263320/136902668-317513e4-e663-4e41-8caa-8f23b35b20f7.jpg" alt="v2-d0857c699d0751275db34b9a19f24dfb_720w"></p>
+<p>如果一个Exception不够，再来一个ERROR，反正把你能想到的关键词都想干净。</p>
+<p><img src="https://user-images.githubusercontent.com/11263320/136902704-8da0f108-6035-4fda-807a-73b317126287.jpg" alt="v2-a1877871cf01aa2d15f99bd3f84ae9db_720w"></p>
+<p>千万不要跟我说你查不到日志，如果是日志没有打印，请打印出来，磨刀不误砍柴工。如果是你没有权限查看，麻烦你一定要先搞到权限。千万千万要避免“猜”问题。一群人在那儿讨论半天，你猜我猜，最终猜出来的概率是比较低的，除非你见过这个BUG。</p>
+<h2 id="看状态"><a href="#看状态" class="headerlink" title="看状态"></a>看状态</h2><p>top一把，看看应用CPU占用率是不是异常的高。</p>
+<p><img src="https://user-images.githubusercontent.com/11263320/136902909-3b6e94cf-67f6-4393-b17d-f88e81a1571f.jpg" alt="v2-ae4034ccd5feba1e6aa91cb75df7841f_720w"></p>
+<p>load average根据CPU核心数来判断，CPU占用看是否为100%或异常的高。</p>
+<h2 id="看线程是否卡住"><a href="#看线程是否卡住" class="headerlink" title="看线程是否卡住"></a>看线程是否卡住</h2><p>打印出所有线程栈之后，看看有没有你关心的线程卡住了，BLOCK或者wating之类的情况，然后看看他正在做什么调用</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/14e6f1eb.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/14e6f1eb.html" class="post-title-link" itemprop="url">冒泡排序</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-16 09:43:53" itemprop="dateCreated datePublished" datetime="2021-09-16T09:43:53+00:00">2021-09-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-04 12:27:10" itemprop="dateModified" datetime="2024-09-04T12:27:10+00:00">2024-09-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>冒泡排序作为最简单的算法之一，它重复地走访过要排序的数列，一次比较两个元素，如果它们的顺序错误就把它们交换过来。走访数列的工作就是重复地比较元素，直到元素们都落座了正确的位置，序列排序就算完成。<br>简而言之，将每次相邻两个关键字进行比较（0与1,1与2依次比较大小），小数上浮，大数下沉，每趟排序找出最大的数换到最右边。<br>这个算法的名字由来是因为越小的元素会经由交换慢慢“浮”到数列的顶端，“blue、blue~”<br><img src="https://user-images.githubusercontent.com/11263320/133589954-b5d713e5-ce0a-400f-8098-7880b1542ed8.gif" alt="c84bc96ad1ae5c83768f55cc0afc90af5503"></p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span> <span class="params">(<span class="keyword">int</span> <span class="built_in">array</span>[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> temp;</span><br><span class="line">    <span class="keyword">int</span> outer, inner;</span><br><span class="line">    <span class="keyword">for</span> (outer=<span class="number">0</span>; outer&lt;len<span class="number">-1</span>; outer++) <span class="comment">/* 外循环为排序趟数，len个数进行len-1趟 */</span></span><br><span class="line">        <span class="keyword">for</span> (inner=<span class="number">0</span>; inner&lt;len<span class="number">-1</span>-outer; inner++) &#123; <span class="comment">/* 内循环为每趟比较的次数，第i趟比较len-i次 */</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">array</span>[inner] &gt; <span class="built_in">array</span>[inner+<span class="number">1</span>]) &#123; <span class="comment">/* 相邻元素比较，若逆序则交换（升序为左大于右，降序反之） */</span></span><br><span class="line">                temp = <span class="built_in">array</span>[inner];</span><br><span class="line">                <span class="built_in">array</span>[inner] = <span class="built_in">array</span>[inner+<span class="number">1</span>];</span><br><span class="line">                <span class="built_in">array</span>[inner+<span class="number">1</span>] = temp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/1599bffe.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/1599bffe.html" class="post-title-link" itemprop="url">归并排序</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-11 03:52:54" itemprop="dateCreated datePublished" datetime="2021-09-11T03:52:54+00:00">2021-09-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-04 12:27:10" itemprop="dateModified" datetime="2024-09-04T12:27:10+00:00">2024-09-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>归并排序法是将两个（或两个以上）有序表合并成一个新的有序表，即把待排序序列分为若干个子序列，每个子序列是有序的。然后再把有序子序列合并为整体有序序列。</p>
+<img width="884" alt="1024555-20161218163120151-452283750" src="https://user-images.githubusercontent.com/11263320/133566405-144fc31a-bf27-4f18-a273-aa056e49ff01.png">
+
+<p>可以看到这种结构很像一棵完全二叉树，分阶段可以理解为就是递归拆分子序列的过程，递归深度为log2n。</p>
+<h2 id="合并相邻有序子序列"><a href="#合并相邻有序子序列" class="headerlink" title="合并相邻有序子序列"></a>合并相邻有序子序列</h2><p>再来看看治阶段，我们需要将两个已经有序的子序列合并成一个有序序列，比如上图中的最后一次合并，要将[4,5,7,8]和[1,2,3,6]两个已经有序的子序列，合并为最终序列[1,2,3,4,5,6,7,8]，来看下实现步骤。</p>
+<img width="852" alt="1024555-20161218194508761-468169540" src="https://user-images.githubusercontent.com/11263320/133570378-80864055-7efb-41e6-9927-eba79bf3d734.png">
+<img width="885" alt="1024555-20161218194621308-588010220" src="https://user-images.githubusercontent.com/11263320/133570460-62ad5937-9a76-4750-8ab0-5144a65792f6.png">
+
+<p><strong>归并排序是稳定排序，它也是一种十分高效的排序，能利用完全二叉树特性的排序一般性能都不会太差。</strong></p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">merge</span><span class="params">(<span class="keyword">int</span> <span class="built_in">array</span>[],<span class="keyword">int</span> start,<span class="keyword">int</span> range,<span class="keyword">int</span> mid)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> aux[range-start+<span class="number">1</span>],i,j,k;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span>(k=start;k&lt;=range;k++)</span><br><span class="line">    aux[k-start]=a[k];</span><br><span class="line">  </span><br><span class="line">  i=start;</span><br><span class="line">  j=mid+<span class="number">1</span>;</span><br><span class="line">  <span class="keyword">for</span>(k=start;k&lt;=range;k++)</span><br><span class="line">  &#123;</span><br><span class="line">  	<span class="keyword">if</span>(i&gt;mid)</span><br><span class="line">  	&#123;</span><br><span class="line">  		a[k]=aux[j-start];</span><br><span class="line">  		j++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(j&gt;range)</span><br><span class="line">	&#123;</span><br><span class="line">		a[k]=aux[i-start];</span><br><span class="line">		i++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(aux[i-start]&gt;aux[j-start])</span><br><span class="line">	&#123;</span><br><span class="line">		a[k]=aux[j-start];</span><br><span class="line">		j++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		a[k]=aux[i-start];</span><br><span class="line">		i++;</span><br><span class="line">	&#125;</span><br><span class="line">  &#125;	</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">merge_sort</span><span class="params">(<span class="keyword">int</span> <span class="built_in">array</span>[],<span class="keyword">int</span> start,<span class="keyword">int</span> range)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    range = range - <span class="number">1</span></span><br><span class="line">    <span class="keyword">if</span>(start&gt;=range)</span><br><span class="line">	    <span class="keyword">return</span> ;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">int</span> mid=(start+range)/<span class="number">2</span>;</span><br><span class="line">	</span><br><span class="line">	merge_sort(<span class="built_in">array</span>,start,mid);</span><br><span class="line">	merge_sort(<span class="built_in">array</span>,mid+<span class="number">1</span>,range);</span><br><span class="line">	merge(<span class="built_in">array</span>,start,range,mid);	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/cb625b07.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/cb625b07.html" class="post-title-link" itemprop="url">计数排序</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-01 03:10:40" itemprop="dateCreated datePublished" datetime="2021-09-01T03:10:40+00:00">2021-09-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-04 12:27:10" itemprop="dateModified" datetime="2024-09-04T12:27:10+00:00">2024-09-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>假如 H 省有 80 万考生，如何通过成绩快速排序得出排名呢？</p>
+<h2 id="计数排序"><a href="#计数排序" class="headerlink" title="计数排序"></a>计数排序</h2><p><strong>计数排序是一种稳定的排序算法。</strong> 它的核心在于将输入的数据值转化为键存储在额外开辟的数组空间中。但是，计数排序也是很高冷！作为一种线性时间复杂度的排序，计数排序要求输入的数据必须是有确定范围的整数。</p>
+<p>沿用上面的例子。考生的满分是 750 分，最小是 0 分，符合我们之前说的条件：数据范围小且是整数。我们可以划分为 751 个桶分别对应分数为 0 ~ 750 分数的考生。<br>接着开始遍历考生数据，每个考生按照分数则划分到对应数组下标，相同数组的下标则将该下标的数据值 + 1。其实就是每个数组下标位置对应的是数列数据出现的次数，最后直接遍历该数组，输出元素的下标就是对应的分数，下标对应的元素值是多少我们就输出几次。<br>桶内的数据都是分数相同的考生，所以并不需要再进行排序。我们只需要依次扫描每个桶，将桶内的考生依次输出到一个数组中，就实现了 80 万考生的排序。因为只涉及扫描遍历操作，所以时间复杂度是 O(n)。</p>
+<p><img src="https://user-images.githubusercontent.com/11263320/131610328-6297327d-4901-49e3-8e88-5de00e64711b.gif" alt="计数排序"></p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] countSort(<span class="keyword">int</span>[] A) &#123;</span><br><span class="line">    <span class="comment">// 找出数组A中的最大值</span></span><br><span class="line">    <span class="keyword">int</span> max = Integer.MIN_VALUE;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> num : A) &#123;</span><br><span class="line">        max = Math.max(max, num);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 初始化计数数组count</span></span><br><span class="line">    <span class="keyword">int</span>[] count = <span class="keyword">new</span> <span class="keyword">int</span>[max+<span class="number">1</span>];</span><br><span class="line">    <span class="comment">// 对计数数组各元素赋值</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> num : A) &#123;</span><br><span class="line">        count[num]++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 创建结果数组</span></span><br><span class="line">    <span class="keyword">int</span>[] result = <span class="keyword">new</span> <span class="keyword">int</span>[A.length];</span><br><span class="line">    <span class="comment">// 创建结果数组的起始索引</span></span><br><span class="line">    <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 遍历计数数组，将计数数组的索引填充到结果数组中</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;count.length; i++) &#123;</span><br><span class="line">        <span class="keyword">while</span> (count[i]&gt;<span class="number">0</span>) &#123;</span><br><span class="line">            result[index++] = i;</span><br><span class="line">            count[i]--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 返回结果数组</span></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果我们要输出的不仅仅是分数还有学生信息呢，比如说从小到大输出所有学生的姓名和分数，那么这个时候也只要做一点小小的变动。<br>我们用一个结构体去表示一个学生，如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">students</span>&#123;</span> </span><br><span class="line">    <span class="keyword">char</span> name[<span class="number">15</span>];</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> score;</span><br><span class="line">    students *next;</span><br><span class="line">&#125;student;</span><br></pre></td></tr></table></figure>
+<p>排序的过程中，我们依次遍历所有的学生分数，假设某个学生的分数为 i ,那么就在 score[i] 的后面插入该学生的节点。排完序后再按每个分数组打印链表中的学生姓名和分数。</p>
+<h2 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h2><p>需要排序的元素必须是整数，二是排序元素的取值要在一定范围内（例子是0-750。如果只排350-750分段，数组长度需要删减），并且比较集中。只有这两个条件都满足，才能最大程度发挥计数排序的优势。</p>
+<h2 id="计数排序与桶排序"><a href="#计数排序与桶排序" class="headerlink" title="计数排序与桶排序"></a>计数排序与桶排序</h2><p>其实计数排序是桶排序的一种特殊情况（桶不用再排序）。 桶排序的核心思想是将要排序的数据分到几个有序的桶里，每个桶里的数据再单独进行排序。桶内排完序之后，再把每个桶里的数据按照顺序依次取出，组成的序列就是有序的了。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/c5b5ce8a.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/post/c5b5ce8a.html" class="post-title-link" itemprop="url">跳跃表</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-30 05:39:30" itemprop="dateCreated datePublished" datetime="2021-08-30T05:39:30+00:00">2021-08-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-04 12:27:10" itemprop="dateModified" datetime="2024-09-04T12:27:10+00:00">2024-09-04</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这是发生在很多年以前的故事……<br>咱们需要做一个拍卖行系统，用来查阅和出售游戏中的道具。<br>拍卖行的商品总数量有几十万件，对应数据库商品表的几十万条记录。<br>如果是按照商品名称精确查询还好办，可以直接从数据库查出来，最多也就上百条记录。<br>如果是没有商品名称的全量查询怎么办？总不可能把数据库里的所有记录全查出来吧，而且还要支持不同字段的排序。<br>所以，只能提前在内存中存储有序的全量商品集合，每一种排序方式都保存成独立的集合，每次请求的时候按照请求的排序种类，返回对应的集合。<br>比如按价格字段排序的集合：<br>比如按等级字段排序的集合：</p>
+<p>拍卖行商品列表是线性的，最容易表达线性结构的自然是数组和链表。可是，无论是数组还是链表，在插入新商品的时候，都会存在性能问题。<br>按照商品等级排序的集合为例，如果使用数组，插入新商品的方式如下：<br><img src="https://user-images.githubusercontent.com/11263320/131290237-57b12c04-46af-44b0-83e6-61f93c211d65.JPG" alt="捕获"><br>如果要插入一个等级是3的商品，首先要知道这个商品应该插入的位置。使用二分查找可以最快定位，这一步时间复杂度是O（logN）。<br>插入过程中，原数组中所有大于3的商品都要右移，这一步时间复杂度是O（N）。所以总体时间复杂度是O（N）。</p>
+<p>如果使用链表，插入新商品的方式如下：<br><img src="https://user-images.githubusercontent.com/11263320/131290297-fd76c14e-bf17-47c1-be8b-549d5167e2fe.JPG" alt="捕获"><br>如果要插入一个等级是3的商品，首先要知道这个商品应该插入的位置。链表无法使用二分查找，只能和原链表中的节点逐一比较大小来确定位置。这一步的时间复杂度是O（N）。<br>插入的过程倒是很容易，直接改变节点指针的目标，时间复杂度O（1）。因此总体的时间复杂度也是O（N）。</p>
+<p>这对于拥有几十万商品的集合来说，这两种方法显然都太慢了。</p>
+<h2 id="什么是跳跃表"><a href="#什么是跳跃表" class="headerlink" title="什么是跳跃表"></a>什么是跳跃表</h2><p>这时候，可以用到<strong>跳跃表</strong>这种数据结构。<br>跳跃表是一种基于有序链表的扩展，简称跳表。<br>跳表利用类似索引的思想，提取出链表中的部分关键节点。比如给定一个长度是7的有序链表，节点值依次是<br>1-&gt;2-&gt;3-&gt;4-&gt;5-&gt;6-&gt;7-&gt;8。那么我们可以取出所有值为奇数的节点作为关键节点。<br><img src="https://user-images.githubusercontent.com/11263320/131291889-32b55289-a6ee-40a4-ba7b-d86401c72b6f.JPG" alt="捕获"><br>此时如果要插入一个值是4的新节点，不再需要和原节点8，7，6，5，3逐一比较，只需要比较关键节点7，5，3.<br><img src="https://user-images.githubusercontent.com/11263320/131292038-90109f91-16f1-45a1-9748-27c5e72c0ec8.JPG" alt="捕获"><br>确定了新节点在关键节点中的位置（3和5之间），就可以回到原链表，迅速定位到对应的位置插入（同样是3和5之间）。<br><img src="https://user-images.githubusercontent.com/11263320/131292187-e8aa1cc2-58ed-4232-aa0f-370272a0120d.JPG" alt="捕获"><br>现在节点数目少，优化效果还不明显，如果链表中有1W甚至10W个节点，比较次数就整整减少了一半！<br>这样做法虽然增加了50%的额外的空间，但是性能提高了一倍。</p>
+<p>不过我们可以进一步思考。既然已经提取出了一层关键节点作为索引，那我们为何不能从索引中进一步提取，提出一层索引的索引？<br><img src="https://user-images.githubusercontent.com/11263320/131292531-2603383a-c87e-419c-9479-7ef2f1ddcb21.JPG" alt="捕获"><br>有了2级索引之后，新的节点可以先和2级索引比较，确定大体范围；然后再和1级索引比较；最后再回到原链表，找到并插入对应的位置。<br>当节点很多的时候，比较次数会减少到原来的四分之一。<br>当节点足够多的时候，不止能提出两层索引，还可以向更高层次提取，保证每一层是上一层节点数的一半。<br>至于提取的极限，则是同一层只有两个节点的时候，因为一个节点没有比较的意义。这样的多层链表结构，就是所谓的<strong>跳跃表</strong>。</p>
+<h2 id="跳跃表的插入"><a href="#跳跃表的插入" class="headerlink" title="跳跃表的插入"></a>跳跃表的插入</h2><p>当大量的新节点通过逐层比较，最终插入到原链表之后，上层的索引节点会渐渐变得不够用。这时候需要从新节点当中选取一部分提到上一层。跳跃表设计者采用了一种有趣的办法：抛硬币。也就是随机决定新节点是否提拔，每向上提拔一层的几率是50%。<br>我们仍然借用刚才的例子，假如值为9新节点插入原链表。<br><img src="https://user-images.githubusercontent.com/11263320/131293478-8c7f7b13-fe95-4043-a55d-a45100a7906b.JPG" alt="捕获"><br>因为跳跃表删除和添加的节点是不可预测的，所有很难用一种有效的算法来保证跳表的索引分部始终均匀。<br>随机抛硬币的方法虽然不能保证索引绝对均匀分布，却可以让大体趋于均匀。</p>
+<p>总结一下，跳跃表插入节点的流程有以下几步：<br>新节点和各层索引节点逐一比较，确定原链表的插入位置。O（logN）</p>
+<p>把索引插入到原链表。O（1）<br>利用抛硬币的随机方式，决定新节点是否提升为上一级索引。结果为“正”则提升并继续抛硬币，结果为“负”则停止。O（logN）<br>总体上，跳跃表插入操作的时间复杂度是O（logN），而这种数据结构所占空间是2N，既空间复杂度是 O（N）。</p>
+<h2 id="跳跃表的删除"><a href="#跳跃表的删除" class="headerlink" title="跳跃表的删除"></a>跳跃表的删除</h2><p>删除操作比较简单，只要在索引层找到要删除的节点，然后顺藤摸瓜，删除每一层的相同节点即可。<br>如果某一层索引在删除后只剩下一个节点，那么整个一层就可以干掉了。还用原来的例子，如果要删除的节点值是5：<br><img src="https://user-images.githubusercontent.com/11263320/131294128-9dc535c5-9db7-4277-9f04-f88beb6f2f20.JPG" alt="捕获"></p>
+<p>总结一下，跳跃表删除节点的步骤：<br>自上而下，查找第一次出现节点的索引，并逐层找到每一层对应的节点。O（logN）<br>删除每一层查找到的节点，如果该层只剩下1个节点，删除整个一层（原链表除外）。O（logN）<br>总体上，跳跃表删除操作的时间复杂度是O（logN）。</p>
+<h2 id="跳跃表与二叉查找树的区别"><a href="#跳跃表与二叉查找树的区别" class="headerlink" title="跳跃表与二叉查找树的区别"></a>跳跃表与二叉查找树的区别</h2><p>跳跃表的优点是维持结构平衡的成本比较低，完全依靠随机。而二叉查找树在多次插入删除后，需要rebalance来重新调整结构平衡。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/post/ad0c7d39.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -196,7 +1062,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
+                <time title="修改时间：2021-06-25 08:13:12" itemprop="dateModified" datetime="2021-06-25T08:13:12+00:00">2021-06-25</time>
               </span>
 
           
@@ -237,7 +1103,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/71bad47a.html">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/24cb124c.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -251,7 +1117,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/71bad47a.html" class="post-title-link" itemprop="url">线程锁</a>
+            <a href="/post/24cb124c.html" class="post-title-link" itemprop="url">TCP</a>
         </h2>
 
         <div class="post-meta">
@@ -261,14 +1127,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-05-14 01:47:09" itemprop="dateCreated datePublished" datetime="2021-05-14T01:47:09+00:00">2021-05-14</time>
+              <time title="创建时间：2021-05-27 04:48:47" itemprop="dateCreated datePublished" datetime="2021-05-27T04:48:47+00:00">2021-05-27</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:10" itemprop="dateModified" datetime="2024-09-04T12:27:10+00:00">2024-09-04</time>
               </span>
 
           
@@ -282,584 +1148,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>这里介绍下线程锁的各类。常见的有：互斥锁、自旋锁、读写锁和条件变量。</p>
+          <p>在 TCP 通讯中主要有<strong>连接的建立</strong>、<strong>数据的传输</strong>、<strong>连接的关闭</strong>三个过程！每个过程完成不同的工作，而且序列号和确认号在每个过程中的变化都是不同的。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/post/71bad47a.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/d6fe94a3.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/d6fe94a3.html" class="post-title-link" itemprop="url">Actor模型</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-05-13 12:24:58" itemprop="dateCreated datePublished" datetime="2021-05-13T12:24:58+00:00">2021-05-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>The actor model in computer science is a mathematical model of concurrent computation that treats actor as the universal primitive of concurrent computation. In response to a message it receives, an actor can: make local decisions, create more actors, send more messages, and determine how to respond to the next message received. Actors may modify their own private state, but can only affect each other indirectly through messaging (removing the need for lock-based synchronization).</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/post/d6fe94a3.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/b1bd8617.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/b1bd8617.html" class="post-title-link" itemprop="url">文章版面美化</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-05-12 08:17:08" itemprop="dateCreated datePublished" datetime="2021-05-12T08:17:08+00:00">2021-05-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>之前写博客受制于编辑器的限制，版面经常脏、乱、差。自从用了<code>markdown</code>后，看见清新的版面，写文章的动力增加不了少。以下是一些版面美化的方法。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/post/b1bd8617.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/f006d367.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/f006d367.html" class="post-title-link" itemprop="url">调试nodejs程序</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-05-12 06:53:38" itemprop="dateCreated datePublished" datetime="2021-05-12T06:53:38+00:00">2021-05-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>写程序时免不了遇到<code>bug</code>，而当<code>bug</code>发生以后，除了抓耳挠腮之外，一个常用的技术是单步调试。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/post/f006d367.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/42c2382c.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/42c2382c.html" class="post-title-link" itemprop="url">Nginx作为Node.js前端Web Server</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-05-11 02:49:21" itemprop="dateCreated datePublished" datetime="2021-05-11T02:49:21+00:00">2021-05-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>一个<code>Node.js</code>进程就可以完成负载，但是随着后期访问量的加大，一个进程、一台服务器已经不能满足我们的需要了，这时<code>Nginx</code>就可以发挥自己反向代理的能力。我们可以在<code>Nginx</code>后端添加多个服务器或启动多个进程来分担访问压力。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/post/42c2382c.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/f255ffad.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/f255ffad.html" class="post-title-link" itemprop="url">docker</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-05-10 02:47:07" itemprop="dateCreated datePublished" datetime="2021-05-10T02:47:07+00:00">2021-05-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>用了<code>Docker</code>我们就可以更加专注地开发业务代码了，不用因安装环境而浪费时间。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/post/f255ffad.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/48508611.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/48508611.html" class="post-title-link" itemprop="url">docker更换国内镜像源</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-05-09 17:55:08" itemprop="dateCreated datePublished" datetime="2021-05-09T17:55:08+00:00">2021-05-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>因为墙的关系，国外的源相对比较慢，切换国内镜提速十分重要。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/post/48508611.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/ddcc6cb.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/ddcc6cb.html" class="post-title-link" itemprop="url">Linux内核考古</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-04-30 05:47:39" itemprop="dateCreated datePublished" datetime="2021-04-30T05:47:39+00:00">2021-04-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这里记录下Linux内核的进化历史。</p>
-<h2 id="Linux内核版本的年表"><a href="#Linux内核版本的年表" class="headerlink" title="Linux内核版本的年表"></a>Linux内核版本的年表</h2><p><img src="https://user-images.githubusercontent.com/11263320/116653815-7d87e000-a9ba-11eb-8652-7ac948f38fa5.png" alt="a33ef0ac7688dbdcdd5f89601d8d6358"></p>
-<h2 id="内核变化"><a href="#内核变化" class="headerlink" title="内核变化"></a>内核变化</h2><p>Linux内核的2.6 时代跨度非常大，从2.6.1 (2003年12月发布) 到 2.6.39(2011年5月发布)，跨越了39 个大版本。之后版本变化更新就快多了。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>Linux内核版本历史 详见：<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Linux_kernel_version_history">https://en.wikipedia.org/wiki/Linux_kernel_version_history</a></p>
-<hr>
-<p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/125">Nadie es perfecto. Atentamente: Nadie.</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/post/45d71738.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="losophy">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="losophy">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/post/45d71738.html" class="post-title-link" itemprop="url">数据包收发流程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-04-29 08:16:27" itemprop="dateCreated datePublished" datetime="2021-04-29T08:16:27+00:00">2021-04-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这里研究下数据包收发的流程。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/post/45d71738.html#more" rel="contents">
+              <a class="btn" href="/post/24cb124c.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -882,7 +1174,7 @@
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -949,7 +1241,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">121</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -986,7 +1278,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

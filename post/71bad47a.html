@@ -28,7 +28,7 @@
 <meta property="og:description" content="这里介绍下线程锁的各类。常见的有：互斥锁、自旋锁、读写锁和条件变量。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-05-14T01:47:09.000Z">
-<meta property="article:modified_time" content="2021-06-25T08:12:59.707Z">
+<meta property="article:modified_time" content="2024-09-04T12:27:10.477Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:10" itemprop="dateModified" datetime="2024-09-04T12:27:10+00:00">2024-09-04</time>
               </span>
 
           
@@ -218,15 +218,14 @@
         <p>这里介绍下线程锁的各类。常见的有：互斥锁、自旋锁、读写锁和条件变量。</p>
 <a id="more"></a>
 
-<h2 id="互斥锁（mutex-lock）"><a href="#互斥锁（mutex-lock）" class="headerlink" title="互斥锁（mutex lock）"></a>互斥锁（mutex lock）</h2><p><strong>一条线程加锁锁住临界区，另一条线程尝试访问改临界区的时候，会发生阻塞，并进入休眠状态。临界区是锁<code>lock</code>和<code>unlock</code>之间的代码片段，一般是多条线程能够共同访问的部分。</strong><br>具体说明：假设一台机器上的<code>cpu</code>有两个核心<code>core0</code>和<code>core1</code>，现在有线程<code>A、B、C</code>，此时<code>core0</code>运行线程<code>A</code>，<code>core1</code>运行线程<code>B</code>，此时线程<code>B</code>使用<code>Mutex</code>锁，锁住一个临界区，当线程<code>A</code>试图访问该临界区时，因为线程<code>B</code>已经将其锁住，因此线程<code>A</code>被挂起，进入休眠状态，此时<code>core0</code>进行上下文切换，将线程<code>A</code>放入休眠队列中，然后<code>core0</code>运行线程<code>C</code>，当线程<code>B</code>完成临界区的流程并执行解锁之后，线程<code>A</code>又会被唤醒，<code>core0</code>重新运行线程<code>A</code>。</p>
 <h2 id="自旋锁（spinlock）"><a href="#自旋锁（spinlock）" class="headerlink" title="自旋锁（spinlock）"></a>自旋锁（spinlock）</h2><p><strong>一条线程加锁锁住临界区，另一条线程尝试访问该临界区的时候，会发生阻塞，但是不会进入休眠状态，并且不断轮询该锁，直至原来锁住临界区的线程解锁。</strong><br>具体说明：假设一台机器上有两个核心<code>core0</code>和<code>core1</code>，现在有线程<code>A、B、C</code>，此时<code>core0</code>运行线程<code>A</code>，<code>core1</code>运行线程<code>B</code>，此时线程<code>B</code>调用<code>spin lock</code>锁住临界区，当线程<code>A</code>尝试访问该临界区时，因为<code>B</code>已经加锁，此时线程<code>A</code>会阻塞，并且不断轮询该锁，不会交出<code>core0</code>的使用权，当线程<code>B</code>释放锁时，<code>A</code>开始执行临界区逻辑。</p>
-<h2 id="读写锁（readers–writer-lock）"><a href="#读写锁（readers–writer-lock）" class="headerlink" title="读写锁（readers–writer lock）"></a>读写锁（readers–writer lock）</h2><p>一共三种状态</p>
-<ul>
-<li>读状态时加锁，此时为共享锁，当一个线程加了读锁时，其他线程如果也尝试以读模式进入临界区，那么不会发生阻塞，直接访问临界区</li>
-<li>写状态时加锁，此时为独占锁，当某个线程加了写锁，那么其他线程尝试访问该临界区（不论是读还是写），都会阻塞等待</li>
-<li>不加锁<br>某线程加读取锁时，允许其他线程以读模式进入，此时如果有一个线程尝试以写模式访问临界区时，该线程会被阻塞，而其后尝试以读方式访问该临界区的线程也会被阻塞<br>读写锁适合在读远大于写的情形中使用</li>
-</ul>
+<h3 id="skynet中自实现的自旋锁"><a href="#skynet中自实现的自旋锁" class="headerlink" title="skynet中自实现的自旋锁"></a>skynet中自实现的自旋锁</h3><p><a target="_blank" rel="noopener" href="https://gist.github.com/losophy/3958fefacaf6e3bb45373f107149f782">spinlock.h</a></p>
+<h2 id="互斥锁（mutex-lock）"><a href="#互斥锁（mutex-lock）" class="headerlink" title="互斥锁（mutex lock）"></a>互斥锁（mutex lock）</h2><p><strong>一条线程加锁锁住临界区，另一条线程尝试访问改临界区的时候，会发生阻塞，并进入休眠状态。临界区是锁<code>lock</code>和<code>unlock</code>之间的代码片段，一般是多条线程能够共同访问的部分。</strong><br>具体说明：假设一台机器上的<code>cpu</code>有两个核心<code>core0</code>和<code>core1</code>，现在有线程<code>A、B、C</code>，此时<code>core0</code>运行线程<code>A</code>，<code>core1</code>运行线程<code>B</code>，此时线程<code>B</code>使用<code>Mutex</code>锁，锁住一个临界区，当线程<code>A</code>试图访问该临界区时，因为线程<code>B</code>已经将其锁住，因此线程<code>A</code>被挂起，进入休眠状态，此时<code>core0</code>进行上下文切换，将线程<code>A</code>放入休眠队列中，然后<code>core0</code>运行线程<code>C</code>，当线程<code>B</code>完成临界区的流程并执行解锁之后，线程<code>A</code>又会被唤醒，<code>core0</code>重新运行线程<code>A</code>。</p>
+<h3 id="自旋锁和互斥锁的选择"><a href="#自旋锁和互斥锁的选择" class="headerlink" title="自旋锁和互斥锁的选择"></a>自旋锁和互斥锁的选择</h3><p>对自旋锁和互斥锁的选择是要根据得到锁的耗时来的，若果当得到锁后，需要执行大量的操作，一般选用互斥锁，若得到锁后，进行很少量的操作，一般选择自旋锁，因为执行的操作短，那么忙等的开销总体还是小于内核态和用户态切换带来的开销的。</p>
 <h2 id="条件变量（condition-variables）"><a href="#条件变量（condition-variables）" class="headerlink" title="条件变量（condition variables）"></a>条件变量（condition variables）</h2><p>假设<code>A,B,C</code>三条线程，其中<code>B,C</code>线程加了<code>condwait</code>锁并投入睡眠，而<code>A</code>线程则在某个条件触发时，会通过<code>signal</code>通知<code>B,C</code>线程，从而唤醒<code>B</code>和<code>C</code>线程。</p>
+<h3 id="互斥锁为什么还要和条件变量配合使用"><a href="#互斥锁为什么还要和条件变量配合使用" class="headerlink" title="互斥锁为什么还要和条件变量配合使用"></a>互斥锁为什么还要和条件变量配合使用</h3><p>mutex体现的是一种竞争，我离开了，通知你进来。<br>cond体现的是一种协作，我准备好了，通知你开始吧。<br>互斥锁一个明显的缺点是它只有两种状态：锁定和非锁定。而条件变量通过允许线程阻塞和等待另一个线程发送信号的方法弥补了互斥锁的不足，它常和互斥锁一起配合使用。使用时，条件变量被用来阻塞一个线程，当条件不满足时，线程往往解开相应的互斥锁并等待条件发生变化。一旦其他的某个线程改变了条件变量，他将通知相应的条件变量唤醒一个或多个正被此条件变量阻塞的线程。这些线程将重新锁定互斥锁并重新测试条件是否满足。一般说来，条件变量被用来进行线程间的同步。</p>
+<h2 id="读写锁（readers–writer-lock）"><a href="#读写锁（readers–writer-lock）" class="headerlink" title="读写锁（readers–writer lock）"></a>读写锁（readers–writer lock）</h2><p>某线程加读取锁时，允许其他线程以读模式进入，此时如果有一个线程尝试以写模式访问临界区时，该线程会被阻塞，而其后尝试以读方式访问该临界区的线程也会被阻塞<br>读写锁适合在读远大于写的情形中使用</p>
+<h3 id="skynet中自实现的读写锁"><a href="#skynet中自实现的读写锁" class="headerlink" title="skynet中自实现的读写锁"></a>skynet中自实现的读写锁</h3><p><a target="_blank" rel="noopener" href="https://gist.github.com/losophy/32dbde601728b2a595c4e7dd814d63d2">rwlock.h</a></p>
 <hr>
 <p><a target="_blank" rel="noopener" href="https://github.com/losophy/losophy.github.io/issues/139">El que tiene tejados de vidrio, no tire piedras a los de su vecino.</a></p>
 
@@ -271,8 +270,8 @@
       <i class="fa fa-chevron-left"></i> Actor模型
     </a></div>
       <div class="post-nav-item">
-    <a href="/post/ad0c7d39.html" rel="next" title="TCP的通讯过程">
-      TCP的通讯过程 <i class="fa fa-chevron-right"></i>
+    <a href="/post/24cb124c.html" rel="next" title="TCP">
+      TCP <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -333,7 +332,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%92%E6%96%A5%E9%94%81%EF%BC%88mutex-lock%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">互斥锁（mutex lock）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E6%97%8B%E9%94%81%EF%BC%88spinlock%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">自旋锁（spinlock）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E9%94%81%EF%BC%88readers%E2%80%93writer-lock%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">读写锁（readers–writer lock）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%EF%BC%88condition-variables%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">条件变量（condition variables）</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E6%97%8B%E9%94%81%EF%BC%88spinlock%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">自旋锁（spinlock）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#skynet%E4%B8%AD%E8%87%AA%E5%AE%9E%E7%8E%B0%E7%9A%84%E8%87%AA%E6%97%8B%E9%94%81"><span class="nav-number">1.1.</span> <span class="nav-text">skynet中自实现的自旋锁</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%92%E6%96%A5%E9%94%81%EF%BC%88mutex-lock%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">互斥锁（mutex lock）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E6%97%8B%E9%94%81%E5%92%8C%E4%BA%92%E6%96%A5%E9%94%81%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">2.1.</span> <span class="nav-text">自旋锁和互斥锁的选择</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%EF%BC%88condition-variables%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">条件变量（condition variables）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%92%E6%96%A5%E9%94%81%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E8%A6%81%E5%92%8C%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%E9%85%8D%E5%90%88%E4%BD%BF%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">互斥锁为什么还要和条件变量配合使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E9%94%81%EF%BC%88readers%E2%80%93writer-lock%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">读写锁（readers–writer lock）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#skynet%E4%B8%AD%E8%87%AA%E5%AE%9E%E7%8E%B0%E7%9A%84%E8%AF%BB%E5%86%99%E9%94%81"><span class="nav-number">4.1.</span> <span class="nav-text">skynet中自实现的读写锁</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -348,7 +347,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">121</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -385,7 +384,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

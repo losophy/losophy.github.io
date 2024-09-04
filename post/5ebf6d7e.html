@@ -20,13 +20,14 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。skynet的网络库是自己实现的。skynet 网络层的设计目的是，把操作系统层面的 socket 数据从系统内核复制到用户空间，然后再把用户空间的数据地址交给各个不同的服务使用，同时也把用户空间需要发送的数据转移到系统内核中。只不过一个优秀的网络框架会提供更多的功能和细节优化，例如：s">
+  <meta name="description" content="网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="skynet socket">
 <meta property="og:url" content="http://example.com/post/5ebf6d7e.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。skynet的网络库是自己实现的。skynet 网络层的设计目的是，把操作系统层面的 socket 数据从系统内核复制到用户空间，然后再把用户空间的数据地址交给各个不同的服务使用，同时也把用户空间需要发送的数据转移到系统内核中。只不过一个优秀的网络框架会提供更多的功能和细节优化，例如：s">
+<meta property="og:description" content="网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/128183899-edffac1d-8019-41e0-ba0c-ce58ca7cd30d.jpg">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/108930911-b4bbd700-7681-11eb-8dcd-ffad5e00237f.png">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/120341663-a7ba1e00-c329-11eb-9c17-8344a3958e37.JPG">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/120348568-e18e2300-c32f-11eb-94c5-83fcb19f95df.jpg">
@@ -34,11 +35,11 @@
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/120581931-34fe8f00-c45e-11eb-91d1-c487071d7570.jpg">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/120582027-58c1d500-c45e-11eb-8bbb-1bb258a4acfd.jpg">
 <meta property="article:published_time" content="2021-02-24T01:22:30.000Z">
-<meta property="article:modified_time" content="2021-06-25T08:13:01.475Z">
+<meta property="article:modified_time" content="2024-09-04T12:27:11.507Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="skynet">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/108930911-b4bbd700-7681-11eb-8dcd-ffad5e00237f.png">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/11263320/128183899-edffac1d-8019-41e0-ba0c-ce58ca7cd30d.jpg">
 
 <link rel="canonical" href="http://example.com/post/5ebf6d7e.html">
 
@@ -208,7 +209,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -222,10 +223,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。skynet的网络库是自己实现的。<br>skynet 网络层的设计目的是，把操作系统层面的 socket 数据从系统内核复制到用户空间，然后再把用户空间的数据地址交给各个不同的服务使用，同时也把用户空间需要发送的数据转移到系统内核中。<br>只不过一个优秀的网络框架会提供更多的功能和细节优化，例如：socket 的管理、网络读写分离、读写数据缓存等等。</p>
-<p>还需要特别注意一点的是，因为 skynet 是一个消息驱动的模型，所以 skynet 的网络模块使用了一种叫 self pipe trick 1的技巧来唤醒异步调用，实现细节是利用了 pipe() 的“半双工”管道 + select，为了解决可在网络线程在即时处理网络事件的同时，也能即时处理来自非网络（比如内部消息队列）的其它消息。</p>
+        <p>网络部分是一个服务器最基础最核心的部分，这个技术也已经是非常成熟了，现在已经很少有人自己实现一个网络相关的库了。</p>
 <a id="more"></a>
 
+<p>skynet的网络库是自己实现的。<br>skynet 网络层的设计目的是，把操作系统层面的 socket 数据从系统内核复制到用户空间，然后再把用户空间的数据地址交给各个不同的服务使用，同时也把用户空间需要发送的数据转移到系统内核中。<br>只不过一个优秀的网络框架会提供更多的功能和细节优化，例如：socket 的管理、网络读写分离、读写数据缓存等等。</p>
+<p>还需要特别注意一点的是，因为 skynet 是一个消息驱动的模型，所以 skynet 的网络模块使用了一种叫 self pipe trick 1的技巧来唤醒异步调用，实现细节是利用了 pipe() 的“半双工”管道 + select，为了解决可在网络线程在即时处理网络事件的同时，也能即时处理来自非网络（比如内部消息队列）的其它消息。</p>
+<p><img src="https://user-images.githubusercontent.com/11263320/128183899-edffac1d-8019-41e0-ba0c-ce58ca7cd30d.jpg" alt="121575990-8d372180-ca5a-11eb-88ce-6125a229cfff"></p>
 <h2 id="epoll和kqueue"><a href="#epoll和kqueue" class="headerlink" title="epoll和kqueue"></a>epoll和kqueue</h2><p>实际上云风只实现了epoll和kqueue，windows上的变种请自行搜索吧。</p>
 <p>epoll和kqueue的实现分别在socket_epoll.h和socket_kqueue.h当中。epoll的函数其实就是epoll_create/epoll_ctl/epoll_del/epoll_wait这几个，要注意的是skynet中的epoll_create的参数是1024。所以连接数上不去的话很可能就是这里限制了。<br>skynet在socket_poll.h中根据平台的不同包含了不同的头文件，屏蔽了平台相关性。然后在socket_server.c中实现了网络服务的逻辑。<br>然后skynet在skynet_socket.c中对socket_server.c中的逻辑再次做了一个封装，还添加了socket客户端相关的函数，就是connect/send/close之类的函数。<br>为了方便lua层使用socket，在lua-socket.c中再将对skynet_socket.c进行了一次封装。这个封装就是c语言层和lua语言层的相互转换。目前只支持tcp和udp，基于tcp上的http/websocket之类统统是不支持的。</p>
 <p>为什么操作一个网络要费这么大的劲呢，绕来绕去非常的不直观。因为skynet是基于消息的，而且每个服务都有一个monitor,每个消息处理的时候要尽可能的短，这样才不会阻塞服务里其它的请求。而connect这种明显是阻塞的，当然也可以写成非阻塞的，但是非阻塞的话，你需要不断地挂起，因为非阻塞实际上是基于select技术来实现的。而不断地挂起，这个就很麻烦，写起来很痛苦而且很容易出错。因此云风把这些都放到网络线程中来做，这样就不会影响工作线程。但是这样做也有它的缺点，那就是网络线程可能会被阻塞，网络线程被阻塞就会导致服务无响应。或者导致大量的数据包积累，引起波峰。</p>
@@ -248,7 +251,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">event</span> &#123;</span></span><br><span class="line">	<span class="keyword">void</span> * s; 		<span class="comment">// socket 实例指针，若s为null，表示是管道事件</span></span><br><span class="line">	<span class="keyword">bool</span> read;		<span class="comment">// 可读事件标识</span></span><br><span class="line">	<span class="keyword">bool</span> write;		<span class="comment">// 可写事件标识</span></span><br><span class="line">	<span class="keyword">bool</span> error;		<span class="comment">// 错误事件标识</span></span><br><span class="line">	<span class="keyword">bool</span> eof;		<span class="comment">// 文件尾(end-of-file)标识，kqueue专用</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>这里需注意两个小细节：</p>
 <ul>
-<li>事件的用户数据指针*s。当把一个 fd 注册到 event poll 中时，若该 fd 是一个外部网络连接则 *s 指向一个 socket 实例；若该 fd 是管道的读端则 *s 为null，这样在线程调用socket_server_poll时就能根据 *s 的值把内部消息流程和外部消息流程分隔，即管道的内部命令处理都使用 select，而外部网络消息使用 epoll/kqueue。</li>
+<li>事件的用户数据指针<em>s。当把一个 fd 注册到 event poll 中时，若该 fd 是一个外部网络连接则 <em>s 指向一个 socket 实例；若该 fd 是管道的读端则 *s 为null，这样在线程调用socket_server_poll时就能根据 *s 的值把内部消息流程和外部消息流程分隔，</em></em>即管道的内部命令处理都使用 select，而外部网络消息使用 epoll/kqueue**。</li>
 <li>read 标识需要关注 EPOLLHUP。该事件是一个“不可标记的事件”，也就是说不需要手动注册事件，该事件被触发的核心原则是收到了对端发送过来的 RST 包，例如：向一个对端已经close的 fd 写入数据。实验代码贴在了gist。</li>
 </ul>
 <h2 id="socket"><a href="#socket" class="headerlink" title="socket"></a>socket</h2><p>skynet 把网络连接都封装成 struct socket，其结构体定义如下</p>
@@ -412,7 +415,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">121</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -449,7 +452,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

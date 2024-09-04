@@ -28,7 +28,7 @@
 <meta property="og:description" content="监控系统能帮助我们分析节点的服务存在的问题，例如：服务死循环、服务内存溢出、cpu耗时过长等问题。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-04-16T09:51:52.000Z">
-<meta property="article:modified_time" content="2021-06-25T08:12:59.708Z">
+<meta property="article:modified_time" content="2024-09-04T12:27:10.477Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="skynet">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:12:59" itemprop="dateModified" datetime="2021-06-25T08:12:59+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:10" itemprop="dateModified" datetime="2024-09-04T12:27:10+00:00">2024-09-04</time>
               </span>
 
           
@@ -218,13 +218,14 @@
         <p>监控系统能帮助我们分析节点的服务存在的问题，例如：服务死循环、服务内存溢出、cpu耗时过长等问题。</p>
 <a id="more"></a>
 
-<p>skynet对服务的监控做得比较简陋，从设计原则上来说，这样做也是对的，因为框架层能做的，基本就是上报和打日志，上层的业务是变化万千的，不论怎么写，都可能满足不了上层的业务需求。skynet中对服务的监控实现在skynet_monitor.c和skynet_monitor.h中，当服务可能陷入死循环的时候，就打一条日志。<br>每次消息派发，都会调用skynet_monitor_trigger，一共调两次，第一次参数source和destination是真实的值，也就是不为0。第二次调是在消息派发完成的时候，source和destination都赋0。<br>如果第一次trigger调用以后，消息派发迟迟不完成，monitor线程第一次检查，会将check_version的值赋为version。然后monitor线程第二次检查，这个时候version和check_version就会相等，而且这时候destination也不为0，就会进入释放目标服务和打印报警的流程。</p>
+<p>skynet对服务的监控做得比较简陋，从设计原则上来说，这样做也是对的，因为框架层能做的，基本就是上报和打日志，上层的业务是变化万千的，不论怎么写，都可能满足不了上层的业务需求。skynet中对服务的监控实现在skynet_monitor.c和skynet_monitor.h中，当服务可能陷入死循环的时候，就打一条日志。<br>每次消息派发，都会调用skynet_monitor_trigger，一共调两次，第一次参数source和destination是真实的值，也就是不为0。第二次调是在消息派发完成的时候，source和destination都赋0。<br><strong>如果第一次trigger调用以后，消息派发迟迟不完成，monitor线程第一次检查，会将check_version的值赋为version。然后monitor线程第二次检查，这个时候version和check_version就会相等，而且这时候destination也不为0，就会进入释放目标服务和打印报警的流程。</strong></p>
 <h2 id="监控相关"><a href="#监控相关" class="headerlink" title="监控相关"></a>监控相关</h2><p>关于服务上下文的一些核心已经在上面基本介绍的差不多了，最后介绍一下 context 的一些小细节或辅助功能，它们会关联在结构体 struct skynet_context 上的一个或多个字段，利用好这些功能，对我们分析查找问题有很大的帮助。</p>
 <h3 id="服务日志"><a href="#服务日志" class="headerlink" title="服务日志"></a>服务日志</h3><p>这个功能可以把服务处理过的消息都导出到一个文件中，配合 debug console 的 logon 和 logoff 两个命令使用，这个功能可以帮助我们对某个指定的服务进行问题查找</p>
 <h3 id="性能指标"><a href="#性能指标" class="headerlink" title="性能指标"></a>性能指标</h3><p>这些性能指标包括服务已经处理的消息总数、服务处理消息的 cpu 总耗时、是否出现死循环等，可以配合 debug console 的 stat 命令使用（都是调用了底层的 cmd_stat），下面是所有性能指标的名称和作用：</p>
 <blockquote>
 <p>cpu，表示这个服务处理消息消耗的 cpu 总耗时，毫秒为单位，由 profile 字段控制，默认开启，数值越大表示这个服务越繁忙；<br>message，表示已经被这个服务处理过的消息总数；<br>time，这个指标可以计算出某个服务当前正在处理的消息已耗时长，可以用来检测一个服务的某个逻辑耗时是不是过长，一般情况为 0，如果值较大就需要注意了，是不是由业务逻辑有问题，可能死循环或者逻辑计算过大；<br>endless，若为 1 则表示服务长时间没有进行消息处理，可能出现了死循环，也可能是出现 endless 的前一个逻辑耗时超过 5s，它的值是由监控线程设置；<br>mqlen，表示服务当前还未处理的消息数量，如果消息堆积过多，会出现 May overload， message queue lenght=xxx 的错误日志，详细机制会在后面的消息处理部分详细讲解；<br>task，这一个指标较为特殊，它不是由底层提供，它的值需要在 lua 层获取，表示某个服务当前挂起的 coroutine 数量。</p>
 </blockquote>
+<h2 id="分离代码"><a href="#分离代码" class="headerlink" title="分离代码"></a>分离代码</h2><p><a target="_blank" rel="noopener" href="https://gist.github.com/losophy/6be78f27a5e4d514d57cd577fcf17c46">skynet_monitor</a></p>
 <h2 id="reference"><a href="#reference" class="headerlink" title="reference"></a>reference</h2><p>监控相关 详见：<a target="_blank" rel="noopener" href="https://domicat.me/_posts/2020-05-10-learn-skynet-service/">https://domicat.me/_posts/2020-05-10-learn-skynet-service/</a></p>
 
     </div>
@@ -330,7 +331,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text">监控相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%97%A5%E5%BF%97"><span class="nav-number">1.1.</span> <span class="nav-text">服务日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87"><span class="nav-number">1.2.</span> <span class="nav-text">性能指标</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">2.</span> <span class="nav-text">reference</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text">监控相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%97%A5%E5%BF%97"><span class="nav-number">1.1.</span> <span class="nav-text">服务日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87"><span class="nav-number">1.2.</span> <span class="nav-text">性能指标</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%A6%BB%E4%BB%A3%E7%A0%81"><span class="nav-number">2.</span> <span class="nav-text">分离代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">3.</span> <span class="nav-text">reference</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -345,7 +346,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">121</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -382,7 +383,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

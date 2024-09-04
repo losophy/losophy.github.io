@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="今天，我们开始做一个动作类游戏。 美术资源我们先下载今天要用到的美术资源。 链接：https:&#x2F;&#x2F;pan.baidu.com&#x2F;s&#x2F;1Vci83yoTRvViXIXElZ4k0g?pwd&#x3D;tynm 提取码：tynm 新建项目。 把美术资源拖进项目。 创建角色我们创建个文件夹，就叫Player。 创建角色蓝图。 我们再创建一个玩家控制器。 这时候我们再添加一个游戏模式。 然后我们改下GameMode的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="虚幻五从零开始做一个动作类游戏（纯蓝图）">
+<meta property="og:url" content="http://example.com/post/19604296.html">
+<meta property="og:site_name" content="losophy">
+<meta property="og:description" content="今天，我们开始做一个动作类游戏。 美术资源我们先下载今天要用到的美术资源。 链接：https:&#x2F;&#x2F;pan.baidu.com&#x2F;s&#x2F;1Vci83yoTRvViXIXElZ4k0g?pwd&#x3D;tynm 提取码：tynm 新建项目。 把美术资源拖进项目。 创建角色我们创建个文件夹，就叫Player。 创建角色蓝图。 我们再创建一个玩家控制器。 这时候我们再添加一个游戏模式。 然后我们改下GameMode的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9f3ea942-dee5-45ac-8cd8-4b7fede16cdb">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d6873037-4bcb-42d8-92d1-44cfa6b5d559">
+<meta property="og:image" content="https://github.com/user-attachments/assets/961328cc-6e2c-455a-a4f2-f29b7b4aa971">
+<meta property="og:image" content="https://github.com/user-attachments/assets/1c2d9af5-6176-4cb5-8a4a-14b43b8a8dc8">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d5af8d95-bf28-4ce2-adc6-dff2d57191e3">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9650c7b5-7af5-4c09-98e7-e41d4a690d07">
+<meta property="og:image" content="https://github.com/user-attachments/assets/498fe4ee-1312-4116-956f-95553fa6e649">
+<meta property="og:image" content="https://github.com/user-attachments/assets/fe081ca9-fb7b-44aa-8716-3fbb4bb468cf">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ed3fa57c-65b1-4318-b465-a1e421fcc90e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4c22a644-7b74-4d3f-b2fa-04f2bbdfce8c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/70374fb0-f05d-41bc-9f67-89210b2c5a79">
+<meta property="og:image" content="https://github.com/user-attachments/assets/240ffbb0-7ca2-4615-8882-8f98c4fefa0a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7819ce98-fedb-4660-afcb-a6a940778f8a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f2c0de30-be41-49b2-9130-cc3d0f3e91a9">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3addbd6d-15f3-453c-ba68-35fef9eb670f">
+<meta property="og:image" content="https://github.com/user-attachments/assets/990a0745-a27e-4613-be5c-8f4dc3dbddfd">
+<meta property="og:image" content="https://github.com/user-attachments/assets/57cc65ac-ddbb-4248-baa0-602f3e069cfc">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f18734cc-8349-412c-8c8f-5c3ed408dac9">
+<meta property="og:image" content="https://github.com/user-attachments/assets/b59fa409-e0f5-49b7-98e1-d3e04e883a6d">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9bedb5aa-e237-48b5-95c6-21d9c8255416">
+<meta property="og:image" content="https://github.com/user-attachments/assets/32b73dd0-9fb4-4d09-b4fe-a4e2c2a8e811">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a6d54df9-d35c-4d39-9fd4-30c49c5a1fbd">
+<meta property="og:image" content="https://github.com/user-attachments/assets/fd8bc74a-1f96-4034-a6e9-792287533b23">
+<meta property="og:image" content="https://github.com/user-attachments/assets/659c1467-79db-44c2-9b5a-d85e113cfa19">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d5c57cc8-9171-4101-a2f3-ba1427470334">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0dfe567c-1678-4cc0-baf2-b166adb30421">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9e4359b1-6bee-468a-b1b0-6e0fd0139cd1">
+<meta property="og:image" content="https://github.com/user-attachments/assets/18833bee-cedc-4712-9072-9709eacd8cbc">
+<meta property="og:image" content="https://github.com/user-attachments/assets/61f3c2c3-bbce-457f-8a9e-6214bf84a248">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7bb5154f-b929-467b-8122-f330a75a36cb">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a85147a3-a8e8-4943-9b90-f0d93b6e467b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2a0f7354-4b24-40f0-920e-3bb9d57b52f5">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4a77a983-397e-4d0c-af27-9e0f00de4ced">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8469ebf1-a2e3-400d-8fb3-064a2ba48490">
+<meta property="og:image" content="https://github.com/user-attachments/assets/757c49e9-2896-480e-8cfd-86c205b9cd5d">
+<meta property="og:image" content="https://github.com/user-attachments/assets/22fed050-8f64-4341-8f0a-9fece8b166bb">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0cda10b7-de25-4f86-86f9-70f2ab6e8ec8">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9c108ce2-1620-4675-b577-a901a5bba0e2">
+<meta property="og:image" content="https://github.com/user-attachments/assets/da2874d8-3c10-4aca-b5c0-47e896e60a07">
+<meta property="og:image" content="https://github.com/user-attachments/assets/78a8c831-b4ed-4c43-ae1c-0f4cb75ed5d2">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3f18904f-ccfb-4c88-9e2a-82582887cd66">
+<meta property="og:image" content="https://github.com/user-attachments/assets/24f8ae8b-6d94-4c8e-bdcc-eebd405eccaf">
+<meta property="og:image" content="https://github.com/user-attachments/assets/09678330-957c-4fac-a67b-cb276717d879">
+<meta property="og:image" content="https://github.com/user-attachments/assets/49f27cca-ae4f-4779-ac51-eeed6e108e66">
+<meta property="og:image" content="https://github.com/user-attachments/assets/695f9268-2677-4395-a3a3-f6db8825bb4b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9bac41b2-6f55-4984-958e-09902e4495c9">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c895131d-eaff-450f-9bbd-8f98d55eafa8">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4a6c143d-1286-4c8f-ba07-5e5a127c7acd">
+<meta property="og:image" content="https://github.com/user-attachments/assets/82b9a962-2edd-42bc-b25a-ae19e56fd64c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/497e6f62-da27-4d73-94d6-161fbef3cdb5">
+<meta property="og:image" content="https://github.com/user-attachments/assets/595c897c-99b7-48f6-b575-f13580af9985">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4b9f88ab-3474-4473-8c4a-21848da20438">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9df15e01-3a26-4b6a-bd21-2f68372b7b95">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a8fb6fed-8c74-4b3f-bab8-cda464a90786">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d89e934d-6576-4343-b62e-db52fcb9b827">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2636ac66-1141-4650-b151-0c311783c16e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/5530c255-dade-4165-9d34-2f21629b7535">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8272a871-1241-4206-89c1-575b4136eb8d">
+<meta property="og:image" content="https://github.com/user-attachments/assets/15ab7d19-e9b2-41d6-9752-3c37da690ebd">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ecc9e60d-a805-40d5-94bd-1c7c8fe3cc7e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/606a6040-7495-4aa3-90c8-15a1e5fe5a4c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9707cb49-0fdf-43c2-82e9-ac8564fcae68">
+<meta property="og:image" content="https://github.com/user-attachments/assets/e2423583-60b8-4b6a-ae0b-4be1fac4a316">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9707cb49-0fdf-43c2-82e9-ac8564fcae68">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f308233a-ae8f-4be5-9f54-d1e73adfc4c7">
+<meta property="og:image" content="https://github.com/user-attachments/assets/bba79a0f-a4b4-4eac-a61d-e804315aa164">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d1609393-3d6b-4404-a714-539e859e2424">
+<meta property="og:image" content="https://github.com/user-attachments/assets/58c2fd63-5b91-4e91-91ea-9c1387899a95">
+<meta property="og:image" content="https://github.com/user-attachments/assets/aa0d5f74-e2b6-4f7c-80d2-6226d6d4c7f9">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2a303454-31a0-4217-9664-5c928b8d7fcd">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f1783d12-3771-432c-b0e8-ac4bc783bc5d">
+<meta property="og:image" content="https://github.com/user-attachments/assets/66bdc622-3750-4dbb-902f-29125869b5d5">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f128a767-fcdb-4029-9c81-6923eceee408">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9011b90d-b094-45a0-a5d4-719238a6e19c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0aaba138-281f-4954-9977-4e6f8aac4b26">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c0f1f8a2-0165-4c56-944b-34416f6fa3dc">
+<meta property="og:image" content="https://github.com/user-attachments/assets/e891827d-9779-435a-a5ce-974e91060f1b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4430713c-5956-4973-8309-b43f417f3e4b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8c45ac92-afef-4f1b-a5b0-9eb4e60f3157">
+<meta property="og:image" content="https://github.com/user-attachments/assets/fb43a9e1-b88f-41b1-8aa8-eed469c54658">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3c117730-5ff8-4256-9a35-890a63343476">
+<meta property="og:image" content="https://github.com/user-attachments/assets/6a945287-460a-4ae4-a3f7-7901bdedcb76">
+<meta property="og:image" content="https://github.com/user-attachments/assets/03f7a5ba-edfc-491c-935d-22f1a971e499">
+<meta property="og:image" content="https://github.com/user-attachments/assets/71a85a88-b641-46e7-8f58-11a70ff90d9a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/6fb787ca-1d1d-49c9-8085-f497fa4e0261">
+<meta property="og:image" content="https://github.com/user-attachments/assets/64b73094-5859-40d0-ae4b-48002baca662">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8767d43f-3fa0-4f71-acef-5d43f0e4d805">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0d180b97-dee1-49b5-b684-d3198c6ba9ce">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2df260aa-176a-42ed-b2d6-a1329c967aad">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0bf794a2-50ec-4a61-a535-06ee8d5c1ff8">
+<meta property="og:image" content="https://github.com/user-attachments/assets/23192d08-d4f7-41b5-810e-73d92b384d2a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/56ae4681-15b6-4c68-9ae6-48a5d13141ff">
+<meta property="og:image" content="https://github.com/user-attachments/assets/789d51dc-9470-42a5-9cc9-f51b0a69b1d5">
+<meta property="og:image" content="https://github.com/user-attachments/assets/fc18c643-c836-41b8-b351-3fc720a47273">
+<meta property="og:image" content="https://github.com/user-attachments/assets/eca68f6f-100e-4e11-b0b9-3907bb8662ba">
+<meta property="og:image" content="https://github.com/user-attachments/assets/639e8cc0-459c-4bc9-abe7-cc7091474740">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7d91685e-c92f-4c5a-9ea5-cacdb6ee5257">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7a5a2cf8-fa7b-47e5-866e-01a98fda8069">
+<meta property="og:image" content="https://github.com/user-attachments/assets/6d486066-12b5-4c84-9a85-018395a6061b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/b35ab0fe-57ee-48c3-9c13-2b674b2d3bc8">
+<meta property="og:image" content="https://github.com/user-attachments/assets/703fae67-04fb-4baf-bca3-56a35975e6be">
+<meta property="og:image" content="https://github.com/user-attachments/assets/21bd3a37-4a71-45e4-8d25-42bb8a08a548">
+<meta property="og:image" content="https://github.com/user-attachments/assets/de6a6441-fa2e-4f0c-bbef-5a61ca1217a0">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9d0e0f45-a6a4-4a9d-9917-2b28be11d220">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f0065873-ebab-46c2-81ae-55c00c19f52c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c3686a87-c482-473f-9f0e-22338a0bbda4">
+<meta property="og:image" content="https://github.com/user-attachments/assets/076ecc2a-cce7-4f9d-8876-230e12aa9c40">
+<meta property="og:image" content="https://github.com/user-attachments/assets/5783687d-53bd-4fdb-9932-d03e673bdeb9">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8b407b60-3c42-4d55-bee3-535a930f45e6">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a5abf03e-192d-4e6e-9339-f72aad85bb6f">
+<meta property="og:image" content="https://github.com/user-attachments/assets/758c0aed-3a29-4969-a14a-28cc1eacf2f6">
+<meta property="og:image" content="https://github.com/user-attachments/assets/36639cce-0f8f-4d17-9428-6b05ef9cbe54">
+<meta property="og:image" content="https://github.com/user-attachments/assets/b984c24a-f5d4-426f-acb6-2c3b7cb6a989">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f6e8a2aa-ad39-42ac-8241-63cd4e9ec13d">
+<meta property="og:image" content="https://github.com/user-attachments/assets/6860d775-e070-4285-a6b4-7ab358e25772">
+<meta property="og:image" content="https://github.com/user-attachments/assets/01fe304e-1bff-4f44-b76d-68a8e56ce51d">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7935fae1-e01d-4d48-a225-b52d34aa99c6">
+<meta property="og:image" content="https://github.com/user-attachments/assets/51096613-4f8d-41b5-883d-1627b58bb1d5">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ef63fa91-ac32-4bb1-975f-5ad2575fe2e1">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8b058de4-beea-469c-bef8-ca9772e01634">
+<meta property="og:image" content="https://github.com/user-attachments/assets/425339ea-65ce-4ecf-b7c6-b62b180ea268">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c3599336-bdfc-4081-ae71-770b56a0b083">
+<meta property="og:image" content="https://github.com/user-attachments/assets/cf210f25-c69c-4ec3-89a3-d7b35230e6c0">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c6f6dcb3-3dde-4245-8324-ce1009555231">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4a6288ed-d2ef-4b94-b848-dc99f679efe9">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9036e3c0-024a-48d0-ac58-2da19c92dd5b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0278751e-9b45-4d33-9d9c-40513c1aa0f1">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c414784c-1131-49ae-aeec-55f8f4b0a8f7">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9aa6bbf5-fe40-44bc-867c-24fd911f4180">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0c4e68a4-ce7b-4df3-afd3-cc96a07067aa">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0436e4c8-567d-432c-95ec-136fa91a493a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d0b7f6b8-253b-46cf-be63-8e3f69160eb9">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d747cb78-6bd2-460e-8083-237881fdcf03">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d1865a31-e973-48d1-8fa1-8ec585c90913">
+<meta property="og:image" content="https://github.com/user-attachments/assets/24a06105-22ab-413f-aa2d-fe28b930fccd">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ef48c198-51b1-4e3d-bb44-26f4c107c80b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ed6be0bf-b182-46e8-a135-16681a299eef">
+<meta property="og:image" content="https://github.com/user-attachments/assets/99a6e54c-dcd2-4f0b-91bc-a52cbe144518">
+<meta property="og:image" content="https://github.com/user-attachments/assets/1ae3b1bd-d152-471c-b5fd-5c815766df3a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/b3ecf038-72f9-4f86-9c62-7fc3e6452e7c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/380784a7-a35a-4bee-bffa-e7c7e8b96d1e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2b20fed6-ae14-43a4-9e81-5f74eb2e392c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0cf35830-994f-49bf-821b-d4f92865fc41">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0e138e0d-85b1-43cf-8d74-712b8a78bdfc">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a8e4adda-947b-4b31-aba9-9f78f62d364b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0e206ea6-a179-4263-a96c-6980ec01fb40">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2d013e61-8bdd-44c0-ba2c-c41bd8d7d31a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f7919d84-e851-47fe-8578-5e16c87b365c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/978b2249-b88e-4307-9414-14525bc4bdd8">
+<meta property="og:image" content="https://github.com/user-attachments/assets/79686d7d-ae73-4616-b648-e7ab24764c64">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9532603e-b1fc-4ede-997d-1ee05c5bf306">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0cd6ca7e-28ce-4b74-93f9-ef468274b83c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/641d6428-6686-4c5e-ae71-fa0c4faea7a7">
+<meta property="og:image" content="https://github.com/user-attachments/assets/39c525bd-01b1-4cda-851f-2cab0b4b81eb">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8444bd70-4172-41cd-9fd9-f0779b0d798c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/92524503-3377-410e-959d-5ecd782ffb61">
+<meta property="og:image" content="https://github.com/user-attachments/assets/61e82b9f-faad-4ccc-a6f2-6e4d2a4e3f6c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0ebde729-e6d0-40ab-b68c-a0e57a087ff0">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a6a8c95c-79d0-404e-ac12-90196deb8fc3">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ace26a8e-1eaf-4ffb-8f12-d2f59313b651">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ae4bb258-13d2-41c1-9e34-6a4d47523e2a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/baef7631-9a6d-4777-9c2a-593468c87832">
+<meta property="og:image" content="https://github.com/user-attachments/assets/b1cdbd5d-902e-432f-ab09-bd514143ef62">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4d72a763-5781-4b6d-9167-7bf78dfb7ec4">
+<meta property="og:image" content="https://github.com/user-attachments/assets/147c63c7-dea0-482c-a4b6-ceecb10b31b0">
+<meta property="og:image" content="https://github.com/user-attachments/assets/05271849-a737-4302-ad95-d2f71ba6a779">
+<meta property="og:image" content="https://github.com/user-attachments/assets/decb48f6-03fd-47f4-8f2b-75b8f6d3c245">
+<meta property="og:image" content="https://github.com/user-attachments/assets/212daa59-c148-4326-a63e-3f2847290c54">
+<meta property="og:image" content="https://github.com/user-attachments/assets/959fe89f-ff6d-410d-837e-f99e0e038c18">
+<meta property="og:image" content="https://github.com/user-attachments/assets/e1f84ff8-0f0a-43d6-83cc-b2706fea5811">
+<meta property="og:image" content="https://github.com/user-attachments/assets/fdc1016a-882d-40a8-af6e-93146933addb">
+<meta property="og:image" content="https://github.com/user-attachments/assets/629b54bd-7aab-45ed-a342-749ebb3df4a5">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d8569f09-32d5-49ba-886e-05af77f61777">
+<meta property="og:image" content="https://github.com/user-attachments/assets/1a839d4c-618d-4cd1-adb7-205a198bac06">
+<meta property="og:image" content="https://github.com/user-attachments/assets/02483ca6-92e5-42f8-a3cc-ce7e866f1cfd">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a85ff490-3a3b-4a6f-98ef-405c7afd3c75">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4b78300c-abd5-489b-8cbd-a5b22f27ec25">
+<meta property="og:image" content="https://github.com/user-attachments/assets/55919daa-5f86-4a61-874d-ddc6dde8144c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/14805986-0c57-475e-8747-59ea86249464">
+<meta property="og:image" content="https://github.com/user-attachments/assets/66545018-5140-430a-baf6-57e0eba58f0a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/82b4ef15-613c-4ff8-bb95-86bfd201b9c1">
+<meta property="og:image" content="https://github.com/user-attachments/assets/043d70a2-8913-4cc2-946d-f8ccc1185e99">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8c805fcc-34b7-4ab2-9a0c-8f251beb302e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/05da5778-8ed3-479c-b022-e96243f94b1c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3bcf1d66-5a2b-480a-91ee-352c1d9c3932">
+<meta property="og:image" content="https://github.com/user-attachments/assets/b8bb0b83-c7bc-4501-ba03-6a46b923ec1b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c98ae2e6-baa1-418c-b66c-eaf53a58de63">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0f32c809-c657-40db-8044-4529fdbf3de8">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4aedcb06-83f7-41c9-a900-aab1ec0ad434">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4fd7459b-3e23-40c6-82b6-449027807531">
+<meta property="og:image" content="https://github.com/user-attachments/assets/26819ff3-d67c-4d9a-a417-328df0283880">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ca1ea923-691c-4406-8ae8-a2605a4c4afb">
+<meta property="og:image" content="https://github.com/user-attachments/assets/6142ce79-a7d7-47ad-bb52-853a968ffb97">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8a2997c0-c965-4cf8-8def-c95980bde21e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/cae9b9a6-05fb-4d6f-af34-f65307fe115a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/cbbe8f52-e13b-4f2d-a2d3-c03fb258aaa6">
+<meta property="og:image" content="https://github.com/user-attachments/assets/82b37ce7-943c-4c72-9228-586691b3aee8">
+<meta property="og:image" content="https://github.com/user-attachments/assets/87f5f7f6-8aa1-41e8-bcc2-00e39c8a6f49">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d4ae34fe-0497-4b96-8f4a-8f32be06de45">
+<meta property="og:image" content="https://github.com/user-attachments/assets/353c2213-71a3-4643-8ab8-81fe456faf4f">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3726f82b-6edd-4505-b141-f4e93bdad4d6">
+<meta property="og:image" content="https://github.com/user-attachments/assets/67a68fc9-0068-4ec4-86b5-c3a583d7b1d9">
+<meta property="og:image" content="https://github.com/user-attachments/assets/362b54cd-10ab-4904-a7ce-efa55e78568c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/36a6e05f-c548-4db8-8e2b-208a0a72dc85">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ac0bb2cd-72a2-4ca0-80a3-43b84bee80ea">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d9d93f67-29ff-4f8c-befb-bbdfe581e070">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ea8db878-043b-42eb-8936-330e2c5d048e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/76c6adae-251e-4d14-96be-b82e293b6a9e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/1130ad52-7785-4931-9312-91fbf1c4cf1d">
+<meta property="og:image" content="https://github.com/user-attachments/assets/234fa00b-4cd9-4d80-8be5-d58ac0900013">
+<meta property="og:image" content="https://github.com/user-attachments/assets/6f318a91-327a-48b0-8a28-158336dab2a2">
+<meta property="og:image" content="https://github.com/user-attachments/assets/180eef07-6249-4739-ac7a-a4e2994a7511">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d50c8b23-e749-4657-9c2d-16bf50677047">
+<meta property="og:image" content="https://github.com/user-attachments/assets/6aee8920-6cdc-46be-93df-82858d1d17cc">
+<meta property="og:image" content="https://github.com/user-attachments/assets/13e49e0d-cb89-4202-b618-d391f84e0a0f">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d88c102b-bebf-4c52-9cc0-e79d818ba4d1">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2f6cb08f-9d80-410c-b528-b2576d347862">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4e7dc377-9747-4c00-917f-7d1023990d1b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/1202b687-ea9a-4b89-ae81-bdb00773687b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/bfbc3bee-59d4-4abd-9823-94f0bb229410">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7789d7df-4865-4efd-ba0c-4fc8be63b293">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7434c5be-fca0-45f4-83b9-ba3fd1df28c4">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7740ec9f-dba1-4191-a9cb-0f5ca09d57de">
+<meta property="og:image" content="https://github.com/user-attachments/assets/beb4b409-3f79-405a-9237-f24fc95cd669">
+<meta property="og:image" content="https://github.com/user-attachments/assets/1154a98f-368a-47cb-bd3d-4b276a3a6291">
+<meta property="og:image" content="https://github.com/user-attachments/assets/08b38a85-4b63-4cfa-8836-991dcc527a00">
+<meta property="og:image" content="https://github.com/user-attachments/assets/6d87d7c8-5a04-4a62-8135-a7bf7107c398">
+<meta property="og:image" content="https://github.com/user-attachments/assets/fbd8e918-a7ed-47c3-a5a8-6a3a98fd0d13">
+<meta property="og:image" content="https://github.com/user-attachments/assets/93bd8211-11f5-4190-b6d0-8703e1fdb9a4">
+<meta property="og:image" content="https://github.com/user-attachments/assets/e3d14855-7217-4f45-bff3-aa3720303b1e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2745b143-8870-4e6c-8e2a-25debb69af17">
+<meta property="og:image" content="https://github.com/user-attachments/assets/5ebc42d8-1a31-49a4-9c39-2b096357b57b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/09471e45-65d3-4a2d-bd82-5df1a67a9426">
+<meta property="og:image" content="https://github.com/user-attachments/assets/0a507935-2258-48cf-8946-4b99e14222df">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ed1493fa-e09b-45a1-b52f-4c49256f4579">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3cdcc036-34fd-49dc-9c5f-a3d2b017a6da">
+<meta property="og:image" content="https://github.com/user-attachments/assets/89623cc9-dab7-4d09-899b-372d1d1c02ff">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c2244e2b-bbc2-4039-8cb1-ca8150336da6">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a616f6ee-2b2e-4fb1-8247-c0424f4f884e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d019a563-e881-48e0-8515-aa4fc73077c2">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2e4f07d8-feea-4c40-9bc9-7454292e5e56">
+<meta property="og:image" content="https://github.com/user-attachments/assets/174988a1-a7ec-4921-87ee-9c1a5bdac27f">
+<meta property="og:image" content="https://github.com/user-attachments/assets/86569bc7-4b95-4975-b031-67b58def24df">
+<meta property="og:image" content="https://github.com/user-attachments/assets/98dddf20-b80e-4197-bf30-9eb4f7f0fd2a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/06b3aa9f-1276-4cfa-8635-f0ce44a48994">
+<meta property="og:image" content="https://github.com/user-attachments/assets/5a94f3f3-8e4f-44b7-8b02-1489184b7181">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7d931a30-fc9c-4880-9757-3c56ad88af0b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c1c0aac2-2ed4-458d-bce5-638629957965">
+<meta property="og:image" content="https://github.com/user-attachments/assets/212147ac-2301-4c4c-a663-f32f3b5bc7d5">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a9a367ba-a9e0-45fb-8b9b-f1d3a1280559">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d04af495-7b46-465e-9e8d-c27d9afd3767">
+<meta property="og:image" content="https://github.com/user-attachments/assets/24347503-0e46-4a65-9a47-5b8096bf4683">
+<meta property="og:image" content="https://github.com/user-attachments/assets/13a5f6b8-c5c7-4155-9d3a-162d91ee3530">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f24d1ce7-1c1b-4711-abc4-85ffe3e557b4">
+<meta property="og:image" content="https://github.com/user-attachments/assets/20ee04bc-be93-4bd7-88d3-4d172bb441cb">
+<meta property="og:image" content="https://github.com/user-attachments/assets/fcba9118-7c70-4098-a1a0-c9179f369d63">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4d14a7f8-d3e6-478a-9b1e-c6a79ad2fd1a">
+<meta property="og:image" content="https://github.com/user-attachments/assets/6d9b22b3-3b70-4cf5-9200-1e7ecb759cb0">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7826cc0b-20a0-4920-b223-106825196f2c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4f4815c6-b2a7-49cb-9b79-ed5e3a5fa077">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9ca00b89-9d68-4390-8bf5-f9a63e575c86">
+<meta property="og:image" content="https://github.com/user-attachments/assets/42bb346d-ba2d-450e-854d-9a549124d1d8">
+<meta property="og:image" content="https://github.com/user-attachments/assets/bf370ea4-3f26-46a2-8df8-6a62c7815796">
+<meta property="og:image" content="https://github.com/user-attachments/assets/fe9e4284-c70c-4f8a-87a8-567d551f3ad4">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a5bec732-a837-4875-b696-c7690adea388">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3c83a91c-bfcd-4f57-9dfd-bcfbce9e58cc">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3ddae1e8-188e-4a9d-a10b-cb3c95f55896">
+<meta property="og:image" content="https://github.com/user-attachments/assets/df24f285-4130-4843-8346-465866d29d16">
+<meta property="og:image" content="https://github.com/user-attachments/assets/8d0e7025-8d16-45fa-89cc-f698ee09f75e">
+<meta property="og:image" content="https://github.com/user-attachments/assets/34f276ee-746e-44f2-b1bb-faaff368a21b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/75355dc6-7c7a-4556-9ae4-f6ee6011255d">
+<meta property="og:image" content="https://github.com/user-attachments/assets/e1f64468-1f56-497f-95e1-953fa33a155f">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f45fbc61-aeb5-464e-9ee0-51949851d8af">
+<meta property="og:image" content="https://github.com/user-attachments/assets/21a18234-ea06-4923-8b43-cfdb11d9d685">
+<meta property="og:image" content="https://github.com/user-attachments/assets/32aeff91-334a-47fd-9657-045ff1fac6c6">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f2566b25-5b3b-45c0-9555-04b301db8aa2">
+<meta property="og:image" content="https://github.com/user-attachments/assets/447bc837-7608-4a9c-a161-53670f74a35c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3c09d789-0314-4f1f-a616-e2e85595837d">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7fba2a81-e5be-41c4-ac82-9903aa212c43">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d881adea-72fe-40c1-8fc8-9245f2ec4686">
+<meta property="og:image" content="https://github.com/user-attachments/assets/13d49b0a-caa4-46f2-9417-68118e020362">
+<meta property="og:image" content="https://github.com/user-attachments/assets/00d9ba67-0f8f-4b78-ad67-d4620ff36c08">
+<meta property="og:image" content="https://github.com/user-attachments/assets/14a4c53b-41a6-4458-9901-10583600a58c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/d94dcdd0-128d-4973-bc94-75238e223cdb">
+<meta property="og:image" content="https://github.com/user-attachments/assets/1cb244fe-5c72-489b-9a33-867eb291b57c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/e18656d2-e52d-49fb-b01a-d2a8d6e55bef">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2ecb1439-a4bf-4ec2-951f-d1a410049fb5">
+<meta property="og:image" content="https://github.com/user-attachments/assets/859f260f-2f1c-47b5-a299-48f757f2a715">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9dda0063-e06d-4c78-af7b-0b8684947e64">
+<meta property="og:image" content="https://github.com/user-attachments/assets/e2229a81-18a5-417e-b9d7-d6f71da507b5">
+<meta property="og:image" content="https://github.com/user-attachments/assets/06839999-1235-4e38-9ffb-b1781f7b67fd">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3c4dc47a-01de-4d1f-a25e-7e44d4861d18">
+<meta property="og:image" content="https://github.com/user-attachments/assets/71ce7575-8069-4c08-89bb-87ddb81bfd65">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a37e64ab-b14d-4b72-9056-50cf7f31df10">
+<meta property="og:image" content="https://github.com/user-attachments/assets/70c83268-78c4-443d-b67b-fc5d36c53c69">
+<meta property="og:image" content="https://github.com/user-attachments/assets/aee29057-e22b-44cb-979b-cfc7e8c0b862">
+<meta property="og:image" content="https://github.com/user-attachments/assets/9c1d00f4-2c3b-4ef1-9456-1831a88e5bb1">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2df51470-4145-403a-84b3-d21b326e56a9">
+<meta property="og:image" content="https://github.com/user-attachments/assets/4213bec2-c58a-4056-95fe-ef2f7dc77d01">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2b893408-ce33-4fe9-9d80-7ca626dcc997">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3389da54-6eda-459b-9f2e-10a71e804525">
+<meta property="og:image" content="https://github.com/user-attachments/assets/fccb6abb-2bf4-4e7e-9842-3ab867a38a25">
+<meta property="og:image" content="https://github.com/user-attachments/assets/af07e16b-b6bd-4208-9f1c-883d2f292b96">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2a9de655-0cc2-459d-94c6-1147112920c4">
+<meta property="og:image" content="https://github.com/user-attachments/assets/edde0898-0ae7-4273-b933-d6d9e2a0e38c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/1fa79399-80e6-4380-8f21-0f8178060568">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c2099d7a-4005-4955-bd2b-d4cfcb37ebd1">
+<meta property="og:image" content="https://github.com/user-attachments/assets/c3fd59f4-7d0c-49dd-85db-ffec77a567de">
+<meta property="og:image" content="https://github.com/user-attachments/assets/78f9adbc-eea5-4660-8ef3-e9e365a8c589">
+<meta property="og:image" content="https://github.com/user-attachments/assets/e96e5f5e-a9c9-4308-be55-bebd2f57779b">
+<meta property="og:image" content="https://github.com/user-attachments/assets/125bf8e1-9a32-448d-8b47-2a0764340fc7">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f2c53b34-4da2-408a-a456-688c00c93ead">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2312d81c-218f-40d8-bbd5-fe6c48627d54">
+<meta property="og:image" content="https://github.com/user-attachments/assets/1f4c108a-04dd-48c5-96d6-398203fbf2eb">
+<meta property="og:image" content="https://github.com/user-attachments/assets/a3edc8b1-0621-4e78-8d30-6984311355f3">
+<meta property="og:image" content="https://github.com/user-attachments/assets/da0c3187-48e9-4da6-bec5-c1d037e0a4ba">
+<meta property="og:image" content="https://github.com/user-attachments/assets/2f2c752a-8a2d-4b3c-bab7-696adb408e00">
+<meta property="og:image" content="https://github.com/user-attachments/assets/ad5e8fde-a1e7-47cf-ac0d-9ceb1b5bd1d6">
+<meta property="og:image" content="https://github.com/user-attachments/assets/fbc5f798-e214-4ccb-907f-aa108af84477">
+<meta property="og:image" content="https://github.com/user-attachments/assets/7c73de96-f1dc-4e19-9644-fb7f94f73fa4">
+<meta property="og:image" content="https://github.com/user-attachments/assets/3eccbaf8-e288-4ef3-88f7-12d8b5d02e1c">
+<meta property="og:image" content="https://github.com/user-attachments/assets/f531a06f-644a-44b7-8d66-71fac249c4a6">
+<meta property="article:published_time" content="2024-09-04T06:06:11.000Z">
+<meta property="article:modified_time" content="2024-09-04T12:27:10.477Z">
+<meta property="article:author" content="losophy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/user-attachments/assets/9f3ea942-dee5-45ac-8cd8-4b7fede16cdb">
+
+<link rel="canonical" href="http://example.com/post/19604296.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>虚幻五从零开始做一个动作类游戏（纯蓝图） | losophy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    <a target="_blank" rel="noopener" href="https://github.com/losophy" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">losophy</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/post/19604296.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="losophy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="losophy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          虚幻五从零开始做一个动作类游戏（纯蓝图）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-09-04 06:06:11 / 修改时间：12:27:10" itemprop="dateCreated datePublished" datetime="2024-09-04T06:06:11+00:00">2024-09-04</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>今天，我们开始做一个动作类游戏。</p>
+<h1 id="美术资源"><a href="#美术资源" class="headerlink" title="美术资源"></a>美术资源</h1><p>我们先下载今天要用到的美术资源。</p>
+<p>链接：<a href="https://link.zhihu.com/?target=https://pan.baidu.com/s/1Vci83yoTRvViXIXElZ4k0g?pwd=tynm">https://pan.baidu.com/s/1Vci83yoTRvViXIXElZ4k0g?pwd=tynm</a></p>
+<p>提取码：tynm<br><img src="https://github.com/user-attachments/assets/9f3ea942-dee5-45ac-8cd8-4b7fede16cdb" alt="image"></p>
+<p>新建项目。<br><img src="https://github.com/user-attachments/assets/d6873037-4bcb-42d8-92d1-44cfa6b5d559" alt="image"></p>
+<p>把美术资源拖进项目。<br><img src="https://github.com/user-attachments/assets/961328cc-6e2c-455a-a4f2-f29b7b4aa971" alt="image"></p>
+<h1 id="创建角色"><a href="#创建角色" class="headerlink" title="创建角色"></a>创建角色</h1><p>我们创建个文件夹，就叫Player。<br><img src="https://github.com/user-attachments/assets/1c2d9af5-6176-4cb5-8a4a-14b43b8a8dc8" alt="image"></p>
+<p>创建角色蓝图。<br><img src="https://github.com/user-attachments/assets/d5af8d95-bf28-4ce2-adc6-dff2d57191e3" alt="image"></p>
+<p>我们再创建一个玩家控制器。<br><img src="https://github.com/user-attachments/assets/9650c7b5-7af5-4c09-98e7-e41d4a690d07" alt="image"><br><img src="https://github.com/user-attachments/assets/498fe4ee-1312-4116-956f-95553fa6e649" alt="image"></p>
+<p>这时候我们再添加一个游戏模式。<br><img src="https://github.com/user-attachments/assets/fe081ca9-fb7b-44aa-8716-3fbb4bb468cf" alt="image"><br><img src="https://github.com/user-attachments/assets/ed3fa57c-65b1-4318-b465-a1e421fcc90e" alt="image"></p>
+<p>然后我们改下GameMode的类默认值细节的设置。<br><img src="https://github.com/user-attachments/assets/4c22a644-7b74-4d3f-b2fa-04f2bbdfce8c" alt="image"></p>
+<p>编译保存。然后改一下默认游戏模式。改成我们刚建的。<br><img src="https://github.com/user-attachments/assets/70374fb0-f05d-41bc-9f67-89210b2c5a79" alt="image"><br><img src="https://github.com/user-attachments/assets/240ffbb0-7ca2-4615-8882-8f98c4fefa0a" alt="image"></p>
+<p>返回资源浏览器。编辑PlayerChar。给它添加个模型。<br><img src="https://github.com/user-attachments/assets/7819ce98-fedb-4660-afcb-a6a940778f8a" alt="image"></p>
+<p>调整下位置，旋转。<br><img src="https://github.com/user-attachments/assets/f2c0de30-be41-49b2-9130-cc3d0f3e91a9" alt="image"></p>
+<p>选中胶囊体组件，把胶囊体半高改成92。<br><img src="https://github.com/user-attachments/assets/3addbd6d-15f3-453c-ba68-35fef9eb670f" alt="image"></p>
+<p>然后添加摄像机。<br><img src="https://github.com/user-attachments/assets/990a0745-a27e-4613-be5c-8f4dc3dbddfd" alt="image"></p>
+<p>然后调整下弹簧臂的位置。<br><img src="https://github.com/user-attachments/assets/57cc65ac-ddbb-4248-baa0-602f3e069cfc" alt="image"></p>
+<p>编译保存运行。<br><img src="https://github.com/user-attachments/assets/f18734cc-8349-412c-8c8f-5c3ed408dac9" alt="image"></p>
+<h1 id="移动"><a href="#移动" class="headerlink" title="移动"></a>移动</h1><p>编辑PlayerChar。添加自定义事件。<br><img src="https://github.com/user-attachments/assets/b59fa409-e0f5-49b7-98e1-d3e04e883a6d" alt="image"><br><img src="https://github.com/user-attachments/assets/9bedb5aa-e237-48b5-95c6-21d9c8255416" alt="image"><br><img src="https://github.com/user-attachments/assets/32b73dd0-9fb4-4d09-b4fe-a4e2c2a8e811" alt="image"></p>
+<p>增加ScaleValue变量编译。<br><img src="https://github.com/user-attachments/assets/a6d54df9-d35c-4d39-9fd4-30c49c5a1fbd" alt="image"></p>
+<p>保存编译。返回项目设置。<br><img src="https://github.com/user-attachments/assets/fd8bc74a-1f96-4034-a6e9-792287533b23" alt="image"></p>
+<p>添加轴映射。<br><img src="https://github.com/user-attachments/assets/659c1467-79db-44c2-9b5a-d85e113cfa19" alt="image"><br><img src="https://github.com/user-attachments/assets/d5c57cc8-9171-4101-a2f3-ba1427470334" alt="image"></p>
+<p>然后我们打开Controller。<br><img src="https://github.com/user-attachments/assets/0dfe567c-1678-4cc0-baf2-b166adb30421" alt="image"></p>
+<p>编辑。<br><img src="https://github.com/user-attachments/assets/9e4359b1-6bee-468a-b1b0-6e0fd0139cd1" alt="image"></p>
+<p>编译保存。现在角色可以向前向后移动了。左右也是。<br><img src="https://github.com/user-attachments/assets/18833bee-cedc-4712-9072-9709eacd8cbc" alt="image"></p>
+<p>然后再在项目设置里加一个轴。<br><img src="https://github.com/user-attachments/assets/61f3c2c3-bbce-457f-8a9e-6214bf84a248" alt="image"></p>
+<p>然后控制器也加上左右。<br><img src="https://github.com/user-attachments/assets/7bb5154f-b929-467b-8122-f330a75a36cb" alt="image"></p>
+<p>前后左右都没有问题。现在回到项目设置添加视角。<br><img src="https://github.com/user-attachments/assets/a85147a3-a8e8-4943-9b90-f0d93b6e467b" alt="image"><br><img src="https://github.com/user-attachments/assets/2a0f7354-4b24-40f0-920e-3bb9d57b52f5" alt="image"></p>
+<p>返回playerchar。<br><img src="https://github.com/user-attachments/assets/4a77a983-397e-4d0c-af27-9e0f00de4ced" alt="image"><br><img src="https://github.com/user-attachments/assets/8469ebf1-a2e3-400d-8fb3-064a2ba48490" alt="image"><br><img src="https://github.com/user-attachments/assets/757c49e9-2896-480e-8cfd-86c205b9cd5d" alt="image"><br><img src="https://github.com/user-attachments/assets/22fed050-8f64-4341-8f0a-9fece8b166bb" alt="image"><br><img src="https://github.com/user-attachments/assets/0cda10b7-de25-4f86-86f9-70f2ab6e8ec8" alt="image"></p>
+<p>编译保存运行。ok行走没问题了。</p>
+<h1 id="移动动画"><a href="#移动动画" class="headerlink" title="移动动画"></a>移动动画</h1><p>现在要创建动画蓝图了。<br><img src="https://github.com/user-attachments/assets/9c108ce2-1620-4675-b577-a901a5bba0e2" alt="image"><br><img src="https://github.com/user-attachments/assets/da2874d8-3c10-4aca-b5c0-47e896e60a07" alt="image"></p>
+<p>打开动画蓝图编辑。保存。<br><img src="https://github.com/user-attachments/assets/78a8c831-b4ed-4c43-ae1c-0f4cb75ed5d2" alt="image"></p>
+<p>新建一个混合空间。<br><img src="https://github.com/user-attachments/assets/3f18904f-ccfb-4c88-9e2a-82582887cd66" alt="image"><br><img src="https://github.com/user-attachments/assets/24f8ae8b-6d94-4c8e-bdcc-eebd405eccaf" alt="image"><br><img src="https://github.com/user-attachments/assets/09678330-957c-4fac-a67b-cb276717d879" alt="image"></p>
+<p>点击编辑混合空间。在资产详情里修改水平坐标。<br><img src="https://github.com/user-attachments/assets/49f27cca-ae4f-4779-ac51-eeed6e108e66" alt="image"><br><img src="https://github.com/user-attachments/assets/695f9268-2677-4395-a3a3-f6db8825bb4b" alt="image"></p>
+<p>拖动idle_eqip_01到最左。<br><img src="https://github.com/user-attachments/assets/9bac41b2-6f55-4984-958e-09902e4495c9" alt="image"></p>
+<p>然后把walk_eqip_front拖到速度为1时的地方。<br><img src="https://github.com/user-attachments/assets/c895131d-eaff-450f-9bbd-8f98d55eafa8" alt="image"></p>
+<p>让速度到3时跑。<br><img src="https://github.com/user-attachments/assets/4a6c143d-1286-4c8f-ba07-5e5a127c7acd" alt="image"></p>
+<p>保存。等于走有三种状态。</p>
+<p>然后再打开动画蓝图。<br><img src="https://github.com/user-attachments/assets/82b9a962-2edd-42bc-b25a-ae19e56fd64c" alt="image"></p>
+<p>点开状态机。<br><img src="https://github.com/user-attachments/assets/497e6f62-da27-4d73-94d6-161fbef3cdb5" alt="image"></p>
+<p>添加状态。<br><img src="https://github.com/user-attachments/assets/595c897c-99b7-48f6-b575-f13580af9985" alt="image"><br><img src="https://github.com/user-attachments/assets/4b9f88ab-3474-4473-8c4a-21848da20438" alt="image"></p>
+<p>进去Idle/Run状态。<br><img src="https://github.com/user-attachments/assets/9df15e01-3a26-4b6a-bd21-2f68372b7b95" alt="image"></p>
+<p>把Speed提升为变量。<br><img src="https://github.com/user-attachments/assets/a8fb6fed-8c74-4b3f-bab8-cda464a90786" alt="image"></p>
+<p>然后点击事件图表。<br><img src="https://github.com/user-attachments/assets/d89e934d-6576-4343-b62e-db52fcb9b827" alt="image"><br><img src="https://github.com/user-attachments/assets/2636ac66-1141-4650-b151-0c311783c16e" alt="image"><br><img src="https://github.com/user-attachments/assets/5530c255-dade-4165-9d34-2f21629b7535" alt="image"><br><img src="https://github.com/user-attachments/assets/8272a871-1241-4206-89c1-575b4136eb8d" alt="image"><br><img src="https://github.com/user-attachments/assets/15ab7d19-e9b2-41d6-9752-3c37da690ebd" alt="image"></p>
+<p>保存，打开playerchat。点网格体。设置动画类。<br><img src="https://github.com/user-attachments/assets/ecc9e60d-a805-40d5-94bd-1c7c8fe3cc7e" alt="image"></p>
+<p>编译保存，运行。现在可以跑了。</p>
+<p>现在输入我们加一个慢走。<br><img src="https://github.com/user-attachments/assets/606a6040-7495-4aa3-90c8-15a1e5fe5a4c" alt="image"></p>
+<p>打开玩家PlayerCharController。编写走路。<br><img src="https://github.com/user-attachments/assets/9707cb49-0fdf-43c2-82e9-ac8564fcae68" alt="image"><br><img src="https://github.com/user-attachments/assets/e2423583-60b8-4b6a-ae0b-4be1fac4a316" alt="image"><br><img src="https://github.com/user-attachments/assets/9707cb49-0fdf-43c2-82e9-ac8564fcae68" alt="image"></p>
+<p>编译保存运行。现在可以慢慢地走了。</p>
+<p>武器<br>现在我们加一下武器。在playerChar中加一个骨骼网格体。<br><img src="https://github.com/user-attachments/assets/f308233a-ae8f-4be5-9f54-d1e73adfc4c7" alt="image"></p>
+<p>然后父项插槽选Sword_1。资产也选一下。<br><img src="https://github.com/user-attachments/assets/bba79a0f-a4b4-4eac-a61d-e804315aa164" alt="image"><br><img src="https://github.com/user-attachments/assets/d1609393-3d6b-4404-a714-539e859e2424" alt="image"><br><img src="https://github.com/user-attachments/assets/58c2fd63-5b91-4e91-91ea-9c1387899a95" alt="image"></p>
+<p>编译保存运行。<br><img src="https://github.com/user-attachments/assets/aa0d5f74-e2b6-4f7c-80d2-6226d6d4c7f9" alt="image"></p>
+<h1 id="连招系统"><a href="#连招系统" class="headerlink" title="连招系统"></a>连招系统</h1><h2 id="攻击"><a href="#攻击" class="headerlink" title="攻击"></a>攻击</h2><p>找到这个动作。<br><img src="https://github.com/user-attachments/assets/2a303454-31a0-4217-9664-5c928b8d7fcd" alt="image"></p>
+<p>然后创建动画蒙太奇。<br><img src="https://github.com/user-attachments/assets/f1783d12-3771-432c-b0e8-ac4bc783bc5d" alt="image"><br><img src="https://github.com/user-attachments/assets/66bdc622-3750-4dbb-902f-29125869b5d5" alt="image"></p>
+<p>然后绑定下按键。<br><img src="https://github.com/user-attachments/assets/f128a767-fcdb-4029-9c81-6923eceee408" alt="image"></p>
+<p>然后打开PlayerChat。添加自定义事件。<br><img src="https://github.com/user-attachments/assets/9011b90d-b094-45a0-a5d4-719238a6e19c" alt="image"><br><img src="https://github.com/user-attachments/assets/0aaba138-281f-4954-9977-4e6f8aac4b26" alt="image"></p>
+<p>然后我们找到角色的控制器。加上攻击。<br><img src="https://github.com/user-attachments/assets/c0f1f8a2-0165-4c56-944b-34416f6fa3dc" alt="image"></p>
+<p>运行发现胶囊体没有跟角色移动。找到动画，启动根运动。<br><img src="https://github.com/user-attachments/assets/e891827d-9779-435a-a5ce-974e91060f1b" alt="image"></p>
+<p>现在胶囊体会跟角色移动了。角色会跟着攻击动画移动。打开PlayerChar。让角色每次攻击都能连续。不会因双次按下攻击按键而抽搐。增加一个变量，用来判断是否在攻击中。<br><img src="https://github.com/user-attachments/assets/4430713c-5956-4973-8309-b43f417f3e4b" alt="image"><br><img src="https://github.com/user-attachments/assets/8c45ac92-afef-4f1b-a5b0-9eb4e60f3157" alt="image"><br><img src="https://github.com/user-attachments/assets/fb43a9e1-b88f-41b1-8aa8-eed469c54658" alt="image"><br><img src="https://github.com/user-attachments/assets/3c117730-5ff8-4256-9a35-890a63343476" alt="image"></p>
+<p>完整蓝图。<br><img src="https://github.com/user-attachments/assets/6a945287-460a-4ae4-a3f7-7901bdedcb76" alt="image"></p>
+<p>现在连点不会抽搐了。</p>
+<h2 id="连招"><a href="#连招" class="headerlink" title="连招"></a>连招</h2><p>删掉攻击的逻辑，开始编写连招逻辑。<br><img src="https://github.com/user-attachments/assets/03f7a5ba-edfc-491c-935d-22f1a971e499" alt="image"></p>
+<p>增加变量。并使用数组。<br><img src="https://github.com/user-attachments/assets/71a85a88-b641-46e7-8f58-11a70ff90d9a" alt="image"><br><img src="https://github.com/user-attachments/assets/6fb787ca-1d1d-49c9-8085-f497fa4e0261" alt="image"></p>
+<p>这里要多少个连击动作，就加多少个数组就可以了。<br><img src="https://github.com/user-attachments/assets/64b73094-5859-40d0-ae4b-48002baca662" alt="image"></p>
+<p>接着，我们找到连击动作。<br><img src="https://github.com/user-attachments/assets/8767d43f-3fa0-4f71-acef-5d43f0e4d805" alt="image"></p>
+<p>创建动画蒙太奇。<br><img src="https://github.com/user-attachments/assets/0d180b97-dee1-49b5-b684-d3198c6ba9ce" alt="image"></p>
+<p>然后找到Combo_01动画。<br><img src="https://github.com/user-attachments/assets/2df260aa-176a-42ed-b2d6-a1329c967aad" alt="image"></p>
+<p>我们分解下连招动画。找到第一下下剑时的结束时间。调整结束时间。<br><img src="https://github.com/user-attachments/assets/0bf794a2-50ec-4a61-a535-06ee8d5c1ff8" alt="image"></p>
+<p>然后做连招第二下的动画。<br><img src="https://github.com/user-attachments/assets/23192d08-d4f7-41b5-810e-73d92b384d2a" alt="image"><br><img src="https://github.com/user-attachments/assets/56ae4681-15b6-4c68-9ae6-48a5d13141ff" alt="image"></p>
+<p>然后做连招第三下的动画。<br><img src="https://github.com/user-attachments/assets/789d51dc-9470-42a5-9cc9-f51b0a69b1d5" alt="image"><br><img src="https://github.com/user-attachments/assets/fc18c643-c836-41b8-b351-3fc720a47273" alt="image"></p>
+<p>然后做连招第四下的动画。<br><img src="https://github.com/user-attachments/assets/eca68f6f-100e-4e11-b0b9-3907bb8662ba" alt="image"><br><img src="https://github.com/user-attachments/assets/639e8cc0-459c-4bc9-abe7-cc7091474740" alt="image"></p>
+<p>所有分解的招式。<br><img src="https://github.com/user-attachments/assets/7d91685e-c92f-4c5a-9ea5-cacdb6ee5257" alt="image"></p>
+<p>然后返回PlayerChar。编辑连招逻辑。</p>
+<p>然后找到刚创建的数组变量。<br><img src="https://github.com/user-attachments/assets/7a5a2cf8-fa7b-47e5-866e-01a98fda8069" alt="image"></p>
+<p>把四个连招动作按顺序赋予数组。<br><img src="https://github.com/user-attachments/assets/6d486066-12b5-4c84-9a85-018395a6061b" alt="image"></p>
+<p>然后我们添加一个变量，用来计数攻击次数。<br><img src="https://github.com/user-attachments/assets/b35ab0fe-57ee-48c3-9c13-2b674b2d3bc8" alt="image"></p>
+<p>初始值设为-1。<br><img src="https://github.com/user-attachments/assets/703fae67-04fb-4baf-bca3-56a35975e6be" alt="image"></p>
+<p>然后编译下蓝图。<br><img src="https://github.com/user-attachments/assets/21bd3a37-4a71-45e4-8d25-42bb8a08a548" alt="image"></p>
+<p>攻击先判断是否在攻击。</p>
+<p>然后攻击次数加1。<br><img src="https://github.com/user-attachments/assets/de6a6441-fa2e-4f0c-bbef-5a61ca1217a0" alt="image"></p>
+<p>然后判断攻击次数是否大于招式动画的长度。<br><img src="https://github.com/user-attachments/assets/9d0e0f45-a6a4-4a9d-9917-2b28be11d220" alt="image"></p>
+<p>如果小于招式动画的长度就获取一下招式。<br><img src="https://github.com/user-attachments/assets/f0065873-ebab-46c2-81ae-55c00c19f52c" alt="image"></p>
+<p>如果大于招式动画的长度就把，Attack count归零。<br><img src="https://github.com/user-attachments/assets/c3686a87-c482-473f-9f0e-22338a0bbda4" alt="image"><br><img src="https://github.com/user-attachments/assets/076ecc2a-cce7-4f9d-8876-230e12aa9c40" alt="image"></p>
+<p>然后设置一下ComboReset。<br><img src="https://github.com/user-attachments/assets/5783687d-53bd-4fdb-9932-d03e673bdeb9" alt="image"></p>
+<p>接着找到动画Combo_01_1_Montage，然后在攻击后摇前，大概在8后，右键加一下动画通知。<br><img src="https://github.com/user-attachments/assets/8b407b60-3c42-4d55-bee3-535a930f45e6" alt="image"></p>
+<p>在动画结束时也加一下动画通知。<br><img src="https://github.com/user-attachments/assets/a5abf03e-192d-4e6e-9339-f72aad85bb6f" alt="image"></p>
+<p>动画234也一样。<br><img src="https://github.com/user-attachments/assets/758c0aed-3a29-4969-a14a-28cc1eacf2f6" alt="image"><br><img src="https://github.com/user-attachments/assets/36639cce-0f8f-4d17-9428-6b05ef9cbe54" alt="image"><br><img src="https://github.com/user-attachments/assets/b984c24a-f5d4-426f-acb6-2c3b7cb6a989" alt="image"></p>
+<p>加完通知后，接着我们使用下通知。 打开PlayerCharABP。<br><img src="https://github.com/user-attachments/assets/f6e8a2aa-ad39-42ac-8241-63cd4e9ec13d" alt="image"></p>
+<p>在ComoStart通知时去做Do Attack。<br><img src="https://github.com/user-attachments/assets/6860d775-e070-4285-a6b4-7ab358e25772" alt="image"></p>
+<p>然后再动画播放结束时，把所有的状态设置为初始值。<br><img src="https://github.com/user-attachments/assets/01fe304e-1bff-4f44-b76d-68a8e56ce51d" alt="image"></p>
+<p>然后在动画蒙太奇里设置下混出混入时间。让混出混入时间远小于本身动画的时间。<br><img src="https://github.com/user-attachments/assets/7935fae1-e01d-4d48-a225-b52d34aa99c6" alt="image"><br><img src="https://github.com/user-attachments/assets/51096613-4f8d-41b5-883d-1627b58bb1d5" alt="image"><br><img src="https://github.com/user-attachments/assets/ef63fa91-ac32-4bb1-975f-5ad2575fe2e1" alt="image"><br><img src="https://github.com/user-attachments/assets/8b058de4-beea-469c-bef8-ca9772e01634" alt="image"></p>
+<p>然后创建一个保存攻击的状态。<br><img src="https://github.com/user-attachments/assets/425339ea-65ce-4ecf-b7c6-b62b180ea268" alt="image"><br><img src="https://github.com/user-attachments/assets/c3599336-bdfc-4081-ae71-770b56a0b083" alt="image"></p>
+<p>SaveAttack开始时也要保存下。<br><img src="https://github.com/user-attachments/assets/cf210f25-c69c-4ec3-89a3-d7b35230e6c0" alt="image"></p>
+<p>然后把动画蓝图里的DoAttack改成AttackSave就可以连击出连招了。<br><img src="https://github.com/user-attachments/assets/c6f6dcb3-3dde-4245-8324-ce1009555231" alt="image"><br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/801d8e67-cbcd-4e1b-846b-c73e4299567a">https://github.com/user-attachments/assets/801d8e67-cbcd-4e1b-846b-c73e4299567a</a></p>
+<h1 id="更好的打击感"><a href="#更好的打击感" class="headerlink" title="更好的打击感"></a>更好的打击感</h1><p>上面已经把攻击连招讲完了，但是攻击的时候不能转向，他只能朝着一个方向走，手感不是很好。下面完善一下攻击。然后做出攻击时可转向，添加闪避以及伤害通知。</p>
+<h2 id="攻击时可转向"><a href="#攻击时可转向" class="headerlink" title="攻击时可转向"></a>攻击时可转向</h2><p>一个流畅的动作类游戏，他必须得是非常跟手的。随时都跟着你的操作。在你攻击的时候，他应该也能跟着转向。这样才是一个好的动作游戏的手感。</p>
+<p>打开playerchar。</p>
+<p>新建一个函数。<br><img src="https://github.com/user-attachments/assets/4a6288ed-d2ef-4b94-b848-dc99f679efe9" alt="image"></p>
+<p>用这个函数计算最后一次输入。就是要用这个函数获取最后一次键盘是按的哪个方向。这个函数不能单独使用，得配合其它函数使用。</p>
+<p>新建一个变量，用来保存我们的输入movement。<br><img src="https://github.com/user-attachments/assets/9036e3c0-024a-48d0-ac58-2da19c92dd5b" alt="image"></p>
+<p>还要新建一个变量，用来保存我们最后一次输入的角度。<br><img src="https://github.com/user-attachments/assets/0278751e-9b45-4d33-9d9c-40513c1aa0f1" alt="image"></p>
+<p>我们把角色移动拖进来。<br><img src="https://github.com/user-attachments/assets/c414784c-1131-49ae-aeec-55f8f4b0a8f7" alt="image"></p>
+<p>把角色最后输入的向量存到Movement Input。<br><img src="https://github.com/user-attachments/assets/9aa6bbf5-fe40-44bc-867c-24fd911f4180" alt="image"></p>
+<p>我们还需要加一个变量，用来检测砍一刀时，有没有输入向量。<br><img src="https://github.com/user-attachments/assets/0c4e68a4-ce7b-4df3-afd3-cc96a07067aa" alt="image"><br><img src="https://github.com/user-attachments/assets/0436e4c8-567d-432c-95ec-136fa91a493a" alt="image"><br><img src="https://github.com/user-attachments/assets/d0b7f6b8-253b-46cf-be63-8e3f69160eb9" alt="image"></p>
+<p>输入角度也保存一下。<br><img src="https://github.com/user-attachments/assets/d747cb78-6bd2-460e-8083-237881fdcf03" alt="image"></p>
+<p>这样这个函数是算写完了。</p>
+<p>然后我们返回事件图表，让每帧都执行一下。<br><img src="https://github.com/user-attachments/assets/d1865a31-e973-48d1-8fa1-8ec585c90913" alt="image"></p>
+<p>然后我们再创建一个函数。用这个函数改变角度。就是要让攻击动画改变角度。<br><img src="https://github.com/user-attachments/assets/24a06105-22ab-413f-aa2d-fe28b930fccd" alt="image"></p>
+<p>添加两个输入。<br><img src="https://github.com/user-attachments/assets/ef48c198-51b1-4e3d-bb44-26f4c107c80b" alt="image"></p>
+<p>先判断下输入的两个值。<br><img src="https://github.com/user-attachments/assets/ed6be0bf-b182-46e8-a135-16681a299eef" alt="image"></p>
+<p>然后就可以对角度设置渐变推进。<br><img src="https://github.com/user-attachments/assets/99a6e54c-dcd2-4f0b-91bc-a52cbe144518" alt="image"><br><img src="https://github.com/user-attachments/assets/1ae3b1bd-d152-471c-b5fd-5c815766df3a" alt="image"></p>
+<p>也设置下没有速度的时候的情况。<br><img src="https://github.com/user-attachments/assets/b3ecf038-72f9-4f86-9c62-7fc3e6452e7c" alt="image"></p>
+<p>然后我们做下动画通知。新建一个文件夹。<br><img src="https://github.com/user-attachments/assets/380784a7-a35a-4bee-bffa-e7c7e8b96d1e" alt="image"></p>
+<p>创建一个AnimNotifyState蓝图。<br><img src="https://github.com/user-attachments/assets/2b20fed6-ae14-43a4-9e81-5f74eb2e392c" alt="image"><br><img src="https://github.com/user-attachments/assets/0cf35830-994f-49bf-821b-d4f92865fc41" alt="image"></p>
+<p>打开编辑。新建变量。<br><img src="https://github.com/user-attachments/assets/0e138e0d-85b1-43cf-8d74-712b8a78bdfc" alt="image"></p>
+<p>然后重载一下函数。<br><img src="https://github.com/user-attachments/assets/a8e4adda-947b-4b31-aba9-9f78f62d364b" alt="image"><br><img src="https://github.com/user-attachments/assets/0e206ea6-a179-4263-a96c-6980ec01fb40" alt="image"></p>
+<p>然后找个动画试试。找到攻击这个蒙太奇。<br><img src="https://github.com/user-attachments/assets/2d013e61-8bdd-44c0-ba2c-c41bd8d7d31a" alt="image"></p>
+<p>添加状态通知。<br><img src="https://github.com/user-attachments/assets/f7919d84-e851-47fe-8578-5e16c87b365c" alt="image"><br><img src="https://github.com/user-attachments/assets/978b2249-b88e-4307-9414-14525bc4bdd8" alt="image"></p>
+<p>表于在这段区间之间都可以转向。就是攻击前摇时可以选择方向。</p>
+<p>然后回到RotationByAnim，把InterpSpeed变量小眼睛点开。<br><img src="https://github.com/user-attachments/assets/79686d7d-ae73-4616-b648-e7ab24764c64" alt="image"></p>
+<p>编译。回到动作就可以看到这个变量了。<br><img src="https://github.com/user-attachments/assets/9532603e-b1fc-4ede-997d-1ee05c5bf306" alt="image"></p>
+<p>然后设置这个渐变速度为10。<br><img src="https://github.com/user-attachments/assets/0cd6ca7e-28ce-4b74-93f9-ef468274b83c" alt="image"></p>
+<p>然后把其它的动画也设置下。<br><img src="https://github.com/user-attachments/assets/641d6428-6686-4c5e-ae71-fa0c4faea7a7" alt="image"><br><img src="https://github.com/user-attachments/assets/39c525bd-01b1-4cda-851f-2cab0b4b81eb" alt="image"><br><img src="https://github.com/user-attachments/assets/8444bd70-4172-41cd-9fd9-f0779b0d798c" alt="image"></p>
+<p>然后接下来我们开始写这个动画通知的函数。<br><img src="https://github.com/user-attachments/assets/92524503-3377-410e-959d-5ecd782ffb61" alt="image"></p>
+<p>我们再重载下两个函数。<br><img src="https://github.com/user-attachments/assets/61e82b9f-faad-4ccc-a6f2-6e4d2a4e3f6c" alt="image"><br><img src="https://github.com/user-attachments/assets/0ebde729-e6d0-40ab-b68c-a0e57a087ff0" alt="image"><br><img src="https://github.com/user-attachments/assets/a6a8c95c-79d0-404e-ac12-90196deb8fc3" alt="image"></p>
+<p>现在攻击时可以转向了。<br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/f2124445-7383-46ad-b3cc-a05e40cee7fb">https://github.com/user-attachments/assets/f2124445-7383-46ad-b3cc-a05e40cee7fb</a></p>
+<h1 id="伤害通知"><a href="#伤害通知" class="headerlink" title="伤害通知"></a>伤害通知</h1><p>直接在动画序列中加通知。<br><img src="https://github.com/user-attachments/assets/ace26a8e-1eaf-4ffb-8f12-d2f59313b651" alt="image"></p>
+<p>接着我们回到playerchar写伤害逻辑。<br><img src="https://github.com/user-attachments/assets/ae4bb258-13d2-41c1-9e34-6a4d47523e2a" alt="image"><br><img src="https://github.com/user-attachments/assets/baef7631-9a6d-4777-9c2a-593468c87832" alt="image"><br><img src="https://github.com/user-attachments/assets/b1cdbd5d-902e-432f-ab09-bd514143ef62" alt="image"><br><img src="https://github.com/user-attachments/assets/4d72a763-5781-4b6d-9167-7bf78dfb7ec4" alt="image"></p>
+<p>然后我们返回动画蓝图。<br><img src="https://github.com/user-attachments/assets/147c63c7-dea0-482c-a4b6-ceecb10b31b0" alt="image"><br><img src="https://github.com/user-attachments/assets/05271849-a737-4302-ad95-d2f71ba6a779" alt="image"></p>
+<p>运行可以看到攻击的范围。<br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/d1f9993d-0546-469f-a9c4-45f4dbdc1316">https://github.com/user-attachments/assets/d1f9993d-0546-469f-a9c4-45f4dbdc1316</a></p>
+<h1 id="闪避"><a href="#闪避" class="headerlink" title="闪避"></a>闪避</h1><p>我们先加一下按键。<br><img src="https://github.com/user-attachments/assets/decb48f6-03fd-47f4-8f2b-75b8f6d3c245" alt="image"></p>
+<p>然后我们找个动画。创建动画蒙太奇。<br><img src="https://github.com/user-attachments/assets/212daa59-c148-4326-a63e-3f2847290c54" alt="image"><br><img src="https://github.com/user-attachments/assets/959fe89f-ff6d-410d-837e-f99e0e038c18" alt="image"></p>
+<p>然后回到动画。把启动根运动勾上。<br><img src="https://github.com/user-attachments/assets/e1f84ff8-0f0a-43d6-83cc-b2706fea5811" alt="image"></p>
+<p>角色就能跟着胶囊体动了。</p>
+<p>然后我们写一下闪避的逻辑。<br><img src="https://github.com/user-attachments/assets/fdc1016a-882d-40a8-af6e-93146933addb" alt="image"><br><img src="https://github.com/user-attachments/assets/629b54bd-7aab-45ed-a342-749ebb3df4a5" alt="image"></p>
+<p>在控制里也加一下。<br><img src="https://github.com/user-attachments/assets/d8569f09-32d5-49ba-886e-05af77f61777" alt="image"></p>
+<p>编译保存运行。<br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/6e411bef-0ddc-465b-b158-d4b264e40361">https://github.com/user-attachments/assets/6e411bef-0ddc-465b-b158-d4b264e40361</a></p>
+<p>但反复按会鬼畜。这里改一下。<br><img src="https://github.com/user-attachments/assets/1a839d4c-618d-4cd1-adb7-205a198bac06" alt="image"></p>
+<p>然后在动画播放完后状态设置为不翻滚。<br><img src="https://github.com/user-attachments/assets/02483ca6-92e5-42f8-a3cc-ce7e866f1cfd" alt="image"></p>
+<p>编译保存运行。</p>
+<p>现在反复按不会鬼畜了。</p>
+<p>这里可以加速动画播放让翻滚快点。<br><img src="https://github.com/user-attachments/assets/a85ff490-3a3b-4a6f-98ef-405c7afd3c75" alt="image"></p>
+<h2 id="闪避时可转向"><a href="#闪避时可转向" class="headerlink" title="闪避时可转向"></a>闪避时可转向</h2><p><img src="https://github.com/user-attachments/assets/4b78300c-abd5-489b-8cbd-a5b22f27ec25" alt="image"><br>直接给这个通知拉满，只要在翻滚的过程就能改变方向。</p>
+<h2 id="修复攻击时闪避后不能再攻击的Bug"><a href="#修复攻击时闪避后不能再攻击的Bug" class="headerlink" title="修复攻击时闪避后不能再攻击的Bug"></a>修复攻击时闪避后不能再攻击的Bug</h2><p>因为攻击中闪避而没有走ComboReset。所以IsAttack永远为真。所以在闪避后再做一下ComboReset就可以了。<br><img src="https://github.com/user-attachments/assets/55919daa-5f86-4a61-874d-ddc6dde8144c" alt="image"></p>
+<h2 id="闪避时不能攻击"><a href="#闪避时不能攻击" class="headerlink" title="闪避时不能攻击"></a>闪避时不能攻击</h2><p>如果在闪避中，就不要给角色攻击了。<br><img src="https://github.com/user-attachments/assets/14805986-0c57-475e-8747-59ea86249464" alt="image"></p>
+<h1 id="创建敌人"><a href="#创建敌人" class="headerlink" title="创建敌人"></a>创建敌人</h1><p>按照惯例，先创建一个文件夹。<br><img src="https://github.com/user-attachments/assets/66545018-5140-430a-baf6-57e0eba58f0a" alt="image"></p>
+<h2 id="创建模型"><a href="#创建模型" class="headerlink" title="创建模型"></a>创建模型</h2><p>然后创建一个蓝图。<br><img src="https://github.com/user-attachments/assets/82b4ef15-613c-4ff8-bb95-86bfd201b9c1" alt="image"><br><img src="https://github.com/user-attachments/assets/043d70a2-8913-4cc2-946d-f8ccc1185e99" alt="image"></p>
+<p>然后打开它。给它加个模型。<br><img src="https://github.com/user-attachments/assets/8c805fcc-34b7-4ab2-9a0c-8f251beb302e" alt="image"></p>
+<p>调下参数。<br><img src="https://github.com/user-attachments/assets/05da5778-8ed3-479c-b022-e96243f94b1c" alt="image"><br><img src="https://github.com/user-attachments/assets/3bcf1d66-5a2b-480a-91ee-352c1d9c3932" alt="image"></p>
+<p>然后改一下这个模型的颜色。<br><img src="https://github.com/user-attachments/assets/b8bb0b83-c7bc-4501-ba03-6a46b923ec1b" alt="image"></p>
+<p>再原来的材质上复制多一份。<br><img src="https://github.com/user-attachments/assets/c98ae2e6-baa1-418c-b66c-eaf53a58de63" alt="image"></p>
+<p>双击新的材质，我们改下颜色。<br><img src="https://github.com/user-attachments/assets/0f32c809-c657-40db-8044-4529fdbf3de8" alt="image"><br><img src="https://github.com/user-attachments/assets/4aedcb06-83f7-41c9-a900-aab1ec0ad434" alt="image"></p>
+<p>点应用，保存。回来看，白色的材质球就做好了。<br><img src="https://github.com/user-attachments/assets/4fd7459b-3e23-40c6-82b6-449027807531" alt="image"></p>
+<p>然后回到AIChar，模型换个颜色。<br><img src="https://github.com/user-attachments/assets/26819ff3-d67c-4d9a-a417-328df0283880" alt="image"></p>
+<h2 id="敌人AI"><a href="#敌人AI" class="headerlink" title="敌人AI"></a>敌人AI</h2><p>然后我们创建一个AIController。<br><img src="https://github.com/user-attachments/assets/ca1ea923-691c-4406-8ae8-a2605a4c4afb" alt="image"><br><img src="https://github.com/user-attachments/assets/6142ce79-a7d7-47ad-bb52-853a968ffb97" alt="image"></p>
+<p>然后还要一个行为树。<br><img src="https://github.com/user-attachments/assets/8a2997c0-c965-4cf8-8def-c95980bde21e" alt="image"><br><img src="https://github.com/user-attachments/assets/cae9b9a6-05fb-4d6f-af34-f65307fe115a" alt="image"></p>
+<p>打开AICharController。在事件开始时运行行为树。<br><img src="https://github.com/user-attachments/assets/cbbe8f52-e13b-4f2d-a2d3-c03fb258aaa6" alt="image"></p>
+<p>然后在AIChar里关联上AICharController。<br><img src="https://github.com/user-attachments/assets/82b37ce7-943c-4c72-9228-586691b3aee8" alt="image"></p>
+<p>编译保存。然后我们打开行为树，新建一个黑板。<br><img src="https://github.com/user-attachments/assets/87f5f7f6-8aa1-41e8-bcc2-00e39c8a6f49" alt="image"></p>
+<p>给AI也创建下动画蓝图。<br><img src="https://github.com/user-attachments/assets/d4ae34fe-0497-4b96-8f4a-8f32be06de45" alt="image"><br><img src="https://github.com/user-attachments/assets/353c2213-71a3-4643-8ab8-81fe456faf4f" alt="image"><br><img src="https://github.com/user-attachments/assets/3726f82b-6edd-4505-b141-f4e93bdad4d6" alt="image"></p>
+<p>然后打开它。<br><img src="https://github.com/user-attachments/assets/67a68fc9-0068-4ec4-86b5-c3a583d7b1d9" alt="image"></p>
+<p>双击状态机添加状态。<br><img src="https://github.com/user-attachments/assets/362b54cd-10ab-4904-a7ce-efa55e78568c" alt="image"></p>
+<p>因为都是小白人，所以AI也可以用之前创建的混合空间。<br><img src="https://github.com/user-attachments/assets/36a6e05f-c548-4db8-8e2b-208a0a72dc85" alt="image"></p>
+<p>speed提升为变量。<br><img src="https://github.com/user-attachments/assets/ac0bb2cd-72a2-4ca0-80a3-43b84bee80ea" alt="image"></p>
+<p>编译保存。<br><img src="https://github.com/user-attachments/assets/d9d93f67-29ff-4f8c-befb-bbdfe581e070" alt="image"></p>
+<p>然后回到AIChar。使用刚才的动画蓝图。<br><img src="https://github.com/user-attachments/assets/ea8db878-043b-42eb-8936-330e2c5d048e" alt="image"></p>
+<p>然后给敌人加下武器。加下骨骼网格体。<br><img src="https://github.com/user-attachments/assets/76c6adae-251e-4d14-96be-b82e293b6a9e" alt="image"><br><img src="https://github.com/user-attachments/assets/1130ad52-7785-4931-9312-91fbf1c4cf1d" alt="image"><br><img src="https://github.com/user-attachments/assets/234fa00b-4cd9-4d80-8be5-d58ac0900013" alt="image"><br><img src="https://github.com/user-attachments/assets/6f318a91-327a-48b0-8a28-158336dab2a2" alt="image"></p>
+<p>然后加一下盾。<br><img src="https://github.com/user-attachments/assets/180eef07-6249-4739-ac7a-a4e2994a7511" alt="image"></p>
+<p>然后我们返回动画蓝图。<br><img src="https://github.com/user-attachments/assets/d50c8b23-e749-4657-9c2d-16bf50677047" alt="image"><br><img src="https://github.com/user-attachments/assets/6aee8920-6cdc-46be-93df-82858d1d17cc" alt="image"><br><img src="https://github.com/user-attachments/assets/13e49e0d-cb89-4202-b618-d391f84e0a0f" alt="image"><br><img src="https://github.com/user-attachments/assets/d88c102b-bebf-4c52-9cc0-e79d818ba4d1" alt="image"><br><img src="https://github.com/user-attachments/assets/2f6cb08f-9d80-410c-b528-b2576d347862" alt="image"></p>
+<p>我们动画蓝图算是写完了。AI也会根据它移动的速度来决定它动画是走是跑还是站立。这些都是和主角一样的。然后我们写下行为树。<br><img src="https://github.com/user-attachments/assets/4e7dc377-9747-4c00-917f-7d1023990d1b" alt="image"><br><img src="https://github.com/user-attachments/assets/1202b687-ea9a-4b89-ae81-bdb00773687b" alt="image"></p>
+<p>然后新建一个装饰器。<br><img src="https://github.com/user-attachments/assets/bfbc3bee-59d4-4abd-9823-94f0bb229410" alt="image"><br><img src="https://github.com/user-attachments/assets/7789d7df-4865-4efd-ba0c-4fc8be63b293" alt="image"></p>
+<p>用来检测有没有玩家。<br><img src="https://github.com/user-attachments/assets/7434c5be-fca0-45f4-83b9-ba3fd1df28c4" alt="image"></p>
+<p>然后取一下位置。<br><img src="https://github.com/user-attachments/assets/7740ec9f-dba1-4191-a9cb-0f5ca09d57de" alt="image"></p>
+<p>然后需要加一下球形检测。<br><img src="https://github.com/user-attachments/assets/beb4b409-3f79-405a-9237-f24fc95cd669" alt="image"><br><img src="https://github.com/user-attachments/assets/1154a98f-368a-47cb-bd3d-4b276a3a6291" alt="image"></p>
+<p>Object Types提升为变量。<br><img src="https://github.com/user-attachments/assets/08b38a85-4b63-4cfa-8836-991dcc527a00" alt="image"></p>
+<p>半径给1000。<br><img src="https://github.com/user-attachments/assets/6d87d7c8-5a04-4a62-8135-a7bf7107c398" alt="image"></p>
+<p>然后Draw Debug Type改成持久。<br><img src="https://github.com/user-attachments/assets/fbd8e918-a7ed-47c3-a5a8-6a3a98fd0d13" alt="image"></p>
+<p>最后连上。<br><img src="https://github.com/user-attachments/assets/93bd8211-11f5-4190-b6d0-8703e1fdb9a4" alt="image"></p>
+<p>输出会Out Hits打开。<br><img src="https://github.com/user-attachments/assets/e3d14855-7217-4f45-bff3-aa3720303b1e" alt="image"><br><img src="https://github.com/user-attachments/assets/2745b143-8870-4e6c-8e2a-25debb69af17" alt="image"></p>
+<p>然后把每个数组再break一下。<br><img src="https://github.com/user-attachments/assets/5ebc42d8-1a31-49a4-9c39-2b096357b57b" alt="image"></p>
+<p>如果这个球体检测到玩家，那就转化为玩家。检测不到就什么都不干。<br><img src="https://github.com/user-attachments/assets/09471e45-65d3-4a2d-bd82-5df1a67a9426" alt="image"><br><img src="https://github.com/user-attachments/assets/0a507935-2258-48cf-8946-4b99e14222df" alt="image"></p>
+<p>然后as player char给他设置黑板值。<br><img src="https://github.com/user-attachments/assets/ed1493fa-e09b-45a1-b52f-4c49256f4579" alt="image"><br><img src="https://github.com/user-attachments/assets/3cdcc036-34fd-49dc-9c5f-a3d2b017a6da" alt="image"></p>
+<p>然后把Key提升为变量。<br><img src="https://github.com/user-attachments/assets/89623cc9-dab7-4d09-899b-372d1d1c02ff" alt="image"></p>
+<p>把小眼睛点亮，这样你在行为树上才能看到这个变量。<br><img src="https://github.com/user-attachments/assets/c2244e2b-bbc2-4039-8cb1-ca8150336da6" alt="image"></p>
+<p>然后返回节点也连上。在循环结束之后返回为真。<br><img src="https://github.com/user-attachments/assets/a616f6ee-2b2e-4fb1-8247-c0424f4f884e" alt="image"></p>
+<p>编译保存。返回行为树。添加装饰器。<br><img src="https://github.com/user-attachments/assets/d019a563-e881-48e0-8515-aa4fc73077c2" alt="image"></p>
+<p>然后点击黑板，在黑板上新建一个值。<br><img src="https://github.com/user-attachments/assets/2e4f07d8-feea-4c40-9bc9-7454292e5e56" alt="image"><br><img src="https://github.com/user-attachments/assets/174988a1-a7ec-4921-87ee-9c1a5bdac27f" alt="image"></p>
+<p>改下基类。<br><img src="https://github.com/user-attachments/assets/86569bc7-4b95-4975-b031-67b58def24df" alt="image"></p>
+<p>保存。<br><img src="https://github.com/user-attachments/assets/98dddf20-b80e-4197-bf30-9eb4f7f0fd2a" alt="image"></p>
+<p>把顺序换成选择。<br><img src="https://github.com/user-attachments/assets/06b3aa9f-1276-4cfa-8635-f0ce44a48994" alt="image"><br><img src="https://github.com/user-attachments/assets/5a94f3f3-8e4f-44b7-8b02-1489184b7181" alt="image"></p>
+<p>然后再来个顺序。再加个装饰器。<br><img src="https://github.com/user-attachments/assets/7d931a30-fc9c-4880-9757-3c56ad88af0b" alt="image"><br><img src="https://github.com/user-attachments/assets/c1c0aac2-2ed4-458d-bce5-638629957965" alt="image"></p>
+<p>再来个顺序。<br><img src="https://github.com/user-attachments/assets/212147ac-2301-4c4c-a663-f32f3b5bc7d5" alt="image"><br><img src="https://github.com/user-attachments/assets/a9a367ba-a9e0-45fb-8b9b-f1d3a1280559" alt="image"></p>
+<p>设置未设置。用于没检测到玩家的操作。<br><img src="https://github.com/user-attachments/assets/d04af495-7b46-465e-9e8d-c27d9afd3767" alt="image"></p>
+<p>检测到玩家就走向玩家。<br><img src="https://github.com/user-attachments/assets/24347503-0e46-4a65-9a47-5b8096bf4683" alt="image"><br><img src="https://github.com/user-attachments/assets/13a5f6b8-c5c7-4155-9d3a-162d91ee3530" alt="image"></p>
+<p>保存。给场景添加一个导航网格体边界体积。<br><img src="https://github.com/user-attachments/assets/f24d1ce7-1c1b-4711-abc4-85ffe3e557b4" alt="image"><br><img src="https://github.com/user-attachments/assets/20ee04bc-be93-4bd7-88d3-4d172bb441cb" alt="image"></p>
+<p>调整导航网格体边界体积，让它覆盖整个场景。保存运行。现在可以看到敌人走过来了。<br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/b852159c-7af5-4355-939e-5cbf04939564">https://github.com/user-attachments/assets/b852159c-7af5-4355-939e-5cbf04939564</a></p>
+<h1 id="参数调整"><a href="#参数调整" class="headerlink" title="参数调整"></a>参数调整</h1><p>AI追到你后的等待时间可以自行调整。<br><img src="https://github.com/user-attachments/assets/fcba9118-7c70-4098-a1a0-c9179f369d63" alt="image"></p>
+<p>敌人的速度也可以调整下。<br><img src="https://github.com/user-attachments/assets/4d14a7f8-d3e6-478a-9b1e-c6a79ad2fd1a" alt="image"></p>
+<h1 id="添加巡逻"><a href="#添加巡逻" class="headerlink" title="添加巡逻"></a>添加巡逻</h1><p>新建一个服务。<br><img src="https://github.com/user-attachments/assets/6d9b22b3-3b70-4cf5-9200-1e7ecb759cb0" alt="image"><br><img src="https://github.com/user-attachments/assets/7826cc0b-20a0-4920-b223-106825196f2c" alt="image"></p>
+<p>打开，重载下接收Tick AI。<br><img src="https://github.com/user-attachments/assets/4f4815c6-b2a7-49cb-9b79-ed5e3a5fa077" alt="image"><br><img src="https://github.com/user-attachments/assets/9ca00b89-9d68-4390-8bf5-f9a63e575c86" alt="image"></p>
+<p>然后先取一下位置。<br><img src="https://github.com/user-attachments/assets/42bb346d-ba2d-450e-854d-9a549124d1d8" alt="image"></p>
+<p>然后得到一个随机可以到达的位置。<br><img src="https://github.com/user-attachments/assets/bf370ea4-3f26-46a2-8df8-6a62c7815796" alt="image"></p>
+<p>设置半径为500。<br><img src="https://github.com/user-attachments/assets/fe9e4284-c70c-4f8a-87a8-567d551f3ad4" alt="image"></p>
+<p>然后把得到的位置设置为黑板键。<br><img src="https://github.com/user-attachments/assets/a5bec732-a837-4875-b696-c7690adea388" alt="image"></p>
+<p>把Key提升为变量。改一名。<br><img src="https://github.com/user-attachments/assets/3c83a91c-bfcd-4f57-9dfd-bcfbce9e58cc" alt="image"></p>
+<p>小眼睛打开。<br><img src="https://github.com/user-attachments/assets/3ddae1e8-188e-4a9d-a10b-cb3c95f55896" alt="image"></p>
+<p>最后把线连上。<br><img src="https://github.com/user-attachments/assets/df24f285-4130-4843-8346-465866d29d16" alt="image"></p>
+<p>编译保存。</p>
+<p>返回行为树。添加服务。<br><img src="https://github.com/user-attachments/assets/8d0e7025-8d16-45fa-89cc-f698ee09f75e" alt="image"><br><img src="https://github.com/user-attachments/assets/34f276ee-746e-44f2-b1bb-faaff368a21b" alt="image"></p>
+<p>返回黑板。增加一个向量变量。<br><img src="https://github.com/user-attachments/assets/75355dc6-7c7a-4556-9ae4-f6ee6011255d" alt="image"></p>
+<p>返回行为树，把Target Location改为目的地。<br><img src="https://github.com/user-attachments/assets/e1f64468-1f56-497f-95e1-953fa33a155f" alt="image"></p>
+<p>移动到目的点。<br><img src="https://github.com/user-attachments/assets/f45fbc61-aeb5-464e-9ee0-51949851d8af" alt="image"></p>
+<p>保存。运行。现在AI能随机走动了。</p>
+<h1 id="攻击-1"><a href="#攻击-1" class="headerlink" title="攻击"></a>攻击</h1><p>然后在行为树新加一个任务，让敌人攻击。<br><img src="https://github.com/user-attachments/assets/21a18234-ea06-4923-8b43-cfdb11d9d685" alt="image"><br><img src="https://github.com/user-attachments/assets/32aeff91-334a-47fd-9657-045ff1fac6c6" alt="image"></p>
+<p>打开，重载下接收执行AI函数。<br><img src="https://github.com/user-attachments/assets/f2566b25-5b3b-45c0-9555-04b301db8aa2" alt="image"><br><img src="https://github.com/user-attachments/assets/447bc837-7608-4a9c-a161-53670f74a35c" alt="image"></p>
+<p>转化为AIChar，直接播放蒙大奇。<br><img src="https://github.com/user-attachments/assets/3c09d789-0314-4f1f-a616-e2e85595837d" alt="image"></p>
+<p>给AI找个攻击动画。<br><img src="https://github.com/user-attachments/assets/7fba2a81-e5be-41c4-ac82-9903aa212c43" alt="image"></p>
+<p>创建一个动画蒙太奇。<br><img src="https://github.com/user-attachments/assets/d881adea-72fe-40c1-8fc8-9245f2ec4686" alt="image"><br><img src="https://github.com/user-attachments/assets/13d49b0a-caa4-46f2-9417-68118e020362" alt="image"></p>
+<p>打开动画，启动下根运动。让他播放这个动画时有位移。<br><img src="https://github.com/user-attachments/assets/00d9ba67-0f8f-4b78-ad67-d4620ff36c08" alt="image"></p>
+<p>返回任务，指定动画资产为Attack_08_Montage。<br><img src="https://github.com/user-attachments/assets/14a4c53b-41a6-4458-9901-10583600a58c" alt="image"></p>
+<p>最后返回执行结果。<br><img src="https://github.com/user-attachments/assets/d94dcdd0-128d-4973-bc94-75238e223cdb" alt="image"></p>
+<p>然后返回行为树。添加攻击。<br><img src="https://github.com/user-attachments/assets/1cb244fe-5c72-489b-9a33-867eb291b57c" alt="image"></p>
+<p>编译保存运行。现在敌人会先过来再攻击，等待两秒再攻击。<br><a target="_blank" rel="noopener" href="https://github.com/user-attachments/assets/7590acab-f16d-413a-9b09-176d8f08e8de">https://github.com/user-attachments/assets/7590acab-f16d-413a-9b09-176d8f08e8de</a></p>
+<h1 id="添加伤害"><a href="#添加伤害" class="headerlink" title="添加伤害"></a>添加伤害</h1><h2 id="玩家打AI"><a href="#玩家打AI" class="headerlink" title="玩家打AI"></a>玩家打AI</h2><p>先给AI加点变量。<br><img src="https://github.com/user-attachments/assets/e18656d2-e52d-49fb-b01a-d2a8d6e55bef" alt="image"><br><img src="https://github.com/user-attachments/assets/2ecb1439-a4bf-4ec2-951f-d1a410049fb5" alt="image"></p>
+<p>接着回到主角这里，编辑攻击逻辑。<br><img src="https://github.com/user-attachments/assets/859f260f-2f1c-47b5-a299-48f757f2a715" alt="image"><br><img src="https://github.com/user-attachments/assets/9dda0063-e06d-4c78-af7b-0b8684947e64" alt="image"><br><img src="https://github.com/user-attachments/assets/e2229a81-18a5-417e-b9d7-d6f71da507b5" alt="image"><br><img src="https://github.com/user-attachments/assets/06839999-1235-4e38-9ffb-b1781f7b67fd" alt="image"><br><img src="https://github.com/user-attachments/assets/3c4dc47a-01de-4d1f-a25e-7e44d4861d18" alt="image"></p>
+<p>基础伤害给到10。<br><img src="https://github.com/user-attachments/assets/71ce7575-8069-4c08-89bb-87ddb81bfd65" alt="image"></p>
+<p>主角这边的攻击伤害算写完了。<br><img src="https://github.com/user-attachments/assets/a37e64ab-b14d-4b72-9056-50cf7f31df10" alt="image"></p>
+<p>返回AIChar，继续写敌人被打的逻辑。<br><img src="https://github.com/user-attachments/assets/70c83268-78c4-443d-b67b-fc5d36c53c69" alt="image"><br><img src="https://github.com/user-attachments/assets/aee29057-e22b-44cb-979b-cfc7e8c0b862" alt="image"></p>
+<p>保存编译运行。<br><img src="https://github.com/user-attachments/assets/9c1d00f4-2c3b-4ef1-9456-1831a88e5bb1" alt="image"></p>
+<p>打印了很多。需要关掉一些没必要的碰撞。<br><img src="https://github.com/user-attachments/assets/2df51470-4145-403a-84b3-d21b326e56a9" alt="image"></p>
+<p>主角这边也改一下。<br><img src="https://github.com/user-attachments/assets/4213bec2-c58a-4056-95fe-ef2f7dc77d01" alt="image"></p>
+<p>现在的攻击输出就正常了。<br><img src="https://github.com/user-attachments/assets/2b893408-ce33-4fe9-9d80-7ca626dcc997" alt="image"></p>
+<p>因为AI会档主角的摄像机，所以AI的胶囊机碰撞的自定义下。<br><img src="https://github.com/user-attachments/assets/3389da54-6eda-459b-9f2e-10a71e804525" alt="image"></p>
+<h2 id="死亡"><a href="#死亡" class="headerlink" title="死亡"></a>死亡</h2><p>先加个变量判断是否死亡。<br><img src="https://github.com/user-attachments/assets/fccb6abb-2bf4-4e7e-9842-3ab867a38a25" alt="image"><br><img src="https://github.com/user-attachments/assets/af07e16b-b6bd-4208-9f1c-883d2f292b96" alt="image"><br><img src="https://github.com/user-attachments/assets/2a9de655-0cc2-459d-94c6-1147112920c4" alt="image"><br><img src="https://github.com/user-attachments/assets/edde0898-0ae7-4273-b933-d6d9e2a0e38c" alt="image"></p>
+<h1 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h1><h2 id="敌人血条"><a href="#敌人血条" class="headerlink" title="敌人血条"></a>敌人血条</h2><p>新建UI文件夹。<br><img src="https://github.com/user-attachments/assets/1fa79399-80e6-4380-8f21-0f8178060568" alt="image"></p>
+<p>我们做一下血条。新建UI控件蓝图。<br><img src="https://github.com/user-attachments/assets/c2099d7a-4005-4955-bd2b-d4cfcb37ebd1" alt="image"><br><img src="https://github.com/user-attachments/assets/c3fd59f4-7d0c-49dd-85db-ffec77a567de" alt="image"><br><img src="https://github.com/user-attachments/assets/78f9adbc-eea5-4660-8ef3-e9e365a8c589" alt="image"></p>
+<p>然后打开它。新加画布。<br><img src="https://github.com/user-attachments/assets/e96e5f5e-a9c9-4308-be55-bebd2f57779b" alt="image"></p>
+<p>然后加个进度条。<br><img src="https://github.com/user-attachments/assets/125bf8e1-9a32-448d-8b47-2a0764340fc7" alt="image"></p>
+<p>锚点改成中间。<br><img src="https://github.com/user-attachments/assets/f2c53b34-4da2-408a-a456-688c00c93ead" alt="image"></p>
+<p>然后把位置设置回来。<br><img src="https://github.com/user-attachments/assets/2312d81c-218f-40d8-bbd5-fe6c48627d54" alt="image"></p>
+<p>对齐都改成0.5。<br><img src="https://github.com/user-attachments/assets/1f4c108a-04dd-48c5-96d6-398203fbf2eb" alt="image"></p>
+<p>尺寸y改成15。<br><img src="https://github.com/user-attachments/assets/a3edc8b1-0621-4e78-8d30-6984311355f3" alt="image"></p>
+<p>填充颜色改成红色。<br><img src="https://github.com/user-attachments/assets/da0c3187-48e9-4da6-bec5-c1d037e0a4ba" alt="image"></p>
+<p>然后创建绑定。<br><img src="https://github.com/user-attachments/assets/2f2c752a-8a2d-4b3c-bab7-696adb408e00" alt="image"><br><img src="https://github.com/user-attachments/assets/ad5e8fde-a1e7-47cf-ac0d-9ceb1b5bd1d6" alt="image"></p>
+<p>添加对象变量。<br><img src="https://github.com/user-attachments/assets/fbc5f798-e214-4ccb-907f-aa108af84477" alt="image"></p>
+<p>用现血量除以总血量得到血条的百分比。<br><img src="https://github.com/user-attachments/assets/7c73de96-f1dc-4e19-9644-fb7f94f73fa4" alt="image"></p>
+<p>编译保存。回到AIChar。</p>
+<p>添加控件组件。<br><img src="https://github.com/user-attachments/assets/3eccbaf8-e288-4ef3-88f7-12d8b5d02e1c" alt="image"></p>
+<p>改名为血条。</p>
+<p>控件类是AIHPBar。</p>
+<p>血条放到头顶上。</p>
+<p>给它空间设为屏幕。</p>
+<p>编译保存。回到事件图表。</p>
+<p>把HPBar拖进来。</p>
+<p>这样血条就加上了。</p>
+<p>玩家血条<br>接着我们做一下玩家的血条。</p>
+<p>新建个控件蓝图。</p>
+<p>编译保存。然后在PlayerChar里加点变量。</p>
+<p>然后回到PlayerHPBar创建绑定。</p>
+<p>然后我们回到PlayerChar。</p>
+<p>编译保存运行。</p>
+<p>让玩家受伤<br>直接在动画Attack08里新建一个通知。</p>
+<p>新建通知后，需要一个球形检测。</p>
+<p>基本和之前写的玩家攻击逻辑一样。</p>
+<p>然后返回PlayerChar。先加个变量。</p>
+<p>然后回到AIChar_ABP。</p>
+<p>保存编译，运行。现在敌人打玩家，玩家会扣血了。</p>
+<p>AI被打动画<br>找到这个被打动画。</p>
+<p>然后创建动画蒙太奇。</p>
+<p>打开AIChar。</p>
+<p>AI死亡动画<br>找到这个动画。</p>
+<p>创建动画蒙太奇。</p>
+<p>返回AIChar编写死亡动画逻辑。</p>
+<p>动画要设置根运动。</p>
+<p>在动画蒙太奇中不设置启动自动混出。敌人死亡倒地就结束了。</p>
+<p>然后找到AI攻击。</p>
+<p>让AI攻击前加个判断 ，判断是否正在播动画。</p>
+<p>接着回到AIChar。在死亡后删除胶囊体。</p>
+<p>编译保存运行。</p>
+<p>把AI的攻击动画换成原地的<br>现在AI攻击会向前，对于游戏来说，玩家不容易闪避。我们给AI换个原地攻击的动画。敌人呆一点比较好。选一个腿没有动的。</p>
+<p>然后创建蒙太奇。</p>
+<p>动作启动根运动。</p>
+<p>在AI攻击蓝图中改用这个动画。</p>
+<p>当然，也要加上动画通知。</p>
+<p>增加AI攻击前摇时间<br>打开攻击的动画蒙太奇，再拉一个动作。</p>
+<p>把第一段做成0.138。</p>
+<p>把前摇速率放慢。</p>
+<p>现在敌人的攻击前摇时间加长了，玩家容易闪避了。</p>
+<p>玩家被攻击动画<br>找到玩家被打动画。</p>
+<p>然后启用根运动。</p>
+<p>创建动画蒙太奇。</p>
+<p>然后回到PlayerChar。增加被攻击动画。</p>
+<p>每次受到伤害重置下玩家的攻击，防止玩家攻击时被攻击而不能再攻击。</p>
+<p>玩家被死亡动画</p>
+<p>把红框去掉<br><img src="https://github.com/user-attachments/assets/f531a06f-644a-44b7-8d66-71fac249c4a6" alt="image"></p>
+
+    </div>
+
+    
+    
+    
+      
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/post/cdcc4eae.html" rel="prev" title="分布式事务">
+      <i class="fa fa-chevron-left"></i> 分布式事务
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BE%8E%E6%9C%AF%E8%B5%84%E6%BA%90"><span class="nav-number">1.</span> <span class="nav-text">美术资源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E8%A7%92%E8%89%B2"><span class="nav-number">2.</span> <span class="nav-text">创建角色</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A7%BB%E5%8A%A8"><span class="nav-number">3.</span> <span class="nav-text">移动</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A7%BB%E5%8A%A8%E5%8A%A8%E7%94%BB"><span class="nav-number">4.</span> <span class="nav-text">移动动画</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9E%E6%8B%9B%E7%B3%BB%E7%BB%9F"><span class="nav-number">5.</span> <span class="nav-text">连招系统</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB"><span class="nav-number">5.1.</span> <span class="nav-text">攻击</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8B%9B"><span class="nav-number">5.2.</span> <span class="nav-text">连招</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9B%B4%E5%A5%BD%E7%9A%84%E6%89%93%E5%87%BB%E6%84%9F"><span class="nav-number">6.</span> <span class="nav-text">更好的打击感</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E6%97%B6%E5%8F%AF%E8%BD%AC%E5%90%91"><span class="nav-number">6.1.</span> <span class="nav-text">攻击时可转向</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%A4%E5%AE%B3%E9%80%9A%E7%9F%A5"><span class="nav-number">7.</span> <span class="nav-text">伤害通知</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AA%E9%81%BF"><span class="nav-number">8.</span> <span class="nav-text">闪避</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AA%E9%81%BF%E6%97%B6%E5%8F%AF%E8%BD%AC%E5%90%91"><span class="nav-number">8.1.</span> <span class="nav-text">闪避时可转向</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%94%BB%E5%87%BB%E6%97%B6%E9%97%AA%E9%81%BF%E5%90%8E%E4%B8%8D%E8%83%BD%E5%86%8D%E6%94%BB%E5%87%BB%E7%9A%84Bug"><span class="nav-number">8.2.</span> <span class="nav-text">修复攻击时闪避后不能再攻击的Bug</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AA%E9%81%BF%E6%97%B6%E4%B8%8D%E8%83%BD%E6%94%BB%E5%87%BB"><span class="nav-number">8.3.</span> <span class="nav-text">闪避时不能攻击</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%95%8C%E4%BA%BA"><span class="nav-number">9.</span> <span class="nav-text">创建敌人</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%A8%A1%E5%9E%8B"><span class="nav-number">9.1.</span> <span class="nav-text">创建模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%8C%E4%BA%BAAI"><span class="nav-number">9.2.</span> <span class="nav-text">敌人AI</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E8%B0%83%E6%95%B4"><span class="nav-number">10.</span> <span class="nav-text">参数调整</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E5%B7%A1%E9%80%BB"><span class="nav-number">11.</span> <span class="nav-text">添加巡逻</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%94%BB%E5%87%BB-1"><span class="nav-number">12.</span> <span class="nav-text">攻击</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BC%A4%E5%AE%B3"><span class="nav-number">13.</span> <span class="nav-text">添加伤害</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%A9%E5%AE%B6%E6%89%93AI"><span class="nav-number">13.1.</span> <span class="nav-text">玩家打AI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%BB%E4%BA%A1"><span class="nav-number">13.2.</span> <span class="nav-text">死亡</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UI"><span class="nav-number">14.</span> <span class="nav-text">UI</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%8C%E4%BA%BA%E8%A1%80%E6%9D%A1"><span class="nav-number">14.1.</span> <span class="nav-text">敌人血条</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <!--
+  <p class="site-author-name" itemprop="name">losophy</p>
+  -->
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">121</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">losophy</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '305836da6c4a706f6fb7',
+      clientSecret: '69be853985a105119444ad9dd25d60ac7ee03f3d',
+      repo        : 'blog.comments',
+      owner       : 'losophy',
+      admin       : ['losophy'],
+      id          : '13f79d114fe77c629861eba16eb53162',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

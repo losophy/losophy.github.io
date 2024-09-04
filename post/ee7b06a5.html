@@ -20,17 +20,18 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="定时器模块提供了服务定时消息的支持，实现算法为时间轮算法。它提供的功能包括两点：定时消息的添加和定时消息的派发。">
+  <meta name="description" content="skynet定时器模块提供了服务定时消息的支持，实现算法为时间轮算法。它提供的功能包括两点：定时消息的添加和定时消息的派发。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="skynet timer">
 <meta property="og:url" content="http://example.com/post/ee7b06a5.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="定时器模块提供了服务定时消息的支持，实现算法为时间轮算法。它提供的功能包括两点：定时消息的添加和定时消息的派发。">
+<meta property="og:description" content="skynet定时器模块提供了服务定时消息的支持，实现算法为时间轮算法。它提供的功能包括两点：定时消息的添加和定时消息的派发。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/121156613-6cfd3c00-c87b-11eb-9335-bdddc6ab6f2c.png">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/121286454-72f22c00-c912-11eb-98dc-16ee5b9dc3db.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/11263320/128179421-443d5277-0308-4131-bea7-0ca1b0c5b5ee.jpg">
 <meta property="article:published_time" content="2021-02-24T08:30:18.000Z">
-<meta property="article:modified_time" content="2021-06-25T08:13:01.475Z">
+<meta property="article:modified_time" content="2024-09-04T12:27:11.507Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="skynet">
 <meta name="twitter:card" content="summary">
@@ -204,7 +205,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:01" itemprop="dateModified" datetime="2021-06-25T08:13:01+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:11" itemprop="dateModified" datetime="2024-09-04T12:27:11+00:00">2024-09-04</time>
               </span>
 
           
@@ -218,7 +219,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>定时器模块提供了服务定时消息的支持，实现算法为时间轮算法。它提供的功能包括两点：定时消息的添加和定时消息的派发。</p>
+        <p>skynet定时器模块提供了服务定时消息的支持，实现算法为时间轮算法。它提供的功能包括两点：定时消息的添加和定时消息的派发。</p>
 <a id="more"></a>
 
 <h2 id="设计思想"><a href="#设计思想" class="headerlink" title="设计思想"></a>设计思想</h2><p>skynet的设计思想参考Linux内核动态定时器的机制。</p>
@@ -240,7 +241,7 @@
 <blockquote>
 <p>当 1-10 号乘客完成安检后，则向『安检排队』获取下一个排队分组 2，即 11-20 号乘客，以此类推；<br>当安检排队中的最后一个（第100号）乘客通过安检后，则向『验票通道』获取下一个排队分组 2，即 101-200 号乘客，并将这 100 个乘客做一次发散处理（101-110 发撒到『安检通道』，111-200分别发散到『安检排队』分组2-10）；<br>当第 1000 号乘客通过安检后，则发散 1001-2000 号乘客，处理方式与步骤 2 类似；</p>
 </blockquote>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>skynet 的定时器实现属于分层时间轮，分为了 4 个发散轮盘（64个槽位）和 1 个工作轮盘（256个槽位），因此它的最大能表示的轮回时间为：64<em>64</em>64<em>64</em>256 = 4294967296，刚好为一个 uint32 能表示的数字的个数（0 ~ 0xFFFFFFFF）。需要注意一点，在 skynet 中，框架层只提供了定时器的添加，并没有提供定时器撤销的接口。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p><img src="https://user-images.githubusercontent.com/11263320/128179421-443d5277-0308-4131-bea7-0ca1b0c5b5ee.jpg" alt="121575990-8d372180-ca5a-11eb-88ce-6125a229cfff"><br>skynet 的定时器实现属于分层时间轮，分为了 4 个发散轮盘（64个槽位）和 1 个工作轮盘（256个槽位），因此它的最大能表示的轮回时间为：64x64x64x64x256 = 4294967296，刚好为一个 uint32 能表示的数字的个数（0 ~ 0xFFFFFFFF）。需要注意一点，在 skynet 中，框架层只提供了定时器的添加，并没有提供定时器撤销的接口。</p>
 <p>先看一下timer结构体</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timer</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">link_list</span> <span class="title">near</span>[<span class="title">TIME_NEAR</span>];</span><span class="comment">//// 工作轮盘</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">link_list</span> <span class="title">t</span>[4][<span class="title">TIME_LEVEL</span>];</span><span class="comment">// 发散轮盘</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">spinlock</span> <span class="title">lock</span>;</span></span><br><span class="line">	<span class="keyword">uint32_t</span> time;<span class="comment">//表示时间轮转动次数，当时间轮走完一整个轮回后，该字段会重置为 0，继续轮回；</span></span><br><span class="line">	<span class="keyword">uint32_t</span> starttime;<span class="comment">//表示定时器初始化时的时间戳（单位为秒），该时间戳获取后将不会变化；</span></span><br><span class="line">	<span class="keyword">uint64_t</span> current;<span class="comment">//表示从 starttime 开始，经过了多少厘秒（1/100 秒），只增不减；</span></span><br><span class="line">	<span class="keyword">uint64_t</span> current_point;<span class="comment">//表示以厘秒为单位的本机当前时间戳，可增（本机时间往前调）可减（本机时间往回调）；</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>这里需要注意后面四个跟时间相关的字段，根据这四个字段，可以得到下面几个信息</p>
@@ -390,7 +391,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">121</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -427,7 +428,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="服务端需要管理多个客户端连接，而recv只能监视单个socket，而且还不能阻塞。这种矛盾下，人们开始寻找监视多个socket的方法。假如能够预先传入一个socket列表，如果列表中的socket都没有数据，挂起进程，直到有一个socket收到数据，唤醒进程。这种方法很直接，是select的设计思想。poll是select的一个小改进。底层实现为链表，不再限制最大链接数。epoll是select和">
+  <meta name="description" content="服务端需要管理多个客户端连接，而recv只能监视单个socket，而且还不能阻塞。这种矛盾下，人们开始寻找监视多个socket的方法。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="IO模型select,poll,epoll">
 <meta property="og:url" content="http://example.com/post/c352656a.html">
 <meta property="og:site_name" content="losophy">
-<meta property="og:description" content="服务端需要管理多个客户端连接，而recv只能监视单个socket，而且还不能阻塞。这种矛盾下，人们开始寻找监视多个socket的方法。假如能够预先传入一个socket列表，如果列表中的socket都没有数据，挂起进程，直到有一个socket收到数据，唤醒进程。这种方法很直接，是select的设计思想。poll是select的一个小改进。底层实现为链表，不再限制最大链接数。epoll是select和">
+<meta property="og:description" content="服务端需要管理多个客户端连接，而recv只能监视单个socket，而且还不能阻塞。这种矛盾下，人们开始寻找监视多个socket的方法。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://user-images.githubusercontent.com/11263320/107748824-9d611d80-6d54-11eb-8873-f5c79ac617b8.png">
 <meta property="article:published_time" content="2021-02-12T08:45:47.000Z">
-<meta property="article:modified_time" content="2021-06-25T08:13:04.832Z">
+<meta property="article:modified_time" content="2024-09-04T12:27:13.327Z">
 <meta property="article:author" content="losophy">
 <meta property="article:tag" content="linux kernel">
 <meta name="twitter:card" content="summary">
@@ -203,7 +203,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-25 08:13:04" itemprop="dateModified" datetime="2021-06-25T08:13:04+00:00">2021-06-25</time>
+                <time title="修改时间：2024-09-04 12:27:13" itemprop="dateModified" datetime="2024-09-04T12:27:13+00:00">2024-09-04</time>
               </span>
 
           
@@ -217,9 +217,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>服务端需要管理多个客户端连接，而<code>recv</code>只能监视单个<code>socket</code>，而且还不能阻塞。这种矛盾下，人们开始寻找监视多个<code>socket</code>的方法。<br>假如能够预先传入一个<code>socket</code>列表，如果列表中的<code>socket</code>都没有数据，挂起进程，直到有一个<code>socket</code>收到数据，唤醒进程。这种方法很直接，是<code>select</code>的设计思想。<br><code>poll</code>是<code>select</code>的一个小改进。底层实现为链表，不再限制最大链接数。<br><code>epoll</code>是<code>select</code>和<code>poll</code>的增强版本。但当处理大量的连接的读写，<code>select</code>是低效的。因为<code>kernel</code>每次都要对<code>select</code>传入的一组<code>socket</code>号做轮询。大量的<code>cpu</code>时间都耗了进去。而使用<code>epoll</code>这些，派一个文件描述符站岗，效率自然高了许多。</p>
+        <p>服务端需要管理多个客户端连接，而<code>recv</code>只能监视单个<code>socket</code>，而且还不能阻塞。这种矛盾下，人们开始寻找监视多个<code>socket</code>的方法。</p>
 <a id="more"></a>
 
+<p>假如能够预先传入一个<code>socket</code>列表，如果列表中的<code>socket</code>都没有数据，挂起进程，直到有一个<code>socket</code>收到数据，唤醒进程。这种方法很直接，是<code>select</code>的设计思想。<br><code>poll</code>是<code>select</code>的一个小改进。底层实现为链表，不再限制最大链接数。<br><code>epoll</code>是<code>select</code>和<code>poll</code>的增强版本。但当处理大量的连接的读写，<code>select</code>是低效的。因为<code>kernel</code>每次都要对<code>select</code>传入的一组<code>socket</code>号做轮询。大量的<code>cpu</code>时间都耗了进去。而使用<code>epoll</code>这些，派一个文件描述符站岗，效率自然高了许多。</p>
 <h2 id="缓存I-O"><a href="#缓存I-O" class="headerlink" title="缓存I/O"></a>缓存I/O</h2><p>缓存<code>I/O</code>又称为标准<code>I/O</code>，大多数文件系统的默认<code>I/O</code>操作都是缓存<code>I/O</code>。在<code>Linux</code>的缓存<code>I/O</code>机制中，操作系统会将<code>I/O</code>的数据缓存在文件系统的页缓存中，即数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。</p>
 <h2 id="五种IO模型"><a href="#五种IO模型" class="headerlink" title="五种IO模型"></a>五种IO模型</h2><h3 id="阻塞式I-O模型"><a href="#阻塞式I-O模型" class="headerlink" title="阻塞式I/O模型"></a>阻塞式I/O模型</h3><p>默认情况下，所有套接字都是阻塞的。<code>recvfrom</code>等待数据准备好，从内核向进程复制数据。</p>
 <h3 id="非阻塞式I-O"><a href="#非阻塞式I-O" class="headerlink" title="非阻塞式I/O"></a>非阻塞式I/O</h3><p>进程把一个套接字设置成非阻塞是在通知内核，当所请求的<code>I/O</code>操作非得把本进程投入睡眠才能完成时，不要把进程投入睡眠，而是返回一个错误，<code>recvfrom</code>总是立即返回。</p>
@@ -370,7 +371,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">121</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -407,7 +408,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
